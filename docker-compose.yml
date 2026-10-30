@@ -13,7 +13,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      MONGODB_URL: mongodb://iqe:${MONGO_PASSWORD:-devpassword}@mongodb:27017/iqe?authSource=admin
+      MONGODB_URL: mongodb://iqe:${MONGO_PASSWORD:-devpassword}@mongodb:27017/s2?authSource=admin
       REDIS_URL: redis://redis:6379/0
       PUBLIC_WEB_URL: http://localhost:3000
     env_file:

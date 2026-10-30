@@ -33,10 +33,10 @@ services:
     build: ./backend
     restart: unless-stopped
     environment:
-      MONGODB_URL: mongodb://iqe:${MONGO_PASSWORD:?set MONGO_PASSWORD}@mongodb:27017/iqe?authSource=admin
-      # The api service also ships a dev .env (with MONGODB_DB_NAME=iqeapp_dev);
+      MONGODB_URL: mongodb://iqe:${MONGO_PASSWORD:?set MONGO_PASSWORD}@mongodb:27017/s2app_prod?authSource=admin
+      # The api service also ships a dev .env (with MONGODB_DB_NAME=s2);
       # this keeps the prod database name pinned to the one MONGODB_URL targets.
-      MONGODB_DB_NAME: iqe
+      MONGODB_DB_NAME: s2app_prod
       REDIS_URL: redis://redis:6379/0
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?set JWT_SECRET_KEY - the default is "change-me-in-production"}
       PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:?set PUBLIC_WEB_URL - QR codes on issued certificates encode it}
