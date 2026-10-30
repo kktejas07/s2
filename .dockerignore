@@ -1,0 +1,25 @@
+# Keep the build context small: only apps/web is used by the root Dockerfile.
+.git
+.gitignore
+**/node_modules
+**/.next
+**/dist
+**/build
+
+# Legacy .NET solution is not part of any deployed image
+IQEApp.Core
+IQEApp.Domain
+IQEApp.Service
+IQEApp.Web
+IQEApp.Web.Controllers
+IQEWorkSpace
+IQEApp.sln
+Web.config
+
+# Mobile app is built with Expo/EAS, not here
+apps/mobile
+
+# Docs and local artifacts
+*.md
+DBScripts_UAT_audit.json
+**/*.local
