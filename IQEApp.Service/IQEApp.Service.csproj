@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{577B7A02-E8CD-4797-A4D8-1F7351AE2EFE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IQEApp.Service</RootNamespace>
+    <AssemblyName>IQEApp.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.9.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.9\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="ClosedXML, Version=0.95.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.0.95.0\lib\net46\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="ClosedXML.Report, Version=0.2.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.Report.0.2.4\lib\net46\ClosedXML.Report.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\dapper_net40.1.0.3\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.Contrib, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\dapper_net40.1.0.3\lib\net451\Dapper.Contrib.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.7.2\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.0.10.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelNumberFormat.1.0.10\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.3, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.3\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.xmlworker, Version=5.5.13.3, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\itextsharp.xmlworker.5.5.13.3\lib\itextsharp.xmlworker.dll</HintPath>
+    </Reference>
+    <Reference Include="MoreLinq, Version=2.10.21623.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
+      <HintPath>..\packages\morelinq.2.10.0\lib\net40\MoreLinq.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.FileSystem.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.Primitives.4.0.1\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Packaging, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Packaging.4.0.0\lib\net46\System.IO.Packaging.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Dynamic.Core, Version=1.2.10.0, Culture=neutral, PublicKeyToken=0f07ec44de6ac832, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Linq.Dynamic.Core.1.2.10\lib\net46\System.Linq.Dynamic.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdminService\AdminService.cs" />
+    <Compile Include="AssociatesService\AssociatesServices.cs" />
+    <Compile Include="Cache\RolesCacheRepository.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="ClientService\ClientService.cs" />
+    <Compile Include="CommonService\CommonDetailService.cs" />
+    <Compile Include="CommonService\GenericItemsService.cs" />
+    <Compile Include="CompetanceService\CompetanceService.cs" />
+    <Compile Include="ControlNumberService\ControlNumberService.cs" />
+    <Compile Include="CreditorService\ICreditorsService.cs" />
+    <Compile Include="DebtorService\IDebtorsService.cs" />
+    <Compile Include="DocumentService\DocumentService.cs" />
+    <Compile Include="EnquiryService\EnquiryService.cs" />
+    <Compile Include="FilesService\FileService.cs" />
+    <Compile Include="CustomerComplaintService\ICustomerCompliantService.cs" />
+    <Compile Include="HomeService\HomeService.cs" />
+    <Compile Include="InspectorsService\IInspectorsServices.cs" />
+    <Compile Include="InvoiceService\InvoiceService.cs" />
+    <Compile Include="LoginService\LoginService.cs" />
+    <Compile Include="ManufacturerService\ManufacturerService.cs" />
+    <Compile Include="MasterService\MasterService.cs" />
+    <Compile Include="PaymentService\PaymentService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PurchaseOrder\PurchaseOrderService.cs" />
+    <Compile Include="ReportService\ReportService.cs" />
+    <Compile Include="ScheduleVisitService\ScheduleVisitService.cs" />
+    <Compile Include="SecurityService\SecurityService.cs" />
+    <Compile Include="ServiceOrder\ServiceOrderService.cs" />
+    <Compile Include="UserService\UserService.cs" />
+    <Compile Include="VisitProcessing\VisitProcessingService.cs" />
+    <Compile Include="VisitScheduleService\VisitScheduleService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IQEApp.Core\IQEApp.Core.csproj">
+      <Project>{f18fef18-a7d0-43ac-b5fc-2a4c04ff4bcf}</Project>
+      <Name>IQEApp.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IQEApp.Domain\IQEApp.Domain.csproj">
+      <Project>{cc21f2a2-6769-4063-a4ae-365f9819bd10}</Project>
+      <Name>IQEApp.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\bootstrap-theme.css.map" />
+    <None Include="Content\bootstrap-theme.min.css.map" />
+    <None Include="Content\bootstrap.css.map" />
+    <None Include="Content\bootstrap.min.css.map" />
+    <None Include="fonts\glyphicons-halflings-regular.eot" />
+    <None Include="fonts\glyphicons-halflings-regular.ttf" />
+    <None Include="fonts\glyphicons-halflings-regular.woff" />
+    <None Include="fonts\glyphicons-halflings-regular.woff2" />
+    <None Include="packages.config" />
+    <None Include="Scripts\jquery-1.9.1.min.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FinanceService\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

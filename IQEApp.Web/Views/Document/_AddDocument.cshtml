@@ -1,0 +1,142 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.DocumentViewModel.DocumentViewModel
+@{
+    ViewBag.Title = "Add Document";
+}
+
+<div>
+    <section id="AddDocumentForm">
+        @using (Ajax.BeginForm("CreateDocument", "Document",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessSaveDocument",
+            }
+          ,new { enctype = "multipart/form-data" }))
+           {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+        <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.CategoryId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.CategoryId, new SelectList(Model.LstCategory, "CategoryId", "CategoryName"), "Select", new { @class = "form-control dropDownStyle redboder", @style = "width:200px", placeholder = @Html.DisplayNameFor(model => model.CategoryId) })
+                    @Html.ValidationMessageFor(m => m.CategoryId)
+                </div>
+                @*<div class="col-sm-3 col-md-3 col-lg-3 form-group">
+            @Html.LabelFor(m => m.DocumentTypeId, new { @class = "control-label" })
+            @Html.DropDownListFor(m => m.DocumentTypeId, new SelectList(Model.LstDocumentType, "DocumentTypeId", "DocumentTypeName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.DocumentTypeId) })
+            @Html.ValidationMessageFor(m => m.DocumentTypeId)
+        </div>*@
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.DocumentName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.DocumentName, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DocumentName) })
+                    @Html.ValidationMessageFor(m => m.DocumentName)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.DocumentNumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.DocumentNumber, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DocumentNumber) })
+                    @Html.ValidationMessageFor(m => m.DocumentNumber)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.IssueNo, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.IssueNo, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.IssueNo) })
+                    @Html.ValidationMessageFor(m => m.IssueNo)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.IssueDate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.IssueDate, "", new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                    @Html.ValidationMessageFor(m => m.IssueDate)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.RevisionNo, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.RevisionNo, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.RevisionNo) })
+                    @Html.ValidationMessageFor(m => m.RevisionNo)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.RevisionDate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.RevisionDate, "", new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                    @Html.ValidationMessageFor(m => m.RevisionDate)
+                </div>
+
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.Responsibility, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.Responsibility, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.Responsibility) })
+                    @Html.ValidationMessageFor(m => m.Responsibility)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.RetentionPeriod, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.RetentionPeriod, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.RetentionPeriod) })
+                    @Html.ValidationMessageFor(m => m.RetentionPeriod)
+                </div>
+
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.UploadFile, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.UploadFile, new { type = "file", @class = "" })
+                    @Html.ValidationMessageFor(m => m.UploadFile)
+                    @Html.HiddenFor(m => m.FilePath)
+                    @Html.HiddenFor(m => m.FileName)
+                   @* @Html.HiddenFor(m => m.DocumentFileSize)*@
+                    @Html.HiddenFor(m => m.SiteId)
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            @*<div class="col-sm-6 col-md-6 col-lg-6">
+            </div>*@
+            <div class="row">
+                <div class="form-group ">
+                    <div class="col-sm-6 col-md-6 col-lg-8">
+                       @* @Html.HiddenFor(m => m.SiteId)*@
+                       @* @Html.HiddenFor(m => m.DocumentGuid)*@
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-4 ">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCloseDoc" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: openDocumentList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveDoc" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+                </div>
+                </div>
+                @*<div class="col-sm-8 col-md-8 col-lg-8">
+                    <button type="submit" class="btn btn-success pull-left" id="btnSaveDocument" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCancelDocument" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: openDocumentList();"><i class="fa fa-ban" aria-hidden="true"></i>Cancel</button>
+                </div>*@
+                <span id="spnDocError" class="error">@ViewBag.Message </span>
+            </div>
+            }
+</section>
+</div>
+
+
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>
+
+<script>
+
+    $(function () {
+        $("#IssueDate").datepicker({ dateFormat: "dd/mm/yy" });
+        $("#RevisionDate").datepicker({ dateFormat: "dd/mm/yy" });
+    });
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnSaveDocument").prop('disabled', true);
+    }
+    function onSuccessSaveDocument(data) {
+        // getEnquiryWorkScopeIds();
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            DocumentList(data.categoryId);
+        }
+        else {
+            if (data.message == 'Fail') {
+                window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+                DocumentList();
+            } else {
+                $("#spnDocError").html(data.message);
+            }
+
+        }
+    }
+</script>

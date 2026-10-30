@@ -1,0 +1,544 @@
+﻿@using GridMvc.Html
+@using IQEApp.Web.Controllers.Common
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.UserModel.UserViewModel>
+
+    @{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Human Resources";
+    }
+
+    <script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+    <script src="~/CustomJS/Pagination.js"></script>
+
+    <style>
+        .ui-dialog-titlebar-close:after {
+            content: 'X' !important;
+            position: absolute;
+            top: -2px;
+            right: 3px;
+        }
+
+        /* ---------- HEADER BUTTON SPACING ---------- */
+        .gap-2 > * {
+            margin-right: 8px;
+        }
+
+        /* ---------- TOGGLE BUTTONS ---------- */
+        .btn-group-toggle .btn {
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+            .btn-group-toggle .btn.active {
+                background-color: #007bff;
+                color: #fff;
+            }
+
+        /* ---------- RESULTS BADGE ---------- */
+        .badge-pill {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+
+        /* ---------- ALPHA BAR LAYOUT ---------- */
+        .alpha-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: nowrap;
+        }
+
+        .alpha-left {
+            flex: 0 0 auto;
+        }
+
+        .alpha-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .alpha-right {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ---------- ALPHABET STYLE ---------- */
+        .alphabet-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .alphabet-wrapper a,
+            .alphabet-wrapper span {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                border: 1px solid #ddd;
+                font-weight: 500;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+                .alphabet-wrapper a:hover {
+                    background: #007bff;
+                    color: #fff;
+                    border-color: #007bff;
+                }
+
+            .alphabet-wrapper .active {
+                background: #007bff;
+                color: #fff;
+                border-color: #007bff;
+            }
+
+        /* ---------- RESPONSIVE ---------- */
+        @@media (max-width: 992px) {
+            .alpha-bar {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .alpha-center {
+                order: 3;
+                width: 100%;
+            }
+
+            .alpha-right {
+                order: 2;
+            }
+        }
+    </style>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h4 class="box-title"> <span id="spnUserTitle"> Admin &#8667; Human Resources </span></h4>
+        </div>
+        <div class="col-sm-5 col-md-5 col-lg-5 ">
+            @Html.Partial("_DirectoryMainSearch")
+        </div>
+        <div class="col-sm-1 col-md-1 col-lg-1 ">
+            <div class="input-group-append pull-right">
+                <button class="btn-round-icon mr5 border1 " type="button" onclick="ClearPage();"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceCreate, @User.RoleId.FirstOrDefault()))
+            {
+            <button type='button' class="btn btn-outline-secondary pull-right mtn2" id="btnAddEmp" onclick="javascript: openAddEmployee();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Employee</button>
+            }
+            <button type='button' class="btn btn-outline-secondary pull-right mtn2" id="btnEmpList" style="display: none" onclick="javascript: openEmployeeList('true');"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Employee</button>
+        </div>
+    </div>
+
+    <div id="divEmpLoadingIconId"></div>
+    <div class="clearfix"></div>
+
+    <div class="vtabs mt3" id="divActiveInActive">
+        <ul class="nav nav-tabs tabs-vertical" role="tablist">
+            <li class="nav-item pull-right " id="liInActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('InActive')">InActive</a> </li>
+            <li class="nav-item pull-right " id="liSecondment"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('Secondment')">Secondment</a> </li>
+            <li class="nav-item pull-right active" id="liActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('Active')"><span>Active</span></a> </li>
+            <li class="nav-item pull-right " id="liAssociates"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('Associate')"><span>Associates</span></a> </li>
+            <li class="nav-item pull-right " id="liContracts"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('Contract')"><span>Contracts</span></a> </li>
+            <li class="nav-item pull-right " id="liPayroll"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('Payroll')">Payroll</a> </li>
+            <li class="nav-item pull-right" id="liCompetance"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('Competance')"><span>Competance-WWI</span></a> </li>
+            <li class="nav-item pull-right" id="liCompetance1"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowEmployeeDetails('Competance1')"><span>Competance-India</span></a></li>
+
+        </ul>
+        <input type="hidden" id="hdnActive" />
+        <div class="tab-content">
+            <div class="tab-pane   active" id="divActive" role="tabpanel">
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="divUserDirectory">
+        <div class="p0" id="AlphaSorting">
+            <div>
+                <div class="col-lg-9 col-md-9 col-sm-9 p0 alpha-center">
+                    <div class="alphabet-wrapper">
+                        @Html.Partial("_AlphabetPanel")
+                    </div>
+                </div>
+
+                <div class="col-lg-1 col-md-1 col-sm-1 mt1">
+                    <div class=" " id="ResortBtn" style="cursor:pointer;">
+                        <div class="resort-icon " onclick="javascript: ReSortTheFilter(this,'ASC');">
+                            <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                        </div>
+                        <div class="resort-icon-selected  sortIconHide" style="display:none;" onclick="javascript: ReSortTheFilter(this,'DESC');">
+                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <input type="hidden" id="hdnSortingOrder" />
+                </div>
+                @*<div class="col-lg-2 col-md-2 col-sm-2">
+                    <div class="highliter mt5">
+                        <span><span class="hidden-sm">Results :</span><span id="TotalResultsEle"></span></span>
+                    </div>
+                    <button type="button" onclick="DownloadCompetance(1);" id="btndownload1" style="visibility: hidden; margin-left: -13px">Download</button>
+                    <button type="button" onclick="DownloadCompetance();" id="btndownload" style="visibility: hidden; margin-left: -13px">Download</button>
+                </div>*@
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <div class="highliter mt5 d-flex">
+                        <span><span class="hidden-sm">Results :</span><span id="TotalResultsEle"></span></span>
+                    </div>
+                    <div class="d-flex">
+                        <button type="button" onclick="DownloadCompetance(1);" id="btndownload1" style="visibility: hidden; margin-left: -30px; margin-top: 5px;">
+                            Download
+                        </button>
+                        <button type="button" onclick="DownloadCompetance();" id="btndownload" style="visibility: hidden; margin-left: -80px; margin-top:5px;">
+                            Download
+                        </button>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div id="divEmpDetails" class="">
+            @Html.Partial("_UserDirectory", Model)
+        </div>
+        <p class="JsListGridPager pull-right" id="UserPager"></p>
+    </div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //debugger;
+        DefineListPagerForInitialLoad();
+       // $('#hdnActive').val('true');
+
+        AlphaSearchObj.subscribe(function (alpha) {
+            $('#txtDirectorySearch').val('');
+            window.paginationObj.setCurrentPageCount("0");
+            window.FilterUserDirectory({ backToFirstPage: true });
+        });
+    });
+
+    // Search functionality for directory
+    function SearchDirectory() {
+        $(".selectedStartsWithChar").removeClass("selectedStartsWithChar");
+        window.FilterUserDirectory({ backToFirstPage: true });
+    }
+
+    // Sorting functionality
+    window.ReSortTheFilter = function (obj, sortingType) {
+        $("#hdnSortingOrder").val(sortingType);
+        $(".sortIconHide").show().removeClass("sortIconHide");
+        $(obj).addClass("sortIconHide").hide();
+        window.paginationObj.setCurrentPageCount("0");
+        window.FilterUserDirectory({ backToFirstPage: true });
+    }
+        function ClearPage() {
+            location.reload();
+        }
+    // Function to open "Add Employee" form
+    function openAddEmployee() {
+        $('#divActiveInActive').hide();
+        $.ajax({
+            url: '../User/AddUser',
+            type: 'POST',
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $("#AlphaSorting, #UserPager").hide();
+                $('#spnUserTitle').html('Admin &#8667; Create Employee');
+                $('#divEmpDetails').html(data);
+                $('#btnEmpList').show();
+                $('#btnAddEmp').hide();
+                $('#TitleId').focus();
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+            }
+        });
+    }
+
+    // Function to open the Employee List based on status
+    function openEmployeeList(userStatus) {
+        debugger;
+        $('#divActiveInActive').show();
+        var useType = '', isuserActive = true, CountryId = 0, isSecondment=false;
+        if ($('#hdnActive').val() == 'true' || $('#hdnActive').val() == 'false') {
+            userType = '';
+            isuserActive = $('#hdnActive').val();
+        }
+        else {
+            userType = $('#hdnActive').val();
+            isuserActive = true;
+            if (userType === 'InActive') {
+                isuserActive = false;
+               // isSecondment = true;
+            }
+            if (userType === 'Secondment') {
+                isuserActive = true;
+                isSecondment = true;
+            }
+            else if (userType === 'Competance1') {
+                CountryId = 1;
+            }
+            else {
+                CountryId = '';
+            }
+            //  $("#hdnSortingOrder").val('ASC');
+        }
+      var t=  window.paginationObj.getCurrentPageCount;
+        $.ajax({
+            url: '../User/UserList',
+            type: 'POST',
+            data: {
+              //  isUserActive: userStatus,
+                UserType: userType,
+                isUserActive: isuserActive, //$('#hdnActive').val(),
+                isSecondment: isSecondment,
+                pageCount: window.paginationObj.getCurrentPageCount()- 10,
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                sortingOrder: $("#hdnSortingOrder").val(),
+            },
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnUserTitle').html('Admin &#8667; Human Resources');
+                $('#divEmpDetails').html(data);
+                $('#btnEmpList').hide();
+                $('#btnAddEmp').show();
+                $("#AlphaSorting, #divMainSearch, #UserPager").show();
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+            }
+        });
+    }
+
+    // Cancel adding a new employee
+    function cancelAddEmployee() {
+        $('#divAddEmployee').hide();
+        $("#divMainSearch").show();
+    }
+
+    // Function to display employee details by status
+        function ShowEmployeeDetails(empStatus) {
+            //debugger;
+        $('#hdnActive').val(empStatus);
+
+        var statusMapping = {
+            "Active": { tabId: "#liActive", downloadVisible: false },
+            "Secondment": { tabId: "#liSecondment", downloadVisible: false },
+            "InActive": { tabId: "#liInActive", downloadVisible: false },
+            "Competance": { tabId: "#liCompetance", downloadVisible: true },
+            "Competance1": { tabId: "#liCompetance1", downloadVisible: true },
+            "Payroll": { tabId: "#liPayroll", downloadVisible: false },
+            "Contract": { tabId: "#liContracts", downloadVisible: false },
+            "Associate": { tabId: "#liAssociates", downloadVisible: false }
+        };
+
+        var config = statusMapping[empStatus] || {};
+
+            $(config.tabId).addClass("active").siblings().removeClass("active");
+            if (empStatus == 'Competance1') {
+                document.getElementById('btndownload1').style.visibility = config.downloadVisible ? 'visible' : 'hidden';
+                document.getElementById('btndownload').style.visibility =  'hidden';
+            }
+            else if (empStatus == 'Competance')
+            {
+                document.getElementById('btndownload').style.visibility = config.downloadVisible ? 'visible' : 'hidden';
+                document.getElementById('btndownload1').style.visibility = 'hidden'
+            }
+            else {
+                document.getElementById('btndownload').style.visibility =  'hidden';
+                document.getElementById('btndownload1').style.visibility = 'hidden'
+            }
+        window.FilterUserDirectory({ backToFirstPage: true });
+    }
+        window.FilterUserDirectory = function (options) {
+            debugger;
+            if (!options.backToFirstPage) {
+                var pageNum = window.paginationObj.getCurrentPageCount() - 10;
+                window.paginationObj.setCurrentPageCount(pageNum);
+            } else {
+                window.paginationObj.setCurrentPageCount("0");
+            }
+
+            var activeStatus = $('#hdnActive').val();
+            var ajaxUrl = (activeStatus === 'Competance' || activeStatus === 'Competance1')
+                ? '../User/CompetanceDetails' + (activeStatus === 'Competance1' ? '1' : '')
+                : '../User/UserTypeList';
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data: {
+                    pageCount: window.paginationObj.getCurrentPageCount(),
+                    strSearch: $('#txtDirectorySearch').val(),
+                    alphaSearch: $(".selectedStartsWithChar").html(),
+                    UserType: activeStatus,
+                    sortingOrder: $("#hdnSortingOrder").val(),
+                },
+                beforeSend: function () {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    //debugger;
+                    $('#spnUserTitle').html('Admin &#8667; ' + ((activeStatus === 'Competance' || activeStatus === 'Competance1') ? 'Competence Matrix' : 'Human Resources'));
+                    $('#divEmpDetails').html(data);
+                    $("#AlphaSorting, #UserPager, #divMainSearch").show();
+                    window.paginationObj.CreateListGridPager(options);
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+                }
+            });
+        }
+
+        function getActiveTabOnClickValue() {
+            // Select the active <li> element
+            const activeTab = document.querySelector('.nav-item.active');
+
+            if (activeTab) {
+                // Find the <a> element within the active <li>
+                const activeLink = activeTab.querySelector('a');
+
+                // Retrieve the onclick attribute value
+                if (activeLink && activeLink.getAttribute('onclick')) {
+                    const onClickValue = activeLink.getAttribute('onclick');
+                    console.log('onclick Parameter:', onClickValue);
+
+                    // Extract the parameter value from the onclick string
+                    const parameterMatch = onClickValue.match(/\('([^']+)'\)/);
+                    const parameterValue = parameterMatch ? parameterMatch[1] : null;
+
+                    console.log('Parameter Value:', parameterValue);
+                    return parameterValue;
+                }
+            }
+
+            console.log('No active tab or onclick attribute found.');
+            return null;
+        }
+
+        // Call the function to get the onclick parameter value
+        
+ 
+        window.ShowMore = function () {
+            debugger;
+            var userType = getActiveTabOnClickValue(); 
+
+            // If the active element exists, retrieve the value
+           // if (activeTab) {
+           //     const activeValue = activeTab.id; // or activeTab.textContent.trim() for text
+           // }
+           //var  userType = $('#hdnActive').val();
+
+            var isuserActive = true, CountryId = 0, isSecondment=false;
+            if ($('#hdnActive').val() == 'true' || $('#hdnActive').val() == 'false') {
+               // userType = '';
+                isuserActive = $('#hdnActive').val();
+            }
+            else {
+                userType = $('#hdnActive').val();
+                isuserActive = true;
+                if (userType === 'InActive') {
+                    isuserActive = false;
+                    // isSecondment = true;
+                }
+                if (userType === 'Secondment') {
+                    isuserActive = false;
+                    isSecondment = true;
+                }
+                else if (userType === 'Competance1') {
+                    CountryId = 1;
+                }
+                
+                else {
+                    CountryId = '';
+                }
+                //  $("#hdnSortingOrder").val('ASC');
+            }
+            $.ajax({
+                url: '../User/UserList',
+                type: 'POST',
+                data: {
+                    UserType: userType,
+                    isUserActive: isuserActive, //$('#hdnActive').val(),
+                    isSecondment: isSecondment,
+                    pageCount: window.paginationObj.getCurrentPageCount,
+                    strSearch: $('#txtDirectorySearch').val(),
+                    alphaSearch: $(".selectedStartsWithChar").html(),
+                    sortingOrder: $("#hdnSortingOrder").val(),
+                    countryId: CountryId,
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    $('#spnUserTitle').html('Admin &#8667; Human Resources');
+                    $("#divMainSearch").show();
+                    $('#divEmpDetails').html('');
+                    $('#divEmpDetails').html(data);
+                    $('#btnEmpList').hide();
+                    $('#btnAddEmp').show();
+                    //$("#btndownload").hide();
+                    //$('#btndownload').css("visibility", "hidden");
+                    $("#AlphaSorting").show();
+                    $("#UserPager").show();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+                }
+            });
+        }
+    // Download Competence Matrix
+        function DownloadCompetance(obj) {
+            let countryId;
+            if (obj !== undefined) {
+                countryId = obj;
+            }
+            else {
+                countryId = null;
+            }
+        $.ajax({
+            type: "POST",
+            url: '../User/DownloadCompetance',
+            dataType: "json",
+            data: { countryId: countryId },
+            success: function (r) {
+                var bytes = Base64ToBytes(r);
+                var blob = new Blob([bytes], { type: "application/octetstream" });
+                var link = window.URL.createObjectURL(blob);
+                var a = $("<a />").attr("download", "Download.xlsx").attr("href", link);
+                 $("body").append(a).find(a)[0].click().remove();
+            }
+        });
+    }
+
+    // Helper function to convert Base64 to bytes
+    function Base64ToBytes(base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    // Filter user directory based on status and search options
+   
+  </script>

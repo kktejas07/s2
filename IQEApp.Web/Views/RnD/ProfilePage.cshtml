@@ -1,0 +1,71 @@
+﻿@{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Profile Page";
+}
+
+<div class="box-header with-border">
+    <h3 class="box-title"> <span id="spnMasterTitle"> @ViewBag.Title </span></h3>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4" style="background: #39393a; ">
+            <div class="user-profile-box mb3">
+                <div class="box-profile text-white">
+                    <img class="profile-user-img img-responsive img-circle mb2" src="~/Images/Profile.jpg" alt="User profile picture">
+                    <h3 class="profile-username text-center">Alexander Pierce</h3>
+                    <p class="text-center">Designation</p>
+                    <p class="text-center">Role of the employee in the organization</p>
+                </div>
+            </div>
+            <div class="info-box">
+                <div class="box-body">
+                    <strong><i class="fa fa-book mr5"></i> Education</strong>
+                    <p class="text-muted"> B.S. in Computer Science from the University of Tennessee at Knoxville </p>
+                    <hr>
+                    <strong><i class="fa fa-map-marker mr5"></i> Location</strong>
+                    <p class="text-muted">Malibu, California</p>
+                    <hr>
+                    <strong><i class="fa fa-envelope mr5"></i> Email address </strong>
+                    <p class="text-muted">alexanderpierce@gmail.com</p>
+                    <hr>
+                    <strong><i class="fa fa-phone mr5"></i> Phone</strong>
+                    <p>(123) 456-7890 </p>
+                    <hr>
+                    <strong><i class="fa fa-map-marker mr5"></i> Address</strong>
+                    <p> Address of the employee</p>
+                    <hr>
+                </div>
+                <!-- /.box-body -->
+            </div>
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <div class="info-box">
+                <div class="vtabs ">
+                    <ul class="nav nav-tabs tabs-vertical" role="tablist">
+                        <li class="nav-item active "> <a class="nav-link" data-toggle="tab" href="#home9" role="tab"><span>Activities</span></a> </li>
+                        <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#profile9" role="tab"><span>Profiles</span></a> </li>
+                        <li class="nav-item "> <a class="nav-link " data-toggle="tab" href="#messages9" role="tab" aria-expanded="true"><span>Settings</span></a> </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="home9" role="tabpanel">
+                            <div class="p20">
+                                <p>List of activites performed</p>
+                            </div>
+                        </div>
+                        <div class="tab-pane  p20" id="profile9" role="tabpanel">
+                            <div class="p20">
+                                <p>Profile Details to view and edit</p>
+                            </div>
+                        </div>
+                        <div class="tab-pane p20 " id="messages9" role="tabpanel" aria-expanded="true">
+                            <div class="p20">
+                                <p>user level settings to change password or reset password or any requests</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main row -->
+</div>

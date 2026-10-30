@@ -1,0 +1,159 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.PaymentModel.PaymentDetailsViewModel
+
+
+<div class="mt10 ">
+    <div class="mb10">
+        <small class="text-muted "><i class="fa fa-plus mr5"></i> Add Payment Details</small>
+    </div>
+
+    <section id="addPaymentForm">
+        @using (Ajax.BeginForm("CreatePayment", "Payment",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessSavePayment",
+                OnFailure = "onFailureSavePayment"
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+        <div class="row">
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.PaymentDate)
+                @Html.TextBoxFor(m => m.PaymentDate, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                @Html.ValidationMessageFor(m => m.PaymentDate)
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.Label("Amount Received")
+                @Html.TextBoxFor(m => m.Amount, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.Amount), onchange= "numberWithCommas(this)" })
+                @Html.ValidationMessageFor(m => m.Amount)
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.TDS)
+                @Html.TextBoxFor(m => m.TDS, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.TDS), onchange = "getTDSPercentage(this)" })
+                @Html.ValidationMessageFor(m => m.TDS)
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.Label("TDS%")
+
+                @Html.TextBoxFor(m => m.TDSPercent, new { @class = "form-control inputStyle redboder",  @placeholder = @Html.DisplayNameFor(model => model.TDSPercent) })
+                @Html.ValidationMessageFor(m => m.TDS)
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.PaymentModeId)
+                @Html.DropDownListFor(m => m.PaymentModeId, new SelectList(Model.lstMasterViewModel, "MasterId", "MasterName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.PaymentModeId) })
+                @Html.ValidationMessageFor(m => m.PaymentModeId)
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.ReceiptNumber)
+                @Html.TextBoxFor(m => m.ReceiptNumber, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ReceiptNumber) })
+                @Html.ValidationMessageFor(m => m.ReceiptNumber)
+            </div>
+
+        </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ChallanNumber)
+                    @Html.TextBoxFor(m => m.ChallanNumber, new {@class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ChallanNumber)})
+                    @Html.ValidationMessageFor(m => m.ChallanNumber)
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                    @Html.LabelFor(m => m.PaymentComments)
+                    @Html.TextAreaFor(m => m.PaymentComments, new {@class = "form-control inputStyle", @rows = 2, @placeholder = @Html.DisplayNameFor(model => model.PaymentComments)})
+                    @Html.ValidationMessageFor(m => m.PaymentComments)
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group">
+                @if (SingletonScreenFeatureMapping.CanPerformOperation((int) ScnFetMapId.AssignCreditNotes, @User.RoleId.FirstOrDefault()))
+                {
+                    @Html.LabelFor(m => m.IsCreditNote)
+                    <br/>
+                    @Html.CheckBoxFor(m => m.IsCreditNote, new {@class = "inputStyle"})
+                }
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                   
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="form-group ">
+                    <div class="col-sm-6 col-md-6 col-lg-8">
+                        @Html.HiddenFor(m => m.SiteId)
+                        @Html.HiddenFor(m => m.InvoiceId)
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-4 ">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnClosePay" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: cancelPayments();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnPaySave" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+            <span id="spnPaymentError" class="error">@ViewBag.Message </span>
+        }
+    </section>
+
+</div>
+<script type="text/javascript">
+    function cancelPayments() {
+        $('#divNewPayment').hide();
+        $('#btnAddPayment').show();
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPaymentLoading'), position: "center" });
+    }
+    function onSuccessSavePayment(data) {
+        $("#spnPaymentError").html('');
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            cancelPayments();
+
+            var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+            window.location.href = currentUrl + "/Payment/index?invoiceId=" + $('#InvoiceId').val();
+
+            
+            //window.location.href = "/Payment/index?invoiceId=" + $('#InvoiceId').val();
+
+        } else {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            $("#spnPaymentError").html(data.message);
+        }
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPaymentLoading'));
+    }
+    function onFailureSavePayment() {
+        window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+    }
+
+    function numberWithCommas(num) {
+        var num = num.value;
+      //  alert(num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+        $("#Amount").val(num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    }
+
+    function getTDSPercentage(num) {
+        var num = num.value;
+        $("#TDSPercent").val(num*);
+    }
+
+    $(function () {
+        $("#PaymentDate").datepicker({
+            endDate: '+0d',
+            autoclose: true
+        });
+    });
+    $(document).ready(function() {
+        var d = new Date();
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+        var output = (('' + day).length < 2 ? '0' : '') + day + '-' + (('' + month).length < 2 ? '0' : '') + month + '-' + d.getFullYear();
+        $('#PaymentDate').val(output);
+    });
+</script>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

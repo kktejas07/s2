@@ -1,0 +1,110 @@
+@import "base.css";
+
+@page {
+  size: 8.5in 11in;
+  margin: 0.55in 0.5in 0.6in 0.5in;
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font-family: 'Arial', sans-serif;
+    font-size: 7pt;
+    color: #555;
+  }
+}
+
+.report-table td.td-value { vertical-align: top; word-break: break-word; }
+
+.report-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.report-table td.mono {
+  font-family: 'DejaVu Sans Mono', monospace;
+  font-size: 7.5pt;
+}
+
+/* A deduction and an unbilled balance are the two numbers people argue about;
+   they should be findable without reading the whole row. */
+.report-table td.deduction { color: #b91c1c; }
+.report-table td.flag { color: #b45309; font-weight: bold; }
+
+.report-table tr.total-row td {
+  border-top: 1pt solid #333;
+  background: #eef2f7;
+}
+
+.report-table.compact td,
+.report-table.compact th { padding: 2pt 4pt; font-size: 8pt; }
+
+.discipline-heading {
+  margin: 8pt 0 3pt 0;
+  font-size: 8.5pt;
+  font-weight: bold;
+  color: #0084bf;
+}
+
+.note {
+  font-size: 7.5pt;
+  color: #555;
+  margin: 2pt 0 5pt 0;
+}
+
+.muted { color: #777; font-weight: normal; }
+
+.generic-footer {
+  margin-top: 10pt;
+  padding-top: 4pt;
+  border-top: 0.5pt solid #999;
+  font-size: 7pt;
+  color: #555;
+  text-align: center;
+}
+
+/* --- Proportional scope bar ---------------------------------------------
+   A table rather than flexbox: WeasyPrint's table layout is the most reliable
+   way to get exact percentage widths in print. */
+.scope-bar {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 4pt 0 3pt 0;
+}
+
+.scope-bar td.seg {
+  height: 15pt;
+  text-align: center;
+  font-size: 7.5pt;
+  font-weight: bold;
+  color: #ffffff;
+  border: 0.4pt solid #ffffff;
+  overflow: hidden;
+}
+
+.seg-ok   { background-color: #1a7f4b; }
+.seg-warn { background-color: #d97706; }
+.seg-bad  { background-color: #b91c1c; }
+.seg-info { background-color: #0084bf; }
+.seg-idle { background-color: #94a3b8; }
+
+.scope-legend {
+  font-size: 7pt;
+  color: #334155;
+  margin-bottom: 6pt;
+}
+
+.legend-item { margin-right: 10pt; white-space: nowrap; }
+
+.swatch {
+  display: inline-block;
+  width: 7pt;
+  height: 7pt;
+  border-radius: 1.5pt;
+  vertical-align: -0.5pt;
+  margin-right: 2pt;
+}
+
+.swatch-ok   { background-color: #1a7f4b; }
+.swatch-warn { background-color: #d97706; }
+.swatch-bad  { background-color: #b91c1c; }
+.swatch-info { background-color: #0084bf; }
+.swatch-idle { background-color: #94a3b8; }

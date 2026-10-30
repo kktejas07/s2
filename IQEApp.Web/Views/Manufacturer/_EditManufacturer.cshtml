@@ -1,0 +1,134 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ManufacturerModel.ManufacturerDetailsModel
+<div>
+    <section id="AddManufacturerForm">
+        @using (Ajax.BeginForm("UpdateManufacturer", "Manufacturer",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessUpdateManufacturer",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.ManufacturerName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ManufacturerName, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerName) })
+                    @Html.ValidationMessageFor(m => m.ManufacturerName)
+                    <span id="spnDuplicateError" class="field-validation-error" style="display: none;">Already exists</span>
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.CountryId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.CountryId, new SelectList(Model.LstCountries, "CountryId", "CountryName"), "Select", new { @class = "form-control dropDownStyle", @placeholder = @Html.DisplayNameFor(model => model.CountryId), @style = "width:150px", onchange = "GetStateDetailsByCountryId(this)" })
+                    @Html.ValidationMessageFor(m => m.CountryId)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.StateId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select", new { @class = "form-control dropDownStyle", @placeholder = @Html.DisplayNameFor(model => model.StateId), @style = "width:150px" })
+                    @Html.ValidationMessageFor(m => m.StateId)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.City, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.City, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.City), @style = "width:150px" })
+                    @Html.ValidationMessageFor(m => m.City)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.ContactNumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ContactNumber, new { @style = "width:150px", @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ContactNumber) })
+                    @Html.ValidationMessageFor(m => m.ContactNumber)
+                    <div class="clearfix mt10"></div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.ManufacturerUnitNameFlagId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.ManufacturerUnitNameFlag, new SelectList(Model.LstManufacturerUnitName, "Id", "Name"), "Select", new { @class = "form-control dropDownStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerUnitNameFlagId), @style = "width:200px" })
+                    @Html.ValidationMessageFor(m => m.ManufacturerUnitNameFlagId)
+                    <div class="clearfix mt10"></div>
+                </div>
+
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.GSTNo, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.GSTNo, new { @style = "width:150px", @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.GSTNo) })
+                    @Html.ValidationMessageFor(m => m.GSTNo)
+                    <div class="clearfix mt10"></div>
+                </div>
+
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.SGST, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.SGST, new { @style = "width:150px", @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.SGST) })
+                    @Html.ValidationMessageFor(m => m.SGST)
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.CGST, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.CGST, new { @style = "width:150px", @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.CGST) })
+                    @Html.ValidationMessageFor(m => m.CGST)
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.IGST, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.IGST, new { @style = "width:150px", @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.IGST) })
+                    @Html.ValidationMessageFor(m => m.IGST)
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group">
+                    @Html.CheckBoxFor(m => m.IsSEZ, new { @onclick = "setGSTStatus(this)" })
+                    @Html.LabelFor(m => m.IsSEZ, new { @style = "width:70px", @class = "control-label" })
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group">
+                    @Html.CheckBoxFor(m => m.IsOverseas, new { @onclick = "setGSTStatus(this)" })
+                    @Html.LabelFor(m => m.IsOverseas, new { @style = "width:80px", @class = "control-label" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCloseAddManufacturer" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: manufacturerList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                    <button type="submit" class="btn btn-success pull-right mr5" id="btnUpdateManufacturer" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group ">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"> <span id="spnManufacturerUnitTitle">  </span></h3>
+                        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddNewManufacturerUnits" style="display: none" value="Add Manufacturer Units" title="Add Manufacturer Units" data-toggle="tooltip" onclick="javascript: AddManufacturerUnit();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Manufacturer Units </button>
+                        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnManufacturerUnitsList" style="display: none" onclick="javascript: ManufacturerUnitsList();"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Manufacturer Units</button>
+                    </div>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.ManufacturerId)
+            @Html.HiddenFor(m => m.ManufacturerGuid)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+</div>
+<script>
+    $.validator.unobtrusive.parse(document);
+
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnUpdateManufacturer").prop('disabled', true);
+    }
+    function onSuccessUpdateManufacturer(data) {
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            //$("#btnAddClientUnits").show();
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            //AddManufacturerUnit();
+        } else {
+            if (data.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+            $("#btnUpdateManufacturer").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+        }
+    }
+</script>

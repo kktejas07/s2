@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header("F-BOQ-01", revision, "Third Party Inspection & Expediting Services", "REPORT NO.", report_no) }}
+
+  {{ m.doc_title("BOQ RECONCILIATION & MATERIAL AUDIT REPORT", "Physical measurement, variation audit and material consumption reconciliation per ISO/IEC 17020:2026 & ISO 9001:2026") }}
+
+  {{ m.section("1.0", "PROJECT & CONTRACT INFORMATION", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 20%;">
+      <col style="width: 30%;">
+      <col style="width: 20%;">
+      <col style="width: 30%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Report No.</td>
+        <td class="td-value font-mono">{{ report_no or 'IQE/BOQ-REC/2026/012' }}</td>
+        <td class="td-label">Date</td>
+        <td class="td-value font-mono">{{ date or '2026-09-29' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Client / Employer</td>
+        <td class="td-value">{{ customer or 'Granules India Limited' }}</td>
+        <td class="td-label">Project &amp; Location</td>
+        <td class="td-value">{{ project or 'Granules Unit V - Biopharma Production Block, Hyderabad' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Main Contractor</td>
+        <td class="td-value">{{ supplier or epc_contractor or 'Larsen & Toubro Ltd - Construction Division' }}</td>
+        <td class="td-label">Contract / Tender Ref</td>
+        <td class="td-value font-mono">{{ contract_ref or 'GIL/CIV/2025/TPI-4410' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Reconciliation Period</td>
+        <td class="td-value font-mono">{{ reconciliation_period or 'Cumulative Cycle (Period to 2026-09)' }}</td>
+        <td class="td-label">IQE Lead Auditor</td>
+        <td class="td-value">{{ inspector or 'Er. Suresh Nambiar, Senior Lead Quantity Auditor' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("2.0", "RECONCILIATION & VARIATION KPI SUMMARY") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">TOTAL TENDER SCOPE (INR)</th>
+        <th class="th-label text-center">APPROVED VARIATION (INR)</th>
+        <th class="th-label text-center">TOTAL VERIFIED PAYABLE (INR)</th>
+        <th class="th-label text-center">FINANCIAL VARIANCE (INR)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value text-center font-mono" style="font-size: 1.15em; font-weight: bold; padding: 4pt;">₹{{ "{:,.2f}".format(total_tender_amt or 4850000.0) }}</td>
+        <td class="td-value text-center font-mono" style="font-size: 1.15em; font-weight: bold; color: #b45309; padding: 4pt;">₹{{ "{:,.2f}".format(total_variation_amt or 320000.0) }}</td>
+        <td class="td-value text-center font-mono" style="font-size: 1.15em; font-weight: bold; color: #15803d; padding: 4pt;">₹{{ "{:,.2f}".format(total_verified_amt or 3920000.0) }}</td>
+        <td class="td-value text-center font-mono" style="font-size: 1.15em; font-weight: bold; color: #b91c1c; padding: 4pt;">₹{{ "{:,.2f}".format(total_variance_amt or 185000.0) }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("3.0", "RECONCILED BOQ MEASUREMENT & DISCIPLINE AUDIT MATRIX") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 3%;">
+      <col style="width: 7%;">
+      <col style="width: 26%;">
+      <col style="width: 7%;">
+      <col style="width: 5%;">
+      <col style="width: 7%;">
+      <col style="width: 7%;">
+      <col style="width: 7%;">
+      <col style="width: 7%;">
+      <col style="width: 8%;">
+      <col style="width: 8%;">
+      <col style="width: 8%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Item No.</th>
+        <th class="th-label">Description &amp; Specifications</th>
+        <th class="th-label text-center">Discipline</th>
+        <th class="th-label text-center">Unit</th>
+        <th class="th-label text-right">Tender Qty</th>
+        <th class="th-label text-right">Approved Var.</th>
+        <th class="th-label text-right">Prev Cert.</th>
+        <th class="th-label text-right">Claimed</th>
+        <th class="th-label text-right">Verified</th>
+        <th class="th-label text-right">Rate (INR)</th>
+        <th class="th-label text-center">Audit Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = items if (items is defined and items) else [
+        {"sl": 1, "item_no": "BOQ-CIV-01", "description": "Earthwork excavation in foundation pits & trenches", "discipline": "Civil", "unit": "Cum", "tender_qty": 1200, "approved_var": 150, "prev_cert": 900, "claimed_qty": 350, "verified_qty": 300, "contract_rate": 350.0, "status": "APPROVED"},
+        {"sl": 2, "item_no": "BOQ-CIV-02", "description": "Reinforced Cement Concrete M25 Grade in foundation", "discipline": "Civil", "unit": "Cum", "tender_qty": 450, "approved_var": 0, "prev_cert": 300, "claimed_qty": 120, "verified_qty": 120, "contract_rate": 6200.0, "status": "APPROVED"},
+        {"sl": 3, "item_no": "BOQ-STR-01", "description": "Fabrication & Erection of Structural Steel Fe500", "discipline": "Structural", "unit": "MT", "tender_qty": 85, "approved_var": 12, "prev_cert": 45, "claimed_qty": 35, "verified_qty": 28, "contract_rate": 84000.0, "status": "OVER_CLAIM"},
+        {"sl": 4, "item_no": "BOQ-PIP-01", "description": "SS316L Seamless Piping 2-inch NB Schedule 10S", "discipline": "Piping", "unit": "Mtrs", "tender_qty": 650, "approved_var": 40, "prev_cert": 400, "claimed_qty": 200, "verified_qty": 200, "contract_rate": 1850.0, "status": "APPROVED"},
+        {"sl": 5, "item_no": "BOQ-ELE-01", "description": "1.1kV Grade 4C x 16 sq.mm XLPE Armoured Cable Laying", "discipline": "Electrical", "unit": "Mtrs", "tender_qty": 1500, "approved_var": 0, "prev_cert": 1000, "claimed_qty": 400, "verified_qty": 350, "contract_rate": 420.0, "status": "VARIATION_PENDING"}
+      ] %}
+      {% for item in rows %}
+      <tr>
+        <td class="td-value text-center font-mono">{{ item.sl if item.sl else loop.index }}</td>
+        <td class="td-value font-mono font-bold">{{ item.item_no or item.itemNo or '' }}</td>
+        <td class="td-value">{{ item.description or '' }}</td>
+        <td class="td-value text-center">{{ item.discipline or 'Civil' }}</td>
+        <td class="td-value text-center">{{ item.unit or '' }}</td>
+        <td class="td-value text-right font-mono">{{ item.tender_qty or item.tenderQty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ item.approved_var or item.approvedVariationQty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ item.prev_cert or item.prevCertifiedQty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ item.claimed_qty or item.currentClaimedQty or 0 }}</td>
+        <td class="td-value text-right font-mono font-bold">{{ item.verified_qty or item.currentVerifiedQty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ "{:,.2f}".format(item.contract_rate or item.contractRate or 0) }}</td>
+        <td class="td-value text-center">
+          {% set st = item.status or 'APPROVED' %}
+          <span class="{% if st == 'APPROVED' %}badge-approved{% elif 'OVER' in st or 'DISALLOW' in st %}badge-discrepancy{% else %}badge-warning{% endif %}">
+            {{ st }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td colspan="5" class="text-right">TOTAL ABSTRACT SUM:</td>
+        <td class="text-right font-mono">{{ total_tender_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_variation_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_prev_cert_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_claimed_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_verified_qty or '-' }}</td>
+        <td></td>
+        <td class="text-center badge-approved">AUDIT RECONCILED</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("4.0", "MATERIAL CONSUMPTION & THEORETICAL WASTAGE AUDIT") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 4%;">
+      <col style="width: 22%;">
+      <col style="width: 8%;">
+      <col style="width: 14%;">
+      <col style="width: 13%;">
+      <col style="width: 13%;">
+      <col style="width: 10%;">
+      <col style="width: 8%;">
+      <col style="width: 8%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Material Name &amp; Spec</th>
+        <th class="th-label text-center">Unit</th>
+        <th class="th-label text-right">Theoretical Consumption</th>
+        <th class="th-label text-right">Actual Issued</th>
+        <th class="th-label text-right">Actual Consumed</th>
+        <th class="th-label text-right">Wastage %</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label text-right">Recovery (INR)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set mats = materials if (materials is defined and materials) else [
+        {"sl": 1, "material_name": "Cement (OPC 53 Grade)", "unit": "MT", "theoretical": 142.5, "issued": 150.0, "consumed": 146.0, "wastage_pct": 2.45, "status": "NORMAL", "recovery": 0.0},
+        {"sl": 2, "material_name": "TMT Rebars (Fe500D)", "unit": "MT", "theoretical": 48.0, "issued": 55.0, "consumed": 53.5, "wastage_pct": 11.45, "status": "EXCESS_WASTAGE", "recovery": 185000.0},
+        {"sl": 3, "material_name": "Structural Steel Sections", "unit": "MT", "theoretical": 26.5, "issued": 28.0, "consumed": 27.2, "wastage_pct": 2.64, "status": "NORMAL", "recovery": 0.0}
+      ] %}
+      {% for m_item in mats %}
+      <tr>
+        <td class="td-value text-center font-mono">{{ m_item.sl if m_item.sl else loop.index }}</td>
+        <td class="td-value font-bold">{{ m_item.material_name or m_item.materialName or '' }}</td>
+        <td class="td-value text-center">{{ m_item.unit or '' }}</td>
+        <td class="td-value text-right font-mono">{{ m_item.theoretical or m_item.theoreticalConsumption or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ m_item.issued or m_item.actualIssuedQty or 0 }}</td>
+        <td class="td-value text-right font-mono font-bold">{{ m_item.consumed or m_item.actualConsumedQty or 0 }}</td>
+        <td class="td-value text-right font-mono {% if (m_item.wastage_pct or m_item.actualWastagePercent or 0) > 5.0 %}badge-discrepancy{% endif %}">
+          {{ "{:.2f}%".format(m_item.wastage_pct or m_item.actualWastagePercent or 0) }}
+        </td>
+        <td class="td-value text-center">
+          {% set mst = m_item.status or 'NORMAL' %}
+          <span class="{% if mst == 'NORMAL' or mst == 'SAVING' %}badge-approved{% else %}badge-discrepancy{% endif %}">
+            {{ mst }}
+          </span>
+        </td>
+        <td class="td-value text-right font-mono {% if (m_item.recovery or m_item.excessRecoveryAmount or 0) > 0 %}badge-discrepancy font-bold{% endif %}">
+          ₹{{ "{:,.2f}".format(m_item.recovery or m_item.excessRecoveryAmount or 0) }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("5.0", "ENGINEERING OBSERVATIONS & AUDIT FINDINGS") }}
+  <div class="free-text-box">
+{{ remarks or "Joint physical measurements and level books reconciled against approved GFC drawings, bar bending schedules (BBS), and tender specifications per IS 1200 / CPWD guidelines. Items verified within contractual scope caps have been approved for progressive billing. Over-claims on structural steel fabrication and excessive reinforcement bar scrap beyond the permissible 3% allowance have been flagged for contractual recovery." }}
+  </div>
+
+  {{ m.section("6.0", "ACKNOWLEDGEMENT & SIGNATURES") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 33.33%;">
+      <col style="width: 33.33%;">
+      <col style="width: 33.34%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">CONTRACTOR BILLING LEAD</th>
+        <th class="th-label">IQE LEAD QUANTITY SURVEYOR</th>
+        <th class="th-label">AUTHORIZED SIGNATORY (IQE Director)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> S. P. Venkatachalam</div>
+          <div><strong>Designation:</strong> Chief Quantity Surveyor</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #475569;">L&amp;T Construction Division</div>
+        </td>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> Er. Suresh Nambiar</div>
+          <div><strong>Designation:</strong> Senior Lead Quantity Auditor</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #166534;">ISO 17020 Audit In-Charge</div>
+        </td>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> Dr. V. N. Murthy</div>
+          <div><strong>Designation:</strong> Technical Director</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #003366; font-weight: bold;">ISO/IEC 17020 Quality Director</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="disclaimer-block" style="margin-top: 6pt;">
+    <div class="disclaimer-title">DISCLAIMER &amp; LIMITATION OF LIABILITY</div>
+    <div>This BOQ Reconciliation &amp; Material Audit Report is an independent technical audit document issued by Ideal Quality Engineers (I) Pvt. Ltd. (IQE) per ISO/IEC 17020:2026 &amp; ISO 9001:2026 Type A inspection protocol. Verified quantities and material reconciliation figures are established based on site records, test reports, and drawings made available. It does not waive the contractor's contractual warranties.</div>
+  </div>
+
+  <div class="end-marker" style="text-align: center; font-weight: bold; margin-top: 5pt; font-size: 7.5pt; color: #475569;">— END OF REPORT —</div>
+</div>
+{% endblock %}

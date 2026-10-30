@@ -1,0 +1,518 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.UserModel.UserViewModel>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title></title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 9.5pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+            width: -webkit-fill-available;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+            table th {
+                    text-align: center;
+                }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .fa-folder {
+            color: #ffbb33; /* Yellow color */
+        }
+    </style>
+</head>
+<body>
+
+<table cellpadding="0" cellspacing="0" class="center" id="Emptable">
+    <tr>
+        <th>@Html.Label("Employee ID")</th>
+        <th>@Html.Label("Employee Name")</th>
+        @if (ViewBag.UserType == "Super Admin" || ViewBag.UserType == "Admin")
+        {
+            <th>@Html.Label("Email")</th>
+            <th>@Html.Label("Contact No")</th>
+            <th>@Html.Label("Credentials")</th>
+        }
+         <th>@Html.Label("Discipline")</th>
+        <th>@Html.Label("Inspector Code")</th>
+        <th>@Html.Label("City")</th>
+        <th>@Html.Label("Country")</th>
+        @if (ViewBag.UserType == "Super Admin")
+        {
+            <th>@Html.Label("Cost / Hr")</th>
+            <th>@Html.Label("Mileage/ Km")</th>
+            <th>@Html.Label("All Inclusive")</th>
+
+        }
+        <th>&nbsp;</th>
+    </tr>
+    @if (Model == null || Model.Count() == 0)
+    {
+        <tr>
+            No Employees Found
+        </tr>
+    }
+    else
+    {
+        foreach (var user in Model)
+        {
+            <tr>
+
+                <td>
+                    @user.EmployeeCode
+                    <input type="hidden" class="userid" id="userid" value="@user.UserId" /></td>
+                <td>@Html.ActionLink(user.UserFullName, "ViewProfile", new { userGuid = @user.UserGuid })</td>
+                @if (ViewBag.UserType == "Super Admin" || ViewBag.UserType == "Admin")
+                {
+                    <td>@user.EmailId</td>
+                    <td>@user.EmpContactNumber</td>
+                    <td style="text-align: center;">@user.FileName</td>
+                }
+                <td>@user.ProfQualification</td>
+                <td style="text-align: center;">@user.InspectorCode</td>
+                <td>@user.CityName</td>
+                @*<td>@user.StateName</td>*@
+                <td>@user.CountryName</td>
+                @if (ViewBag.UserType == "Super Admin")
+                {
+                 <td style="text-align:right;"><span style="float:left;">@user.CurrencySymbol</span>
+                    <span style="display:inline-block; margin-left:10px;">@string.Format("{0:#,###0}", user.CostPerHour)</span></td>
+                 <td style="text-align:right;"><span style="float:left;">@user.CurrencySymbol</span>
+                         <span style="display:inline-block; margin-left:10px;">@string.Format("{0:#,###0}", user.MilageInKm)</span></td>  
+                <td style="text-align:right;"><span style="float:left;">@user.CurrencySymbol</span>
+                         <span style="display:inline-block; margin-left:10px;">@string.Format("{0:#,###0}", user.AllInclusive)</span></td> 
+                   
+                   
+                }
+                <td>
+                    <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                        @if (ViewBag.UserType == "Admin" || ViewBag.UserType == "Super Admin")
+                        {
+                            if (@user.IsUserActive)
+                            {
+                                if ((SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceEdit, @User.RoleId.FirstOrDefault())) || (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceInActive, @User.RoleId.FirstOrDefault())))
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="UserListDirGroupDrop1" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+
+                                            @if (!@user.CompentenceActive)
+                                            {
+                                                <li>
+
+                                                    <a href="javascript:AddCompetance('@user.UserGuid');">
+                                                        <i class="fa fa-plus mr20" aria-hidden="true">
+                                                        </i> Add Competance
+                                                    </a>
+                                                </li>
+                                            }
+
+                                            @if (!@user.IsEmpannlementflag)
+                                            {
+                                                <li>
+
+                                                    <a href="javascript:AddEmpannelment('@user.EmployeeCode', '@user.UserGuid');">
+                                                        <i class="fa fa-plus mr20" aria-hidden="true">
+                                                        </i> Add Empannelment
+                                                    </a>
+                                                </li>
+                                            }
+
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceEdit, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:EditUserRecord('@user.UserGuid');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Edit Employee
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceInActive, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UpdateUserStatus('@user.UserGuid', 'false');">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Employee
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                            else if(@user.IsSecondment)
+                            {
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="UserListDirGroupDrop2" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceEdit, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:EditUserRecord('@user.UserGuid');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Edit Employee
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceInActive, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UpdateUserStatus('@user.UserGuid', 'false');">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Employee
+                                                    </a>
+                                                </li>
+                                            }
+
+
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                        <div class="btn-group" style="display: inline-block;" role="group">
+                                            <span id = "UserListDirGroupDrop2" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                            </span>
+                                            <ul class="dropdown-menu ellipse-menu-left">
+
+                                                <li>
+                                                    <a href = "javascript:UpdateUserStatus('@user.UserGuid', 'true');" >
+                                                        <i class="fa fa-undo mr20" aria-hidden="true">
+                                                        </i> Activate Employee
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                }
+                            }
+                         }
+                    </div>
+
+                </td>
+            </tr>
+        }
+    }
+</table>
+<div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="width:450px;">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                <h5 class="modal-title" id="fileModalLabel">User Credentials</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="fileList"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+    
+    $(function () {
+      //  //debugger;
+        $("#Emptable tr").each(function () {
+            var tr = $(this);
+            var rows = tr.children('td');
+            if (rows.length > 0) {
+                var userId = tr.find('.userid').val(); //rows[0].innerHTML.trim();
+
+                var resumeIndex = tr.closest('table').find('th').filter(function () {
+                    return $(this).text().trim() === 'Credentials';
+                }).index();
+                if (resumeIndex > 0) { 
+                var fileList = rows[resumeIndex].innerHTML.split(";").filter(function (file) {
+                    return file.trim() != "";
+                });
+
+                if (fileList.length > 0) {
+                    rows[resumeIndex].innerHTML = '<i class="fas fa-folder" data-user-id="' + userId + '" data-files="' + fileList.join(',') + '"></i>';
+                } else {
+                    rows[resumeIndex].innerHTML = '';
+                }
+              }
+            }
+        });
+
+        // Click event handler for the file-icon element
+        $(document).on('click', '.fa-folder', function () {
+            var userId = $(this).data('user-id');
+            var files = $(this).data('files').split(',');
+
+            // Generate the file list HTML
+            var fileListHtml = files.map(function (file) {
+                return '<li><a href="../User/DownloadFile?UserId=' + userId + '&FileName=' + file.trim() + '">' + file.trim() + '</a></li>';
+            }).join('');
+
+            // Update the modal with the file list and show it
+            $("#fileList").html(fileListHtml);
+            $("#fileModal").modal('show');
+        });
+    });
+
+    $(document).ready(function () {
+       //debugger;
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+    function EditUserRecord(userGuid) {
+        $('#divActiveInActive').hide();
+        $.ajax({
+            url: '../User/EditUser',
+            type: 'POST',
+            data: {
+                userGuid: userGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                //debugger;
+                $("#AlphaSorting").hide();
+                $("#UserPager").hide();
+                $("#divMainSearch").hide();
+                $('#spnUserTitle').html('');
+                $('#spnUserTitle').html('Admin &#8667; Edit Employee');
+                $('#divEmpDetails').html('');
+                $('#divEmpDetails').html(data);
+                $('#btnEmpList').show();
+                $('#btnAddEmp').hide();
+                $('#TitleId').focus();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+            }
+        });
+    }
+
+    function UpdateUserStatus(userGuid, status) {
+        var options = {};
+        debugger;
+
+        if (status === 'true') {
+            options.msg = "Are you sure you want to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(userGuid, status);
+            }, options);
+        } else if (status === 'false') {
+            options.msg = "Are you sure you want to InActivate? Please provide remarks:<br><textarea id='remarksInput' placeholder='Enter remarks' style='width:100%; margin-top: 10px;'></textarea>";
+
+            ShowConfirmationPrompt(function () {
+                //debugger;
+                // Only close the prompt if valid remarks are provided
+                var remarks = document.getElementById("remarksInput").value;
+                if (remarks && remarks.trim() !== "") {
+                    $('#DeleteConfirmationDiv').removeClass('is-visible'); // Manually close the prompt
+                    UpdateStatus(userGuid, status, remarks);
+                } else {
+                    alert("Remarks are required to inactivate the user.");
+                    $('#DeleteConfirmationDiv').addClass('is-visible');
+                    //document.getElementById("remarksInput").focus();
+                }
+            }, options);
+        } else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(userGuid, status);
+            });
+        }
+    }
+
+
+    function UpdateUserStatus11(userGuid, status) {
+        var options = {};
+        //debugger;
+        if (status === 'true') {
+            options.msg = "Are you sure you want to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(userGuid, status);
+            }, options);
+        }
+        else if (status === 'false') {
+            options.msg = "Are you sure you want to InActivate? Please provide remarks:<br><textarea id='remarksInput' placeholder='Enter remarks' style='width:100%; margin-top: 10px;'></textarea>";
+            ShowConfirmationPrompt(function () {
+                var remarks = document.getElementById("remarksInput").value;
+
+                if (remarks && remarks.trim() !== "") {
+                    UpdateStatus(userGuid, status, remarks);
+                } else {
+                    //debugger;
+                    alert("Remarks are required to inactivate the user.");
+                    document.getElementById("remarksInput").focus(); // Focus on the textarea
+                    return false; // Return early to keep the confirmation prompt open
+
+                }
+            }, options);
+        }
+        else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(userGuid, status);
+            });
+        }
+    }
+
+    function AddEmpannelment(employeeCode, userGuid) {
+        $.ajax({
+            url: '../User/AddEmpannelment',
+            type: 'POST',
+            data: {
+                EmployeeCode: employeeCode,
+                userGuid: userGuid,
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnUserTitle').html('');
+                $('#spnUserTitle').html('Admin &#8667; Add Empannelment');
+                $('#divEmpDetails').html('');
+                $('#divEmpDetails').html(data);
+                $('#btnEmpList').hide();
+                $('#btnAddEmp').show();
+                $("#AlphaSorting").hide();
+                $("#UserPager").hide();
+                $("#divMainSearch").hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+            }
+        });
+
+
+    }
+
+    function AddCompetance(userGuid) {
+            $.ajax({
+                url: '../User/AddCompetance',
+                type: 'POST',
+                data: {
+                    userGuid: userGuid,
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    $('#spnUserTitle').html('');
+                    $('#spnUserTitle').html('Admin &#8667; Add Competance');
+                    $('#divEmpDetails').html('');
+                    $('#divEmpDetails').html(data);
+                    $('#btnEmpList').hide();
+                    $('#btnAddEmp').show();
+                    $("#AlphaSorting").hide();
+                    $("#btnAddEmp").hide();
+                    $("#txtDirectorySearch").hide();
+                    $("#btnAddEmp").hide();
+                    $("#UserPager").hide();
+                    $("#divMainSearch").hide();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+                }
+            });
+    }
+
+    function UpdateStatus(userGuid, statusVal, remarks = null) {
+        var activeStatus = $('#hdnActive').val();
+        debugger;
+            $.ajax({
+                url: '../User/UpdateUserStatus',
+                type: 'POST',
+                data: {
+                    userGuid: userGuid,
+                    statusId: statusVal,
+                    remarks: remarks
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    $('#spnUserTitle').html('');
+                    $('#spnUserTitle').html('Admin &#8667; Employee Details');
+                    $('#divEmpDetails').html('');
+                    $('#divEmpDetails').html(data);
+                    $('#btnEmpList').hide();
+                    $('#btnAddEmp').show();
+                    //document.getElementById('btndownload').style.visibility = 'hidden';
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    // openEmployeeList(!statusVal);
+                    if (activeStatus = 'Secondment') {
+                        ShowEmployeeDetails('Secondment')
+                        statusVal = false;
+                    }
+                    else if (statusVal='true')
+                        ShowEmployeeDetails('Active');
+                    else
+                        ShowEmployeeDetails('InActive');
+                  //  window.paginationObj.CreateListGridPager(obj);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+                }
+            });
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+    }
+
+</script>

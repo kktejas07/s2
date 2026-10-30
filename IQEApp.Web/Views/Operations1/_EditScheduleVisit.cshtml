@@ -1,0 +1,100 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitDetailsModel
+
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+
+<style>
+    .form-control {
+        font-size: 12px;
+    }
+
+    /* Styles for centering and aligning checkboxes */
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .alert-warning {
+        color: #e60000 !important;
+        background-color: #ffffff;
+        font-size: 12px; /* Adjust font size if necessary */
+        font-weight: bold; /* Make the text bold for better readability */
+        padding: 10px; /* Ensure proper padding for aesthetics */
+        border: 1px solid #e60000; /* Add a border for better distinction */
+        border-radius: 8px; /* Rounded corners for a clean look */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    }
+
+
+    /* Padding for checkboxes to align with the column text */
+    .checkbox-container input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+    /* Style to make each column header visually centered */
+    .directory-table-header > div,
+    .directory-table-row > div {
+        display: flex;
+        align-items: center;
+    }
+    /* Style for the dropdown list container */
+    #poSection {
+        position: relative; /* Ensure the dropdown is positioned relative to this container */
+    }
+
+    #poItems {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        position: absolute;
+        background-color: white;
+        width: 100%; /* Make sure it matches the width of the input */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for better visibility */
+        z-index: 9999; /* Ensure the list stays on top of other elements */
+    }
+
+        #poItems ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #poItems li {
+            padding: 8px;
+            cursor: pointer;
+            font-size: 14px; /* Adjust font size for better readability */
+        }
+
+            #poItems li:hover {
+                background-color: #f1f1f1;
+            }
+
+            #poItems li.selected {
+                background-color: #d3e0e0; /* Highlight background */
+                font-weight: bold; /* Bold text for the selected item */
+            }
+</style>
+
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h2 class="box-title"> <span id="spnHeadTitle">Operations &#8667; Edit Schedule Visit </span></h2>
+        </div>
+    </div>
+</div>
+
+
+<!-- Radio Buttons for Selection -->
+<div class="form-group d-flex align-items-center">
+    <label class="control-label me-2" style="background-color: #B8DBFD; line-height:2.5">Select Type:</label>&nbsp;&nbsp;
+    <div>
+        <input type="radio" name="selectionType" id="clientRadio" value="Client" onchange="toggleSections('client')" /> <b> Customer </b>
+        <input type="radio" name="selectionType" id="poRadio" value="PO" onchange="toggleSections('po')" class="ms-2" /> <b> PO </b>
+        <input type="radio" name="selectionType" id="poProspective" value="Prospective" onchange="toggleSections('prospective')" class="ms-2" /> <b> Prospective</b>
+    </div>
+</div>
+

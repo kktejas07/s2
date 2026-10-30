@@ -1,0 +1,490 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ServiceOrderModel.ServiceOrderDetailsModel
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>*@
+
+<div class="mt20 bg p20">
+    <section id="FormAddServiceOrder">
+        @using (Ajax.BeginForm("UpdateServiceOrder", "ServiceOrder",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onUpdateServiceOrderSuccess",
+            }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row mt10">
+
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" style="height: 100px">
+                    @Html.LabelFor(m => m.ControlNo, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ControlNo, new { @Value = ViewBag.ControlNo.ToString(), @readonly = "readonly", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.ControlNo) })
+                    @Html.ValidationMessageFor(m => m.ControlNo)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ClientDetails.ClientName, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients, "ClientId", "ClientName"), "Select", new { @class = "form-control dropDownStyle redborder", @style = "width:200px;", @placeholder = @Html.DisplayNameFor(model => model.ClientId)  , onchange = "getClientUnitsByClientId(this.value)"
+               })
+                    @Html.ValidationMessageFor(m => m.ClientId)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ClientDetails.ClientUnit.ClientUnitName, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.ClientUnitId, new SelectList(Model.LstClientUnits, "ClientUnitId", "ClientUnitName"), "Select", new { @class = "form-control dropDownStyle redborder", @style = "width:200px;", 
+                       @placeholder = @Html.DisplayNameFor(model => model.ClientUnitId), onchange = "getClientUnitDetailsByUnitId(this.value)" })
+                    @Html.ValidationMessageFor(m => m.ClientUnitId)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" style="height: 100px; visibility:hidden;" id="divClientDetails">
+                    <small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Customer Unit Details</small>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            <div class="row mt10">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ProjectNumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ProjectNumber) })
+                    @Html.ValidationMessageFor(m => m.ProjectNumber)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ProjectName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ProjectName, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ProjectName) })
+                    @Html.ValidationMessageFor(m => m.ProjectName)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.LOISOType, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.LOISOType, new SelectList(Model.LstLOISOTypes, "LOISOTypeId", "LOISOTypeName"), "Select", new { @class = "form-control dropDownStyle redborder", @style = "width:200px;", @placeholder = @Html.DisplayNameFor(model => model.LOISOType), onchange = "LOISOTypeName(this)" })
+                    @Html.ValidationMessageFor(m => m.LOISOType)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" id="LOI" hidden="hidden">
+                    @Html.LabelFor(m => m.LOINumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.LOINumber, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.LOINumber) })
+                    @Html.ValidationMessageFor(m => m.LOINumber)
+                    <span id="spnDuplicateError" class="field-validation-error" style="display: none;">Already exists</span>
+                </div>
+
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" id="SONumber" hidden="hidden">
+                    @Html.LabelFor(m => m.SONumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.SONumber, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.SONumber) })
+                    @Html.ValidationMessageFor(m => m.SONumber)
+                    <span id="spnDuplicateError" class="field-validation-error" style="display: none;">Already exists</span>
+                </div>
+                @*<div class="col-sm-6 col-md-6 col-lg-6 form-group mt15" id="divClientDetails">
+                </div>*@
+            </div>
+            <div class=" row mt10">
+
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.SOType, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.SOType, new SelectList(Model.LstServiceOrderTypes, "ServiceOrderTypeId", "ServiceOrderTypeName"), "Select", new { @class = "form-control dropDownStyle redboder", @style = "width:200px;", @placeholder = @Html.DisplayNameFor(model => model.SOType), onchange = "ddlOtherSOType(this)" })
+                    @Html.ValidationMessageFor(m => m.SOType)
+                </div>
+                <div class="col-md-3" id="otherSOTypetextboxDiv" style="display: none;">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.OtherSOType, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.OtherSOType, new { @class = "form-control inputStyle redboder", placeholder = "Enter Other SO Type" })
+                        @Html.ValidationMessageFor(m => m.OtherSOType)
+                    </div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.SODate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.SODate, new
+                    {
+                        @class = "form-control inputStyle redboder",
+                        @placeholder = @Html.DisplayNameFor(model => model.DateFormat),
+                                                         @Value = Model.SODate.HasValue ? Model.SODate.Value.ToShortDateString() : ""
+                    })
+                    @Html.ValidationMessageFor(m => m.SODate)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.SODueDate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.SODueDate, new
+                    {
+                        @class = "form-control inputStyle redboder",
+                        @placeholder = @Html.DisplayNameFor(model => model.DateFormat),
+                                                         @Value = Model.SODueDate.HasValue ? Model.SODueDate.Value.ToShortDateString() : ""
+                    })
+                    @Html.ValidationMessageFor(m => m.SODueDate)
+                </div>
+            </div>
+                <div class="clearfix"></div>
+                <div class="row mt10">
+                    <div id="divPODetails" class="p15"></div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="row mt10">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.CurrencyId, new { @class = "control-label", style = "color:#236883" })
+                        @Html.DropDownListFor(m => m.CurrencyId, new SelectList(Model.LstCurrencyType, "CurrencyId", "CurrencyName"), "Select", new { @class = "form-control dropDownStyle redboder", @style = "width:200px;", placeholder = @Html.DisplayNameFor(model => model.CurrencyId) })
+                        @Html.ValidationMessageFor(m => m.CurrencyId)
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.Amount, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.Amount, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.Amount), onkeypress = "AddComma(this)" })
+                        @Html.ValidationMessageFor(m => m.Amount)
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.SOComments, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.SOComments, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.SOComments) })
+                    </div>
+
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group form-row align-items-center" id="SOUploadContainer">
+                        @Html.Label("Uploaded File(s)", new { @class = "control-label" })
+
+                        @if (Model.FileName != null && Model.FileName.Split(',').Length > 0)
+                        {
+                            foreach (var file in Model.FileName.Split(','))
+                            {
+                                <div class="input-group mb-2 file-container" data-file-name="@file">
+                                    <input type="text" value="@file" class="form-control add-existing-sofile" style="max-width: 220px;" readonly />
+                                    <input type="hidden" name="ExistingFiles" value="@file" />
+                                    <input type="hidden" name="RemovedFiles" id="RemovedFiles" value="" />
+
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-danger" onclick="removeFile('@file')" data-file-id="@file">
+                                            <i class="fa fa-minus"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        <!-- Container for file inputs -->
+                        <div class="input-group mb-2">
+                            <input type="file" name="UploadFile" class="form-control" style="max-width: 220px;" multiple />
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-primary add-more-sofile" style="display: inline-block;">
+                                    <i class="fa fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCancelServiceOrder" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: GetServiceOrders();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveServiceOrder" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+                </div>
+            @Html.HiddenFor(m => m.SOId)
+            @Html.HiddenFor(m => m.EID)
+            @Html.HiddenFor(m => m.ControlId)
+            @Html.HiddenFor(m => m.ServiceOrderGuid)
+
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+    <div class="">
+        <div id="divPurchaseOrderDetails"></div>
+    </div>
+</div>
+<script>
+
+    $(function () {
+        $("#SODate").datepicker({
+            format: 'dd-MM-yyyy',
+           // endDate: '+5d',
+            autoclose: true
+        });
+        $("#SODueDate").datepicker({
+            format: 'dd-MM-yyyy',
+          //  endDate: '+5d',
+            autoclose: true
+        });
+    });
+    function AddComma(Num) {
+        Num = Num.toString().replace(/,/g, '');
+        x = Num.split('.');
+        x1 = x[0];
+        x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1))
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        return x1 + x2;
+
+    }
+
+    function removeFile(fileName) {
+        var confirmation = confirm("Are you sure you want to delete this file?");
+
+        if (confirmation) {
+            // Find the container for the file
+            var fileContainer = document.querySelector(`.file-container[data-file-name="${fileName}"]`);
+            if (fileContainer) {
+                // Remove the file from the DOM
+                fileContainer.remove();
+                // Add the file name to the RemovedFiles hidden input
+                var removedFilesInput = document.getElementById("RemovedFiles");
+                removedFilesInput.value += (removedFilesInput.value ? ',' : '') + fileName; // Append file name
+            }
+        }
+    }
+      
+    $(document).ready(function () {
+        //debugger;
+        var deletedFiles = [];
+        let fileInputCounter = 1;
+       // getClientUnitsByClientId(@Model.ClientId);
+        getClientUnitDetailsByUnitId(@Model.ClientUnitId);
+        $(document).on('click', '.remove-sofile', function () {
+            var fileName = $(this).data('file-id');
+            var removedFilesInput = $('#RemovedFiles');
+
+            // Add the removed file to the RemovedFiles input
+            var removedFiles = removedFilesInput.val();
+            removedFilesInput.val(removedFiles ? removedFiles + ',' + fileName : fileName);
+
+            // Remove the file container from the UI
+            $(this).closest('.file-container').remove();
+        });
+
+        // Adding a new file input
+        $(document).on('click', '.add-more-sofile', function () {
+            let newFileInput = `
+                                <div class="input-group mb-2">
+                                    <input type="file" name="UploadFile" class="form-control" style="max-width: 220px;" />
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-danger remove-new-sofile">
+                                            <i class="fa fa-minus"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+            $(this).closest('.input-group').before(newFileInput);
+        });
+
+        // Remove newly added file input
+        $(document).on('click', '.remove-new-sofile', function () {
+            $(this).closest('.input-group').remove();
+        });
+
+       // //debugger;
+        var lOISOType = $("#LOISOType").find('option:selected').val();
+        var SOType = $("#SOType").find('option:selected').val();
+        LOISOTypeName(lOISOType)
+        ddlOtherSOType(SOType)
+    });
+
+    $('#Amount').on('keydown keyup', function () {
+        this.oldVal = this.value.replace(/\D/g, '');
+        this.value = Number(this.oldVal).toLocaleString();
+    })
+
+    $.validator.unobtrusive.parse(document);
+    $(function () {
+        $("#SODate").datepicker({
+            //format: 'dd-MM-yyyy',
+            endDate: '+0d',
+            autoclose: true
+        });
+        $("#SODueDate").datepicker({
+            //format: 'dd-MM-yyyy',
+            //endDate: '+0d',
+            //autoclose: true
+        });
+    });
+    function getClientUnitsByClientId(obj) {
+        //debugger;
+       // $('#divClientDetails').html('');
+        if (typeof obj === 'object' && $(obj).is('select')) {
+            // Extract value from selected option
+            clientId = $(obj).find('option:selected').val();
+        } else {
+            // Use obj directly as clientId
+            clientId = obj;
+        }
+        $.ajax({
+            url: '../PurchaseOrder/GetClientUnitsByClientId',
+            type: 'POST',
+            data: {
+                clientId: clientId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (clientUnits) {
+                //alert(JSON.parse(clientUnits));
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < clientUnits.length; i++) {
+                    s += '<option value="' + clientUnits[i].ClientUnitId + '">' + clientUnits[i].ClientUnitName + '</option>';
+                }
+                $("#ClientUnitId").html(s);
+                $('#divClientDetails').css("visibility", "visible");
+                $('#divClientDetails').html('');
+                $('#divClientDetails').html('<small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Customer Unit Details</small>');
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    function getClientUnitDetailsByUnitId(obj) {
+        var clientUnitId = $(obj).find('option:selected').val();
+        var manufacturerUnitId = $("#ManufacturerUnitId").find('option:selected').val();
+        $.ajax({
+            url: '../Client/GetClientUnitDetailsByUnitId',
+            type: 'POST',
+            data: {
+                unitId: obj
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                //alert(JSON.stringify(clientUnitDetails));
+                //var unit = JSON.stringify(clientUnitDetails);
+                $('#divClientDetails').css("visibility", "visible");
+                $('#divClientDetails').html(data);
+                //alert(unit.ContactPersonName);
+                //$("#ContactPersonName").html('ContactPersonName');
+                //$("#ContactPersonDesignation").html(unit.ContactPersonDesignation);
+                if (manufacturerUnitId > 0) {
+                    getPurchaseOrdersByClientUnit();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+        $("#btnSaveServiceOrder").prop('disabled', true);
+    }
+    function onUpdateServiceOrderSuccess(response) {
+        if (response.status) {
+           // alert('Control Number :' + response.ServiceOrderId + ' has been Generated');
+            alert('Service Order has been Updated');
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+             @*var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+            window.location.assign(currentUrl + "ControlNumber/Index");*@
+
+           GetServiceOrders();
+        } else {
+            if (response.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            }
+            $("#btnSaveServiceOrder").prop('disabled', false);
+        }
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+    }
+    function GetServiceOrders() {
+        var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.href = currentUrl + "ControlNumber/Index";
+    }
+    function getPurchaseOrdersByClientUnit() {
+        var clientUnitId = $("#ClientUnitId").find('option:selected').val();
+        //var manufacturerUnitId = $("#ManufacturerUnitId").find('option:selected').val();
+        var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        var selectedManufacturerUnitIds = [];
+        $('.jsManufacturerUnitId').each(function (index, element) {
+            if ($(element).is(":checked")) {
+                selectedManufacturerUnitIds.push($(element).val());
+            }
+        });
+        $.ajax({
+            url: '../ServiceOrder/GetPODetailsByClientUnitIdAndMU',
+            type: 'POST',
+            data: {
+                clientUnitId: clientUnitId,
+                manufacturerUnitIds: selectedManufacturerUnitIds.join(",")
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $("#divPODetails").html(data);
+            },
+
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    function getPurchaseOrderDetailsById(obj) {
+        $('#divPurchaseOrderDetails').html('');
+        var purchaseOrderId = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../PurchaseOrder/GetPurchaseOrderDetailsById',
+            type: 'POST',
+            data: {
+                PoId: purchaseOrderId
+            },
+            beforeSend: function (e) {
+
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#divPurchaseOrderDetails').html(data);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    function LOISOTypeName(obj1)
+    {
+        ////debugger;
+        var obj1 = $("#LOISOType").find('option:selected').val();
+
+        if (obj1 == "1")
+        {
+            $("#LOI").show();
+            $("#SONumber").hide();
+        }
+        else if (obj1 == "2")
+        {
+            $("#SONumber").show();
+            $("#LOI").hide();
+        }
+    }
+
+    function ddlOtherSOType(obj1) {
+        var obj1 = $("#SOType").find('option:selected').val();
+
+        if (obj1 == "3") {
+            $("#otherSOTypetextboxDiv").show();
+        }
+        else {
+            $("#otherSOTypetextboxDiv").hide();
+        }
+    }
+
+    function toggleOtherWorkScope() {
+       // //debugger;
+        var checkbox = document.getElementById('chkOther');
+        var textboxDiv = document.getElementById('othersTextboxDiv');
+        var textbox = document.getElementById('OtherWorkScope');
+
+        if (checkbox.checked) {
+            textboxDiv.style.display = 'block';
+            textbox.setAttribute('required', 'required');
+        } else {
+            textboxDiv.style.display = 'none';
+            textbox.removeAttribute('required');
+        }
+    }
+   
+</script>

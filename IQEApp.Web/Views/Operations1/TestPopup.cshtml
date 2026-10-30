@@ -1,0 +1,69 @@
+﻿<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<div class="box">
+    <a class="button" href="#popup1">Let me Pop up</a>
+</div>
+
+<div id="popup1" class="overlay">
+    <div class="popup">
+        <h2>Here i am</h2>
+        <a class="close" href="#">×</a>
+        <div class="content">
+            Thank to pop me out of that button, but now i'm done so you can close this window.
+        </div>
+    </div>
+</div>
+
+<style>
+    .box {
+        width: 20%;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 35px;
+        border: 2px solid #fff;
+        border-radius: 20px/50px;
+        background-clip: padding-box;
+        text-align: center;
+    }
+
+    .button {
+        font-size: 1em;
+        padding: 10px;
+        color: #fff;
+        border: 2px solid orange;
+        border-radius: 20px/50px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease-out;
+    }
+
+        .button:hover {
+            background: orange;
+        }
+
+    .popup {
+        margin: 70px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 5px;
+        width: 30%;
+        position: relative;
+        transition: all 5s ease-in-out;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        $(function () {
+
+            $('#popup1').css("visibility", "visible");
+            $('#popup1').css("opacity", 1);
+
+        });
+
+        $(".close").click(function () {
+
+            $('#popup1').css("visibility", "hidden");
+            $('#popup1').css("opacity", 0);
+        });
+    });
+</script>

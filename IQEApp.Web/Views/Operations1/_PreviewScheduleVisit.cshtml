@@ -1,0 +1,239 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.VisitProcessing.ScheduleVisitModel>
+
+<div id="">
+    <div class="col-sm-1 col-md-1 col-lg-1 ">
+        <div class="input-group-append pull-right">
+            <button class="btn-round-icon mr5 border1 " type="button" onclick="PageRefresh();"><i class="fa fa-times" aria-hidden="true"></i></button>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <!--Header Div Starts-->
+    <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            Visit Id
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            Visit Date
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Control Number
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            Category
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Customer Details
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Equipment
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Activity
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            RFI Date.
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Schedule Date
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Visit Date
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Report Req Date
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Report Sub Date
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Inspector/ Employee Name
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Nature of Employeement
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            P.O No
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            P.O Date
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Report No
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Distance
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Milage Cost
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Travel Cost
+        </div>
+        @*<div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Manufacturer Details
+            </div>*@
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Hotel
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Others
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Remarks
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            Status
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            &nbsp;
+        </div>
+    </div>
+    <!--Header Div Ends-->
+    @if (Model == null || Model.Count() == 0)
+    {
+        <!--No data display Div Starts-->
+        <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row text-center">
+            No records found
+        </div>
+        <!--No data display Div ends-->
+    }
+    else
+    {
+        foreach (var task in Model)
+        {
+            <!-- Data display Div Starts -->
+            <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    @task.VisitId
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @task.ControlNo
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @task.ClientName/@task.ClientUnitName
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @(task.ScheduleDate.HasValue ? task.ScheduleDate.Value.ToShortDateString() : "")
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    @task.ManufacturerName / @task.ManufacturerUnitName
+                    @*@task.ScheduleComments*@
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                    @task.VisitStatusName
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                    @*@if (task.IsSOActive)
+                        {*@
+                    @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.VisitScheduleEdit, @User.RoleId.FirstOrDefault()) || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderDelete, @User.RoleId.FirstOrDefault()))
+                        {*@
+                    <div class="btn-group" style="display: inline-block;" role="group">
+                        <span id="TaskListGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                        </span>
+                        <ul class="dropdown-menu ellipse-menu-left">
+                            <li>
+                                <a href="ViewVisitDetails/?visitGuid=@task.VisitGuid">
+                                    <i class="fa fa-eye mr20" aria-hidden="true">
+                                    </i> View Visit Details
+                                </a>
+                            </li>
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ScheduleVisitEdit, @User.RoleId.FirstOrDefault()))
+                            {
+                                if (task.VisitStatusId < 3)
+                                {
+                                    <li>
+                                        <a href="EditVisitDetails/?visitGuid=@task.VisitGuid">
+                                            <i class="fa fa-pencil mr20" aria-hidden="true">
+                                            </i> Edit Visit Details
+                                        </a>
+                                    </li>
+
+                                }
+
+
+
+                                @*<li>
+                                    <a href="VisitProcessing/?visitGuid=@task.VisitGuid">
+                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                        </i> Visit Processing
+                                    </a>
+                                    </li>*@
+                            }
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.QualityReview, @User.RoleId.FirstOrDefault()))
+                            {
+                                if (task.VisitStatusId == 3)
+                                {
+                                    <li>
+                                        <a href="~/VisitProcessing/GetVisitDetailsToQualityCheck/?visitGuid=@task.VisitGuid">
+                                            <i class="fa fa-balance-scale mr20" aria-hidden="true">
+                                            </i> Quality Review
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.FinanceReview, @User.RoleId.FirstOrDefault()))
+                            {
+                                if (task.VisitStatusId == 4)
+                                {
+                                    <li>
+                                        <a href="~/VisitProcessing/GetVisitDetailsToFinanceApproval/?visitGuid=@task.VisitGuid">
+                                            <i class="fa fa-money mr20" aria-hidden="true"></i>Finance Check
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            @*@if (task.VisitStatusId == 5)
+                                {
+                                    <li>
+                                        <a href="~/Invoice/GenerateInvoice">
+                                            <i class="fa fa-pencil mr20" aria-hidden="true">
+                                            </i> Create Invoice
+                                        </a>
+                                    </li>
+                                }*@
+                        </ul>
+                    </div>
+                    @*}*@
+                    @*}*@
+                    @*else
+                        {
+                            if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderUndo, @User.RoleId.FirstOrDefault()))
+                            {
+                                <div class="btn-group" style="display: inline-block;" role="group">
+                                    <span id="PurchaseOrderGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                    </span>
+                                    <ul class="dropdown-menu ellipse-menu-left">
+                                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderUndo, @User.RoleId.FirstOrDefault()))
+                                        {
+                                            <li>
+                                                <a href="javascript:UpdateServiceOrderStatus('@task.VisitId',true);">
+                                                    <i class="fa fa-undo mr20" aria-hidden="true">
+                                                    </i> Activate Service Order
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        }*@
+                </div>
+            </div>
+            <!-- Data display Div ends -->
+        }
+    }
+
+</div>
+<script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+</script>

@@ -1,0 +1,696 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model  IQEApp.Web.Models.HomeModel.HomeBusinessModel
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<style>
+    .sub-manu::before {
+        content: "↳ ";
+        color: gray;
+    }
+    .card-header {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        max-width: 100%;
+        border: 1px solid #ddd;
+        /*padding: 5px;*/
+    }
+
+    /* Table Layout */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+    }
+
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+        /* Center Align Numeric & Date Columns */
+        th:nth-child(2), td:nth-child(2),
+        th:nth-child(6), td:nth-child(6),
+        th:nth-child(11), td:nth-child(11)
+        th:nth-child(1), th:nth-child(3), th:nth-child(4),
+        th:nth-child(5), th:nth-child(7),
+        th:nth-child(8), th:nth-child(9),
+        th:nth-child(10), th:nth-child(12) {
+            text-align: center;
+        }
+
+        /* Column Width Handling */
+        th:nth-child(1), td:nth-child(1) {
+            min-width: 60px;
+            max-width: 120px;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            min-width: 75px;
+            max-width: 90px;
+        }
+
+        th:nth-child(3), td:nth-child(3) {
+            min-width: 120px;
+            max-width: 150px;
+        }
+
+        th:nth-child(4), td:nth-child(4) {
+            min-width: 150px;
+            max-width: 200px;
+        }
+
+        th:nth-child(5), td:nth-child(5) {
+            min-width: 80px;
+            max-width: 100px;
+        }
+
+        th:nth-child(6), td:nth-child(6) {
+            min-width: 80px;
+            max-width: 100px;
+        }
+
+        th:nth-child(7), td:nth-child(7) {
+            min-width: 100px;
+            max-width: 120px;
+        }
+
+        th:nth-child(8), td:nth-child(8) {
+            min-width: 80px;
+            max-width: 100px;
+        }
+
+        th:nth-child(9), td:nth-child(9) {
+            min-width: 40px;
+            max-width: 60px;
+        }
+
+        th:nth-child(10), td:nth-child(10) {
+            min-width: 50px;
+            max-width: 60px;
+        }
+
+        th:nth-child(11), td:nth-child(11) {
+            min-width: 120px;
+            max-width: 140px;
+        }
+    /*        th:nth-child(12), td:nth-child(12) { min-width: 140px; max-width: 150px; }*/
+
+
+    /* Text Wrapping */
+    th, td {
+        white-space: normal;
+        word-break: break-word;
+        /*overflow: hidden;*/
+        text-overflow: ellipsis;
+    }
+
+    .table-container {
+        max-height: 600px; /* Adjust as needed */
+        overflow-y: auto;
+        border: 1px solid #ccc;
+    }
+
+    table.center {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        table.center thead {
+            position: sticky;
+            top: 0;
+            background-color: #f9f9f9; /* for visibility */
+            z-index: 1;
+        }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    #popupCancelled {
+        width: 350px !important; /* Fixes popup width */
+    }
+
+        #popupCancelled th,
+        #popupCancelled td {
+            max-width: 150px; /* Prevents auto-expansion */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #popupCancelled input,
+        #popupCancelled select {
+            width: 180px !important; /* Ensure input controls fit inside */
+        }
+
+    #popupCloseVisit {
+        width: 350px !important; /* Fixes popup width */
+    }
+
+        #popupCloseVisit th,
+        #popupCloseVisit td {
+            max-width: 150px; /* Prevents auto-expansion */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #popupCloseVisit input,
+        #popupCloseVisit select {
+            width: 180px !important; /* Ensure input controls fit inside */
+        }
+
+</style>
+
+<input type="hidden" id="hdnProspectiveCount" value="@ViewBag.ProspectiveCount" />
+
+<div class="table-container">
+    <table cellpadding="0" cellspacing="0" class="center">
+        <thead>
+            <tr>
+                @if (ViewBag.VisitType == "Prospective" || ViewBag.VisitType == "Inactive")
+                {
+                    <th>@Html.Label("Prospective ID")</th>
+                }
+                else
+                {
+                    <th>@Html.Label("Visit No")</th>
+                }
+                <th>@Html.Label("Inspection Date")</th>
+                <th>@Html.Label("Customer Details")</th>
+                <th>@Html.Label("Supplier Details / Location")</th>
+                <th>@Html.Label("PO Number")</th>
+                <th>@Html.Label("PO Date")</th>
+
+                <th>@Html.Label("Inspector Name")</th>
+                @if ((ViewBag.VisitType != "Prospective" || ViewBag.VisitType == "Inactive") && (ViewBag.VisitType == "Prospective" || ViewBag.VisitType != "Inactive"))
+                {
+                    <th>@Html.Label("VR No")</th>
+                    <th>@Html.Label("Upload VR")</th>
+                    <th>@Html.Label("Quality Check")</th>
+                    <th>@Html.Label("Doc Submission Date")</th>
+                <th>@Html.Label("Comments")</th>
+                }
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        @foreach (var lst in Model.LstHomeDetailViewModel)
+        {
+            <tr>
+
+                @if (ViewBag.VisitType == "Prospective" || ViewBag.VisitType == "Inactive")
+                {
+                    <td>@lst.VisitPId</td>
+                }
+                else
+                {
+                    <td>@lst.VisitSeqId</td>
+                }
+                <td>@lst.ScheduleDate.ToString("dd-MM-yyyy")</td>
+                <td>@lst.ClientName/@lst.ClientUnitName</td>
+                <td>
+                    @lst.ManufacturerName
+                    @if (!string.IsNullOrWhiteSpace(lst.SubManufacturerDetails))
+                    {
+                        <span class="sub-manu">@lst.SubManufacturerDetails</span>
+                    }
+                </td>
+                <td>@lst.PONumber</td>
+                <td>
+                    @{
+                        if (!string.IsNullOrEmpty(lst.PODate))
+                        {
+                            var dates = lst.PODate.Split(';');
+                            foreach (var d in dates)
+                            {
+                                DateTime dt;
+                                if (DateTime.TryParse(d.Trim(), out dt))
+                                {
+                                    <span>@dt.ToString("dd-MM-yyyy")</span><br />
+                                }
+                            }
+                        }
+                    }
+                </td>
+                <td>@lst.UserFullName</td>
+                @if ((ViewBag.VisitType != "Prospective" || ViewBag.VisitType == "Inactive") && (ViewBag.VisitType == "Prospective" || ViewBag.VisitType != "Inactive"))
+                {
+                    <td>@lst.InspReportNo</td>
+                    <td class="semiSeparated">
+                        <ul>
+                            @if (!string.IsNullOrEmpty(lst.FileName))
+                            {
+                                <i class="fa fa-file file-icon fa-folder" aria-hidden="true" style="cursor: pointer;" onclick="showFileList('@lst.VisitId')"></i>
+
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        @if (lst.InspReportStatus)
+                        {
+                            <form id="radio">
+                                @if (lst.QulalityCheck == true)
+                                {
+                                    @Html.RadioButton("qcradio", true, new { @checked = lst.QulalityCheck == true ? "checked" : "", onchange = "UpdateQCStatus1(this," + lst.VisitId + ", " + lst.CountryId + ",  '" + lst.VisitSeqId + "', true)" })
+                                    <span>Yes</span><br />
+                                    @Html.RadioButton("qcradio", false, new { disabled = "disabled" })
+                                    <span>No</span>
+                                }
+                                else
+                                {
+                                    @Html.RadioButton("qcradio", true, new { onchange = "UpdateQCStatus1(this," + lst.VisitId + ", " + lst.CountryId + ", '" + lst.VisitSeqId + "', true)" })
+                                    <span>Yes</span><br />
+                                    @Html.RadioButton("qcradio", false, new { @checked = lst.QulalityCheck == false ? "checked" : "" })
+                                    <span>No</span>
+                                }
+                            </form>
+                        }
+                    </td>
+                    <td>
+                        @if (lst.QulalityCheck)
+                        {
+                            if (@lst.ReportSubmittedClientStatus)
+                            {
+                                <input type="date" class="form-control text-box single-line" style="width:120px" id="rptsubmittedtoClient_@lst.VisitId" name="rptsubmittedtoClient" value="@lst.ReportSubmittedClientDate.ToString("yyyy-MM-dd")" readonly="readonly" />
+                            }
+                            else if (@lst.ReportSubmittedClientDate == DateTime.MinValue)
+                            {
+                                <input type="date" class="form-control text-box single-line" style="width:120px" id="rptsubmittedtoClient_@lst.VisitId" name="rptsubmittedtoClient" value="" onchange="ReportSubmitToClientDate(@lst.VisitId,'@lst.ScheduleDate.ToString("yyyy-MM-dd")')" />
+
+                                @*<input type="date" class="form-control text-box single-line" style="width:120px" id="rptsubmittedtoClient_@lst.VisitId" name="rptsubmittedtoClient" value="" onchange="ReportSubmitToClientDate(@lst.VisitId)" />*@
+                            }
+                            else
+                            {
+                                <input type="date" class="form-control text-box single-line" style="width:120px" id="rptsubmittedtoClient_@lst.VisitId" name="rptsubmittedtoClient" value="@lst.ReportSubmittedClientDate.ToString("yyyy-MM-dd")" readonly="readonly" />
+                            }
+                        }
+                    </td>
+
+                    <td><input type="text" id="txtcomments_@lst.VisitId" name="input1" style="width:150px" value="@lst.Comments" placeholder="Enter Your Comments" onchange="UpdateComments(@lst.VisitId)" /></td>
+                }
+                <td>
+                    <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                        <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                            <div class="btn-group" style="display: inline-block;" role="group">
+                                <span id="schedulevisitDirGroupDrop" type="button" class="btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                </span>
+                                @if (lst.FileName == null && lst.InspReportStatus == false && lst.VisitStatusId != 10 && lst.VisitId != 0)
+                                {
+                                    <ul class="dropdown-menu ellipse-menu-left">
+
+                                        <li>
+                                            <a href="../VisitSchedule/EditVisitScheduleByVID?VisitId=@lst.VisitId">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true"> Edit Schedule Visit</i>
+                                            </a>
+                                        </li>
+                                        @if (@lst.UserId == -1 && lst.VisitId != 0)
+                                        {
+                                            <li>
+                                                <a href="javascript:getUsersByStateName('@lst.VisitId', '@lst.StateId','@lst.StateName');">
+                                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        Assign Inspector
+                                                    </i>
+                                                </a>
+                                            </li>
+                                        }
+                                        @if (@lst.UserId != -1 && lst.VisitId != 0)
+                                        {
+                                            <li>
+                                                <a href="javascript:UploadInspectionReport('@lst.VisitId','@lst.VisitSeqId',false);">
+                                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        Upload IR/Documents
+                                                    </i>
+                                                </a>
+                                            </li>
+
+                                            <li>
+                                                <a href="javascript:EditInspectionDate('@lst.VisitId');">
+                                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        Edit Inspection Date
+                                                    </i>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:openCloseNoReport('@lst.VisitId', '@lst.VisitSeqId');">
+                                                    <i class="fa fa-times mr20" aria-hidden="true"> Close Visit (No Report)</i>
+                                                </a>
+                                            </li>
+                                        }
+                                        <li>
+                                            <a href="javascript:CancelInspection('@lst.VisitId','@lst.VisitStatusId');">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                    Cancel Inspection
+                                                </i>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+
+                                }
+                                @if (lst.FileName != null && ViewBag.RoleId == 1 && lst.VisitStatusId != 10 && lst.VisitId != 0)
+                                {
+                                    <ul class="dropdown-menu ellipse-menu-left">
+                                        <li>
+                                            <a href="javascript:UploadInspectionReport('@lst.VisitId', '@lst.VisitSeqId',true);">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                    Revise Uploaded Reports
+                                                </i>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            @*<a href="../Operations1/EditVisitScheduleByVID?VisitId=@lst.VisitId&PonId=@lst.PONID&POID=@lst.POID">
+                                        <i class="fa fa-pencil mr20" aria-hidden="true"> Edit Schedule Visit</i>
+                                    </a>*@
+                                            <a href="../VisitSchedule/EditVisitScheduleByVID?VisitId=@lst.VisitId">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true"> Edit Schedule Visit</i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                }
+                                @if (lst.VisitId == 0)
+                                {
+                                    <ul class="dropdown-menu ellipse-menu-left">
+                                        <li>
+                                            <a href="javascript:AssignToSchedule('@lst.VisitPId');">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                    Assign  Schedule
+                                                </i>
+                                            </a>
+                                        </li>
+                                        <li>
+
+                                            <a href="javascript:InActivateProspective('@lst.VisitPId',false);">
+                                                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                    Inactivate  Schedule
+                                                </i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+<table id="popupCloseVisit" title="Close Visit" style="display:none;">
+    <tbody>
+        <tr style="height: 10px;">
+            <th id="thCloseVisitNo">Visit No</th>
+        </tr>
+        <tr>
+            <td>
+                <div class="close-visit-container">
+                    <input type="hidden" id="hdnVisitIdToClose" value="" />
+                    <div class="form-group">
+                        <label for="txtReferenceVisitNo" class="form-label">
+                            Reference Visit No
+                        </label>
+
+                        <input type="text"   id="txtReferenceVisitNo"
+                               class="form-input reference-visit-input"
+                               placeholder="Example: 25V101" />
+
+                        <div class="helper-text">
+                            Existing visit with reports
+                        </div>
+
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="form-group">
+
+                        <label for="txtNoReportReason" class="form-label">
+                            Closure Comments <span class="required">*</span>
+                        </label>
+
+                        <textarea id="txtNoReportReason"
+                                  class="form-input"
+                                  rows="3"
+                                  placeholder="Enter comments"></textarea>
+
+                    </div>
+
+                    <!-- Footer Buttons -->
+                    <div class="dialog-actions">
+
+                        <button id="btnSubmitNoReport"
+                                type="button"
+                                class="btn btn-primary">
+                            Close Visit
+                        </button>
+
+                        <button id="btnCancelCloseVisit"
+                                type="button"
+                                class="btn btn-secondary">
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<table id="popupqctable" style="display:none;" title="Quality Check">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Visit No</th>
+        </tr>
+    </tbody>
+</table>
+<table id="popupInspectionDate" title="Inspection Date">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Visit No</th>
+        </tr>
+    </tbody>
+</table>
+<table id="popupCancelled" title="Cancel / On-Hold">
+    <tbody>
+        <tr style="height: 10px; width:400px !important;">
+            <th>Visit No</th>
+        </tr>
+    </tbody>
+</table>
+
+<table id="popupAssignInspector" title="Assign Inspector">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Visit No :</th>
+        </tr>
+    </tbody>
+</table>
+
+
+@*<script>
+
+   $(document).ready(function () {
+    //debugger;
+
+    // Check if the flag is set, indicating the request is from the success response
+    if (sessionStorage.getItem("isRedirectedFromSuccess")) {
+        // If the flag is set, we know this is the "success" state, so we call FilterUserDirectory
+        window.FilterUserDirectory({ backToFirstPage: true, activeTab: 'Prospective' });
+        $('#liActive').removeClass('active'); // Deactivate the "Active" tab
+        $('#liCancelled, #liOnHold').removeClass('active'); // Deactivate other tabs
+        $('#liProspective').addClass('active'); // Activate the "Prospective" tab
+        sessionStorage.removeItem("isRedirectedFromSuccess");
+    }
+
+    window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+
+    if ($.trim("@ViewBag.Total") != "") {
+        paginationObj.setTotalPageCount("@ViewBag.Total");
+        paginationObj.updateTotalRecords("@ViewBag.Total");
+    }
+});
+
+</script>*@
+<script>
+    (function () {
+        if (typeof jQuery === 'undefined') return;
+
+        function ensurePopupCancelledInit() {
+            var $dlg = $("#popupCloseVisit");
+            var isInit = !!($dlg.data && ($dlg.data('ui-dialog') || $dlg.data('dialog')));
+            if (!isInit) {
+                $dlg.dialog({
+                    autoOpen: false,
+                    modal: true,
+                    width: 450,
+                    resizable: false,
+                    draggable: true,
+                    close: function () {
+                        $('#hdnVisitIdToClose').val('');
+                        $('#txtNoReportReason').val('');
+                        $('#txtReferenceVisitNo').val('');
+                        // reset the header to default
+                        $('#thCloseVisitNo').text('Visit No');
+                    },
+                    open: function () {
+                        setTimeout(function () { $('#txtNoReportReason').focus(); }, 50);
+                    }
+                });
+
+                $(document).off('click', '#btnCancelNoReport').on('click', '#btnCancelNoReport', function () {
+                    $("#popupCloseVisit").dialog('close');
+                });
+
+                $(document).off('click', '#btnSubmitNoReport').on('click', '#btnSubmitNoReport', function () {
+                    submitCloseNoReport();
+                });
+            }
+            return $dlg;
+        }
+
+        $(function () {
+            try {
+                if (sessionStorage.getItem("isRedirectedFromSuccess")) {
+                    window.FilterUserDirectory && window.FilterUserDirectory({ backToFirstPage: true, activeTab: 'Prospective' });
+                    $('#liActive').removeClass('active');
+                    $('#liCancelled, #liOnHold').removeClass('active');
+                    $('#liProspective').addClass('active');
+                    sessionStorage.removeItem("isRedirectedFromSuccess");
+                }
+            } catch (e) { }
+
+            try {
+                window.paginationObj && window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+                if ($.trim("@ViewBag.Total") != "") {
+                    paginationObj.setTotalPageCount("@ViewBag.Total");
+                    paginationObj.updateTotalRecords("@ViewBag.Total");
+                }
+            } catch (e) { }
+
+            ensurePopupCancelledInit();
+        });
+
+        function escapeHtml(text) {
+            return $('<div/>').text(text).html();
+        }
+
+        window.openCloseNoReport = function (visitId, visitSeqId) {
+            debugger;
+            try {
+                if (visitId != null) visitId = visitId.toString().replace(/['"]/g, '').trim();
+                if (visitSeqId != null) visitSeqId = visitSeqId.toString().replace(/['"]/g, '').trim();
+            } catch (e) { }
+
+            if (!visitId || visitId === '0') {
+                alert('Invalid Visit');
+                return;
+            }
+
+            var $dlg = ensurePopupCancelledInit();
+            $('#hdnVisitIdToClose').val(visitId);
+            $('#txtNoReportReason').val('');
+            $('#txtReferenceVisitNo').val('');
+
+            var display = visitSeqId || visitId;
+            $('#thCloseVisitNo').html('Visit No <span style="margin-left:6px; font-weight:600;">' + escapeHtml(display) + '</span>');
+
+            try {
+                $dlg.dialog('option', 'title', 'Close Visit — No Report');
+            } catch (e) {
+                $dlg.attr('title', 'Close Visit — No Report ');
+            }
+            $dlg.dialog('open');
+        };
+
+        function submitCloseNoReport() {
+            debugger;
+            var visitId = $('#hdnVisitIdToClose').val();
+            var reason = $('#txtNoReportReason').val() ? $('#txtNoReportReason').val().trim() : '';
+            var referenceVisit = $('#txtReferenceVisitNo').val() ? $('#txtReferenceVisitNo').val().trim() : '';
+
+            if (!visitId) {
+                alert('Invalid Visit');
+                return;
+            }
+            if (!reason) {
+                alert('Please enter reason for absence of report.');
+                $('#txtNoReportReason').focus();
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("CloseVisitNoReport", "Home")',
+                type: 'POST',
+                data: {
+                    VisitId: visitId,
+                    Comments: reason,
+                    ReferenceVisitSeqId: referenceVisit
+                },
+                success: function (res) {
+                    if (res && res.status) {
+                        // removed debugger to avoid developer break
+                        $("#popupCloseVisit").dialog('close');
+                        if (window.GrowlObj && typeof window.GrowlObj.getGrowlMessage === 'function') {
+                            window.GrowlObj.getGrowlMessage("Visit closed successfully");
+                        } else {
+                            alert('Visit closed successfully');
+                        }
+
+                        var promises = [];
+
+                        try {
+                            if (typeof FilterScheduleVisits === 'function') {
+                                try {
+                                    var p = FilterScheduleVisits({ backToFirstPage: true });
+                                    if (p && typeof p.then === 'function') promises.push(p);
+                                } catch (e) { }
+                            }
+                        } catch (e) { }
+
+                        try {
+                            if (typeof FilterUserDirectory === 'function') {
+                                try {
+                                    var p2 = FilterUserDirectory({ backToFirstPage: true });
+                                    if (p2 && typeof p2.then === 'function') promises.push(p2);
+                                } catch (e) { }
+                            }
+                        } catch (e) { }
+
+                        if (promises.length > 0) {
+                            // Wait all promises then reload
+                            $.when.apply($, promises).always(function () {
+                                location.reload();
+                            });
+                        } else {
+                            // No promises to wait for — reload immediately
+                            location.reload();
+                        }
+                    } else {
+                        alert(res && res.message ? res.message : 'Failed to close visit');
+                    }
+                },
+                error: function (xhr, status, err) {
+                    alert('Error closing visit: ' + err);
+                }
+            });
+        }
+
+        window._ensurePopupCancelledInit = ensurePopupCancelledInit;
+    })();
+</script>

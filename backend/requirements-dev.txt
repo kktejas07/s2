@@ -1,0 +1,15 @@
+# Test-only dependencies.
+#
+# These were not recorded anywhere: the suite imported them and a fresh
+# checkout could not run it, which is the kind of thing that only surfaces
+# when someone new tries.
+
+-r requirements.txt
+
+pytest-asyncio>=0.23.0
+# In-memory MongoDB. The suite runs against this rather than a real server,
+# which is fast and hermetic but cannot see anything that depends on real
+# server semantics - index enforcement, concurrent writers, sort stability on
+# tied keys. scripts/verify_against_real_db.py covers that separately and
+# needs an actual mongod.
+mongomock_motor>=0.0.29

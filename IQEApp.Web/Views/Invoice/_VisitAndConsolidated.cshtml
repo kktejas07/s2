@@ -1,0 +1,18 @@
+@model IQEApp.Web.Models.InvoiceModel.InvoiceDetailsModel
+
+@{
+    // Render visits partial
+}
+<div>
+    @Html.Partial("_VisitListForInvocie", Model)
+</div>
+<div>
+    @{
+        var consModel = new IQEApp.Web.Models.InvoiceModel.InvoiceConsolidateViewModel();
+        consModel.LstInvoiceConsolidateDetails = Model.LstInvoiceConsolidatedDetails ?? new List<IQEApp.Web.Models.InvoiceModel.InvoiceConsolidateDetailsModel>();
+        ViewBag.InvoiceGuid = Model.InvoiceGuid;
+    }
+    <div id="divInvoiceConsolidatedDetails">
+        @Html.Partial("_ConsolidatedChargesList", consModel.LstInvoiceConsolidateDetails)
+    </div>
+</div>

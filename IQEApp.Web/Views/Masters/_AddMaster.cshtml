@@ -1,0 +1,49 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@model  IQEApp.Web.Models.MasteModel.MasterViewModel
+<div class="">
+    <section id="addMasterForm">
+        @using (Ajax.BeginForm("CreateMaster", "Masters",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessSaveMaster",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3">
+                    <span> Enter @Model.DisplayText</span>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    @{ var val =  Model.DisplayText;}
+                    @Html.TextBoxFor(m => m.MasterName, new { @class = "form-control inputStyle redboder", @placeholder = @val })
+                    @Html.ValidationMessageFor(m => m.MasterName)
+                    <span id="spnDuplicateError" class="field-validation-error" style="display: none;">Already exists</span>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3">
+                    @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MastersCreate, @User.RoleId.FirstOrDefault()))
+                    {
+                    <button type="submit" id="btnSaveMaster" value="Submit" title="Submit" data-toggle="tooltip" class="btn btn-success pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save</button>
+                    }
+                </div>
+            </div>
+            <div>
+                @Html.HiddenFor(m => m.SectionId)
+                @Html.HiddenFor(m => m.SiteId)
+                @Html.HiddenFor(m => m.DisplayText)
+            </div>
+            @*<div class="row">
+                <div class="form-group ">
+                    <div class="col-sm-6 col-md-6 col-lg-8">
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-4 ">
+                        
+                    </div>
+                </div>
+            </div>*@
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+</div>

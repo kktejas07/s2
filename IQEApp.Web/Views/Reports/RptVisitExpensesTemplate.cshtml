@@ -1,0 +1,74 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.Reports.RptVisitExpensesModel>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Visit Expenses</title>
+    <style>
+        .font10 {
+            font-size: 10px;
+        }
+
+        .font12 {
+            font-size: 12px;
+        }
+
+        .font13 {
+            font-size: 13px;
+        }
+
+        .font14 {
+            font-size: 14px;
+        }
+
+        .font15 {
+            font-size: 15px;
+        }
+
+        .font20 {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    @if (Model.Any())
+    {
+        int i = 1;
+        <table>
+            <tr>
+                <th class="font12">S.No</th>
+                <th class="font12">Schedule Date</th>
+                <th class="font12">Engineer Name</th>
+                <th class="font12">Client Name</th>
+                <th class="font12">Status</th>
+                <th class="font12">Expense Amount</th>
+            </tr>
+
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="font12">@i</td>
+                    <td class="font12">@item.ScheduleDate.GetConvertedShortDate()</td>
+                    <td class="font12">@item.InspectorName</td>
+                    <td class="font12">@item.ClientName</td>
+                    <td class="font12">@item.VisitStatusName</td>
+                    <td class="font12" style="align-content: flex-end">@item.TotalExpenseAmount</td>
+                </tr>
+                i++;
+            }
+        </table>
+    }
+    else
+    {
+        <span style="align-content: center">There is no data between the selected criteria..</span>
+    }
+</div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.InvoiceModel.InvoiceConsolidateViewModel
+<div>
+    <div id="invDetailsReadonly">
+
+    </div>
+    @Html.Partial("_ConsolidatedChargesList", Model.LstInvoiceConsolidateDetails)
+    <input type="hidden" id="InvoiceGuid" value="@ViewBag.InvoiceGuid"/>
+</div>
+<script>
+    function PreviewInvoice(invoiceGuid) {
+        $.ajax({
+            url: '../Invoice/InvoicePreview',
+            type: 'POST',
+            data: {
+                invoiceGuid: invoiceGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                var object = null;
+                var object1 = null;
+                //create iframe
+                var iframe = document.createElement('iframe');
+                // div tag in which iframe will be added should have id attribute with value myDIV
+                document.getElementById("divMSFilePreviewPopup").appendChild(iframe);
+                // add id to dynamically generated iframe
+                iframe.setAttribute("id", "myIframe");
+                // provide height and width to it
+                iframe.setAttribute("style", "height:600px;width:100%;");
+
+                if (data.strString == "success") {
+                    var fileName = data.containerPath + "site-" + data.imageSiteId + "/" + data.strContentLink;
+                    var msFileName =
+                        "https://view.officeapps.live.com/op/embed.aspx?src=" + fileName;
+                    if (data.fType == "normal") {
+                        object =
+                            "<object data=\"{FileName}\"  type=\"application/pdf\" width=\"100%\" height=\"600px\"></object>";
+                        // this is not allowing scroll style =\"Pointer-events:none\"
+                        object = object.replace(/{FileName}/g, "" + fileName);
+                        //$('#divMSFilePreviewPopup').hide();
+                        $("#divFilePreviewPopup").html(object).show();
+                    }
+                    else if (data.fType == "mstype") {
+                        $('#myIframe').attr('src', '');
+                        var myIframe = document.getElementById('myIframe');
+                        myIframe.setAttribute("src", msFileName);
+                        object1 = $('#myIframe').appendTo('body');
+                        //$('#divFilePreviewPopup').hide();
+                        $("#divMSFilePreviewPopup").html(object1).show();
+                    }
+                } else if (data.strString == "Fail") {
+                    console.log("failed to load preview");
+                } else {
+                    object = "<html width=\"100%\" height=\"500px\" > <head></head><body>" + data.strString;
+                    object += ", you can download from <a href = /\FolderFile/DownloadFile?GUId=" + strContentLink + "&SId=" + SID + "&GenericId=" + GID + ">here</a>";
+                    object += "</body></html>";
+                    //$('#divMSFilePreviewPopup').hide();
+                    $("#divFilePreviewPopup").html(object).show();
+                }
+
+                $('#lblFolderFileName').html(data.imageTitle);
+                $("#ShowFilesPreview").click();
+                //$("#title").html("eswar");
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+</script>

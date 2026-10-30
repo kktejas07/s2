@@ -1,0 +1,80 @@
+﻿<div class="row">
+    @*<div class="col-sm-1 col-md-1 col-lg-1 mt10">
+        <div class="btn-group " style="display: inline-block" role="group">
+            <span id="AlphaNumberGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+            </span>
+            <ul class="dropdown-menu  ellipse-menu-right">
+                <li><a href="javascript: SelectSortType('1');" id="Alpha"><span class="mr20">A-Z</span>  Alphabetic</a></li>
+                <li><a href="javascript: SelectSortType('2');" id="Number"><span class="mr20">0-9</span> Numeric</a></li>
+            </ul>
+        </div>
+    </div>*@
+    <div class="col-sm-11 col-md-11 col-lg-11">
+
+        <div class="alphabet2" id="divNumeric" style="display:none">
+            <ul>
+                <li><a href="javascript:;" id="alphasearch_0" class="alphasearch">0</a></li>
+                <li><a href="javascript:;" id="alphasearch_1" class="alphasearch">1</a></li>
+                <li><a href="javascript:;" id="alphasearch_2" class="alphasearch">2</a></li>
+                <li><a href="javascript:;" id="alphasearch_3" class="alphasearch">3</a></li>
+                <li><a href="javascript:;" id="alphasearch_4" class="alphasearch">4</a></li>
+                <li><a href="javascript:;" id="alphasearch_5" class="alphasearch">5</a></li>
+                <li><a href="javascript:;" id="alphasearch_6" class="alphasearch">6</a></li>
+                <li><a href="javascript:;" id="alphasearch_7" class="alphasearch">7</a></li>
+                <li><a href="javascript:;" id="alphasearch_8" class="alphasearch">8</a></li>
+                <li><a href="javascript:;" id="alphasearch_9" class="alphasearch">9</a></li>
+            </ul>
+        </div>
+
+        <div class="alphabet2" id="divAlpha">
+            <ul>
+                <li><a href="javascript:;" id="alphasearch_A" class="alphasearch">A</a></li>
+                <li><a href="javascript:;" id="alphasearch_B" class="alphasearch">B</a></li>
+                <li><a href="javascript:;" id="alphasearch_C" class="alphasearch">C</a></li>
+                <li><a href="javascript:;" id="alphasearch_D" class="alphasearch">D</a></li>
+                <li><a href="javascript:;" id="alphasearch_E" class="alphasearch">E</a></li>
+                <li><a href="javascript:;" id="alphasearch_F" class="alphasearch">F</a></li>
+                <li><a href="javascript:;" id="alphasearch_G" class="alphasearch">G</a></li>
+                <li><a href="javascript:;" id="alphasearch_H" class="alphasearch">H</a></li>
+                <li><a href="javascript:;" id="alphasearch_I" class="alphasearch">I</a></li>
+                <li><a href="javascript:;" id="alphasearch_J" class="alphasearch">J</a></li>
+                <li><a href="javascript:;" id="alphasearch_K" class="alphasearch">K</a></li>
+                <li><a href="javascript:;" id="alphasearch_L" class="alphasearch">L</a></li>
+                <li><a href="javascript:;" id="alphasearch_M" class="alphasearch">M</a></li>
+                <li><a href="javascript:;" id="alphasearch_N" class="alphasearch">N</a></li>
+                <li><a href="javascript:;" id="alphasearch_O" class="alphasearch">O</a></li>
+                <li><a href="javascript:;" id="alphasearch_P" class="alphasearch">P</a></li>
+                <li><a href="javascript:;" id="alphasearch_Q" class="alphasearch">Q</a></li>
+                <li><a href="javascript:;" id="alphasearch_R" class="alphasearch">R</a></li>
+                <li><a href="javascript:;" id="alphasearch_S" class="alphasearch">S</a></li>
+                <li><a href="javascript:;" id="alphasearch_T" class="alphasearch">T</a></li>
+                <li><a href="javascript:;" id="alphasearch_U" class="alphasearch">U</a></li>
+                <li><a href="javascript:;" id="alphasearch_V" class="alphasearch">V</a></li>
+                <li><a href="javascript:;" id="alphasearch_W" class="alphasearch">W</a></li>
+                <li><a href="javascript:;" id="alphasearch_X" class="alphasearch">X</a></li>
+                <li><a href="javascript:;" id="alphasearch_Y" class="alphasearch">Y</a></li>
+                <li><a href="javascript:;" id="alphasearch_Z" class="alphasearch">Z</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function SelectSortType(id) {
+        if (id == 1) {
+            $('#divAlpha').show();
+            $('#divNumeric').hide();
+        } else {
+            $('#divAlpha').hide();
+            $('#divNumeric').show();
+        }
+    }
+</script>
+
+<script defer src="~/CustomJS/Shared/_AlphabetPanel.js"></script>
+
+
+
+

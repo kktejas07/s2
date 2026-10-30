@@ -1,0 +1,108 @@
+﻿@model IQEApp.Web.Models.LoginModel.LoginViewModel
+@{
+    Layout = "~/Views/Shared/Layout.cshtml";
+    ViewBag.Title = "Log in";
+}
+<style>
+    .field-icon {
+        float: right;
+        margin-left: -25px;
+        margin-top: -25px;
+        position: relative;
+        z-index: 2;
+    }
+    .container {
+        margin: auto;
+    }
+    .row {
+        margin-left: -100px;
+    }
+    .h2, h2 {
+        margin-left: 40px;
+        font-size: 30px;
+    }
+</style>
+@*<div class="bg-img">
+    <div class="row">*@
+        @*<div class="col-sm-3 col-md-4 col-lg-4">
+        </div>*@
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <section id="loginForm">
+                        @using (Html.BeginForm("ValidateUserLogin", "Login", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true)
+                            <div class="form-group">
+                                <h2>Login</h2>
+                            </div>
+                            <div class="form-group mt30">
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                </div>
+                                <div class="col-sm-10 col-md-10 col-lg-10">
+                                    @Html.TextBoxFor(m => m.LoginName, new { @runat = "server", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.LoginName), @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(m => m.LoginName)
+                                </div>
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                </div>
+                                <div class="col-sm-10 col-md-10 col-lg-10">
+                                    @*<input id="password-field" type="password" class="form-control" name="password" value="secret">
+                                <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>*@
+                                    @Html.PasswordFor(m => m.LoginPassword, new { @runat = "server", toggle = "#LoginPassword", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.LoginPassword), @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(m => m.LoginPassword)
+                                    <span toggle="#LoginPassword" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                </div>
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                </div>
+                            </div>
+                            <div class="form-group mt30">
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                </div>
+                                <div class="col-sm-10 col-md-10 col-lg-10">
+                                    <a href="../login/ForgotPassword" class="pull-right">Forgot Password ?</a>
+                                </div>
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                </div>
+
+                            </div>
+                            <div class="form-group mt30">
+                                <div class="col-sm-1 col-md-1 col-lg-1">
+                                </div>
+                                <div class="col-sm-8 col-md-8 col-lg-8">
+                                    @*<input type="submit" value="Log in" class="" />*@
+                                    <button type="submit" class="btn btn-success btn-block" id="btnLogin" value="Log in" title="Log in" data-toggle="tooltip"><i class="fa fa-sign-in" aria-hidden="true"></i>&nbsp;&nbsp; Log in </button>
+
+                                </div>
+                                <div class="col-sm-3 col-md-3 col-lg-3">
+                                </div>
+                            </div>
+                            <span class="error">@ViewBag.Message </span>
+                        }
+                    </section>
+                </div>
+                <div class="col-sm-2 col-md-4 col-lg-4">
+                </div>
+            </div>
+        </div>
+        @*</div>
+    </div>*@
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#LoginName").focus();
+        });
+        $(".toggle-password").click(function () {
+
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+            if (input.attr("type") == "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        });
+    </script>

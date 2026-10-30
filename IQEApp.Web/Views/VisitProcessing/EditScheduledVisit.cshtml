@@ -1,0 +1,310 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitDetailsModel
+@{
+    ViewBag.Title = "Schedule Visit";
+}
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h3 class="box-title"> <span id="spnHeadTitle"> Schedule Visits </span></h3>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6 ">
+            <div id="divScheduleVisitLoadingIconId"></div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+        </div>
+    </div>
+   
+    <div id="CommonDetailsDiv">
+
+    </div>
+    <div id="controlNumDetails">
+        @Html.Partial("~/Views/VisitProcessing/_ControlNumberDetails.cshtml", Model)
+    </div>
+    @if (Model.LstUsersGrid.Any())
+    {
+        <div id="EmpMappingList">
+            <div class="clearfix"></div>
+            <!--Header Div Starts-->
+            <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+                <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                    Employee Name
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                    Inspector Code
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 table-header">
+                    Address
+                </div>
+
+                <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                    Contact No
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                    &nbsp;
+                </div>
+            </div>
+            <!--Header Div Ends-->
+            <div id="MappedEmps">
+
+                @foreach (var emp in Model.LstUsersGrid)
+                {
+                <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row" id="divEmpMap_@emp.UserId">
+                    <div class="col-lg-3 col-md-3 col-sm-3">
+                        @emp.UserFullName
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2">
+                        @emp.InspectorCode
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-4">
+                        @emp.Address @emp.CityName, @emp.StateName
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2">
+                        @emp.EmpContactNumber
+                    </div>
+                    <div class="col-lg-1 col-md-1 col-sm-1">
+                        <a href="javascript:UnMapEmp('@emp.UserId',this);">
+                            <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                Delete
+                            </i>
+                        </a>
+                    </div>
+                </div>
+                }
+
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    }
+    else
+    {
+        <div id="EmpMappingList" style="display: none">
+            <div class="clearfix"></div>
+            <!--Header Div Starts-->
+            <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+                <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                    Employee Name
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                    Inspector Code
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4 table-header">
+                    Address
+                </div>
+
+                <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                    Contact No
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                    &nbsp;
+                </div>
+            </div>
+            <!--Header Div Ends-->
+            <div id="MappedEmps">
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    }
+    <div class="mt20">
+        @*@using (Ajax.BeginForm("ScheduleNewVisit", "VisitProcessing",
+                new AjaxOptions
+                {
+                    HttpMethod = "POST",
+                    //OnBegin = "beginProgressBar",
+                    //OnSuccess = "onAddServiceOrderSuccess",
+                }))
+            {*@
+        <div class="row">
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.ScheduleDate, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.ScheduleDate, "{0:dd-MM-yyyy}", new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                @Html.ValidationMessageFor(m => m.ScheduleDate)
+                <div class="clearfix mt10"></div>
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                @Html.LabelFor(m => m.ScheduleComments, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.ScheduleComments, new { @class = "form-control inputStyle ", @placeholder = @Html.DisplayNameFor(model => model.ScheduleComments) })
+                @Html.ValidationMessageFor(m => m.ScheduleComments)
+                <div class="clearfix mt10"></div>
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                <input id="hdnUserIds" type="hidden" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.ClientConfirmation, new { @class = "control-label" })
+                @Html.RadioButtonFor(m => m.ClientConfirmation, true, new { @class = "", @placeholder = @Html.DisplayNameFor(model => model.ClientConfirmation) }) <span>Yes</span>
+                @Html.RadioButtonFor(m => m.ClientConfirmation, false, new { @class = " ", @placeholder = @Html.DisplayNameFor(model => model.ClientConfirmation) }) <span>No</span>
+                @Html.ValidationMessageFor(m => m.ClientConfirmation)
+                <div class="clearfix mt10"></div>
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.ManufacturerConfirmation, new { @class = "control-label" })
+                @Html.RadioButtonFor(m => m.ManufacturerConfirmation, true, new { @class = "", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerConfirmation) }) <span>Yes</span>
+                @Html.RadioButtonFor(m => m.ManufacturerConfirmation, false, new { @class = "", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerConfirmation) }) <span>No</span>
+                @Html.ValidationMessageFor(m => m.ManufacturerConfirmation)
+                <div class="clearfix mt10"></div>
+            </div>
+           
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.HiddenFor(m => m.VisitGuid)
+                @Html.HiddenFor(m => m.VisitId)
+                <input id="hdnUserIds" type="hidden" />
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                <a class="btn btn-secondary pull-right mr5" id="btnCancelVisitDetails" title="Cancel" data-toggle="tooltip" href="/VisitProcessing/ScheduleVisitList">@*<i class="fa fa-ban" aria-hidden="true"></i>*@ Cancel </a>
+                <button type="submit" class="btn btn-success pull-right mr5" id="btnUpdateVisitDetails" value="Update" title="Update" data-toggle="tooltip" onclick="javascript: UpdateVisitDetails();"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Update </button>&nbsp;&nbsp;
+            </div>
+        </div>
+        @*}*@
+        <div class="clearfix"></div>
+    </div>
+</div>
+<script>
+    function LoadCommonDetails() {
+        //alert($('#VisitGuid').val());
+        $.ajax({
+            url: '../Common/LoadCommonDetailsForScheduleVisit',
+            type: 'POST',
+            data: {
+                visitGuid: $('#VisitGuid').val(),
+                controlNumberGuid: null,
+                ServiceOrderId: 0,
+                isEditMode:true
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $("#CommonDetailsDiv").html(response);
+                $("#chkPurchaseOrderId_@Model.POID").prop('checked', true);
+                $("#hdnSelectedPOID").val(@Model.POID);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+    $(document).ready(function () {
+        LoadCommonDetails();
+    });
+    $(function () {
+        $("#ScheduleDate").datepicker({
+            //format: 'dd-MM-yyyy',
+            //endDate: '+0d',
+            //autoclose: true
+
+        });
+    });
+    function GetControlNumDetails() {
+        $.ajax({
+            url: '../ControlNumber/ScheduleVisit',
+            type: 'POST',
+            data: {
+                controlNumber: $("#txtControlNumber").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+
+                $('#controlNumDetails').html(data).show();
+                //$('#btnSOList').show();
+                //$('#btnNewSO').hide();
+                //$("#divSODetails").html('');
+                //$('#divActiveInActive').hide();
+                //$('#divServiceOrders').hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+    var usersList = [];
+    var assignedUsers = '@Model.UserIds';
+    usersList = assignedUsers.split(",");
+    console.log("usersList" + usersList);
+    function AddEngg(obj) {
+        var isValidationRaised = window.validator.validate([
+            //{ elementVal: $("#TravelType").val(), isRequired: true, errorElement: "errorTravelType", errorString: "Select Travel Type" },
+            { elementVal: $("#UserId").val(), isRequired: true, errorElement: "UserListValidation", errorString: "Select User" }
+        ]);
+        if (isValidationRaised) {
+            return;
+        }
+        $(".MappedEmpsTemp").appendTo("#MappedEmps");
+        $(".MappedEmpsTemp").removeClass("MappedEmpsTemp").show();
+        $("#EmpMappingList").show();
+        $('#divEmpDetails').html('');
+        usersList.push($("#UserId").val());
+        $("#UserId").val('-1');
+        console.log("usersList" + usersList);
+    }
+    function UpdateVisitDetails() {
+        var isValidationRaised = window.validator.validate([
+            { elementVal: $('#ScheduleDate').val(), isRequired: true, errorElement: "ScheduleDateValidation", errorString: "Schedule Date Required" }
+        ]);
+        if (isValidationRaised) {
+            return;
+        }
+        if (usersList.length < 1) {
+            $("#UserListValidation").html("Assign at least one user").show();
+            return;
+        }
+        usersList = usersList.filter(function (str) {
+            return /\S/.test(str);
+        });
+        $.ajax({
+            url: '../VisitProcessing/UpdateVisitDetails',
+            type: 'POST',
+            data: {
+                VisitGuid: $("#VisitGuid").val(),
+                ScheduleDate: $("#ScheduleDate").val(),
+                ClientConfirmation: $("#ClientConfirmation").val(),
+                ManufacturerConfirmation: $("#ManufacturerConfirmation").val(),
+                ScheduleComments: $("#ScheduleComments").val(),
+                UserIds: usersList.join(","),
+                POID: $("#drpPurchaseOrder").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                if (data.retStatus) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+
+                    var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+                    window.location.href = currentUrl + "/VisitProcessing/ScheduleVisitLists";
+
+                   // window.location.href = "/VisitProcessing/ScheduleVisitList";
+                } else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+    function UnMapEmp(userId, obj) {
+        $('#divEmpMap_' + userId).remove();
+        var indexNum = usersList.indexOf(userId);
+        if (indexNum > -1) {
+            usersList.splice(indexNum, 1);
+        }
+        console.log("usersList" + usersList);
+        //if (usersList.length < 1) {
+        //    $("#EmpMappingList").hide();
+        //}
+    }
+
+</script>
+

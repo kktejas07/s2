@@ -1,0 +1,813 @@
+﻿@using WebIndiaApp.Web.Utils
+@using IQEApp.Web.Models.ServiceOrderModel
+@using Newtonsoft.Json
+@model IQEApp.Web.Models.InvoiceModel.InvoiceDetailsModel
+
+<link href="~/Content/Site.css" rel="stylesheet" />
+
+<style>
+    .directory-table-row hr {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    body {
+        font-family: Arial;
+        font-size: 9.5pt;
+    }
+
+    .table {
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        background-color: #B8DBFD;
+        align-content: center;
+        color: #333;
+        /*height: 50px;*/
+        width: 95%;
+        padding-top: 0;
+        line-height: 1em;
+    }
+
+    .time-col {
+        min-width: 130px; /* must be THIS wide */
+        white-space: nowrap;
+    }
+
+    .cell {
+        /*padding: 2px 3px;*/
+        font-size: 11px;
+        vertical-align: central;
+    }
+
+    .cell-top {
+        min-height: 28px; /* KEY: keeps HR aligned */
+        line-height: 14px;
+    }
+
+    .cell-bottom {
+        line-height: 14px;
+    }
+
+    .cell-divider {
+        margin: 2px 0;
+        height: 1px;
+        border: 0;
+        border-top: 1px solid #666;
+    }
+
+    .text-left {
+        text-align: left;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    hr.class-1 {
+        margin: 2px 0 !important;
+        padding: 0;
+        height: 1px;
+        line-height: 1px;
+        border: 0;
+        border-top: 1px solid thin;
+        background: #ccc;
+    }
+</style>
+<div>
+    @if (Model.LstVisitProcessings.Count > 0)
+    {
+        <div class="row bg">
+            <div class="col-sm-6 col-md-6 col-lg-6">
+                <h5>Total Visits : @Model.InvoiceStats.TotalVisits</h5>
+            </div>
+            <div class="col-sm-6 col-md-6 col-lg-6">
+                <h5>Finance Check Completed : @Model.InvoiceStats.CompletedFCCount</h5>
+            </div>
+        </div>
+        <div class="row mt10">
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ClientContactName, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.ClientContactName, new { @class = "form-control inputStyle redborder", @style = "width:200px;", @placeholder = @Html.DisplayNameFor(model => model.ClientContactName) })
+                @Html.ValidationMessageFor(m => m.ClientContactName)
+                <span id="spnClientContactNameValidation" class="error" style="display: none;"></span>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ClientContactAddress, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.ClientContactAddress, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ClientContactAddress) })
+                @Html.ValidationMessageFor(m => m.ClientContactAddress)
+                <span id="spnClientContactAddressValidation" class="error" style="display: none;"></span>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.Encl, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.Encl, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.Encl) })
+                @Html.ValidationMessageFor(m => m.ClientContactAddress)
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.MileageCost, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.MileageCost, new { @class = "form-control inputStyle", @style = "width:100px;", @placeholder = @Html.DisplayNameFor(model => model.MileageCost), onchange = "javascript:calculateMileageCost()" })
+                @Html.ValidationMessageFor(m => m.MileageCost)
+                @*<span id="spnMileageCostValidation" class="error" style="display: none;"></span>*@
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.Currency, new { @class = "control-label" })
+                <select style="width:100px;" id="ddlCurrency" class="form-control dropDownStyle redborder" onchange="javascript: changeCurrency(this);">
+                    <option value="1">INR</option>
+                    <option value="2">USD</option>
+                </select>
+                @Html.ValidationMessageFor(m => m.Currency)
+            </div>
+
+            <!-- Move S.O. Number here: next to Currency / GST block per UX request -->
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.LstServiceOrders.FirstOrDefault().SONumber, new { @class = "control-label" })
+                @Html.DropDownListFor(m => m.SOID,
+                    new SelectList(Model.LstServiceOrders ?? new List<ServiceOrderViewModel>(), "SOId", "SONumber"),
+                    "Select",
+                    new { @style = "width:150px", @class = "form-control dropDownStyle redborder" })
+                @Html.ValidationMessageFor(m => m.SOID)
+                <span id="spnServiceOrderValidation" class="error" style="display:none;"></span>
+            </div>
+
+            <div class="clearfix "></div>
+            <div id="divVisitAnnexureDetails">
+                <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+                    @Html.LabelFor(m => m.Subject, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.Subject, new { @class = "form-control inputStyle redborder", @style = "width:400px;", @placeholder = @Html.DisplayNameFor(model => model.Subject) })
+                    @Html.ValidationMessageFor(m => m.Subject)
+                    <span id="spnSubjectValidation" class="error" style="display: none;"></span>
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @if (Model.IsSez)
+                {
+                    <span><input id="chkIsSez" checked="checked" type="checkbox" value="true" disabled="disabled" />:&nbsp;&nbsp;&nbsp;</span>
+                }
+                else
+                {
+                    <span><input id="chkIsSez" type="checkbox" value="false" disabled="disabled" />:&nbsp;&nbsp;&nbsp;</span>
+                }
+                <span><b>Sez</b></span><br />
+                @if (Model.IsOverseas)
+                {
+                    <span><input id="chkIsOverseas" checked="checked" type="checkbox" value="true" disabled="disabled" />:&nbsp;&nbsp;&nbsp;</span>
+                }
+                else
+                {
+                    <span><input id="chkIsOverseas" type="checkbox" value="false" disabled="disabled" />:&nbsp;&nbsp;&nbsp;</span>
+                }
+                <span><b>Overseas</b></span><br />
+                <span><b>GST No:</b>&nbsp;&nbsp;@Model.ClientGSTNo</span>
+                @Html.HiddenFor(m => m.ClientGSTNo)
+            </div>
+            <div class="row mt10 mb10">
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.HiddenFor(m => m.CGSTPercentage)
+                    @Html.HiddenFor(m => m.SGSTPercentage)
+                    @Html.HiddenFor(m => m.IGSTPercentage)
+                </div>
+            </div>
+            <div>
+
+                @if (Model.LstVisitProcessings.Any())
+                {
+                    int index = 1;
+                    <table style="width:98%" cellpadding="0" cellspacing="0" class="center">
+                        <tr>
+                            <th style="width:4%; text-align: center; padding: 2px 2px; line-height: 14px;" class="font12">S.No</th>
+                            <th style="width:9%; text-align: center; padding: 2px 2px; line-height: 14px;" class="font12 text-center ">@Html.Label("Visit Date")</th>
+                            <th style="width:19%; padding:2px 3px; line-height:14px; vertical-align:top;" class="font12 text-center ">
+                                @Html.Label("Supplier")
+                                <hr style="margin:2px 0 1px 0; height:1px; border:0; border-top:1px solid #666;" />
+                                @Html.Label("Location")
+                            </th>
+
+                            <th style="width:12%; padding:2px 3px; line-height:14px;" class="font12 text-center ">
+                                <b>@Html.Label("PO No")</b>
+                                <hr style="margin:2px 0 1px 0; height:1px; border:0; border-top:1px solid #666;" />
+                                <b>@Html.Label("Date")</b>
+                            </th>
+                            <th style="width:12%; padding:2px 3px; line-height:14px;" class="font12 text-center ">
+                                <b>@Html.Label("Report No")</b>
+                                <hr style="margin:2px 0 1px 0; height:1px; border:0; border-top:1px solid #666;" />
+                                <b>@Html.Label("Insp Name")</b>
+                            </th>
+
+                            <th style="width:10%; padding:2px 3px; line-height:14px;" class="font12 text-center time-col">
+                                <div class="time-inline">@Html.Label("Time In")&nbsp;/&nbsp;@Html.Label("Out")</div>
+                                <hr style="margin:2px 0 1px 0; height:1px; border:0; border-top:1px solid #666;" />
+                                <div>@Html.Label("Total Hrs")</div>
+                            </th>
+                            <th style="width:10%; padding:2px 3px; line-height:14px;" class="font12 text-center">
+                                <b>@Html.Label("Mileage (KM)")</b>
+                                <hr style="margin:2px 0 1px 0; height:1px; border:0; border-top:1px solid #666;" />
+                                <b>@Html.Label("Expenses")</b>
+                            </th>
+                            <th style="width:12%; padding:2px 3px; line-height:14px;" class="font12 text-center">
+                                <b>@Html.Label("Boarding")</b>
+                                <hr style="margin:2px 0 1px 0; height:1px; border:0; border-top:1px solid #666;" />
+                                <b>@Html.Label("Travel Expenses")</b>
+                            </th>
+                            <th style="width:8%; padding:2px 3px; line-height:14px;" class="font12 text-center">@Html.Label("Others")</th>
+                            <th style="width:12%; padding:2px 3px; line-height:14px;" class="font12 text-center">
+                                <b>@Html.Label("Service Charge")</b>
+                            </th>
+                            <th style="width:15%; padding:2px 3px; line-height:14px;" class="font12 text-center">@Html.Label("Total")</th>
+                            <th style="width:20%; padding:2px 3px; line-height:14px;" class="font12 text-center">@Html.Label("Remarks")</th>
+                        </tr>
+
+                        @foreach (var visit in Model.LstVisitProcessings)
+                        {
+                            var uniqueId = visit.VEMId + "_" + index;
+                            <tr>
+                                <td style="width:4%;" class="cell">
+                                    <input id="chkVisitId_@uniqueId" class="js-VisitPrice" checked="checked" type="checkbox" value="@uniqueId" onchange="fnVisitCalculationChanged(this);" />
+                                    @index
+                                    <input id="hdnVisitId_@uniqueId" type="hidden" value="@visit.VisitId" />
+                                </td>
+
+                                <td class="cell">
+                                    @(visit.VisitDate.GetConvertedShortDate() == DateTime.MinValue.GetConvertedShortDate() ? "--" : visit.VisitDate.ToString("dd-MM-yyyy"))
+                                    <input id="hdnVisitDate_@uniqueId" type="hidden" value="@visit.VisitDate" />
+                                </td>
+
+                                <td class="cell text-left">
+                                    <div class="cell-top">
+                                        @(visit.ManufacturerName ?? "--")
+                                        <input id="hdnManufacturerName_@uniqueId" type="hidden" value="@visit.ManufacturerName" />
+                                    </div>
+                                    <hr class="cell-divider" />
+                                    <div class="cell-bottom">
+                                        @(visit.VisitLocation ?? "--")
+                                        <input id="hdnVisitLocation_@uniqueId" type="hidden" value="@visit.VisitLocation" />
+                                    </div>
+                                </td>
+
+                                <td class="cell text-left">
+                                    <div class="cell-top">
+                                        @if (!string.IsNullOrEmpty(visit.PONumber))
+                                        {
+                                            var formattedPoNumber = visit.PONumber.Replace(";", "<strong>;</strong>");
+                                            @Html.Raw(formattedPoNumber)
+                                        }
+                                        else
+                                        {
+                                            @:--
+                                        }
+                                    </div>
+                                    <input id="hdnPONumber_@uniqueId" type="hidden" value="@visit.PONumber" />
+                                    <hr class="cell-divider" />
+                                    <div class="cell-bottom">
+                                        @(visit.PODate.GetConvertedShortDate() == DateTime.MinValue.GetConvertedShortDate()  ? "--" : visit.PODate.GetConvertedShortDate())
+                                        <input id="hdnPODate_@uniqueId" type="hidden" value="@visit.PODate" />
+                                    </div>
+                                </td>
+
+                                <td class="cell text-left">
+                                    <div class="cell-top">
+                                        @(visit.InspReportNo ?? "--")
+                                        <input id="hdnReportNo_@uniqueId" type="hidden" value="@visit.InspReportNo" />
+
+                                    </div>
+                                    <hr class="cell-divider" />
+                                    <div class="cell-bottom">
+                                        @visit.InspectorName
+                                        <input id="hdnInspectorName_@uniqueId" type="hidden" value="@visit.InspectorName" />
+                                    </div>
+                                </td>
+
+                                <td class="cell text-center">
+                                    <div class="cell-top">
+                                        @visit.TimeIn.ToString("hh:mmtt") / @visit.TimeOut.ToString("hh:mmtt")
+                                        <input id="hdnTimeIn_@uniqueId" type="hidden" value="@visit.TimeIn" />
+                                        <input id="hdnTimeOut_@uniqueId" type="hidden" value="@visit.TimeOut" />
+
+
+                                    </div>
+                                    <hr class="cell-divider" />
+                                    <div class="cell-bottom">
+                                        @(visit.TotalHrs ?? "--")
+                                        <input id="hdnTotalHrs_@uniqueId" type="hidden" value="@visit.TotalHrs" />
+                                    </div>
+                                </td>
+
+                                <td class="cell text-right">
+                                    <div class="cell-top">
+                                        <input id="hdnDistance_@uniqueId" value="@visit.Distance" class="form-control" style="width: 100px; height: 20px;"
+                                               onchange="calculateMileageCostForIndividual('@uniqueId')" />
+                                    </div>
+                                    <hr class="cell-divider" />
+                                    <div class="cell-bottom">
+                                        <input id="txtMileageCost_@uniqueId" value="@visit.MileageCost" data-id="@uniqueId" class="form-control jsMileageCost" readonly style="width: 100px; height: 20px;" />
+                                    </div>
+                                </td>
+
+
+                                <td class="cell text-right">
+                                    <div class="cell-top">
+                                        <input id="txtFoodAllowance_@uniqueId"
+                                               value="@visit.FoodAllowance" data-id="@uniqueId"
+                                               class="form-control"
+                                               style="width:100px;height:20px;"
+                                               onchange="sumAllIndividualAllowances('@uniqueId')" />
+                                    </div>
+                                    <hr class="cell-divider" />
+                                    <div class="cell-bottom">
+                                        <input id="txtTravelFare_@uniqueId"
+                                               value="@visit.TravelFare" data-id="@uniqueId"
+                                               class="form-control"
+                                               style="width: 100px; height: 20px;"
+                                               onchange="sumAllIndividualAllowances('@uniqueId')" />
+                                    </div>
+                                </td>
+
+                                <td class="cell text-right">
+                                    <div class="cell-top">
+                                        <input id="txtOtherExpenses_@uniqueId" value="@visit.OtherExpenses" data-id="@uniqueId"
+                                               class="form-control" style="width:100px;"
+                                               onchange="sumAllIndividualAllowances('@uniqueId')" />
+                                    </div>
+
+                                </td>
+
+                                <td class="cell text-right">
+                                    <div class="cell-top">
+                                        <input id="txtServiceCharge_@uniqueId" value="@visit.ServiceCharge" data-id="@uniqueId"
+                                               class="form-control" style="width:100px;"
+                                               onchange="sumAllIndividualAllowances('@uniqueId')" />
+                                    </div>
+                                </td>
+
+                                <td class="cell text-right">
+                                    <div class="cell-top">
+                                        <input id="txtIndividualTotal_@uniqueId" value="@visit.Total" data-id="@uniqueId"
+                                               class="form-control js-InvoiceGrandTotal"
+                                               readonly style="width:75px;" />
+                                    </div>
+                                </td>
+
+                                <td class="cell text-left">
+                                    <div class="cell-top">
+                                        <input id="txtRemarks_@uniqueId"
+                                               class="form-control" style="width:90px;"
+                                               placeholder="Remarks" value="@visit.Remarks" />
+                                    </div>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+
+                    </table>
+
+
+                }
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div id="divInvoiceOtherDetails">
+            <div class="row mt10">
+                <div class="col-sm-8 col-md-8 col-lg-8 p0">
+
+                    <div class="col-sm-12 col-md-12 col-lg-12 ">
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.LabelFor(m => m.InvoiceTemplateId, new { @class = "control-label" })
+                            @Html.DropDownListFor(m => m.InvoiceTemplateId, new SelectList(Model.TemplateTypes, "InvoiceTemplateId", "InvoiceTemplateName"), "Select", new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.InvoiceTemplateId) })
+                            @Html.ValidationMessageFor(m => m.InvoiceTemplateId)
+                            <span id="spnInvoiceTemplateIdValidation" class="error" style="display: none;"></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-4 col-lg-4 p0">
+                    <div class="col-sm-12 col-md-12 col-lg-12 ">
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                            @Html.LabelFor(m => m.TotalAmount, new { @class = "control-label" })
+                            <div style="display: flex;">
+                                <span style="padding: 10px 5px 1px 10px;" id="spnTotalAmount">
+                                    @*Rs.*@<i class="fa fa-inr" aria-hidden="true"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.TotalAmount), @readonly = "readonly" })
+
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                        </div>
+                    </div>
+                    @*<div class="col-sm-12 col-md-12 col-lg-12 ">
+                            <div class="col-sm-6 col-md-6 col-lg-6 ">
+                                @Html.LabelFor(m => m.InvoicePrice, new {@class = "control-label"})
+                                <div style="display: flex;">
+                                    <span style="padding: 10px 5px 1px 10px;">
+                                       <i class="fa fa-inr" aria-hidden="true"></i>
+                                    </span>
+                                    @Html.TextBoxFor(m => m.InvoicePrice, new {@class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.InvoicePrice), @readonly = "readonly"})
+                                    @Html.ValidationMessageFor(m => m.InvoicePrice)
+                                </div>
+                            </div>
+
+                        </div>*@
+                    <div class="col-sm-12 col-md-12 col-lg-12 ">
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                            @Html.LabelFor(m => m.SGST, new { @class = "control-label" })
+                            <div style="display: flex;">
+                                <span style="padding: 10px 5px 1px 10px;" id="spnSGST">
+                                    @*Rs.*@<i class="fa fa-inr" aria-hidden="true"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.SGST, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.SGST), @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                            @Html.LabelFor(m => m.ExchangeRate, new { @class = "control-label" })
+                            <div style="display: flex;">
+                                <span style="padding: 10px 5px 1px 10px;">
+                                    @*Rs.*@<i class="fa fa-inr" aria-hidden="true"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.ExchangeRate, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ExchangeRate), onchange = "convertDollarToINR();" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 ">
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                            @Html.LabelFor(m => m.CGST, new { @class = "control-label" })
+                            <div style="display: flex;">
+                                <span style="padding: 10px 5px 1px 10px;" id="spnCGST">
+                                    @*Rs.*@<i class="fa fa-inr" aria-hidden="true"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.CGST, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.CGST), @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 ">
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                            @Html.LabelFor(m => m.IGST, new { @class = "control-label" })
+                            <div style="display: flex;">
+                                <span style="padding: 10px 5px 1px 10px;" id="spnIGST">
+                                    @*Rs.*@<i class="fa fa-inr" aria-hidden="true"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.IGST, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.IGST), @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-12 ">
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                            @Html.LabelFor(m => m.GrandTotalAmount, new { @class = "control-label" })
+                            <div style="display: flex;">
+                                <span style="padding: 10px 5px 1px 10px;" id="spnGrandTotalAmount">
+                                    @*Rs.*@<i class="fa fa-inr" aria-hidden="true"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.GrandTotalAmount, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.GrandTotalAmount), @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 ">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="row mt10">
+                <div class="col-sm-9 col-md-9 col-lg-9 form-group">
+
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" id="divProceedButtons">
+                    <button type='button' class="btn btn-success pull-right" id="btnSaveInvoiceDetails" value="Cancel" title="Proceed" data-toggle="tooltip" onclick="javascript: SaveInvoiceDetails();" disabled><i class="fa fa-floppy-o" aria-hidden="true"></i> Proceed </button>
+                    <button type='button' class="btn btn-success pull-right mr5" id="btnClearInvoiceDetails" value="Cancel" title="Clear" data-toggle="tooltip" onclick="javascript: clearInvoiceFirstStep();"><i class="fa fa-floppy-o" aria-hidden="true"></i> Clear </button>
+                    @*<button type='button' class="btn btn-success pull-right mr5" id="btnPrintInvoice" value="Cancel" title="Print" data-toggle="tooltip" onclick="javascript: void (0);"><i class="fa fa-floppy-o" aria-hidden="true"></i> Print </button>*@
+
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div>
+            There is No data to display
+        </div>
+    }
+</div>
+
+<script>
+    $(document).ready(function () {
+        debugger;
+        $("#ExchangeRate").prop("readonly", true).val('1');
+
+        // 🔥 NEW: AUTO CALCULATE ON EDIT LOAD
+        calculateInvoiceOnLoad();
+    });
+    function calculateInvoiceOnLoad() {
+
+        var grandTotal = 0;
+
+        $(".js-InvoiceGrandTotal").each(function () {
+
+            var dataId = $(this).attr("data-id");
+
+            var mileageCost = parseFloat($("#txtMileageCost_" + dataId).val()) || 0;
+            var foodAllowance = parseFloat($("#txtFoodAllowance_" + dataId).val()) || 0;
+            var travelFare = parseFloat($("#txtTravelFare_" + dataId).val()) || 0;
+            var serviceCharge = parseFloat($("#txtServiceCharge_" + dataId).val()) || 0;
+            var otherExpenses = parseFloat($("#txtOtherExpenses_" + dataId).val()) || 0;
+
+            var total = mileageCost + foodAllowance + travelFare + serviceCharge + otherExpenses;
+
+            $("#txtIndividualTotal_" + dataId).val(total);
+
+            grandTotal += total;
+        });
+
+        $("#TotalAmount").val(grandTotal);
+
+        applyGSTAndGrandTotal(grandTotal);
+    }
+
+    function applyGSTAndGrandTotal(amount) {
+
+        var IsSeZ = $("#chkIsSez").is(":checked");
+        var IsOverseas = $("#chkIsOverseas").is(":checked");
+
+        if (!IsSeZ || !IsOverseas) {
+            var CGSTPer = parseFloat($("#CGSTPercentage").val()) || 0;
+            var SGSTPer = parseFloat($("#SGSTPercentage").val()) || 0;
+            var IGSTPer = parseFloat($("#IGSTPercentage").val()) || 0;
+
+            var CGST = percentage(amount, CGSTPer);
+            var SGST = percentage(amount, SGSTPer);
+            var IGST = percentage(amount, IGSTPer);
+
+            $("#CGST").val(CGST);
+            $("#SGST").val(SGST);
+            $("#IGST").val(IGST);
+
+            var finalTotal = amount + CGST + SGST + IGST;
+            debugger;
+            $("#GrandTotalAmount").val(finalTotal);
+          // applyGSTAndGrandTotal(finalTotal);
+
+            $("#btnSaveInvoiceDetails").prop("disabled", finalTotal <= 0);
+        }
+
+        if (IsOverseas || $("#ddlCurrency").val() == 2) {
+            convertDollarToINR();
+        }
+    }
+    function sumAllIndividualAllowances(VEMId) {
+        //debugger;
+        var mileageCost = parseInt($("#txtMileageCost_" + VEMId).val());
+        var foodAllowance = parseInt($("#txtFoodAllowance_" + VEMId).val());
+        var travelFare = parseInt($("#txtTravelFare_" + VEMId).val());
+        var serviceCharge = parseInt($("#txtServiceCharge_" + VEMId).val());
+        var otherExpenses = parseInt($("#txtOtherExpenses_" + VEMId).val());
+
+        var Total = 0;
+        Total = mileageCost + foodAllowance + travelFare + serviceCharge + otherExpenses;// +mileageCost + +foodAllowance + +modeOfTransport + +travelFare + +hotelFare + +serviceCharge;
+        $("#txtIndividualTotal_" + VEMId).val(Total);
+        var Total = 0;
+        $(".js-InvoiceGrandTotal").each(function () {
+            var dataId = $(this).attr("data-id");
+            var individualTotal = $("#txtIndividualTotal_" + dataId).val();
+            Total = +individualTotal + +Total;
+        });
+        $("#TotalAmount").val(Total);
+
+        //var IsSeZ = $("#chkSez").val();
+        //var IsOverseas = $("#chkOverseas").val();
+        var IsSeZ = $("#chkIsSez").is(":checked");
+        var IsOverseas = $("#chkIsOverseas").is(":checked");
+
+        if (!IsSeZ || !IsOverseas) {
+            var amount = parseInt($("#TotalAmount").val());
+            var CGSTPer = parseFloat($("#CGSTPercentage").val());
+            var SGSTPer = parseFloat($("#SGSTPercentage").val());
+            var IGSTPer = parseFloat($("#IGSTPercentage").val());
+            var CGST = percentage(amount, CGSTPer);
+            $("#CGST").val(CGST);
+            var SGST = percentage(amount, SGSTPer);
+            $("#SGST").val(SGST);
+            var IGST = percentage(amount, IGSTPer);
+            $("#IGST").val(IGST);
+            Total = amount + CGST + SGST + IGST;
+            $("#GrandTotalAmount").val(Total);
+            //applyGSTAndGrandTotal(Total);
+            if (Total > 0) {
+                $("#btnSaveInvoiceDetails").prop("disabled", false);
+            } else {
+                $("#btnSaveInvoiceDetails").prop("disabled", true);
+            }
+        }
+        if (IsOverseas == 'true' || $("#ddlCurrency").val() == 2) {
+            convertDollarToINR();
+        }
+    }
+
+    function convertDollarToINR() {
+
+        var exchangeRate = $("#ExchangeRate").val();
+        var TotalAmount = $("#TotalAmount").val();
+        var finalInvoiceAmount = (TotalAmount * exchangeRate);
+        $("#GrandTotalAmount").val(finalInvoiceAmount);
+        if ($("#ddlCurrency").val() == 2) {
+            //alert("usd");
+        } else {
+            var amount = parseInt($("#TotalAmount").val());
+            var CGSTPer = parseFloat($("#CGSTPercentage").val());
+            var SGSTPer = parseFloat($("#SGSTPercentage").val());
+            var IGSTPer = parseFloat($("#IGSTPercentage").val());
+            var CGST = percentage(amount, CGSTPer);
+            $("#CGST").val(CGST);
+            var SGST = percentage(amount, SGSTPer);
+            $("#SGST").val(SGST);
+            var IGST = percentage(amount, IGSTPer);
+            $("#IGST").val(IGST);
+            Total = amount + CGST + SGST + IGST;
+            $("#GrandTotalAmount").val(Total);
+           // debugger;
+            //applyGSTAndGrandTotal(Total);
+        }
+    }
+
+    function changeCurrency(obj) {
+        var currencyType = parseInt($(obj).val());
+
+        if (currencyType === 1) {
+            $("#ExchangeRate").val('1').prop("readonly", true);
+            $("#spnTotalAmount").html("<i class='fa fa-inr' aria-hidden='true'></i>");
+        }
+        if (currencyType === 2) {
+            $("#spnTotalAmount").html("<i class='fa fa-usd' aria-hidden='true'></i>");
+            $("#ExchangeRate").attr("readonly", false);
+            $("#SGST").val('0');
+            $("#CGST").val('0');
+            $("#IGST").val('0');
+        }
+        convertDollarToINR();
+    }
+    function percentage(num, percentToGet) {
+        return (percentToGet / 100) * num;
+    }
+
+    function calculateMileageCost() {
+        var MC = $("#MileageCost").val();
+        $(".jsMileageCost").each(function () {
+            var dataId = $(this).attr("data-id");
+            var distance = $("#hdnDistance_" + dataId).val();
+            var MCost = (MC * distance);
+            $("#txtMileageCost_" + dataId).val(MCost);
+        });
+    }
+
+    function calculateMileageCostForIndividual(uniqueId) {
+        debugger;
+        var MC = $("#MileageCost").val();
+        var distance = $("#hdnDistance_" + uniqueId).val();
+        var MCost = (MC * distance);
+        $("#txtMileageCost_" + uniqueId).val(MCost);
+        sumAllIndividualAllowances(uniqueId);
+    }
+
+
+    function fnVisitCalculationChanged(obj) {
+        debugger;
+        var dataId = $(obj).val();
+        if ($(obj).is(":checked")) {
+            $("#hdnDistance_" + dataId).prop("disabled", false);
+            $("#txtMileageCost_" + dataId).prop("disabled", false);
+            $("#txtFoodAllowance_" + dataId).prop("disabled", false);
+            $("#txtTravelFare_" + dataId).prop("disabled", false);
+          //  $("#txtHotel_" + dataId).prop("disabled", false);
+            $("#txtServiceCharge_" + dataId).prop("disabled", false);
+            $("#txtOtherExpenses_" + dataId).prop("disabled", false);
+        } else {
+            $("#hdnDistance_" + dataId).val(0);
+            $("#txtMileageCost_" + dataId).val(0);
+            $("#txtFoodAllowance_" + dataId).val(0);
+            //$("#txtModeOfTransport_" + dataId).val(0);
+            $("#txtTravelFare_" + dataId).val(0);
+           // $("#txtHotel_" + dataId).val(0);
+            $("#txtServiceCharge_" + dataId).val(0);
+            $("#txtOtherExpenses_" + dataId).val(0);
+
+            $("#hdnDistance_" + dataId).prop("disabled", true);
+            $("#txtMileageCost_" + dataId).prop("disabled", true);
+            $("#txtFoodAllowance_" + dataId).prop("disabled", true);
+            $("#txtTravelFare_" + dataId).prop("disabled", true);
+           // $("#txtHotel_" + dataId).prop("disabled", true);
+            $("#txtServiceCharge_" + dataId).prop("disabled", true);
+            $("#txtOtherExpenses_" + dataId).prop("disabled", true);
+            sumAllIndividualAllowances(dataId);
+        }
+    }
+
+    // serialize server-provided SO list for this partial
+    var __serverSoList = [];
+    try {
+        __serverSoList = @Html.Raw(JsonConvert.SerializeObject(Model.LstServiceOrders ?? new List<ServiceOrderViewModel>()));
+    } catch (e) {
+        __serverSoList = [];
+    }
+    
+    (function populateSOsOnPartialLoad() {
+        try {
+            debugger;
+            // server-provided selected values (from model)
+            var selSOId = '@Model.SOID';
+            var selSONumber = '@(Model.SONumber != null ? Model.SONumber.Replace("'", "\\'") : "")';
+
+            // prefer the control number text (displayed), not the select value
+            var ctrlVal = null;
+            if ($('#LstControlNumbers').length) ctrlVal = $('#LstControlNumbers option:selected').text().trim();
+            if ((!ctrlVal || ctrlVal === '' || ctrlVal === 'Select' || ctrlVal === '-1') && $('#ControlId').length) ctrlVal = $('#ControlId option:selected').text().trim();
+
+            // If a control number is selected prefer fetching full SO list from server to avoid partial/server model mismatch
+            if (ctrlVal && ctrlVal !== '' && ctrlVal !== 'Select' && ctrlVal !== '-1') {
+                // if parent page cached SO list (create scenario) use it
+                // ONLY apply cached list for Create page (no #InvoiceID hidden) to avoid interfering with Edit flow
+                if ($('#InvoiceID').length === 0 && window.__soListForCreate && window.__soListForCreate.list && window.__soListForCreate.controlNumber) {
+                     try {
+                        var cached = window.__soListForCreate;
+                        // match by controlNumber text (controlNumber stored from GenerateInvoice)
+                        if (String(cached.controlNumber).trim() === String(ctrlVal).trim()) {
+                            var s = '<option value="-1">Select</option>';
+                            var seen = {};
+                            for (var j = 0; j < cached.list.length; j++) {
+                                var item = cached.list[j];
+                                var key = String(item.SOId) + '|' + String(item.SONumber);
+                                if (seen[key]) continue;
+                                seen[key] = true;
+                                s += '<option value="' + item.SOId + '">' + item.SONumber + '</option>';
+                            }
+                            $('#SOID').html(s);
+
+                            // select
+                            if (cached.selected && cached.selected !== '0' && cached.selected !== '-1' && $('#SOID').find('option[value="' + cached.selected + '"]').length) {
+                                $('#SOID').val(cached.selected);
+                            } else if (selSONumber) {
+                                var opt = $('#SOID').find('option').filter(function() { return $.trim($(this).text()) === selSONumber; }).first();
+                                if (opt.length) $('#SOID').val(opt.val());
+                            }
+
+                            return; // done
+                        }
+                     } catch (e) { console.log('apply cached so list failed', e); }
+                 }
+
+                 // call the shared helper which will populate #SOID and select selSOId/selSONumber when provided
+                if (typeof getSONumbersByControlId === 'function') {
+                    try {
+                        // pass selected SO id when available, otherwise pass SONumber text
+                        var selected = (selSOId && selSOId !== '0' && selSOId !== '-1') ? selSOId : selSONumber;
+                        getSONumbersByControlId(ctrlVal, selected);
+                    } catch (e) {
+                        console.log('getSONumbersByControlId call failed', e);
+                    }
+                } else {
+                    // fallback: use serialized server list only if it contains multiple items
+                    if (Array.isArray(__serverSoList) && __serverSoList.length > 1) {
+                        var s = '<option value="-1">Select</option>';
+                        var seen = {};
+                        for (var j = 0; j < __serverSoList.length; j++) {
+                            var item = __serverSoList[j];
+                            var key = String(item.SOId) + '|' + String(item.SONumber);
+                            if (seen[key]) continue;
+                            seen[key] = true;
+                            s += '<option value="' + item.SOId + '">' + item.SONumber + '</option>';
+                        }
+                        $('#SOID').html(s);
+
+                        if (selSOId && selSOId !== '0' && selSOId !== '-1' && $('#SOID').find('option[value="' + selSOId + '"]').length) {
+                            $('#SOID').val(selSOId);
+                        } else if (selSONumber) {
+                            var opt = $('#SOID').find('option').filter(function() { return $.trim($(this).text()) === selSONumber; }).first();
+                            if (opt.length) $('#SOID').val(opt.val());
+                        }
+                    }
+                }
+
+                return; // done
+            }
+
+            // Otherwise, populate via existing helper by client details
+            if (typeof getServiceOrderDetailsByClientDetails === 'function') {
+                try {
+                    getServiceOrderDetailsByClientDetails();
+                } catch (e) {
+                    console.log('getServiceOrderDetailsByClientDetails call failed', e);
+                }
+            }
+        } catch (e) {
+            console.log('populateSOsOnPartialLoad', e);
+        }
+    })();
+</script>

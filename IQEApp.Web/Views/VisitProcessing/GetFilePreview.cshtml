@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "Document Preview";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document Preview</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    @*<script src="~/Scripts/pdf.js"></script>
+    <script src="~/Scripts/pdf.worker.js"></script>*@
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Document Preview</h2>
+    <button id="loadPdf" class="btn btn-primary mb-3">Load PDF</button>
+    <button id="loadDoc" class="btn btn-secondary mb-3">Load DOCX</button>
+    <canvas id="pdf-canvas" class="border mb-3" style="display: none;"></canvas>
+    <div id="docx-content" class="border p-3" style="display: none;"></div>
+</div>
+
+<script>
+
+        $("#loadDoc").click(function() {
+            $("#pdf-canvas").hide();
+            $("#docx-content").show();
+            $.get('@Url.Action("PreviewDoc", "Document")', function(data) {
+                $("#docx-content").html(data);
+            });
+        });
+    </script>
+</body>
+</html>

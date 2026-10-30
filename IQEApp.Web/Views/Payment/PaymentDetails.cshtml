@@ -1,0 +1,175 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.PaymentModel.PaymentDetailsViewModel
+@{
+    ViewBag.Title = "Payment Details";
+}
+<div class="box-header with-border row">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <h3 class="box-title"> <span id="spnUserTitle"> Payment Details </span></h3>
+    </div>
+    <div class="col-sm-5 col-md-5 col-lg-5 ">
+    </div>
+    <div class="col-sm-1 col-md-1 col-lg-1 ">
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddPayment" onclick="javascript: openAddPayments('@Model.InvoiceId');"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Payments</button>
+        <button type='button' class="btn btn-outline-secondary pull-right mtn10 mr5" id="btnInvoiceList" onclick="javascript: openInvoiceList();"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Invoice</button>
+
+    </div>
+</div>
+
+<div id="divPaymentLoading">
+
+</div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10 mb10 bg">
+    <div class="col-sm-12 col-md-12 col-lg-12 p0 ">
+        <small class="text-muted"><i class="fa fa-file-text-o mr5"></i> Invoice Details</small>
+    </div>
+
+    <div id="">
+        <!--Header Div Starts-->
+        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Client Name
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Client Unit Name
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Invoice No.
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Invoice Date
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                Contact Name
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Contact Address
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Invoice Price
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Payments
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Balance
+            </div>
+        </div>
+        <!--Header Div Ends-->
+
+        @foreach (var lst in Model.LstInvoiceViewModel)
+        {
+            <!-- Client data display Div Starts -->
+    <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            @lst.ClientName
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            @lst.ClientUnitName
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            @lst.InvoiceNo
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            @lst.InvoiceDate.GetConvertedShortDate()
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1">
+            @lst.ClientContactName
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @lst.ClientContactAddress
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+           @lst.TotalAmount
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @ViewBag.Total
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @(lst.TotalAmount - @ViewBag.Total)
+        </div>
+
+        @*<div class="col-sm-2 col-md-2 col-lg-2">
+            <div>Invoice Price : <b>@lst.TotalAmount </b></div>
+            <div>Payments : <b>@ViewBag.Total </b></div>
+            <div>Balance : <span style="color: #e86129; font-size: 15px;"> @(lst.TotalAmount - @ViewBag.Total) </span></div>
+        </div>*@
+    </div>
+
+            <!-- Data display Div ends -->
+      }
+        
+
+    </div>
+
+
+
+            @*<div class="col-sm-2 col-md-2 col-lg-2">
+                    <div>Invoice Price : <b>@Model.LstInvoiceViewModel.FirstOrDefault().TotalAmount </b></div>
+                    <div>Payments : <b>@ViewBag.Total </b></div>
+                    <div>Balance : <span style="color: #e86129; font-size: 15px;"> @(@Model.LstInvoiceViewModel.FirstOrDefault().TotalAmount - @ViewBag.Total) </span></div>
+                </div>
+            </div>*@
+
+
+        </div>
+        <div class="clearfix"></div>
+        <div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+            <div id="divNewPayment" style="display:none" class=" bg">
+            </div>
+            <div class="clearfix"> </div>
+            <div class=" bg ">
+                <small class="text-muted"><i class="fa fa-money mr5"></i> Payment Details</small>
+
+                <div id="divPaymentDetails" class="mt10">
+                    @if (@Model.LstPaymentViewModel.Any())
+                    {
+                        @Html.Partial("_paymentsList", Model.LstPaymentViewModel)
+                    }
+                    else
+                    {
+                        <span> No payments available</span>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function openInvoiceList() {
+                var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+                 window.location.href = currentUrl + "/Invoice/Index";
+
+                //var pathname = window.location.href.split('/');
+                //window.location.href = window.location.protocol + '//' + window.location.hostname + '/' + pathname[3] + "/Invoice/Index";
+               // window.location.href = "../Invoice/Index";
+            }
+
+            function openAddPayments(invoiceId) {
+                $.ajax({
+                    url: '../Payment/AddPayment',
+                    type: 'POST',
+                    data: {
+                        invoiceId: invoiceId
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPaymentLoading'), position: "center" });
+                    },
+                    success: function (data) {
+                        $('#divNewPayment').html(data);
+                        $('#divNewPayment').show();
+                        $('#btnAddPayment').hide();
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPaymentLoading'));
+                    }
+                });
+
+            }
+
+        </script>

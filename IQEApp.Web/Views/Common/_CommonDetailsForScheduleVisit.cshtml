@@ -1,0 +1,167 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.CommonModels.CommonDetailsViewModel
+
+
+<div class="row mt10">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+        <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 150px">
+            <small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Customer Details</small>
+            <div>
+                <b> Name: </b>@Model.ClientUnitDetails.ClientName
+            </div>
+            <div class="mt5">
+                <b> Unit Name: </b>@Model.ClientUnitDetails.ClientUnitName
+           </div>
+            <div class="mt5">
+                <b>  Unit Address: </b>@Model.ClientUnitDetails.Address, @Model.ClientUnitDetails.City, @Model.ClientUnitDetails.StateName, @Model.ClientUnitDetails.CountryName
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6 bg" style="height: 150px">
+            <small class="text-muted"><i class="fa fa-futbol-o mr5"></i> Manufacturer Details</small>
+            @*@if (Model.ManufacturerUnitDetails != null)
+            {
+                <div>
+                    Name: <b>@Model.ManufacturerUnitDetails.ManufacturerName</b>
+                </div>
+                <div class="mt5">
+                    Unit Name: <b>@Model.ManufacturerUnitDetails.ManufacturerUnitName</b>
+                </div>
+                <div class="mt5">
+                    Unit Address: <b>@Model.ManufacturerUnitDetails.Address, @Model.ManufacturerUnitDetails.City, @Model.ManufacturerUnitDetails.MFUnitStateName, @Model.ManufacturerUnitDetails.MFUnitCountryName</b>
+                </div>
+            }*@
+            @if (Model.LstManufacturerUnitDetails.Any())
+            {
+                foreach (var mUnit in Model.LstManufacturerUnitDetails)
+                {
+                    <div>
+                        <span>
+                            <b>Name: </b>@mUnit.ManufacturerName
+                        </span>
+                        <span class="mt5">
+                            <p><b>   Unit Name:</b> @mUnit.ManufacturerUnitName
+                            </p>
+                        </span>
+                    </div>
+
+                    @*<div class="mt5">
+                    Unit Address: <b>@Model.ManufacturerUnitDetails.Address, @Model.ManufacturerUnitDetails.City, @Model.ManufacturerUnitDetails.MFUnitStateName, @Model.ManufacturerUnitDetails.MFUnitCountryName</b>
+                </div>*@
+                }
+            }
+            else
+            {
+                <div>Manufacturer not mapped</div>
+            }
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 150px">
+            <small class="text-muted"><i class="fa fa-bandcamp mr5"></i> Service Order Details</small>
+            <div>
+                <b> Number:</b> @Model.ServiceOrderDetails.SONumber
+            </div>
+            <div class="mt5">
+              <b>  Type: </b>@Model.ServiceOrderDetails.ServiceOrderTypeName
+            </div>
+            <div class="mt5">
+                <b>  Date:</b> @Model.ServiceOrderDetails.SODate?.GetConvertedShortDate()??""
+            </div>
+            <div class="mt5">
+                <b> Due Date: </b>@Model.ServiceOrderDetails.SODueDate?.GetConvertedShortDate()??""
+            </div>
+            <div class="mt5">
+                Comments: <b>@Model.ServiceOrderDetails.SOComments</b>
+            </div>
+            <input id="hdnServiceOrderId" type="hidden" value="@Model.ServiceOrderDetails.SOId"/>
+        </div>
+        @*<div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 150px">
+            <small class="text-muted"><i class="fa fa-paper-plane-o mr5"></i> Control Number Details</small>
+            @if (Model.ControlNumberDetails != null)
+            {
+                <div>
+                  <b>  Number :</b>@Model.ControlNumberDetails.ControlNo
+                </div>
+                <div class="mt5">
+                    <b> Comments: </b> &nbsp;<b>@Model.ControlNumberDetails.ControlNumberComments
+                </div>
+            }
+            else
+            {
+                <div>Control Number not mapped</div>
+            }
+        </div>*@
+    </div>
+</div>
+<div Id="PurchaseOrderDetailsBlock">
+    <div class="bg">
+        <div class="row">
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                @Html.LabelFor(m => m.ManufacturerUnitDetails.ManufacturerUnitName, new { @class = "control-label" })
+                <select id="drpManufacturerUnit" onchange="fnGetPODetailsByManufacturerUnitCumSOID()" class="form-control dropDownStyle redborder">
+                    <option value="0">Select</option>
+                    @foreach (var mUnit in Model.LstManufacturerUnitDetails)
+                    {
+                        <option value="@mUnit.ManufacturerUnitId">@mUnit.ManufacturerUnitName/@mUnit.ManufacturerName</option>
+                    }
+                </select>
+                <span id="spnManufacturerUnitVal" class="error" style="display: none;"></span>
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                <div id="divPoList"></div>
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                <div id="divStateList"></div>
+            </div>
+        </div>
+    </div>
+    <div id="divPODLBlock"></div>
+
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        //   @*alert('@ViewBag.IsBlockEquipmentItem');*@
+        $("#EquipmentName").val('');
+        if ('@ViewBag.IsBlockEquipmentItem' == 'True') {
+            //$("#EquipmentName").prop('readonly', true);
+            $("#EquipmentName").prop('readonly', true);
+            // $("#EquipmentName").val('test');
+        } else {
+            $("#EquipmentName").prop('readonly', false);
+            //  $("#EquipmentName").val('test1');
+            //$("#EquipmentName").prop('readonly', false);
+        }
+    });
+
+    function SelectPurchaseOrderForScheduleVisit(obj) {
+        $("#hdnSelectedPOID").val($(obj).val());
+      //  alert($("#hdnSelectedPOID").val());
+        $(".jsSelectPurchaseOrder").each(function(index, element) {
+            $(".jsSelectPurchaseOrder").prop('checked', false);
+        });
+        $(obj).prop("checked", true);
+    }
+
+    function fnGetPODetailsByManufacturerUnitCumSOID() {
+        $.ajax({
+            url: '../Common/GetPODetailsForScheduleVisit',
+            type: 'POST',
+            data: {
+                manufacturerUnitId:$("#drpManufacturerUnit").val(),
+                ServiceOrderId: $("#hdnServiceOrderId").val()
+    },
+            beforeSend: function (e) {
+                
+            },
+            success: function (responseHtml) {
+                $("#divPoList").html(responseHtml);
+                $("#divStateList").html(responseHtml);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+</script>

@@ -1,0 +1,6 @@
+﻿@model bool
+
+<div class="col-sm-3 col-md-3 col-lg-3 form-group">
+    @Html.CheckBoxFor(m => m, new { @class = "inputStyle" })
+    <span>&nbsp;<b>@Html.Label("IsChecked", "Checkbox Label")</b></span>
+</div>

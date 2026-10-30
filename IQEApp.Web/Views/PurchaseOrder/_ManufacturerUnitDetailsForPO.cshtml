@@ -1,0 +1,15 @@
+﻿@model IEnumerable<IQEApp.Web.Models.ManufacturerModel.ManufacturerUnitsViewModel>
+<div >
+
+        @foreach (var mfcUnit in Model)
+    {
+        <input name="LstManufacturerUnitIds" type="checkbox" value="@mfcUnit.ManufacturerUnitId" class="jsManufacturerUnitId" /><span>&nbsp;<b>@mfcUnit.ManufacturerUnitName,</b> - <b>@mfcUnit.City</b></span><br />
+
+        @*@Html.CheckBoxFor(r => Model[i].Value)
+            @Html.LabelFor(r => Model.MealSettings[i].Value, Model.MealSettings[i].DisplayName)
+            @Html.HiddenFor(r => Model.MealSettings[i].Id)*@
+
+        @*<input type="checkbox" id="chkManufacturerUnit_@unit.ManufacturerUnitId" class="js-ManufacturerUnitId" value="@unit.ManufacturerUnitId"/><span>&nbsp;</span> <span>Name : <b>@unit.ManufacturerUnitName,</b> Contact Name : <b>@unit.ContactPersonName,</b> Designation : <b>@unit.ContactPersonDesignation,</b> Address : <b>@unit.Address</b></span><br/>*@
+    }
+
+</div>

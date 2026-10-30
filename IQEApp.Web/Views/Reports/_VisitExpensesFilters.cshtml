@@ -1,0 +1,55 @@
+﻿@model IQEApp.Web.Models.Reports.ReportFiltersViewModel
+<div>
+    <div class="row mt10" id="VisitFilterHeader">
+
+    </div>
+    <div class="clearfix "></div>
+    @using (Ajax.BeginForm("GenerateVisitExpenseReport", "Reports", new AjaxOptions { OnBegin = "beginEvent", OnSuccess = "fnShowReport", HttpMethod = "POST" }))
+        {
+            @Html.AntiForgeryToken()
+    <div class="row mt10" id="VisitFilters">
+        <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+            @Html.LabelFor(m => m.FromDate, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.FromDate, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+            @Html.ValidationMessageFor(m => m.FromDate)
+            <span id="spnFromDateValidation" class="error" style="display: none;"></span>
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+            @Html.LabelFor(m => m.ToDate, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.ToDate, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+            @Html.ValidationMessageFor(m => m.ToDate)
+        </div>
+        @*<div class="col-sm-2 col-md-2 col-lg-2 form-group">
+            @Html.LabelFor(m => m.EngineerId, new { @class = "control-label" })
+            @Html.DropDownListFor(m => m.EngineerId, new SelectList(Model.LstEngineers, "UserId", "UserFullName"), "All", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.EngineerId) })
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+            @Html.LabelFor(m => m.ClientName, new { @class = "control-label" })
+            @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients, "ClientId", "ClientName"), "All", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ClientId) })
+        </div>*@
+        <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+            <button type="submit" class="btn btn-success pull-right" id="btnSearchVisits" value="Report" title="Save" data-toggle="tooltip">  Get Report </button>&nbsp;&nbsp;
+            @*<button onclick="javascript: fnShowReport();" class="btn btn-success pull-right" id="btnSearchVisits">Search</button>*@
+        </div>
+    </div>
+    <div class="clearfix "></div>
+    }
+
+</div>
+<script>
+    $(document).ready(function() {
+        $("#FromDate").val('');
+        $("#ToDate").val('');
+    });
+    $(function () {
+        $("#FromDate").datepicker({
+            endDate: '+0d',
+            autoclose: true
+        });
+        $("#ToDate").datepicker({
+            endDate: '+0d',
+            autoclose: true
+        });
+    });
+
+</script>

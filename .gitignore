@@ -1,0 +1,47 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.key
+
+# Node
+node_modules/
+dist/
+build/
+.expo/
+.next/
+out/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Local config overrides (contain secrets)
+*.local
+Web.config.local
+
+# Data / local artifacts
+*.db
+*.sqlite
+*.sqlite3
+.DS_Store
+Thumbs.db

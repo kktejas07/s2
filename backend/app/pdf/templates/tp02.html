@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header("IQE-TP-02", revision, "Third Party Inspection Services", "FLASH REPORT NO.", report_no) }}
+
+  {{ m.doc_title("FLASH INSPECTION REPORT", "Preliminary communication of inspection outcome and key observations") }}
+
+  {{ m.section("1.0", "INSPECTION INFORMATION", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Flash Report No.</td>
+        <td class="td-value">{{ report_no or '________________' }}</td>
+        <td class="td-label">Date</td>
+        <td class="td-value">{{ date or '____ / ____ / ______' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer</td>
+        <td class="td-value">{{ customer or '________________' }}</td>
+        <td class="td-label">Project</td>
+        <td class="td-value">{{ project or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Supplier</td>
+        <td class="td-value">{{ supplier or '________________' }}</td>
+        <td class="td-label">Sub-Supplier</td>
+        <td class="td-value">{{ sub_supplier or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Supplier PO No. &amp; Date</td>
+        <td class="td-value">{{ po_no_and_date or '________________' }}</td>
+        <td class="td-label">Location</td>
+        <td class="td-value">{{ location or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">RFI Reference &amp; Date</td>
+        <td class="td-value">{{ rfi_ref_and_date or '________________' }}</td>
+        <td class="td-label">Next Visit</td>
+        <td class="td-value">{{ next_visit or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">IQE Inspector</td>
+        <td class="td-value">{{ inspector or '________________' }}</td>
+        <td class="td-label">Inspection Stage</td>
+        <td class="td-value">
+          {{ m.checkbox(inspection_stage == 'Stage', 'Stage') }}
+          {{ m.checkbox(inspection_stage == 'Final', 'Final') }}
+          {{ m.checkbox(inspection_stage == 'Re-inspection', 'Re-inspection') }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("2.0", "TYPE OF VISIT / INSPECTION ACTIVITY") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 33.33%;">
+      <col style="width: 33.33%;">
+      <col style="width: 33.34%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">Meeting / Review</th>
+        <th class="th-label">Inspection / Testing</th>
+        <th class="th-label">Surface / Preservation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value" style="vertical-align: top;">
+          <div>{{ m.checkbox('pim' in visit_activities, 'Pre-Inspection Meeting') }}</div>
+          <div style="margin-top: 3pt;">{{ m.checkbox('review_certs' in visit_activities, 'Review Certificates / Documents') }}</div>
+        </td>
+        <td class="td-value" style="vertical-align: top;">
+          <div>{{ m.checkbox('dimension' in visit_activities, 'Dimension & Workmanship') }}</div>
+          <div>{{ m.checkbox('mechanical' in visit_activities, 'Mechanical Tests') }}</div>
+          <div>{{ m.checkbox('pressure' in visit_activities, 'Pressure Tests') }}</div>
+          <div>{{ m.checkbox('ndt' in visit_activities, 'NDT') }}</div>
+          <div>{{ m.checkbox('performance' in visit_activities, 'Performance Tests') }}</div>
+          <div>{{ m.checkbox('intermediate' in visit_activities, 'Intermediate Inspection') }}</div>
+          <div>{{ m.checkbox('final' in visit_activities, 'Final Inspection') }}</div>
+        </td>
+        <td class="td-value" style="vertical-align: top;">
+          <div>{{ m.checkbox('coating' in visit_activities, 'Coating & Painting') }}</div>
+          <div>{{ m.checkbox('packing' in visit_activities, 'Packing & Marking') }}</div>
+          <div>{{ m.checkbox('loading' in visit_activities, 'Loading') }}</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="margin-top: 3pt; font-size: 0.95em;">
+    Other: {{ m.checkbox(other_activity|length > 0, other_activity or '______________________________') }}
+  </div>
+
+  {{ m.section("3.0", "MATERIAL / EQUIPMENT INSPECTED") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 28%;">
+      <col style="width: 18%;">
+      <col style="width: 8%;">
+      <col style="width: 8%;">
+      <col style="width: 8%;">
+      <col style="width: 8%;">
+      <col style="width: 16%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Item</th>
+        <th class="th-label">Description</th>
+        <th class="th-label">Tag / Serial No.</th>
+        <th class="th-label text-center">PO Qty</th>
+        <th class="th-label text-center">Offered Qty</th>
+        <th class="th-label text-center">Inspected Qty</th>
+        <th class="th-label text-center">Accepted Qty</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = items if items else [] %}
+      {% set count = rows|length if rows|length >= 3 else 3 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.item if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.description if row else '' }}</td>
+        <td class="td-value">{{ row.tag_no if row else '' }}</td>
+        <td class="td-value text-center">{{ row.po_qty if row else '' }}</td>
+        <td class="td-value text-center">{{ row.offered_qty if row else '' }}</td>
+        <td class="td-value text-center">{{ row.inspected_qty if row else '' }}</td>
+        <td class="td-value text-center">{{ row.accepted_qty if row else '' }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("4.0", "INSPECTION OUTCOME") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 60%;">
+      <col style="width: 40%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">INSPECTION OUTCOME</th>
+        <th class="th-label">ORDER STATUS</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value" style="vertical-align: top;">
+          <div>{{ m.checkbox(outcome == 'SATISFACTORY', 'SATISFACTORY') }}</div>
+          <div>{{ m.checkbox(outcome == 'SATISFACTORY WITH COMMENTS', 'SATISFACTORY WITH COMMENTS') }}</div>
+          <div>{{ m.checkbox(outcome == 'NON-COMPLIANCE OBSERVED', 'NON-COMPLIANCE OBSERVED') }}</div>
+          <div>{{ m.checkbox(outcome == 'RE-INSPECTION REQUIRED', 'RE-INSPECTION REQUIRED') }}</div>
+          <div>{{ m.checkbox(outcome == 'INSPECTION ON HOLD', 'INSPECTION ON HOLD') }}</div>
+        </td>
+        <td class="td-value" style="vertical-align: top;">
+          <div>{{ m.checkbox(order_status == 'Complete', 'Complete') }}</div>
+          <div>{{ m.checkbox(order_status == 'Incomplete', 'Incomplete') }}</div>
+          <div>{{ m.checkbox(order_status == 'Partially Completed', 'Partially Completed') }}</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("5.0", "KEY FINDINGS / AREAS OF CONCERN") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 8%;">
+      <col style="width: 42%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl. No.</th>
+        <th class="th-label">Key Finding / Observation</th>
+        <th class="th-label">Reference</th>
+        <th class="th-label">Action / Next Step</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = findings if findings else [] %}
+      {% set count = rows|length if rows|length >= 3 else 3 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl_no if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.finding if row else '' }}</td>
+        <td class="td-value">{{ row.reference if row else '' }}</td>
+        <td class="td-value">{{ row.action if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("6.0", "IMMEDIATE ACTION / FOLLOW-UP") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 45%;">
+      <col style="width: 20%;">
+      <col style="width: 35%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">Action Required from Supplier</th>
+        <th class="th-label">Target Date</th>
+        <th class="th-label">Client / IQE Follow-up</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = actions if actions else [] %}
+      {% set count = rows|length if rows|length >= 1 else 1 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value" style="height: 18pt;">{{ row.action if row else '' }}</td>
+        <td class="td-value">{{ row.target_date if row else '' }}</td>
+        <td class="td-value">{{ row.follow_up if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("7.0", "REMARKS") }}
+  {{ m.free_text(remarks, 2) }}
+
+  {% if is_blank %}
+  <div class="page-break"></div>
+  {{ m.running_header("IQE-TP-02", revision, "Third Party Inspection Services", "FLASH REPORT NO.", report_no) }}
+  {% endif %}
+
+  {{ m.section("8.0", "PHOTOGRAPHIC EVIDENCE") }}
+  {{ m.photo_grid(photos) }}
+
+  <div style="font-size: 0.95em; margin-top: 4pt; margin-bottom: 2pt;">
+    Photographs are taken with prior permission from the supplier/vendor. Photographs shall be included as applicable.
+  </div>
+  <div style="font-size: 0.95em; margin-top: 2pt; margin-bottom: 6pt;">
+    NOTE: This Flash Report is issued as a preliminary communication of the inspection outcome and key observations. Detailed inspection findings, document review and supporting evidence, where applicable, shall be recorded in the formal Inspection Visit Report (IQE-TP-03).
+  </div>
+
+  {{ m.section("9.0", "ACKNOWLEDGEMENT & SIGNATURES") }}
+  {{ m.signature_block("Supplier / Manufacturer", "Ideal Quality Engineers (I) Pvt. Ltd.", "IQE Inspector:", signatures) }}
+
+  <div class="disclaimer-block">
+    <div class="disclaimer-title">DISCLAIMER</div>
+    <div>This Flash Report records the observations and information made available to IQE during the inspection at the time and location stated herein. It does not relieve the supplier/manufacturer of its contractual, statutory or regulatory responsibilities or obligations under the Purchase Order and other approved documents.</div>
+  </div>
+
+  <div class="end-marker">— END OF FLASH REPORT —</div>
+</div>
+{% endblock %}

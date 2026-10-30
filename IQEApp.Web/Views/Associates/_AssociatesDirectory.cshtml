@@ -1,0 +1,399 @@
+﻿@model IEnumerable<IQEApp.Web.Models.AssociatesModel.AssociatesViewModel>
+@using GridMvc.Html
+@using iTextSharp.text.pdf.qrcode
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+
+@*<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>  //Validation is not working for this plugIn
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>*@
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
+
+<script>
+    var glbassociateGuid = '';
+    var glbassociateName = '';
+    var glbcontactPerson = '';
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+        $("#popuptable").hide();
+    });
+
+    function EditAssociateDetails(associateGuid) {
+        $.ajax({
+            url: '../Associates/EditAssociate',
+            type: 'POST',
+            data: {
+                associateGuid: associateGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divAssociateLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#divActiveInActive').hide();
+                $('#spnAssociatesHeadTitle').html('Admin &#8667; Edit Associate');
+                $('#divAddNewAssociate').html(data).show();
+                $('#divAddUpdateAssociate').show();
+                $('#btnAssociatesList').show();
+                $('#btnAddAssociate').hide();
+                $('#AssociateName').focus();
+              //  $("#btnAddClientUnits").show();
+                $("#divAssociateDirectory").hide();
+                $("#AssociatePager").html('');
+                $("#divMainSearch").hide();
+               // showClientUnits();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divAssociateLoadingIconId'));
+            }
+        });
+    }
+    function UpdateStatus(associateGuid, status) {
+        $.ajax({
+            url: '../Associates/UpdateAssociateStatus',
+            type: 'POST',
+            data: {
+                associateGuid: associateGuid,
+                status: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divAssociateLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    }
+                    window.FilterClientDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                @*window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");*@
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divAssociateLoadingIconId'));
+            }
+        });
+    }
+
+    function FilterClientDirectory(callback, options) {
+        // Your logic here
+        if (callback && typeof callback === 'function') {
+            callback(true, 'new-class');
+        }
+    }
+
+    function UpdateAssociateStatus(clientGuid, status) {
+        if (status) {
+            var options = {};
+            options.msg = "Are you sure to Activate?";
+            ShowConfirmationPrompt(function() {
+                    UpdateStatus(clientGuid, status);
+                }, options);
+        } else {
+            ShowDeleteConfirmationPrompt(function() {
+                UpdateStatus(clientGuid, status);
+            });
+        }
+    }
+    function Preview(associateGuid,contactPerson) {
+        glbassociateGuid = associateGuid;
+        glbcontactPerson =contactPerson;
+        // $("#popuptable").remove();
+        $("#popuptable").show();
+        $("#popuptable").find("tr:gt(0)").remove();
+        $("#popuptable").find("btnExportExcel").remove();
+        $("#popuptable").dialog({ modal: true, height: 'auto', width: 'auto' , position:'center'});
+        $.ajax({
+            url: '../Associates/Preview',
+            type: 'POST',
+            data: {
+                associateGuid: associateGuid,
+                contactPerson: contactPerson
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                var rows = "";
+                if (data.emplst.length == 0) {
+                    rows = "<tr><td colspan=7>" + "No Data Found" + "</td></tr>";
+                    $("#popuptable").append(rows);
+                    // $("#btnExportExcel").remove();
+                }
+                else {
+                    $.each(data.emplst, function (i, val) {
+                        rows += "<tr style='height: 10px'><td>" + data.emplst[i].EmployeeCode + "</td><td>" + data.emplst[i].UserFullName + "</td><td>" + data.emplst[i].EmailId + "</td><td>" + data.emplst[i].Qualification + "</td><td>" + data.emplst[i].EmpContactNumber + "</td><td>" + data.emplst[i].CountryName + "</td><td>" + data.emplst[i].Address + "</td></tr>";
+                    });
+                    $('#popuptable').append(rows);
+
+                    $('#popuptable').append('<br/><button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnExportExcel" value="Export To Excel" title="Export To Excel" data-toggle="tooltip" onclick="javascript: ExportToExcel();"> Export To Excel </button>');
+                }
+
+                $("#btnExportExcel").nextAll().remove();
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+
+    }
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: '../Associates/DownloadExcel',
+            dataType: "json",
+            data: {
+                associateGuid: glbassociateGuid,
+                contactPerson :glbcontactPerson
+            },
+            success: function (r) {
+                var bytes = Base64ToBytes(r);
+                var blob = new Blob([bytes], { type: "application/octetstream" });
+                var isIE = false || !!document.documentMode;
+                if (isIE) {
+                    window.navigator.msSaveBlob(blob, "Download.xlsx");
+                } else {
+                    var url = window.URL || window.webkitURL;
+                    link = url.createObjectURL(blob);
+                    var a = $("<a />");
+                    a.attr("download", "Download.xlsx");
+                    a.attr("href", link);
+                    $("body").append(a);
+                    a[0].click();
+                    $("body").remove(a);
+                }
+            }
+        });
+    }
+
+    function Base64ToBytes(base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+</script>
+
+<style type="text/css">
+    body {
+        font-family: Arial;
+        font-size: 9.5pt;
+    }
+
+    table {
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        background-color: #fff;
+        align-content: center;
+        width: -webkit-fill-available;
+    }
+
+        table.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        table th {
+            background-color: #B8DBFD;
+            color: #333;
+            font-weight: bold;
+        }
+
+        table th, table td {
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        table tr, table th {
+            border: 1px solid #ccc;
+            height:10px;
+        }
+
+        table, table table td {
+            border: 0px solid #ccc;
+        }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+
+    .ui-dialog-titlebar {
+        background-color: #c2c2c2;
+    }
+
+    .ui-dialog .ui-dialog-titlebar-close {
+        background-image: url(https://cdnjs.cloudflare.com/ajax/libs/aui/6.0.1/aui/css/icons/aui-icon-close.png);
+        z-index: 999999;
+    }
+    
+</style>
+    
+<head>
+
+    <meta name="viewport" content="width=device-width" />
+    <title>Admin &#8667; Associates</title>
+
+</head>
+<body>
+
+    <table cellpadding="0" cellspacing="0" class="center">
+        <tr>
+            <th>@Html.Label("Associate ID")</th>
+            <th>@Html.Label("Associate Name")</th>
+            @if (ViewBag.RoleId == 1 || ViewBag.RoleId == 2)
+            {
+                <th>@Html.Label("Email Id")</th>
+                <th>@Html.Label("Website")</th>
+                <th>@Html.Label("Contact No")</th>
+            }
+            <th>@Html.Label("Contact Person")</th>
+            <th>@Html.Label("Designation")</th>
+            <th>@Html.Label("Country")</th>
+            <th>@Html.Label("State")</th>
+            @*<th>@Html.Label("Address")</th>*@
+
+            @*<th>@Html.Label("Cost (Per Hour)")</th>
+        <th>@Html.Label("MilageInKM")</th>*@
+
+
+            <th>&nbsp;</th>
+        </tr>
+        @if (Model == null || Model.Count() == 0)
+        {
+            <tr>
+                No Associates Found
+            </tr>
+        }
+        else
+        {
+            foreach (var associate in Model)
+            {
+    <tr>
+        <td>@associate.AssociateId</td>
+        @*<td>@Html.ActionLink(@associate.AssociateName, "ViewProfile", new { userGuid = @associate.AssociateGuid })</td>*@
+        <td>
+            <a href="javascript:Preview('@associate.AssociateGuid','@associate.ContactPerson');">@associate.AssociateName</a>
+        </td>
+        @*<td>@associate.AssociateName</td>*@
+        @if (ViewBag.RoleId == 1 || ViewBag.RoleId == 2)
+        {
+            <td>@associate.Email</td>
+            <td>@associate.WebSite</td>
+            <td>@associate.ContactNumber1</td>
+        }
+        <td>@associate.ContactPerson</td>
+        <td>@associate.Designation</td>
+        <td>@associate.CountryName</td>
+        <td>@associate.StateName</td>
+        @*<td>@associate.Address</td>*@
+        @*<td>@associate.Cost</td>
+        <td>@associate.MilageInKM</td>*@
+        <td>
+            <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                @if (associate.IsAssociateActive)
+                {
+                        <div class="btn-group" style="display: inline-block;" role="group">
+                            <span id="ClientDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            </span>
+                            <ul class="dropdown-menu ellipse-menu-left">
+                                @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.AssociatesEdit, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <li>
+                                        <a href="javascript:EditAssociateDetails('@associate.AssociateGuid');">
+                                            <i class="fa fa-pencil mr20" aria-hidden="true">
+                                            </i> Edit Associate
+                                        </a>
+                                    </li>
+                                }
+                                @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.AssociatesInActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <li>
+                                        <a href="javascript:UpdateAssociateStatus('@associate.AssociateGuid',false);">
+                                            <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                            </i> InActivate Associate
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                }
+                else
+                {
+                        <div class="btn-group" style="display: inline-block;" role="group">
+                            <span id="AssociateDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            </span>
+                            <ul class="dropdown-menu ellipse-menu-left">
+                                @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.AssociatesActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <li>
+                                        <a href="javascript:UpdateAssociateStatus('@associate.AssociateGuid',true);">
+                                            <i class="fa fa-undo mr20" aria-hidden="true">
+                                            </i> Activate Associate
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                }
+            </div>
+
+        </td>
+    </tr>
+            }
+        }
+    </table>
+
+
+</body>
+
+<table id="popuptable" title="Employee Details">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Employee Code</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Qualification</th>
+            <th>Contact No</th>
+            <th>Country</th>
+            <th>Address</th>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+      $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+</script>
+

@@ -1,0 +1,1241 @@
+﻿@{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Home Page";
+}
+
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model  IQEApp.Web.Models.HomeModel.HomeBusinessModel
+
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<script src="~/CustomJS/Pagination.js"></script>
+<link href="~/Content/Site.css" rel="stylesheet" />
+
+
+
+<style>
+    body {
+        font-family: Arial;
+        font-size: 9pt;
+    }
+
+    .file-icon {
+        cursor: pointer;
+        color: #ffbb33;
+    }
+
+    .fa-folder {
+        color: #ffbb33; /* Yellow color */
+    }
+
+    ul {
+        position: relative;
+        left: -14px;
+    }
+</style>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Open Calls</title>
+
+</head>
+
+<body>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h4 class="box-title"> <span id="spnHeadTitle">Operations &#8667; Open Calls</span></h4>
+        </div>
+    </div>
+    <div class="vtabs mt3" id="divActiveInActive">
+        <ul class="nav nav-tabs tabs-vertical" role="tablist">
+            <li class="nav-item pull-right " id="liCancelled"><a class="nav-link" data-toggle="tab" role="tab" onclick="ShowCancelledVisits(0)"><span>Inactvie</span></a> </li>
+            <li class="nav-item pull-right " id="liCancelled"><a class="nav-link" data-toggle="tab" role="tab" onclick="ShowCancelledVisits(10)"><span>Cancelled</span></a> </li>
+            <li class="nav-item pull-right " id="liOnHold"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowCancelledVisits(11)"><span>Abortive</span></a> </li>
+            <li class="nav-item pull-right " id="liProspective">
+                <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowProspectiveVisits()">
+                    <span>
+                        Prospective @if (@ViewBag.ProspectiveCount > 0)
+                        {<span class="badge bg-danger rounded-pill">@ViewBag.ProspectiveCount</span>}
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item pull-right active" id="liActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowAllVisits()"><span>Active</span></a> </li>
+        </ul>
+        <input type="hidden" id="hdnActive" />
+        <div class="tab-content">
+            <div class="tab-pane   active" id="divActive" role="tabpanel">
+            </div>
+        </div>
+    </div>
+    <div class="mt20 bg p20" style="display: none" id="OpencallsDataPostDiv">
+        <div id="divAddUpdateOpencalls"></div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div id="divDirectory">
+        <div class="p0" id="AlphaSorting">
+            <div>
+                <div class="col-lg-9 col-md-9 col-sm-9">
+                    @Html.Partial("_AlphabetPanel")
+                </div>
+
+                <div class="col-lg-1 col-md-1 col-sm-1 mt10">
+                    <div class=" " id="ResortBtn" style="cursor:pointer;">
+                        <div class="resort-icon-selected  sortIconHide" onclick="javascript: ReSortTheFilter(this,'ASC');" style="display:none;">
+                            <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                        </div>
+                        <div class="resort-icon" onclick="javascript: ReSortTheFilter(this,'DESC');">
+                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <input type="hidden" id="hdnSortingOrder" value="ASC" />
+                </div>
+
+
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <div class="highliter  mt10">
+                        <span> <span class="hidden-sm">Results :  </span> <span id="TotalResultsEle"></span> </span>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div id="divOpencalls" class="">
+            @Html.Partial("_ScheduleVisitList", Model)
+        </div>
+
+    </div>
+
+    <p class="JsListGridPager pull-right" id="opencallsPager"></p>
+
+    <div class="modal fade" id="inspectionReportSection" tabindex="-1" role="dialog" aria-labelledby="fileListModalLabel">
+        <div class="modal-dialog" role="document" style="width:650px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="fileListModalLabel">Inspection Reports</h4>
+                </div>
+                <div class="modal-body" id="inspectionReportBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspector Lookup Dialog -->
+    <div id="reviewierLookupDialog" title="👷 Select Inspector" style="display:none;">
+
+        <div style="margin-bottom:8px;">
+            <input type="text"
+                   id="globalFilterReviewer"
+                   class="form-control"
+                   placeholder="🔍 Search by name, code, city..." />
+        </div>
+
+        <div style="max-height:350px; overflow-y:auto;">
+            <table class="table table-bordered table-hover table-sm" id="inspectorTable">
+                <thead>
+                    <tr>
+                        <th style="width:5%;"></th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Address</th>
+                        <th>City</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewedTableBody"></tbody>
+            </table>
+        </div>
+
+        <div style="text-align:right; margin-top:10px;">
+            <button class="btn btn-success" id="btnConfirmInspector">✔ Confirm</button>
+            <button class="btn btn-secondary" id="btnCloseInspector">✖ Cancel</button>
+        </div>
+
+    </div>
+
+
+</body>
+<script>
+
+    let selectedInspector = {
+        id: null,
+        name: null
+    };
+
+    var inspectorLookupOpen = false;
+    var today = new Date();
+    var currentYear = today.getFullYear();
+    var currentMonth = today.getMonth();
+    var currentDay = today.getDate();
+
+    $(function () {
+        $("#dialog").dialog({
+            autoOpen: false,
+            show: {
+                effect: "blind",
+                duration: 1000
+            },
+            hide: {
+                effect: "explode",
+                duration: 1000
+            }
+        });
+
+        $("#opener").click(function () {
+            $("#dialog").dialog("open");
+        });
+    });
+    function showFileList(visitId) {
+            $.ajax({
+                url: '../Home/GetInspectionReportFiles',
+                type: 'GET',
+                data: { VisitId: visitId },
+                success: function (response) {
+                    const body = $('#inspectionReportBody');
+                    body.empty();
+
+                    if (response.status && response.data && response.data.length > 0) {
+                        const grouped = {};
+
+                        response.data.forEach(item => {
+                            const key = item.InspReportNo;
+                            if (!grouped[key]) grouped[key] = [];
+                            grouped[key].push(item);
+                        });
+
+                        let tableHtml = `
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 30%;">Report No</th>
+                                    <th style="width: 15%;">Date</th>
+                                    <th style="width: 55%;">Files</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                        for (const [reportNo, items] of Object.entries(grouped)) {
+                            const date = parseJsonDate(items[0].InspReportDate);
+
+                            const fileList = items.map(f => `
+                        <li>
+                            <a
+                                href="../Home/DownloadFile?VisitId=${visitId}&FileName=${encodeURIComponent(f.FileName)}"
+                                class="text-decoration-none"
+                                download
+                            >
+                                ${f.FileName}
+                            </a>
+                        </li>`).join('');
+
+                            const filesHtml = `<ul class="mb-0 ps-3">${fileList}</ul>`;
+
+                            tableHtml += `
+                        <tr>
+                            <td>${reportNo}</td>
+                            <td>${date}</td>
+                            <td>${filesHtml || '<em>No files uploaded</em>'}</td>
+                        </tr>
+                    `;
+                        }
+
+                        tableHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                        body.html(tableHtml);
+                    } else {
+                        body.html(`<div class="alert alert-warning">No inspection report files available.</div>`);
+                    }
+
+                    $('#inspectionReportSection').modal('show');
+                },
+                error: function () {
+                    $('#inspectionReportBody').html('<div class="alert alert-danger">Failed to load inspection report files.</div>');
+                    $('#inspectionReportSection').modal('show');
+                }
+            });
+        }
+
+    function parseJsonDate(jsonDateStr) {
+            if (!jsonDateStr || jsonDateStr.indexOf('Date') === -1) return '-';
+            const timestamp = parseInt(jsonDateStr.replace(/\/Date\((\d+)\)\//, '$1'), 10);
+            if (timestamp <= 0) return '-';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('en-GB');
+        }
+
+    $(document).ready(function () {
+        $("#popupqctable").hide();
+        $("#popupInspectionDate").hide();
+        $("#popupCancelled").hide();
+        $("#popupAssignInspector").hide();
+        $('#globalFilterReviewer').on('keyup', applyInspectorFilters);
+        //$('#selectAllReviewer').on('change', function () {
+        //    $('.inspector-check').prop('checked', this.checked);
+        //});
+    });
+    $("#opencallsPager").show();
+
+    window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+     if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    $("#dialog-modal").dialog({
+            height: 300,
+            width: 300,
+            modal: true
+        });
+
+    function disableBtn() {
+        document.getElementById("dateEnd").disabled = true;
+    }
+    function EditInspectionDate(VisitId) {
+            // Clear existing rows (except the header row) and redundant elements
+            $("#popupInspectionDate").find("tr:not(:first)").remove(); // Remove all rows except the first header row
+            $("#popupInspectionDate").find("th:not(:first)").remove(); // Remove additional <th> elements
+            $("#btnUpdate").remove(); // Remove the Update button if it exists
+
+            // Show the popup table
+            $("#popupInspectionDate").show();
+
+            // Add VisitId as a header to the table
+            $("#popupInspectionDate>tbody>tr:first").append("<th>" + VisitId + "</th>");
+
+            // Add the label and input field for updating the inspection date
+            $('#popupInspectionDate>tbody').append(`
+        <tr>
+            <td><label for="status">Update Inspection Date:</label></td>
+            <td>
+                <div id="dialog" title="Basic dialog">
+                    <input type="date" id="latestdate" />
+                </div>
+            </td>
+        </tr>
+    `);
+
+            // Add the Update button
+            $('#popupInspectionDate>tbody').append(`
+        <tr>
+            <td></td>
+            <td>
+                <button type="button" class="btn btn-secondary pull-right"
+                        style="background-color:#5c9ccc" id="btnUpdate"
+                        value="Update" title="Update" data-toggle="tooltip"
+                        onclick="javascript: UpdateInspectionDate(${VisitId});">
+                    Update
+                </button>
+            </td>
+        </tr>
+    `);
+
+            // Open the dialog
+            $("#popupInspectionDate").dialog({
+                modal: true,
+                height: 'auto',
+                width: 'auto'
+            });
+        }
+    function CancelInspection(VisitId, VisitStatusId) {
+            debugger;
+
+            // Clear existing rows (except the header row) and redundant elements
+            $("#popupCancelled").find("tr:not(:first)").remove(); // Remove all rows except the first header
+            $("#popupCancelled").find("th:not(:first)").remove(); // Remove additional <th> elements
+            $("#btnCancelSubmit").remove(); // Remove the Submit button if it exists
+
+            // Show the popup table
+            $("#popupCancelled").show();
+
+            // Add VisitId as a header to the table
+            $("#popupCancelled>tbody>tr:first").append("<th>" + VisitId + "</th>");
+
+            // Add the Status dropdown
+            if (VisitStatusId == 11) {
+                $('#popupCancelled>tbody').append(`
+            <tr>
+                <td><label for="status">Select Status:</label></td>
+                <td>
+                    <select name="status" id="drpstatus">
+                        <option value="10">Cancelled</option>
+                    </select>
+                </td>
+            </tr>
+        `);
+            } else {
+                $('#popupCancelled>tbody').append(`
+            <tr>
+                <td><label for="status">Select Status:</label></td>
+                <td>
+                    <select name="status" id="drpstatus">
+                        <option value="11">On-Hold</option>
+                        <option value="10">Cancelled</option>
+                    </select>
+                </td>
+            </tr>
+        `);
+            }
+
+            // Add the Comments field
+            $('#popupCancelled>tbody').append(`
+        <tr>
+            <td><label for="status">Comments:</label></td>
+            <td><input type="text" id="txtCancelComments" rows="2" style="resize: vertical;" name="txtCancelComments"></td>
+        </tr>
+    `);
+
+            // Add the Submit button
+            $('#popupCancelled>tbody').append(`
+        <tr>
+            <td></td>
+            <td>
+                <button type="button" class="btn btn-secondary pull-right"
+                        style="background-color:#5c9ccc" id="btnCancelSubmit"
+                        value="Update" title="Update" data-toggle="tooltip"
+                        onclick="javascript: SubmitCancelInspection(${VisitId});">
+                    Submit
+                </button>
+            </td>
+        </tr>
+    `);
+
+            $("#popupCancelled").dialog({
+                modal: true,
+                height: 'auto',
+                width: 'auto',
+                minWidth: 350   // <-- FIX: ensures proper width
+            });
+
+        }
+    function InActivateProspective(visitPId, status) {
+            var answer1 = window.confirm("Are you sure to Inactivate Prospective?");
+            if (answer1) {
+                $.ajax({
+                    url: '../Home/InActivateProspective',
+                    type: 'POST',
+                    data: {
+                        VisitPId: visitPId,
+                        status: status
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                            $('#hdnActive').val('Prospective');
+                            window.FilterUserDirectory({ backToFirstPage: true });
+                        }
+                        else
+                            window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+        @*window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");*@
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divAssociateLoadingIconId'));
+                    }
+                });
+            }
+    }
+    function AssignToSchedule(visitPId) {
+        var answer1 = window.confirm("Are you sure to Assign Visit?");
+       if (answer1) {
+        $.ajax({
+            url: '../Home/GetProspectiveAndSaveScheduleVisit',
+          type: 'POST',
+          data: {
+            VisitPId: visitPId
+          },
+          beforeSend: function (e) {
+             BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+          },
+          success: function (data) {
+             // window.parent.$('.ui-dialog-content:visible').dialog('close');
+             // debugger;
+             if (data.VisitId > 0) {
+                alert('VisitId :' + data.VisitId + ' Created Successfully')
+                //window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+                location.reload();
+             }
+             else {
+                alert('There is an error for Creating Visit')
+                //window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+             }
+          },
+          error: function (xhr, textStatus, errorThrown) {
+          },
+         complete: function () {
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        }
+       });
+      }
+       else {
+        }
+
+    }
+    function getUsersByStateName(VisitId, StateId, StateName) {
+           // debugger;
+
+            // Clear existing table rows and buttons
+            $("#popupAssignInspector").find("tr:not(:first)").remove(); // Remove all rows except the header
+            $("#popupAssignInspector").find("th:not(:first)").remove(); // Remove additional <th> elements
+
+            // Show the popup table
+            $("#popupAssignInspector").show();
+
+            // Add VisitId as a header to the table
+            $("#popupAssignInspector>tbody>tr:first").append("<th>" + VisitId + "</th>");
+
+            // Add the Inspector dropdown and label
+            $('#popupAssignInspector>tbody').append(`
+        <tr>
+            <td><label for="InspectorName">Select Inspector:</label></td>
+            <td><select id="InspectorName" name="InspectorName" class="form-control"></select></td>
+        </tr>
+    `);
+
+            // Fetch users using AJAX
+            $.ajax({
+                url: '../User/GetUsersListByStateId',
+                type: 'POST',
+                data: {
+                    stateId: StateId, // Use actual StateId
+                    stateName: StateName // Use StateName from parameter
+                },
+                beforeSend: function () {
+                    // Show loading icon
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                        parentElement: $('#divScheduleVisitLoadingIconId'),
+                        position: "center"
+                    });
+                },
+                success: function (users) {
+                    // Populate the InspectorName dropdown
+                    let dropdownOptions = '<option value="">Select</option>';
+                    users.forEach(user => {
+                        dropdownOptions += `<option value="${user.UserId}">${user.UserFullName}</option>`;
+                    });
+                    $("#InspectorName").html(dropdownOptions);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.error("Error fetching users: " + errorThrown);
+                },
+                complete: function () {
+                    // Hide loading icon
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+                }
+            });
+
+            // Add the Submit button
+            $('#popupAssignInspector>tbody').append(`
+        <tr>
+            <td></td>
+            <td>
+                <button type="button" class="btn btn-secondary pull-right"
+                        style="background-color:#5c9ccc"
+                        id="btnSubmitInspector"
+                        data-toggle="tooltip"
+                        onclick="SubmitInspector(${VisitId});">
+                    Submit
+                </button>
+            </td>
+        </tr>
+    `);
+
+            // Open the dialog
+            $("#popupAssignInspector").dialog({
+                modal: true,
+                height: 'auto',
+                width: 'auto'
+            });
+        }
+    function UploadInspectionReport(VisitId, VisitSeqId,Flag) {
+       debugger;
+        $.ajax({
+            url: '../Home/UploadInspectionReport',
+            type: 'POST',
+            data: {
+                VisitId: VisitId,
+                VisitSeqId: VisitSeqId,
+                revised: Flag
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Operations &#8667; Upload IR/Documents');
+                $("#divMainSearch").hide();
+                $('#divActiveInActive').hide();
+                $("#divOpencalls").html('').hide();
+                $('#divAddUpdateOpencalls').html(data).show();
+                //$('#btnEnquiryList').show();
+                $('#popupqctable').hide();
+                $('#popupInspectionDate').hide();
+                $('#popupAssignInspector').hide();
+                $('#AlphaSorting').hide();
+             //   $('#divDirectory').hide();
+                $('#OpencallsDataPostDiv').show();
+              //  alert('Quotation Uploaded Successfully');
+              //  location.reload();
+               // enquiryList();
+                // ManufacturerUnitsList();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    $(document).on("change", ".inspector-check", function () {
+
+        $(".inspector-check").not(this).prop("checked", false);
+
+        if (this.checked) {
+            selectedInspector.id = $(this).data("id");
+            selectedInspector.name = $(this).data("name");
+        } else {
+            selectedInspector = { id: null, name: null };
+        }
+    });
+
+
+    $(document).on("click", "#qcdoneby", function () {
+        var countryId = $(this).data("country-id");
+        openReviewiedByLookup(countryId);
+    });
+
+
+    function UpdateQCStatus1(radio, visitNo,countryId, visitSeqId, flag) {
+        debugger;
+        var qccheck = flag;
+        var $table = $("#popupqctable");
+
+        var $radioYes = $(radio);
+        var $radioNo = $radioYes.closest("form")
+            .find("input[type=radio][value=false]");
+
+        // ✅ Destroy dialog if already initialized (prevents memory leak)
+        if ($table.hasClass("ui-dialog-content")) {
+            $table.dialog("destroy");
+        }
+
+        // ✅ Clear previous dynamic content safely
+        $table.find("th:gt(0)").remove();
+        $table.find("tbody tr").not(":first").remove();
+
+        // ✅ Append visit sequence header
+        $table.show();
+        $table.find("tbody tr:first").append("<th>" + visitSeqId + "</th>");
+
+        // ✅ Append date + inspector rows
+        $table.find("tbody").append(`
+               <tr>
+                   <td>
+                       <label for="qcsubmitteddate">Quality Check Date:</label>
+                   </td>
+                   <td style="min-width: 180px;">
+                       <input type="date"
+                              id="qcsubmitteddate"
+                              class="form-control"
+                              style="width: 140px; min-width: 120px;" />
+                   </td>
+               </tr>
+            
+               <tr>
+                   <td>
+                       <label for="qcdoneby">QC Done By:</label>
+                   </td>
+                   <td style="min-width: 180px;">
+                       <input type="text"   
+                                 id="qcdoneby"
+                                 class="form-control"
+                                 placeholder="🔍 Select Inspector"
+                                 readonly
+                                  tabindex="-1"
+                                 data-country-id="${countryId}"
+                                 style="cursor:pointer width:140px;" />
+                    </td>
+               </tr>
+            
+               <tr>
+                   <td colspan="2" style="padding-top: 10px; text-align: right;">
+                       <button type="button"
+                               class="btn btn-secondary"
+                               id="btnSubmit"
+                               style="background-color:#5c9ccc;"
+                               title="Submit"
+                               onclick="SubmitQCDate('${visitNo}', '${qccheck}')">
+                           Submit
+                       </button>
+                   </td>
+               </tr>`);
+
+        // ✅ Reset fields
+        $("#qcsubmitteddate").val("");
+        $("#qcdoneby").val("");
+
+        // ✅ Open dialog (single instance)
+       $table.dialog({
+        modal: true,
+        width: "auto",
+        height: "auto",
+           close: function () {
+               $(this).dialog("destroy");
+           }
+    });
+    }
+    $("#btnConfirmInspector").on("click", function () {
+
+        if (!selectedInspector.id) {
+            alert("Please select an inspector.");
+            return;
+        }
+
+        $("#qcdoneby")
+            .val(selectedInspector.name)
+            .data("inspector-id", selectedInspector.id);
+
+        $("#reviewierLookupDialog").dialog("close");
+    });
+
+    $("#btnCloseInspector").on("click", function () {
+        $("#reviewierLookupDialog").dialog("close");
+    });
+
+    function formatValue(val) {
+            return (val === null || val === "null") ? '' : val;
+        }
+    function openReviewiedByLookup(countryId) {
+
+        if (inspectorLookupOpen) return;
+        inspectorLookupOpen = true;
+
+        selectedInspector = { id: null, name: null };
+
+        $.ajax({
+            url: '../User/GetInspectorsByCountry',
+            type: 'GET',
+            data: { countryId: countryId },
+            success: function (data) {
+
+                var tbody = "";
+
+                $.each(data, function (i, emp) {
+                    tbody += `
+                    <tr>
+                        <td>
+                            <input type="checkbox"
+                                   class="inspector-check"
+                                   data-id="${emp.UserId}"
+                                   data-name="${emp.UserFullName}">
+                        </td>
+                        <td>${emp.UserFullName}</td>
+                        <td>${formatValue(emp.InspectorCode)}</td>
+                        <td>${formatValue(emp.Address)}</td>
+                        <td>${formatValue(emp.CityName)}</td>
+                        <td>${formatValue(emp.EmpContactNumber)}</td>
+                    </tr>`;
+                });
+
+                $("#reviewedTableBody").html(tbody);
+                $("#globalFilterReviewer").val("");
+
+                $("#reviewierLookupDialog").dialog({
+                    modal: true,
+                    width: 700,
+                    close: function () {
+                        inspectorLookupOpen = false;
+                        $(this).dialog("destroy");
+                    }
+                });
+            },
+            error: function () {
+                inspectorLookupOpen = false;
+                alert("Failed to load inspectors.");
+            }
+        });
+    }
+
+    function applyInspectorFilters() {
+        debugger;
+        const filter = $('#globalFilterReviewer').val().toLowerCase();
+        $('#reviewedTableBody tr').each(function () {
+            const rowText = $(this).text().toLowerCase();
+            $(this).toggle(rowText.includes(filter));
+        });
+    }
+
+    function clearGlobalFilter() {
+        $('#globalFilterReviewer').val('');
+        applyInspectorFilters();
+    }
+    function SubmitQCDate(visitId, qccheck) {
+        var qcDate = $('#qcsubmitteddate').val();
+        var qcDoneBy = selectedInspector.id;
+
+
+        //if (qcdate == '') {
+        //    alert('Quality Check Date Should not be empty')
+        //   // comments = $("#txtComments").val();
+        //}
+
+        if (!qcDate) {
+            alert("Quality Check Date Should not be empty");
+            return;
+        }
+
+        if (!qcDoneBy) {
+            alert("Please select QC Done By");
+            return;
+        }
+
+        else {
+            $.ajax({
+                url: '../Home/SubmitQualityCheckDateByVisitID',
+                type: 'POST',
+                data: {
+                    VisitId: visitId,
+                    QulalityCheck: qccheck,
+                    QulalityCheckSubmitDate: qcDate ,// $('#qcsubmitteddate').val()
+                    QualityCheckDoneBy: qcDoneBy
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+
+                    if (data.status) {
+                        window.parent.$('.ui-dialog-content:visible').dialog('close');
+                        alert('Quality Check Date Submitted Successfully')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                        location.reload();
+                    } else {
+                        alert('There is an error for Submitting the Quality Check')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+    }
+    function SubmitInspector(visitId) {
+            var userId = $('#InspectorName').val();
+           // debugger;
+        if (userId == '') {
+            alert('Please Select the Inspector Name');
+        }
+        else {
+        $.ajax({
+            url: '../Home/SubmitInspectorNameByVisitID',
+            type: 'POST',
+            data: {
+                VisitId: visitId,
+                UserId: userId,
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+
+                if (data.status) {
+                    window.parent.$('.ui-dialog-content:visible').dialog('close');
+                    alert('Inspeator Assigned Successfully')
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    location.reload();
+                } else {
+                    alert('There is an error for Assign Inspector')
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+}
+    function UpdateInspectionDate(visitId) {
+
+        var latestdate = $('#latestdate').val();
+        if (latestdate == '') {
+            alert('Inspection Date Should not be empty')
+        }
+        else {
+            $.ajax({
+                url: '../Home/UpdateInspectionDateByVisitID',
+                type: 'POST',
+                data: {
+                    VisitId: visitId,
+                    ScheduleDate: latestdate // $('#qcsubmitteddate').val()
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+
+                    if (data.status) {
+                        window.parent.$('.ui-dialog-content:visible').dialog('close');
+                        alert('Inspection Date Updated Successfully')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                        location.reload();
+                    } else {
+                        alert('There is an error for Updating the Inspection Date')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+        }
+    function SubmitCancelInspection(visitId) {
+            var comments = $('#txtCancelComments').val();
+            var statusId = $('#drpstatus').val();
+            if (comments == '')
+            { alert('Please Enter Comments') }
+
+            if (statusId == '') {
+            alert('Please Select the Status')
+        }
+        else {
+            $.ajax({
+                url: '../Home/OnHoldCancalledInspectionVisit',
+                type: 'POST',
+                data: {
+                    VisitId: visitId,
+                    VisitStatusId: statusId,
+                    Comments: comments
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+
+                    if (data.status) {
+                        window.parent.$('.ui-dialog-content:visible').dialog('close');
+                        alert('Visit Status Updated Successfully')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                        location.reload();
+                    } else {
+                        alert('There is an error for Updating the Visit Status')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+    }
+    function ReportSubmitToClientDate(visitId, scheduleDate) {
+    debugger;
+    var $input = $('#rptsubmittedtoClient_' + visitId);
+    var rsclientdate = $input.val().trim(); // yyyy-MM-dd
+
+    if (!rsclientdate) {
+        alert('Please select a valid date.');
+        return;
+    }
+
+    // Validate yyyy-MM-dd format
+    var fullDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!fullDatePattern.test(rsclientdate)) {
+        alert('Invalid date format! Please enter a valid date.');
+        $input.val('');
+        return;
+    }
+
+    // Parse selected date
+    var parts = rsclientdate.split("-");
+    var year = parseInt(parts[0], 10);
+    var month = parseInt(parts[1], 10);
+    var day = parseInt(parts[2], 10);
+    var selectedDate = new Date(year, month - 1, day);
+
+    if (selectedDate.getFullYear() !== year || (selectedDate.getMonth() + 1) !== month || selectedDate.getDate() !== day) {
+        alert("Invalid date! Please check again.");
+        $input.val('');
+        return;
+    }
+
+    // Parse scheduleDate (expected in yyyy-MM-dd format)
+    var scheduleParts = scheduleDate.split("-");
+    var schedYear = parseInt(scheduleParts[0], 10);
+    var schedMonth = parseInt(scheduleParts[1], 10);
+    var schedDay = parseInt(scheduleParts[2], 10);
+    var schedDate = new Date(schedYear, schedMonth - 1, schedDay);
+
+    // ✅ Check if selected date is earlier than scheduleDate
+    if (selectedDate < schedDate) {
+        alert("Selected date cannot be earlier than the Inspection date (" + scheduleDate + ").");
+        $input.val('');
+        return;
+    }
+
+    // Confirmation
+    var answer = window.confirm("Are you sure to submit the Date?");
+    if (!answer) return;
+
+    // Ajax call
+    $.ajax({
+        url: '../Home/ReportSubmitToClientDateByVisitID',
+        type: 'POST',
+        data: {
+            VisitId: visitId,
+            ReportSubmittedClientDate: rsclientdate
+        },
+        beforeSend: function () {
+            BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                parentElement: $('#divLoadingIconId'),
+                position: "center"
+            });
+        },
+        success: function (data) {
+            window.parent.$('.ui-dialog-content:visible').dialog('close');
+            if (data.status) {
+                alert('Report To Client(Date) has been Successfully Submitted');
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                location.reload();
+            } else {
+                alert('There is an error for Submitting the Customer Date');
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+        },
+        complete: function () {
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        }
+    });
+}
+    function UpdateComments1(id, isProspective) {
+
+    if (!confirm("Are you submitting the Comments?")) return;
+
+    var txtId = "#txtcomments_" + id;
+
+    // Build correct POST data
+    var postData = {
+        Comments: $(txtId).val()
+    };
+
+    if (isProspective) {
+        postData.VisitPId = id;   // Prospective
+    } else {
+        postData.VisitId = id;    // Regular visit
+    }
+
+    $.ajax({
+        url: '../Home/UpdateCommentsByVisitID',
+        type: 'POST',
+        data: postData,
+        beforeSend: function () {
+            BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                parentElement: $('#divLoadingIconId'),
+                position: "center"
+            });
+        },
+        success: function (data) {
+            window.parent.$('.ui-dialog-content:visible').dialog('close');
+
+            if (data.status) {
+                alert('Comments are Submitted Successfully');
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                location.reload();
+            } else {
+                alert('There is an error for Submitting the Comments');
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+        },
+        complete: function () {
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        }
+    });
+}
+    function UpdateComments(visitId) {
+            //debugger;
+            var answer1 = window.confirm("Are you submitting the Comments?");
+         if (answer1) {
+             $.ajax({
+                 url: '../Home/UpdateCommentsByVisitID',
+                type: 'POST',
+                data: {
+                    VisitId: visitId,
+                    Comments: $('#txtcomments_' + visitId).val()
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    window.parent.$('.ui-dialog-content:visible').dialog('close');
+                    if (data.status) {
+                        alert('Comments are Submitted Successfully')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                        location.reload();
+                    } else {
+                        alert('There is an error for Submitting the Comments')
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+            }
+            else {
+            }
+
+    }
+    function GenerateServiceOrder(clientId, clientName, enquiryID) {
+         var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.assign(currentUrl  + "ServiceOrder/CreateServiceOrder1?clientId=" + clientId + "&clientName=" + Server.UrlEncode(clientName) + "&enquiryID=" + enquiryID);
+        $('#spnSOHeadTitle').html('Create Service Order');
+        $('#divAddOrUpdateServiceOrder').html();
+      //  $(obj).hide();
+        $('#btnSOList').show();
+        $("#divSODetails").html('');
+        $('#divServiceOrders').hide();
+        $('#divActiveInActive').hide();
+        $("#divMainSearch").hide();
+
+
+        }
+    function SortHomePageGrid(OrderBy, Name) {
+
+        $.ajax({
+            url: '../Home/SortMyScheduleVisits',
+            type: 'POST',
+            data: {
+                statusId: $('#selStatusId').val(),
+                secName: Name,
+                OrderBy: OrderBy
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divVisitLoading'), position: "center" });
+            },
+            success: function (data) {
+                $('#divMySchedules').html('');
+                $('#divMySchedules').html(data);
+                $('#btnSchDtAsc').show();
+                $('#btnSchDtDesc').hide();
+                $('#btnSchStAsc').show();
+                $('#btnSchStDesc').hide();
+                if ((Name == 'Date') && (OrderBy == 'Asc')) {
+                    $('#btnSchDtAsc').hide();
+                    $('#btnSchDtDesc').show();
+                } else if ((Name == 'Date') && (OrderBy == 'Desc')) {
+                    $('#btnSchDtAsc').show();
+                    $('#btnSchDtDesc').hide();
+                } else if ((Name == 'Status') && (OrderBy == 'Asc')) {
+                    $('#btnSchStAsc').hide();
+                    $('#btnSchStDesc').show();
+                } else if ((Name == 'Status') && (OrderBy == 'Desc')) {
+                    $('#btnSchStAsc').show();
+                    $('#btnSchStDesc').hide();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divVisitLoading'));
+            }
+        });
+        }
+    function ShowAllVisits() {
+            location.reload();
+        }
+    function ShowCancelledVisits(empStatus) {
+           // debugger;
+            $('#hdnActive').val(empStatus);
+            window.FilterUserDirectory({ backToFirstPage: true });
+        }
+    function ShowProspectiveVisits() {
+           // $('#hdnActive').val(empStatus);
+            $('#hdnActive').val('Prospective');
+            window.FilterUserDirectory({ backToFirstPage: true });
+        }
+    window.FilterUserDirectory = function (options) {
+            debugger;
+            if (!options.backToFirstPage) {
+                var pageNum = window.paginationObj.getCurrentPageCount() - 10;
+                window.paginationObj.setCurrentPageCount(pageNum);
+            } else {
+                window.paginationObj.setCurrentPageCount("0");
+            }
+            //  var activeTab = options.activeTab?;
+            var activeStatus = (options.activeTab !== "" && options.activeTab !== undefined) ? options.activeTab : $('#hdnActive').val();
+           // var hdnProspective = $('#hdnActive1').val();
+            var ajaxUrl = (activeStatus === 'Prospective')
+                ? '../Home/GetProspectiveVisits' : '../Home/GetCancelledVisits';
+
+            if (activeStatus === 'Prospective') { activeStatus = "0" }
+
+            $.ajax({
+                url: ajaxUrl,
+                type: 'GET',
+                data: {
+                    VisitStatus: activeStatus,
+                },
+                beforeSend: function () {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+
+
+                    $('#divOpencalls').html();
+                    //$('#spnUserTitle').html('Admin &#8667; ' + ((activeStatus === 'Competance' || activeStatus === 'Competance1') ? 'Competence Matrix' : 'Human Resources'));
+                    $('#divOpencalls').html(data);
+                    $("#AlphaSorting, #UserPager, #divMainSearch").show();
+                    $("#popupqctable").hide();
+                    $("#popupInspectionDate").hide();
+                    $("#popupCancelled").hide();
+                    $("#popupAssignInspector").hide();
+                  //  debugger;
+                    var $parsedData = $('<div>').html(data);
+
+                    if ($parsedData.find('#hdnProspectiveCount').length > 0) {
+                        var newCount = $parsedData.find('#hdnProspectiveCount').val();
+
+                        if (newCount) {
+                            $('#liProspective span .badge').text(newCount).show();
+                        }
+
+                        if (newCount==0) {
+                            $('#liProspective span .badge').hide();
+                        }
+                    }
+
+                    window.paginationObj.CreateListGridPager(options);
+
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+                }
+            });
+        }
+</script>
+

@@ -1,0 +1,24 @@
+﻿@model IQEApp.Web.Models.UserModel.UserDetailsModel
+@{
+    ViewBag.Title = "Edit Profile ";
+}
+<div class="box-header with-border">
+    <h3 class="box-title"> <span id="spnUserProfileTitle"> Edit @Model.UserFullName Profile </span></h3>
+</div>
+<div>
+    <input type="hidden" value="@Model.UserGuid" id="txtUserGuid"/>
+    @Html.Partial("_EditUser", @Model)
+</div>
+<script type="text/javascript">
+    function openEmployeeList() {
+        var val = $('#txtUserGuid').val();
+
+        var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.href = currentUrl + "/User/ViewProfile?userGuid=" + val;
+
+       // window.location.href = "/User/ViewProfile?userGuid="+val;
+    }
+    function beginProgressBar() {
+
+    }
+</script>

@@ -1,0 +1,580 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitDetailsModel
+@{
+    ViewBag.Title = "Schedule Visit";
+    Layout = null;
+}
+
+
+<style>
+    .custom-toast {
+        display: none; /* Hidden by default */
+        /*position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #d9534f;*/ /* Bootstrap-danger-like red */
+        /*color: white;
+        padding: 16px 24px;
+        border-radius: 6px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        font-size: 15px;
+        z-index: 1000;
+        max-width: 350px*/;
+    }
+
+    .close-toast {
+        margin-left: 15px;
+        cursor: pointer;
+        font-weight: bold;
+        float: right;
+    }
+
+</style>
+
+<div>
+    @*<div class="box-header with-border row">*@
+    <div class="col-sm-6 col-md-6 col-lg-6 ">
+        <div id="divScheduleVisitLoadingIconId"></div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+</div>
+
+<div id="CommonDetailsDiv">
+</div>
+<div>
+    <input type="hidden" id="hdnControlNumberGuid" value="@Model.ControlNumberDetails.ControlNumberGuid" />
+    <input type="hidden" id="hdnPOID" value="@ViewBag.POID" />
+    <input type="hidden" id="hdnPONID" value="@ViewBag.PONID" />
+    @*    <input type="hidden" id="hdnPONIDs" value="@ViewBag.PONIDs" />*@
+    <input type="hidden" id="hdnPONIDs" name="PONIDs" value="@string.Join(",", (List<int>)ViewBag.PONIDs)" />
+    <input type="hidden" id="hdnManufacturerID" value="@ViewBag.ManufacturerId" />
+    <input id="hdnControlId" type="hidden"
+           value="@(string.IsNullOrEmpty(Model.ControlNumberDetails.ControlId.ToString()) || Model.ControlNumberDetails.ControlId == 0
+               ? ViewBag.controlId
+               : Model.ControlNumberDetails.ControlId)" />
+
+    @*<input id="hdnControlId" type="hidden" value="@Model.ControlNumberDetails.ControlId ?? @ViewBag.controlNumber" />*@
+    <input id="hdnSOId" type="hidden" value="@(Model.ControlNumberDetails.SOId == 0  ? ViewBag.SOID : Model.ControlNumberDetails.SOId)" />
+    <input id="hdnControlNo" type="hidden" value="@ViewBag.controlNumber" />
+</div>
+<br />
+
+<table id="divDates" class="col-sm-12 col-md-12 col-lg-12 form-group">
+    <tbody>
+        <tr>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.RFIScheduleDate, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.RFIScheduleDate, new { @class = "form-control inputStyle datepicker redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                @Html.ValidationMessageFor(m => m.RFIScheduleDate)
+                <span id="RFIScheduleDateValidation" class="error" style="display: none;"></span>
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ScheduleDate, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.ScheduleDate, new { @class = "form-control inputStyle datepicker redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                @Html.ValidationMessageFor(m => m.ScheduleDate)
+                <span id="ScheduleDateValidation" class="error" style="display: none;"></span>
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.VisitDate, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.VisitDate, new { @class = "form-control inputStyle datepicker redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                @Html.ValidationMessageFor(m => m.VisitDate)
+                <span id="VisitDateValidation" class="error" style="display: none;"></span>
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ScheduleComments, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.ScheduleComments, new { @class = "form-control inputStyle ", @placeholder = @Html.DisplayNameFor(model => model.ScheduleComments) })
+                @Html.ValidationMessageFor(m => m.ScheduleComments)
+            </th>
+    </tbody>
+</table>
+
+
+<table id="divConf">
+    <tbody>
+        <tr>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ClientConfirmation, new { @class = "control-label" })
+                @Html.RadioButtonFor(m => m.ClientConfirmation, true, new { @class = "", @placeholder = @Html.DisplayNameFor(model => model.ClientConfirmation) }) <span>Yes</span>
+                @Html.RadioButtonFor(m => m.ClientConfirmation, false, new { @class = " ", @placeholder = @Html.DisplayNameFor(model => model.ClientConfirmation) }) <span>No</span>
+                @Html.ValidationMessageFor(m => m.ClientConfirmation)
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ManufacturerConfirmation, new { @class = "control-label" })
+                @Html.RadioButtonFor(m => m.ManufacturerConfirmation, true, new { @class = "", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerConfirmation) }) <span>Yes</span>
+                @Html.RadioButtonFor(m => m.ManufacturerConfirmation, false, new { @class = "", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerConfirmation) }) <span>No</span>
+                @Html.ValidationMessageFor(m => m.ManufacturerConfirmation)
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                <a class="btn btn-secondary pull-right mr5" id="btnCancelServiceOrder" title="Cancel" data-toggle="tooltip" href="/ControlNumber/Index">Cancel </a>
+                <button type="submit" class="btn btn-success pull-right mr5" id="btnScheduleNewVisit" value="Save" title="Save" data-toggle="tooltip" onclick="javascript: ScheduleNewVisit();"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+            </th>
+    </tbody>
+</table>
+
+
+@*<div class="modal fade" id="duplicateModal" tabindex="-1" role="dialog" aria-labelledby="duplicateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="duplicateModalLabel">Duplicate Entry</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    The combination of <strong>Client</strong>, <strong>Client Unit</strong>, <strong>SOId</strong>, <strong>ControlId</strong>, <strong>Manufacturer</strong> and <strong>Visit Date</strong> already exists in the system. <br /><br />
+                    Please change this combination in order to proceed with the new visit.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<!-- Place this near the bottom of your body tag -->
+<div id="customToast" class="custom-toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <span id="toastMsg">This is a custom message</span>
+    <span class="close-toast" onclick="hideToast()">×</span>
+</div>
+
+
+
+@*<div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="duplicateToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    The combination already exists. Please change Client, Unit, SOId, etc. to proceed.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>*@
+
+
+<div id="divScheduleVisitPreview" class="modal">
+    <div class="modal-content">
+    </div>
+</div>
+<div id="errorMsgBox"></div>
+<script type="text/javascript">
+
+    $(function () {
+        $("input[name='selectionType']").change(function () {
+     //       debugger;
+            updateVisitDatePicker();
+        });
+
+       /* updateVisitDatePicker();*/
+    });
+
+    function updateVisitDatePicker() {
+        let currentDate = new Date(); // Today's date
+        let nextDay = new Date();
+        let nextDay1 = new Date();
+        nextDay.setDate(currentDate.getDate() + 2);
+        nextDay1.setDate(currentDate.getDate() + 1); // Add one day to current date
+
+        let minDate = null;
+        let maxDate = null;
+
+        if ($("input[name='selectionType']:checked").val() === 'Prospective') {
+            minDate = nextDay; // Set minDate to tomorrow
+            maxDate = null;    // No upper limit on maxDate
+        } else {
+            minDate = null;    // No minDate restriction
+            maxDate = nextDay1; // Set maxDate to tomorrow
+        }
+
+        $("#VisitDate").datepicker("destroy");
+
+        $("#VisitDate").datepicker({
+            dateFormat: "dd/mm/yy",
+            minDate: minDate,
+            maxDate: maxDate,
+            autoclose: true
+        });
+    }
+
+    $(document).ready(function () {
+        $("#ScheduleDate").datepicker({
+            dateFormat: "dd/mm/yy",
+            autoclose: true,
+        });
+
+        $("#RFIScheduleDate").datepicker({
+            dateFormat: "dd/mm/yy",
+            autoclose: true,
+        });
+        updateVisitDatePicker();
+        //$("#VisitDate").datepicker({
+        //    dateFormat: "dd/mm/yy",
+        //    autoclose: true,
+        //});
+
+        // Remove red border on date selection
+        $(".datepicker").on("change", function () {
+            $(this).removeClass("redboder");
+        });
+
+        LoadCommonDetails();
+    });
+
+    var usersList = [];
+    var tempList = [];
+    function LoadCommonDetails() {
+       // debugger;
+        $.ajax({
+            url: '../Operations1/LoadCommonDetailsForScheduleVisit',
+            type: 'POST',
+            data: {
+                visitGuid: null,
+                controlNumberGuid: $("#hdnControlNumberGuid").val(),
+                ServiceOrderId: 0,
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+              //  debugger;
+                $("#CommonDetailsDiv").html(response);
+                // DateSet();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+
+    function GetControlNumDetails() {
+        $.ajax({
+            url: '../ControlNumber/ScheduleVisit',
+            type: 'POST',
+            data: {
+                controlNumber: $("#txtControlNumber").val()
+            },
+            beforeSend: function(e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divScheduleVisitLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function(data) {
+                $('#controlNumDetails').html(data).show();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+            },
+            complete: function() {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+
+    function AddEngg(obj) {
+        var userId = $("#UserId").val();
+        //alert(userId);
+        if (userId < 1) {
+            $("#UserListValidation").html("Assign at least one user").show();
+            return;
+        }
+        $("#UserListValidation").hide();
+        $(".MappedEmpsTemp").appendTo("#MappedEmps");
+        $(".MappedEmpsTemp").removeClass("MappedEmpsTemp").show();
+        $("#EmpMappingList").show();
+        $('#divEmpDetails').html('');
+
+        usersList.push($("#UserId").val());
+        $("#UserId").val('-1');
+    }
+    var modal = document.getElementById("divScheduleVisitPreview");
+    function SchedulePreview() {
+          // //debugger;
+           var controlNumberGuid = $('#drpControlNumber :selected').val();// $('#drpControlNumber:selected').value;
+            $.ajax({
+            url: '../Operations1/PreviewScheduleVisit',
+            type: 'POST',
+            data: {
+                controlNumberGuid: controlNumberGuid,
+                isPartialLoad: true
+            },
+            success: function (data) {
+               // alert(data);
+                modal.style.display = "block";
+
+                $("#divScheduleVisitPreview").html(data).show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+        });
+    }
+    function Popclose() {
+                $("#divScheduleVisitPreview").html('').hide();
+                modal.style.display = "none";
+            }
+    function ScheduleNewVisit() {
+      //  debugger;
+        $('#divPODLBlock').children('input').each(function () {
+            alert(this.value); // "this" is the current element in the loop
+        });
+
+
+        var poid = 0;
+        var ponid = 0;
+        var ponIds = 0;
+        var controlid = 0;
+        var controlno = 0;
+        var mfid = 0;
+        if ($("input[name='selectionType']:checked").val() === 'PO' || $("input[name='selectionType']:checked").val() === 'Prospective') {
+            poid = $("#hdnPOID").val();
+            ponid = $("#hdnPONID").val();
+            mfid = $("#hdnManufacturerID").val();
+        }
+        else if ($("input[name='selectionType']:checked").val() === 'Client') {
+            poid = $("#drpPurchaseOrderNumber").val(); // $("#hdnPOID").val();
+            ponid = $("#hdnPONID").val();
+            ponIds = $("#hdnPONIDs").val();
+            mfid = $("#drpManufacturer").val();
+        }
+        if ($("input[name='selectionType']:checked").val() === 'Client' || $("input[name='selectionType']:checked").val() === 'PO' || $("input[name='selectionType']:checked").val() === 'Prospective') {
+            var isValidationRaised = window.validator.validate([
+                { elementVal: $("#CountryList").val() !== "-1" ? $("#CountryList").val() : "", isRequired: true, errorElement: "CountryValidation",  errorString: "Country is Required"                },
+                {
+                    elementVal: ($("#StateId").val() === "-1" || $("#StateId option:selected").text().toLowerCase() === "select") ? "" : $("#StateId").val(),
+                    isRequired: $("#StateId").val() === "-1" || $("#StateId option:selected").text().toLowerCase() === "select",
+                    errorElement: "StateValidation", errorString: "State is Required"
+                },
+                { elementVal: $('#VisitLocation').val(), isRequired: true, errorElement: "VisitLocationValidation", errorString: "Location is Required" },
+                { elementVal: $('#RFIScheduleDate').val(), isRequired: true, errorElement: "RFIScheduleDateValidation", errorString: "RFI Date is Required" },
+                { elementVal: $('#ScheduleDate').val(), isRequired: true, errorElement: "ScheduleDateValidation", errorString: "Planned Date is Required" },
+                { elementVal: $('#VisitDate').val(), isRequired: true, errorElement: "VisitDateValidation", errorString: "Visit Date is Required" },
+            ]);
+
+            if ($("input[name='selectionType']:checked").val() === 'Client') {
+                isValidationRaised = window.validator.validate([
+                    { elementVal: $('#drpManufacturer').val(), isRequired: true, isValidateDropdown: true, errorElement: "spnManufacturer", errorString: "Select Manufacturer" },
+                    { elementVal: $('#PONIds').val(), isRequired: true, isValidateDropdown: true, errorElement: "PurchaseOrderNumberValidation", errorString: "Select Purchase Order Number" },
+                ]) || isValidationRaised; // Combine validation results
+            }
+
+           // debugger;
+           // alert($("#CountryId").val());
+            var selectedValue = $("input[name='selectionType']:checked").val(); // Get selected value
+
+            var today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today to ignore time
+            var visitDateVal = $("#VisitDate").val(); // Get VisitDate value
+            var visitDate = new Date(visitDateVal.split("/").reverse().join("-")); // Convert to date format
+            visitDate.setHours(0, 0, 0, 0); // Normalize visitDate to ignore time
+
+            var plus1Day = new Date(today);
+            plus1Day.setDate(plus1Day.getDate() + 1); // Add 1 day to today
+
+            var plus2Day = new Date(today);
+            plus2Day.setDate(plus1Day.getDate() + 2); // Add 1 day to today
+
+            if (selectedValue === 'Prospective') {
+                if (visitDateVal.trim() === "") {
+                    isValidationRaised = true;
+                }
+                else if (visitDate <= plus1Day) {
+                    isValidationRaised = true;
+                    $("#VisitDateValidation").text("Visit Date must be within the next 2 days.").show(); // Display the error message
+                } else  {
+                    $("#VisitDateValidation").hide();
+                }
+            }
+
+            if (selectedValue !== 'Prospective') {
+                if (visitDateVal.trim() === "") {
+                    // Don't hide the validation if the field is empty, as it's already handled elsewhere
+                    isValidationRaised = true;
+                } else if (visitDate > plus1Day) {
+                    isValidationRaised = true;
+                    $("#VisitDateValidation").text("Visit Date cannot exceed tomorrow.").show(); // Display error for exceeding tomorrow
+                } else {
+                    $("#VisitDateValidation").hide(); // Hide validation only if the date is valid and not empty
+                }
+            }
+
+            //if (selectedValue !== 'Prospective') {
+            //    var plus1Day = new Date(today.setDate(today.getDate() + 1)); // Set future limit to current date + 1 day
+            //    if (visitDate >= plus1Day) {
+            //        isValidationRaised = window.validator.validate([
+            //            { elementVal: $('#VisitDate').val(), isRequired: true, errorElement: "VisitDateValidation", errorString: "Visit Date cannot be a future date, current date + 1" }
+            //        ]) || isValidationRaised;
+            //    }
+            //    else {
+            //        $("#VisitDateValidation").hide();
+            //    }
+            //}
+
+
+            if (isValidationRaised) {
+                return;
+            }
+        }
+
+
+        //if (usersList.length < 1) {
+        //    $("#UserListValidation").html("Assign at least one user").show();
+        //    return;
+        //}
+        //else {
+        $('#divPODLBlock1 input').each(
+                function (index) {
+                    var input = $(this);
+                    tempList.push(input.attr('name') + ' ' + input.val());
+                }
+            );
+
+           // debugger;
+            let PurchaseOrderItemsArray = [];
+
+            $(".js-PurchaseOrderItems").each(function () {
+                let dataId = $(this).val();
+
+                if ($("#chkPOItemId_" + dataId).is(":checked")) {
+                    console.log("Processing dataId:", dataId);
+
+                    if (!PurchaseOrderItemsArray.some(item => item.POItemId === dataId)) {
+                        let PurchaseOrderItem = {
+                            POItemId: $("#hdnPOItemId_" + dataId).val(),
+                            PONId: $("#hdnPOItemPONId_" + dataId).val(),
+                            POItemNo: $("#hdnPOItemNo_" + dataId).val(),
+                            Description: $("#hdnPOItemDescription_" + dataId).val(),
+                            Quantity: $("#hdnPOItemQuantity_" + dataId).val(),
+                            UOM: $("#hdnPOItemUOM_" + dataId).val(),
+                            NumberOfVisits: $("#hdnPOItemNumberOfVisits_" + dataId).val(),
+                            Remarks: $("#hdnPOItemRemarks_" + dataId).val(),
+                            InspectionActivity: $("#InspectionActivity_" + dataId).val()
+                        };
+
+                        PurchaseOrderItemsArray.push(PurchaseOrderItem);
+                    }
+                }
+            });
+
+            if (PurchaseOrderItemsArray.length == 0) {
+                alert('Select atleast One Item from Purchase Order Items List')
+            }
+            //else if ($("#ScheduleDate").val() == '' || $("#VisitDate").val() == '' || $("#RFIScheduleDate").val() == '')
+            //{
+            //    alert('Please provide the RFI / Planned / Visit Date(s)')
+            //}
+            else {
+                $("#POItemsvalidationError").hide();
+            //debugger;
+            $.ajax({
+                url: '../Operations1/ScheduleNewVisit',
+                type: 'POST',
+                data: {
+                    ControlId: $("#hdnControlId").val(),
+                    SOId: $("#hdnSOId").val(),
+                    ScheduleDate: $("#ScheduleDate").val(),
+                    RFIScheduleDate: $("#RFIScheduleDate").val(),
+                    VisitDate: $("#VisitDate").val(),
+                    ClientConfirmation: $("#ClientConfirmation:checked").val(),
+                    ManufacturerConfirmation: $("#ManufacturerConfirmation:checked").val(),
+                    ScheduleComments: $("#ScheduleComments").val(),
+                    UserIds: usersList.join(","), //$("#hdnUserIds").val()
+                    POID: poid, // $("#drpPurchaseOrderNumber").val(),
+                    PONID: ponid, // $("#drpPurchaseOrderNumber").val(),
+                    PONIds: ponIds,
+                    // ManufacturerUnitId: $("#drpManufacturerUnit").val(),
+                    ManufacturerId: mfid, // $("#drpManufacturer").val(),
+                    CountryId: $("#CountryList").val(),
+                    StateId: $("#StateId").val(),
+                    StateName: $("#StateId option:selected").text(),
+                    VisitLocation: $("#VisitLocation").val(),
+                    ClientId: $("#ClientId").val(),
+                    ClientUnitId: $("#ClientUnitId").val(),
+                    LstPurchaseOrderItems: PurchaseOrderItemsArray, //tempList,
+                    //  LstPurchaseOrderItems: $("#divPODLBlock").val()
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                        parentElement: $('#divScheduleVisitLoadingIconId'),
+                        position: "center"
+                    });
+                },
+                success: function (data) {
+                  //  debugger;
+                var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+
+                 if (data.status) {
+                     window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+                     $("#btnScheduleNewVisit").prop('disabled', true);
+
+                     if (!data.isProspective) {
+                         window.location.href = currentUrl + "Home/HomePage";
+                     } else {
+                         sessionStorage.setItem("isRedirectedFromSuccess", "true");
+                         window.location.href = currentUrl + "Home/HomePage";
+                     }
+                 }
+                 else if (data.message == "Duplicate")
+                 {
+                    // $('#duplicateModal').modal('show');
+                    // $('#duplicateToast').toast('show');
+                     showToast("The combination of Client, ClientUnit, SOId, ControlId, Manufacturer, and Visit Date already exists.");
+
+                    // alert("The Combination of Client, ClientUnit, SOId, ControlId,Manufactrer and VisitDate values already exists in the system. Please change this in combination in order to proceed for the New visit ")
+    //                 $('#errorMsgBox').html(`
+    //    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    //        <strong>Duplicate Entry:</strong> The combination of Client, ClientUnit, SOId, ControlId, Manufacturer, and Visit Date already exists.
+    //        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    //    </div>
+    //`);
+                 }
+                 else {
+                     window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+                 }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+                }
+            });
+        //}
+        }
+
+    }
+
+    function showToast(message) {
+        var toast = document.getElementById("customToast");
+        var toastMsg = document.getElementById("toastMsg");
+
+        toastMsg.innerText = message;
+        toast.style.display = "block";
+
+        // Auto-hide after 5 seconds
+        //setTimeout(() => {
+        //    hideToast();
+        //}, 10000);
+    }
+
+    function hideToast() {
+        var toast = document.getElementById("customToast");
+        toast.style.display = "none";
+    }
+
+
+
+    function UnMapEmp(userId, obj) {
+       // debugger;
+        $('#divEmpMap_' + userId).remove();
+        var indexNum = usersList.indexOf(userId);
+        if (indexNum > -1) {
+            usersList.splice(indexNum, 1);
+        }
+        if (usersList.length < 1) {
+            $("#EmpMappingList").hide();
+            $("#UserId").addClass("redborder");
+        }
+    }
+
+</script>

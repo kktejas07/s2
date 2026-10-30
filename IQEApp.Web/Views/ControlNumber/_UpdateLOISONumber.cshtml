@@ -1,0 +1,145 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IQEApp.Web.Models.ControlNumberModel.ControlNumberDetailsModel
+@*<script src="~/Content/plugins/Calendar/js/moment.min.js"></script>
+    <script src="~/Content/plugins/Calendar/pg-calendar/dist/js/pignose.calendar.min.js"></script>*@
+
+<div>
+    <section id="UpdateLOISONumber">
+        @using (Ajax.BeginForm("UpdateLOISONumber", "ControlNumber", FormMethod.Post,
+        new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnBegin = "beginProgressBar",
+            OnSuccess = "onSuccessUpdateLOISONumber",
+        }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+        <div class="row">
+
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ControlNumberDetails.ControlNo, new { @class = "control-label" });
+                @Html.TextBoxFor(m => m.ControlNumberDetails.ControlNo, new { @class = "form-control dropDownStyle", @readonly = "readonly", @style= "width:120px;", @placeholder = @Html.DisplayNameFor(model => model.ControlNumberDetails.ControlNo) })
+                @* <span id="spnClientUnitIdValidation" class="error" style="display: none;"></span>*@
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.SODate, new { @class = "control-label" });
+                @Html.TextBoxFor(m => m.SODate, new { @class = "form-control dropDownStyle",  @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                @* <span id="spnClientUnitIdValidation" class="error" style="display: none;"></span>*@
+            </div>
+
+            <div class="col-sm-2 col-md-2 col-lg-2  form-group">
+                @Html.LabelFor(m => m.LOISOTypeId, new { @class = "control-label" })
+                @Html.DropDownListFor(m => m.LOISOTypeId, new SelectList(Model.LstLOISOTypes, "LOISOTypeId", "LOISOTypeName"), "Select", new { @class = "form-control dropDownStyle redboder", @style = "widht:100px;", @placeholder = @Html.DisplayNameFor(model => model.LstLOISOTypes), onchange = "LOISOTypeName(this)" })
+                @Html.ValidationMessageFor(m => m.SOType)
+            </div>
+
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group" id="LOI" hidden="hidden">
+                @Html.LabelFor(m => m.LOINumber, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.LOINumber, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.LOINumber) })
+                @Html.ValidationMessageFor(m => m.LOINumber)
+                <span id="spnemptyError1" class="field-validation-error" style="display: none;">LOI/Other Required</span>
+            </div>
+
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group" id="SONumber" hidden="hidden">
+                @Html.LabelFor(m => m.SONumber, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.SONumber, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.SONumber) })
+                @Html.ValidationMessageFor(m => m.SONumber)
+                <span id="spnemptyError2" class="field-validation-error" style="display: none;">SO Required</span>
+                <span id="spnDuplicateError" class="field-validation-error" style="display: none;">SO Already exists</span>
+            </div>
+
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group" id="FileUpload" hidden="hidden">
+                @Html.LabelFor(m => m.UploadFile, new { @class = "control-label" })
+                @Html.TextBoxFor(m => m.UploadFile, new { type = "file", @class = "", @multiple = "multiple" })
+            </div>
+
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group" id="CreateInCurrentFyDiv" hidden="hidden">
+                @Html.Label("Create in Current FY", new { @class = "control-label" })
+                @Html.CheckBoxFor(m => m.CreateInCurrentFy)
+            </div>
+        </div>
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group" id="btnSubmit" hidden="hidden">
+                    <input type="submit" value="Submit" class="btn btn-success pull-right mr5" />
+                    <span id="spnFromDateValidation" class="error" style="display: none;"></span>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.ControlNumberGuid)
+            @Html.HiddenFor(m => m.SOId)
+
+
+        }
+
+    </section>
+    </div>
+    <script type="text/javascript">
+        $.validator.unobtrusive.parse(document);
+
+    </script>
+
+    <script>
+
+        $(document).ready(function () {
+            $(function () {
+                $("#SODate").datepicker({ dateFormat: "dd/mm/yy" }).datepicker("setDate", new Date());
+            })
+        });
+
+        function LOISOTypeName(obj) {
+            $("#FileUpload").hide();
+            $("#btnSubmit").hide();
+            // //debugger;
+            var obj1 = $(obj).find('option:selected').val();
+
+            if (obj1 == "1") {
+                $("#LOI").show();
+                
+                $("#SONumber").hide();
+            }
+            $("#FileUpload").show(); 
+            $("#btnSubmit").show();
+        }
+
+
+        $(document).on("click", "#Submit", function (event) {
+        event.preventDefault();
+        var fileOptions = {
+            success: res,
+            dataType: "json"
+        }
+        $("#formid").ajaxSubmit(fileOptions);
+    });
+        
+
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        //$("#btnUpdateEnquiry").prop('disabled', true);
+    }
+        function onSuccessUpdateLOISONumber(data) {
+        if (data.status) {
+            alert('Data Updated Successfully');
+            location.reload();
+        }
+        else if (data.message == 'empty') {
+            $("#spnemptyError1").show();
+            $("#spnemptyError2").show();
+            $("#spnDuplicateError").hide();
+        }
+        else if (data.message == 'duplicate') {
+            $("#spnemptyError").hide();
+            $("#spnDuplicateError").show();
+         }
+        else {
+            alert(data.message);
+        }
+
+    }
+    </script>

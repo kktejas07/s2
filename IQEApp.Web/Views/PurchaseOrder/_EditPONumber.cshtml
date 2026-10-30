@@ -1,0 +1,212 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderNumbersViewModel
+
+<div class="directory-table-row EditMappedPOsTemp" style="display: none" value="@Model.ManufacturerId" id="divPOMap_@Model.ManufacturerId">
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        @*@Html.Hidden("ManufacturerId_" + @Model.ManufacturerId)*@
+        <input type="hidden" id="previousManufacturerId" value="@Model.ManufacturerId" />
+        <input id="hdnManufacturerId_Edit_@Model.ManufacturerId" class="js-PurchaseOrderNumberEdit" type="hidden" value="@Model.ManufacturerId" />
+        <label id="ManufacturerId_Edit_@Model.ManufacturerId" value="@Model.ManufacturerId" style="font-weight:normal">@Model.ManufacturerName</label>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        <input id="PONumber_Edit_@Model.ManufacturerId" type="text" value="@Model.PONumber" class="form-control redboder" />
+        @*  @Html.TextBox("PONumber_" + @Model.ManufacturerId, new { @class = "form-control inputStyle redboder" })*@
+        <input id="hdnPONGuid_Edit_@Model.ManufacturerId" type="hidden" value="@Model.PONGuid" />
+        <input id="hdnPONId_Edit_@Model.ManufacturerId" type="hidden" value="@Model.PONId" />
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        @if (ViewBag.AddNewManufacturer == 1)
+        {
+            <input id="PoDate_Edit_@Model.ManufacturerId" name="PoDate" type="date" value="" class="form-control redboder" />
+            <span id="spnPODate_@Model.ManufacturerId" class="error" style="display: none;"></span>
+        }
+        else
+        {
+            <input id="PoDate_Edit_@Model.ManufacturerId"
+                   name="PoDate"
+                   type="date"
+                   value="@(Model.PoDate.HasValue ? Model.PoDate.Value.ToString("yyyy-MM-dd") : "")" class="form-control redboder" />
+            @*<input id="PoDate_Edit_@Model.ManufacturerId" name="PoDate" type="date" value="@Model.PoDate.ToString("yyyy-MM-dd")" class="form-control redboder" />*@
+        }
+        @* @Html.TextBox("PoDate_" + @Model.ManufacturerId, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.PoDate) })*@
+    </div>
+    @*<div class="col-lg-2 col-md-2 col-sm-2">
+        </div>*@
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        @*<a href="javascript:EditUnMapManufacturer('@Model.ManufacturerId',this);">
+                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                    &nbsp;Delete
+                </i>
+            </a>*@
+        @if (ViewBag.AddNewManufacturer == 1)
+        {
+            <a href="javascript:addPurchaseOrderItems1('@Model.ManufacturerId','@Model.PONId','@Model.POId');" id="addPOItem_@Model.ManufacturerId" hidden="hidden">
+                <i class="fa fa-plus-square-o mr20" aria-hidden="true">
+                    &nbsp;Add PO Items
+                </i>
+            </a>
+
+            <a href="javascript:UnMapManufacturer('@Model.ManufacturerId',this);" id="RemovePOItem_@Model.ManufacturerId">
+                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                    &nbsp;Delete
+                </i>
+            </a>
+        }
+        else
+        {
+            <a href="javascript:addPurchaseOrderItems1('@Model.ManufacturerId','@Model.PONId','@Model.POId');" id="addPOItem_@Model.ManufacturerId">
+                <i class="fa fa-plus-square-o mr20" aria-hidden="true">
+                    &nbsp;Add PO Items
+                </i>
+            </a>
+            if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderInActive, @User.RoleId.FirstOrDefault()))
+            {
+                <a href="javascript:DeletePONumberMessage('@Model.PONId','@Model.ManufacturerId');" id="RemovePOItem_@Model.ManufacturerId">
+                    <i class="fa fa-trash-o mr20" aria-hidden="true">
+                        &nbsp;Delete
+                    </i>
+                </a>
+            }
+            @*<a href="javascript:EditPurchaseOrderItems('@Model.ManufacturerId',this);" id="addPOItem">
+                    <i class="fa fa-plus-square-o mr20" aria-hidden="true">
+                        &nbsp;Edit PO Item
+                    </i>
+                </a>*@
+        }
+    </div>
+    @Html.HiddenFor(m => m.POId)
+    @Html.HiddenFor(m => m.PONId)
+    @Html.HiddenFor(m => m.PONGuid)
+    @Html.HiddenFor(m => m.PONumber)
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#PoDate").datepicker({
+                 format: 'dd-MM-yyyy',
+               // endDate: '+10d',
+                autoclose: true
+            });
+       // $("#PoDate").datepicker({ dateFormat: "dd/mm/yy" }).datepicker("setDate", new Date());
+    });
+
+
+    function DeletePONumberMessage(ponId,manufacturerId) {
+        var options = {};
+
+        options.msg = "Are you sure you want to delete this PO and its associated items? This action is irreversible.";
+            ShowConfirmationPrompt(function () {
+                DeletePONumber(ponId, manufacturerId);
+            }, options);
+
+    }
+    function DeletePONumber(ponId, manufacturerId) {
+
+        var indexNum = manufacturersList.indexOf(manufacturerId);
+        if (indexNum > -1) {
+            manufacturersList.splice(indexNum, 1);
+        }
+        if (manufacturersList.length < 1) {
+            $("#POMappingList").hide();
+        }
+          $.ajax({
+              url: '../PurchaseOrder/DeletePurchaseOrderNumber',
+              type: 'POST',
+              data: {
+                PONId: ponId ,
+               },
+          beforeSend: function (e) {
+             // BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+          },
+              success: function (response) {
+                //  debugger;
+                  if (response.status) {
+                      $('#divPOMap_' + manufacturerId).remove();
+                     // $('#previousEditManufacturerId_' + manufacturerId).remove();
+
+                      $('#ManufacturerId_' + manufacturerId).closest("div").remove();
+
+                      const lastManufacturerDropdown = $('#divManufacturers').find('[id^="ManufacturerId_"]').last();
+                      // If needed, you can get the ID of the last manufacturer dropdown
+                      const lastManufacturerId = lastManufacturerDropdown.attr('id');
+
+                      if (lastManufacturerDropdown.length) {
+                          lastManufacturerDropdown.closest('div').append(`
+            <button type="button" id="btnAddManufacturer" class="btn btn-primary" style="margin-left: 10px;" onclick="reloadManufacturerDropdown()">
+                + Add
+            </button>
+        `);
+                      }
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    showPurchaseOrderItems();
+                } else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                }
+            },
+
+          error: function (xhr, textStatus, errorThrown) {
+          },
+          complete: function () {
+              //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+          }
+      });
+
+    }
+    //function EditPurchaseOrderItems(obj) {
+    //  debugger;
+    //   // var POId = obj;
+    //    $.ajax({
+    //        url: '../PurchaseOrder/GetItemDetailsToEdit',
+    //        type: 'POST',
+    //        data: {
+    //            manufacturerId: obj,
+    //            PONumber: $("#PONumber_Edit_" + obj).val()
+    //        },
+    //        beforeSend: function (e) {
+    //            BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+    //        },
+    //        success: function (response) {
+    //            $('#spnPurchaseItemsTitle').html('Create Item');
+    //            $('#btnAddPurchaseOrderItems').hide();
+    //            $('#PurchaseItemsList').html('').hide();
+    //            $('#btnPurchaseOrderItemsList').show();
+    //            $('#divAddPurchaseOrderItem').html(response).show();
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+    //        }
+    //    });
+    //}
+    function addPurchaseOrderItems1(mfr, ponId, POId) {
+        debugger;
+        //var POId = $("#POId").val();
+        $.ajax({
+            url: '../PurchaseOrder/GetItemDetailsToAdd',
+            type: 'POST',
+            data: {
+                poId: POId,
+                ponId: ponId,
+                PONumber: $("#PONumber_Edit_" + mfr).val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $('#spnPurchaseItemsTitle').html('Create Item');
+                $('#btnAddPurchaseOrderItems').hide();
+                $('#PurchaseItemsList').html('').hide();
+                $('#btnPurchaseOrderItemsList').show();
+                $('#divAddPurchaseOrderItem').html(response).show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+</script>

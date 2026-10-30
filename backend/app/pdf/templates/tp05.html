@@ -1,0 +1,482 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header("IQE-TP-05", revision, "Third Party Inspection & Expediting Services", "REPORT NO.", report_no) }}
+
+  {{ m.doc_title("EXPEDITING VISIT REPORT", "Supplier progress, schedule, materials, manufacturing and action follow-up report") }}
+
+  {# Top KV Table #}
+  <table class="report-table" style="margin-top: 6pt;">
+    <colgroup>
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Report No.</td>
+        <td class="td-value">{{ report_no or '________________' }}</td>
+        <td class="td-label">Date</td>
+        <td class="td-value">{{ date or '____ / ____ / ______' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Call / Visit Reference &amp; Date</td>
+        <td class="td-value">{{ visit_ref_and_date or '________________' }}</td>
+        <td class="td-label">Previous Visit</td>
+        <td class="td-value">{{ previous_visit or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Next Planned Visit</td>
+        <td class="td-value">{{ next_planned_visit or '________________' }}</td>
+        <td class="td-label">Location</td>
+        <td class="td-value">{{ location or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer</td>
+        <td class="td-value">{{ customer or '________________' }}</td>
+        <td class="td-label">Supplier</td>
+        <td class="td-value">{{ supplier or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Project</td>
+        <td class="td-value">{{ project or '________________' }}</td>
+        <td class="td-label">Sub-Supplier / Manufacturer</td>
+        <td class="td-value">{{ sub_supplier or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Supplier PO No. &amp; Date</td>
+        <td class="td-value">{{ po_no_and_date or '________________' }}</td>
+        <td class="td-label">IQE Expeditor</td>
+        <td class="td-value">{{ expeditor or '________________' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("1.0", "ITEMS / ORDER DETAILS", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 22%;">
+      <col style="width: 7%;">
+      <col style="width: 14%;">
+      <col style="width: 11%;">
+      <col style="width: 11%;">
+      <col style="width: 10%;">
+      <col style="width: 7%;">
+      <col style="width: 12%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Item No.</th>
+        <th class="th-label">Item Description</th>
+        <th class="th-label text-center">PO Qty</th>
+        <th class="th-label">Tag / Unique Serial No.</th>
+        <th class="th-label text-center">Promised Delivery</th>
+        <th class="th-label text-center">Current Expected Delivery</th>
+        <th class="th-label text-center">Qty Available / Produced</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = items if items else [] %}
+      {% set count = rows|length if rows|length >= 4 else 4 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.item_no if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.description if row else '' }}</td>
+        <td class="td-value text-center">{{ row.po_qty if row else '' }}</td>
+        <td class="td-value font-mono">{{ row.tag_no if row else '' }}</td>
+        <td class="td-value text-center">{{ row.promised_delivery if row else '' }}</td>
+        <td class="td-value text-center">{{ row.expected_delivery if row else '' }}</td>
+        <td class="td-value text-center">{{ row.qty_available if row else '' }}</td>
+        <td class="td-value text-center">{{ row.status if row else '' }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("2.0", "ORDER & PROGRESS STATUS") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 35%;">
+      <col style="width: 30%;">
+      <col style="width: 35%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">Status / Progress</th>
+        <th class="th-label text-center">Current Status / %</th>
+        <th class="th-label">Remarks / Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-label">Order Status</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(order_status == 'Complete', 'Complete') }}
+          {{ m.checkbox(order_status == 'Incomplete', 'Incomplete') }}
+          {{ m.checkbox(order_status == 'Partially Completed', 'Partially Completed') }}
+        </td>
+        <td class="td-value">{{ order_status_remarks or '' }}</td>
+      </tr>
+      {% set progress_stages = [
+        ("Engineering / Design", engineering_pct, engineering_remarks),
+        ("Material Procurement / Availability", procurement_pct, procurement_remarks),
+        ("Manufacturing / Fabrication", manufacturing_pct, manufacturing_remarks),
+        ("Inspection / Testing", inspection_pct, inspection_remarks),
+        ("Documentation", documentation_pct, documentation_remarks),
+        ("Overall Completion", overall_completion_pct, overall_remarks)
+      ] %}
+      {% for name, pct, rem in progress_stages %}
+      <tr>
+        <td class="td-label">{{ name }}</td>
+        <td class="td-value text-center font-mono font-weight-bold">{{ (pct ~ ' %') if pct is not none and pct != '' else '____ %' }}</td>
+        <td class="td-value">{{ rem or '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("3.0", "SUMMARY") }}
+  <div style="font-size: 0.95em; margin-bottom: 2pt;">
+    Overall status, progress since previous visit, key developments and significant concerns:
+  </div>
+  {{ m.free_text(summary, 2) }}
+
+  {{ m.section("4.0", "PERSONNEL PRESENT") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 28%;">
+      <col style="width: 22%;">
+      <col style="width: 22%;">
+      <col style="width: 22%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Name</th>
+        <th class="th-label">Designation</th>
+        <th class="th-label">Company</th>
+        <th class="th-label">Role / Responsibility</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = personnel if personnel else [] %}
+      {% set count = rows|length if rows|length >= 4 else 4 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl if row else (i + 1) }}</td>
+        <td class="td-value font-weight-bold">{{ row.name if row else '' }}</td>
+        <td class="td-value">{{ row.designation if row else '' }}</td>
+        <td class="td-value">{{ row.company if row else '' }}</td>
+        <td class="td-value">{{ row.role if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("5.0", "DOCUMENTATION DETAILS") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 28%;">
+      <col style="width: 18%;">
+      <col style="width: 8%;">
+      <col style="width: 14%;">
+      <col style="width: 12%;">
+      <col style="width: 14%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Document / Drawing / Procedure</th>
+        <th class="th-label">Document No.</th>
+        <th class="th-label text-center">Rev.</th>
+        <th class="th-label">Status</th>
+        <th class="th-label">Approval Status</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = doc_details if doc_details else [] %}
+      {% set count = rows|length if rows|length >= 4 else 4 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.doc_name if row else '' }}</td>
+        <td class="td-value font-mono">{{ row.doc_no if row else '' }}</td>
+        <td class="td-value text-center">{{ row.rev if row else '' }}</td>
+        <td class="td-value">{{ row.status if row else '' }}</td>
+        <td class="td-value">{{ row.approval_status if row else '' }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_blank %}
+  <div class="page-break"></div>
+  {{ m.running_header("IQE-TP-05", revision, "Third Party Inspection & Expediting Services", "REPORT NO.", report_no) }}
+  {% endif %}
+
+  {{ m.section("6.0", "SUB-ORDERS / MATERIALS IN STOCK") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 24%;">
+      <col style="width: 18%;">
+      <col style="width: 14%;">
+      <col style="width: 9%;">
+      <col style="width: 10%;">
+      <col style="width: 9%;">
+      <col style="width: 10%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Component / Material</th>
+        <th class="th-label">Supplier / Sub-Supplier</th>
+        <th class="th-label">Order Ref.</th>
+        <th class="th-label text-center">Qty Ordered</th>
+        <th class="th-label text-center">Qty Received / In Stock</th>
+        <th class="th-label text-center">Expected Balance</th>
+        <th class="th-label">Status / Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = sub_orders if sub_orders else [] %}
+      {% set count = rows|length if rows|length >= 3 else 3 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.component if row else '' }}</td>
+        <td class="td-value">{{ row.sub_supplier if row else '' }}</td>
+        <td class="td-value font-mono">{{ row.order_ref if row else '' }}</td>
+        <td class="td-value text-center">{{ row.qty_ordered if row else '' }}</td>
+        <td class="td-value text-center">{{ row.qty_received if row else '' }}</td>
+        <td class="td-value text-center">{{ row.expected_balance if row else '' }}</td>
+        <td class="td-value">{{ row.status_remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("7.0", "MANUFACTURING STATUS") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 28%;">
+      <col style="width: 14%;">
+      <col style="width: 14%;">
+      <col style="width: 10%;">
+      <col style="width: 10%;">
+      <col style="width: 18%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Manufacturing Activity</th>
+        <th class="th-label text-center">Planned Finish</th>
+        <th class="th-label text-center">Actual / Expected Finish</th>
+        <th class="th-label text-center">% Complete</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label">Remarks / Constraints</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = mfg_status if mfg_status else [] %}
+      {% set count = rows|length if rows|length >= 4 else 4 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.activity if row else '' }}</td>
+        <td class="td-value text-center font-mono">{{ row.planned_finish if row else '' }}</td>
+        <td class="td-value text-center font-mono">{{ row.actual_finish if row else '' }}</td>
+        <td class="td-value text-center font-mono">{{ (row.pct ~ ' %') if row and row.pct is not none else '' }}</td>
+        <td class="td-value text-center">{{ row.status if row else '' }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("8.0", "INSPECTION / TESTING STATUS") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 28%;">
+      <col style="width: 13%;">
+      <col style="width: 13%;">
+      <col style="width: 10%;">
+      <col style="width: 14%;">
+      <col style="width: 16%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Inspection / Test Activity</th>
+        <th class="th-label text-center">Planned Date</th>
+        <th class="th-label text-center">Actual / Expected Date</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label">RFI / Report Ref.</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = insp_testing if insp_testing else [] %}
+      {% set count = rows|length if rows|length >= 4 else 4 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.activity if row else '' }}</td>
+        <td class="td-value text-center font-mono">{{ row.planned_date if row else '' }}</td>
+        <td class="td-value text-center font-mono">{{ row.actual_date if row else '' }}</td>
+        <td class="td-value text-center">{{ row.status if row else '' }}</td>
+        <td class="td-value font-mono">{{ row.ref if row else '' }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("9.0", "SCHEDULE / DELIVERY ASSESSMENT") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 30%;">
+      <col style="width: 35%;">
+      <col style="width: 35%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">Particular</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label">Remarks / Recovery Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-label">Delivery against PO</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(delivery_status == 'On Schedule', 'On Schedule') }}
+          {{ m.checkbox(delivery_status == 'At Risk', 'At Risk') }}
+          {{ m.checkbox(delivery_status == 'Delayed', 'Delayed') }}
+        </td>
+        <td class="td-value">{{ delivery_remarks or '' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Critical Path Items</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(critical_path == 'None', 'None') }}
+          {{ m.checkbox(critical_path == 'Identified', 'Identified') }}
+        </td>
+        <td class="td-value">{{ critical_path_remarks or '' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Recovery Plan Required</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(recovery_plan == 'No', 'No') }}
+          {{ m.checkbox(recovery_plan == 'Yes', 'Yes') }}
+        </td>
+        <td class="td-value">{{ recovery_plan_remarks or '' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Supplier Commitment</td>
+        <td class="td-value" colspan="2">{{ supplier_commitment or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">IQE Assessment</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(iqe_assessment == 'Satisfactory', 'Satisfactory') }}
+          {{ m.checkbox(iqe_assessment == 'Concern', 'Concern') }}
+          {{ m.checkbox(iqe_assessment == 'Critical', 'Critical') }}
+        </td>
+        <td class="td-value">{{ iqe_assessment_remarks or '' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("10.0", "ACTIONS / FOLLOW-UP") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 6%;">
+      <col style="width: 36%;">
+      <col style="width: 16%;">
+      <col style="width: 14%;">
+      <col style="width: 14%;">
+      <col style="width: 14%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">Action / Observation</th>
+        <th class="th-label">Responsibility</th>
+        <th class="th-label text-center">Target Date</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = actions if actions else [] %}
+      {% set count = rows|length if rows|length >= 4 else 4 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.action if row else '' }}</td>
+        <td class="td-value">{{ row.responsibility if row else '' }}</td>
+        <td class="td-value text-center font-mono">{{ row.target_date if row else '' }}</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(row.status == 'Open' if row else false, 'Open') }}
+          {{ m.checkbox(row.status == 'Closed' if row else false, 'Closed') }}
+        </td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("11.0", "CONCLUSION") }}
+  <div style="font-size: 0.95em; margin-bottom: 2pt;">
+    Expeditor's overall assessment and recommendation:
+  </div>
+  {{ m.free_text(conclusion, 2) }}
+
+  {% if is_blank %}
+  <div class="page-break"></div>
+  {{ m.running_header("IQE-TP-05", revision, "Third Party Inspection & Expediting Services", "REPORT NO.", report_no) }}
+  {% endif %}
+
+  {{ m.section("12.0", "PHOTOGRAPHS") }}
+  {{ m.photo_grid(photos) }}
+  <div style="font-size: 0.95em; margin-top: 3pt; margin-bottom: 6pt;">
+    Photographs are taken with prior permission from the supplier/vendor.
+  </div>
+
+  {{ m.section("13.0", "ACKNOWLEDGEMENT & SIGNATURES") }}
+  {{ m.signature_block("Supplier / Manufacturer", "Ideal Quality Engineers (I) Pvt. Ltd.", "IQE Expeditor:", signatures) }}
+
+  <div style="margin-top: 3pt; font-size: 0.95em;">
+    <div><strong>Supplier's Comments (if any):</strong></div>
+    {{ m.free_text(supplier_comments, 2) }}
+  </div>
+
+  <div class="disclaimer-block">
+    <div class="disclaimer-title">DISCLAIMER</div>
+    <div>The report records observations and information made available to IQE during the expediting visit at the time and location stated herein. It does not relieve the supplier/manufacturer of its contractual, statutory or regulatory responsibilities or obligations under the Purchase Order and other approved documents.</div>
+  </div>
+
+  <div class="end-marker">— END OF REPORT —</div>
+</div>
+{% endblock %}

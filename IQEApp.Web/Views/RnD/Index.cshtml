@@ -1,0 +1,1306 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Utils
+@using WebIndiaApp.Web.Utils
+@{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Index";
+}
+<link href="~/Content/multiselectcheckbox/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/Content/multiselectcheckbox/js/bootstrap-multiselect.js"></script>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span> Page Header</span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div class="box-header with-border">
+            <h3 class="box-title"> <span id=""> Page Header for all titles </span></h3>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+
+
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span> buttons</span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <button type="button" class="btn btn-success mr5" id="" value="Button1" title="Button1" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Button1 </button>
+        <button type='button' class="btn btn-secondary mr5" id="" value="Button2" title="Button2" data-toggle="tooltip"><i class="fa fa-ban" aria-hidden="true"></i> Button2 </button>
+        <button type="button" class="btn-round-icon mr5" id="" value="Button3" title="Button3" data-toggle="tooltip" onclick="">
+            <i class=" fa fa-pencil" aria-hidden="true"></i>
+        </button>
+        <button type='button' class="btn btn-outline-secondary mr5" value="Button4" title="Button4" data-toggle="tooltip" id="" onclick=""><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Button4</button>
+        <button type="button" class="btn btn-primary" id="" value="Button5" title="Button5" data-toggle="modal">Button5 </button>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Input fields
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="form-group ">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search for...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button"><i class="fa fa-search" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Recipient's username" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+                <span class="input-group-text">
+                    <i class="fa fa-user-o" aria-hidden="true"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="form-group">
+            <input type="text" class="form-control redboder" placeholder="mandatory field">
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="input-container">
+            <i class="fa fa-envelope icon"></i>
+            <input class="input-field" type="text" placeholder="Email" name="email">
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <input class="form-control inputStyle" type="text" placeholder="Name" name="Name">
+        @*<div class="form-group position-relative">
+                <label for="email" class="sr-only">Email</label>
+                <input class="form-control input-lg rounded-0" id="email" name="email" type="text" placeholder="Email / Username" required="">
+                <i class="fa fa-user fa-lg position-absolute"></i>
+            </div>*@
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <input class="form-control inputStyle redboder" type="text" placeholder="mandatory" name="mandatory">
+        @*<div class="form-group ">
+            <input class="form-control" placeholder="First Name" type="text">
+            <span class="fa fa-user form-control-feedback" aria-hidden="true"></span>
+                </div>*@
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="input-group">
+            <input type="text" class="form-control inputStyle" placeholder=" username" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+                <span class="input-group-text">
+                    <i class="fa fa-user-o" aria-hidden="true"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span> Span Error</span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <span class="error"> display of span error validation</span>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        profile pic
+    </div>
+    <div class="col-sm-2 col-md-2 col-lg-2 ">
+        <div class="avatar avatar-xl">
+            <img alt="avatar" src="~/Images/Profile.jpg" class="rounded-circle" />
+        </div>
+    </div>
+    <div class="col-sm-2 col-md-2 col-lg-2 ">
+        <div class="avatar avatar-lg">
+            <img alt="avatar" src="~/Images/Profile.jpg" class="rounded-circle" />
+        </div>
+    </div>
+    <div class="col-sm-2 col-md-2 col-lg-2">
+        <div class="avatar avatar-sm">
+            <img alt="avatar" src="~/Images/Profile.jpg" class="rounded-circle" />
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="profileimg" id="divImage">
+            <img id="userContactCardImg" src="~/Images/forest.jpg" class="img-responsive lazy">
+        </div>
+    </div>
+
+</div>
+<div class="clearfix"></div>
+
+@* Modal Popup Starts *@
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Mpdel popup
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div>
+            <!-- Button trigger modal -->
+            <button id="btnTriggerModalPopUp" type="button" class="btn btn-link" data-toggle="modal" data-target="#exampleModal">
+                Launch modal popup
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            Some heading ..........
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            some data ...
+                        </div>
+                        <div class="modal-footer">
+                            Some data
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    @* Modal PopUP *@
+
+    <script>
+        function triggerModalPopup() {
+            $("btnTriggerModalPopUp").click();
+        }
+    </script>
+</div>
+@* Modal Popup Ends *@
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span> Uploader </span>
+    </div>
+    <div class="col-sm-2 col-md-2 col-lg-2">
+        <div>
+            <input type="hidden" id="hdnFileGUID" name="hdnFileGUID" value="0" />
+            <input type="hidden" id="hdnImageFileSize" name="ImageFileSize" value="0" />
+            <input type="hidden" id="hdnFileTitle" name="hdnFileTitle" value="0" />
+            <div class="uploadBg">
+                <div class="dropzone" id="dropzoneUploadForm">
+                    <div class="fallback">
+                        <input name="files" type="file" />
+                    </div>
+                </div>
+                <div>
+                    <span id="userFile-submit-all" class="btn btn-success mt5" style="display: none; width: 100%;">
+                        <span>
+                            <i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                Dropzone.autoDiscover = false;
+                try {
+                    window.uploader.create({
+                        elementId: "dropzoneUploadForm",   //dropzone will be created to this element
+                        submitButtonId: "userFile-submit-all", //dropzone uploader submit button Id
+                        hiddenFilePathId: "hdnFileGUID",  //unique id  after uploading the file the path which is return value would be binded to this element
+                        hiddenFilePathId3: "hdnFileTitle",
+                        hiddenFileSize: "hdnImageFileSize", //Id after uploading the file the uploaded file size which is return value would be binded to this element
+                        siteId: '67',   //site id the uploaded file to be stored
+                        canValidateImgExtension: false, //for validating file types (if it sets  true it only takes image files)
+                        canValidateContactExtensions: false,//for validating file types (if it sets  true it only takes files specified as contact extensions in baselayout)
+                        url: '../FileUpload/JsonUpload', //any specified Url to upload or else it will take default url
+                        clearUploaderAfterUploading: true, //boolean, it will clear the uploader if it sets true
+                        uploadMultiple: false, //boolean, can upload multiple files at once if it sets true
+                        onCompleteCallback: function (data) {
+                            showUploadedUrl();
+                        }  //we can define any call back function, to done something upon file successful upload, if not we can remover this parameter
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            function showUploadedUrl() {
+                $("#lblUploadedFile").html($("#hdnFileGUID").val());
+            }
+        </script>
+    </div>
+    <div class="col-sm-7 col-md-7 col-lg-7">
+        <label id="lblUploadedFile"></label>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span> tool tip and ....</span>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 short-text">
+        <span class="hideOverflow" title="The quick brown fox jumps over the lazy dog. 1234567890 The quick brown fox jumps over the lazy dog. 1234567890" data-toggle="tooltip"> The quick brown fox jumps over the lazy dog. 1234567890 The quick brown fox jumps over the lazy dog. 1234567890 </span>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+</div>
+<div class="clearfix"></div>
+
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            check box
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        @* Checkbox *@
+
+        <div class="checkbox">
+            @*<input type="checkbox" id="chkSelectAll" value="1" /><span> Select All</span><br />
+                <input type="checkbox" id="chkItem1" value="1" class="jsCheckBoxSelect" /> <span>Select 1</span><br />
+                <input type="checkbox" id="chkItem2" value="2" class="jsCheckBoxSelect" /> <span>Select 2</span><br />
+                <input type="checkbox" id="chkItem3" value="3" class="jsCheckBoxSelect" /><span> Select 3</span><br />
+                <input type="checkbox" id="chkItem4" value="4" class="jsCheckBoxSelect" /><span> Select 4</span><br />
+                <input type="checkbox" id="chkItem5" value="5" class="jsCheckBoxSelect" /><span> Select 5</span><br />*@
+
+            <label>
+                <input type="checkbox" value="1" id="chkSelectAll">
+                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                Select All
+            </label><br />
+            <label>
+                <input type="checkbox" value="1" class="jsCheckBoxSelect">
+                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                Option 1
+            </label><br />
+            <label>
+                <input type="checkbox" value="2" class="jsCheckBoxSelect">
+                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                Option 2
+            </label><br />
+            <label>
+                <input type="checkbox" value="3" class="jsCheckBoxSelect">
+                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                Option 3
+            </label><br />
+            <label>
+                <input type="checkbox" value="4" class="jsCheckBoxSelect">
+                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                Option 4
+            </label><br />
+            <label>
+                <input type="checkbox" value="5" class="jsCheckBoxSelect">
+                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                Option 5
+            </label><br />
+
+            <input type="Submit" value="submit" onclick="javascript:checkBoxSelect();" />
+            <label id="lblSelectedValues"></label><br />
+        </div>
+        <script>
+            $(document).ready(function () {
+                $("#chkSelectAll").click(function () {
+                    $(".jsCheckBoxSelect").prop('checked', $(this).prop('checked'));
+                });
+            });
+
+            function checkBoxSelect() {
+                var checkBoxSelectedValues = [];
+                $(".jsCheckBoxSelect").each(function (index, element) {
+                    //console.log(element, index);
+                    if ($(element).is(":checked")) {
+                        checkBoxSelectedValues.push($(element).val());
+                    }
+                });
+                console.log(checkBoxSelectedValues);
+                $('#lblSelectedValues').html("Selected Values are: " + checkBoxSelectedValues);
+            }
+        </script>
+        @* Checkbox End*@
+    </div>
+
+</div>
+<div class="clearfix"></div>
+
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    @* Radio Buttons *@
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Radio Buttons
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        @*<div class="bootstrap-switch-container" style="width: 147px; margin-left: 0px;">
+                <span class="bootstrap-switch-handle-on bootstrap-switch-default" style="width: 49px;">ON</span>
+                <span class="bootstrap-switch-label" style="width: 49px;">&nbsp;</span>
+                <span class="bootstrap-switch-handle-off bootstrap-switch-danger" style="width: 49px;">OFF</span>
+                <input id="switch-onColor" type="checkbox" checked="checked" data-on-color="default" data-off-color="danger">
+            </div>*@
+        <div class="radio">
+            <label>
+                <input type="radio" name="Gender" value="Male" class="genderCheckbox">
+                <span class="cr"><i class="cr-icon fa fa-circle"></i></span>
+                Male
+            </label>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="Gender" value="FeMale" class="genderCheckbox">
+                    <span class="cr"><i class="cr-icon fa fa-circle"></i></span>
+                    Female
+                </label>
+            </div>
+        </div>
+        <input type="Submit" value="submit" onclick="javascript:getCheckBoxValues();" />
+        <script>
+            function getCheckBoxValues() {
+                var checkedValue = $('.genderCheckbox:checked').val();
+                alert("Selected Gender: " + checkedValue);
+            }
+
+        </script>
+    </div>
+    @* Radio Buttons Ends*@
+</div>
+<div class="clearfix"></div>
+
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    @* Dropdowns *@
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Drop down
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <select data-val="true" id="drpCars" name="" onchange="getDropdownValue()" class="ddStyle">
+            <option value="">Select</option>
+            <option value="saab">Saab</option>
+            <option value="mercedes">Mercedes</option>
+            <option value="audi">Audi</option>
+        </select>
+        <script>
+            function getDropdownValue() {
+                var val = $("#drpCars").val();
+                alert("Selected car: " + val);
+            }
+        </script>
+    </div>
+    @* Dropdowns End*@
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    @* Dropdown Multiselect *@
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Multiple select
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <select class="form-control" id="ddlCarsMultiselect" name="ddlCarsMultiselect" multiple="multiple">
+            <option value="volvo">Volvo</option>
+            <option value="saab">Saab</option>
+            <option value="mercedes">Mercedes</option>
+            <option value="audi">Audi</option>
+        </select>
+        <input type="Submit" value="submit" onclick="javascript: getMultiselectValues();" />
+        <script>
+            $(document).ready(function () {
+                $("#ddlCarsMultiselect").multiselect({
+                    nonSelectedText: 'Multiple Select',
+                    maxHeight: 200,
+                    maxWidth: 400,
+                    includeSelectAllOption: true,
+                    selectAllValue: 'select-all-value'
+                });
+            });
+            function getMultiselectValues() {
+                alert("Select Values: " + $("#ddlCarsMultiselect").val());
+            }
+        </script>
+    </div>
+    @* Dropdown Multiselect *@
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Ellipse
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="btn-group" style="display: inline-block;" role="group">
+            <span id="divGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+            </span>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="#">
+                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                        </i> Edit
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                        </i> Delete
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="btn-group" style="display: inline-block;" role="group">
+            <span id="divGroupDrop1" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+            </span>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="#">
+                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                        </i> Edit
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                        </i> Delete
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Input Date
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        @*we are using date picker plugin herer*@
+        <div class="input-group">
+            <input type="text" class="form-control docs-datepicker" name="txtFromDate" placeholder="Start Date" id="txtFromDate">
+        </div>
+        <script type="text/javascript">
+            $(function () {
+                $("#txtFromDate").datepicker('setDate', new Date());
+            });
+        </script>
+
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Date Time
+        @* we are using date time picker plugin here this is the link for examples https://getdatepicker.com/4/*@
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="input-group">
+            <input type='text' class="form-control" id="datetimepicker4" />
+        </div>
+
+    </div>
+
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="input-group date" id='datetimepicker1'>
+            <div class="input-group-append ">
+                <input type="text" class="form-control">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar" style="right:7px"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            $("#datetimepicker4").datetimepicker();
+            $("#datetimepicker1").datetimepicker();
+        });
+    </script>
+
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="input-group date" id='datetimepicker3'>
+            <div class="input-group-append ">
+                <input type="text" class="form-control">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-time" style="right:7px"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="input-group date" id='datetimepicker5'>
+            <div class="input-group-append ">
+                <input type="text" class="form-control">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar" style="right:7px"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker3').datetimepicker({
+                format: 'LT'
+            });
+        });
+        //Need to check how to give current date and time
+        $(function () {
+            $('#datetimepicker5').datetimepicker({
+                defaultDate: new Date()
+            });
+        });
+    </script>
+
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        calender
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3  ">
+        @*This is pignose caleder added as calender plug in*@
+        <link href="~/Content/plugins/Calendar/css/pignose.calendar.css" rel="stylesheet" media="none" onload="if (media != 'all') media = 'all'" />
+        <script src="~/Content/plugins/Calendar/js/moment.min.js"></script>
+        <script src="~/Content/plugins/Calendar/pg-calendar/dist/js/pignose.calendar.min.js"></script>
+        @Html.Partial("_calender")
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        @* we are using date time picker plugin here this is the link for examples https://getdatepicker.com/4/*@
+        @*<div id="datetimepicker12"></div>*@
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    @*<script type="text/javascript">
+            $(function () {
+                $('#datetimepicker12').datetimepicker({
+                    inline: true,
+                    sideBySide: true
+                });
+            });
+        </script>*@
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    @* File Preview *@
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            File Preview
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <button class="btn btn-default" onclick="javascript: filePreview('2119b8c4-089b-4e17-8657-eaccc5a2f978');">Pdf Preview</button>
+        <button class="btn btn-default" onclick="javascript: filePreview('6c4c4517-a2d9-4cde-ba7a-fca91438509c');">Image Preview</button>
+        <button class="btn btn-default" onclick="javascript: filePreview('ff44f936-87d5-4d19-98d9-ba41cc15d83a');">Excel Preview</button>
+        <button class="btn btn-default" onclick="javascript: filePreview('d6db9650-1cfb-49e5-abe0-3dc39631399d');">Word Preview</button>
+        <div class="modal fade" id="FilePreview" tabindex="-1" role="dialog">
+            <div class="modal-dialog" style="width: 90%;">
+                Modal content
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <label id="lblFolderFileName"></label>
+                        <button type="button" id="FilePreviewPopUpCloseBtn" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="divFilePreviewBody">
+                        @* Body will be appended*@
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="ShowFilePreviewPopUp" style="display: none;" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#FilePreview" data-backdrop="static" data-keyboard="false">Open Modal</button>
+        <div class="clearfix"></div>
+        <script>
+            function filePreview(fileGuid) {
+                $.ajax({
+                    url: '../RnD/FilePreview',
+                    type: 'POST',
+                    data: {
+                        GUId: fileGuid
+                    },
+                    beforeSend: function (e) {
+                        //BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $("#BlogItemEditLoadingIconHoldDiv" + postId), position: "center" });
+                    },
+                    success: function (data) {
+                        var object = null;
+                        var object1 = null;
+                        //create iframe
+                        var iframe = document.createElement('iframe');
+                        // div tag in which iframe will be added should have id attribute with value myDIV
+                        document.getElementById("divFilePreviewBody").appendChild(iframe);
+                        // add id to dynamically generated iframe
+                        iframe.setAttribute("id", "myIframe");
+                        // provide height and width to it
+                        iframe.setAttribute("style", "height:600px;width:100%;");
+
+                        if (data.strString == "success") {
+                            var fileName = data.containerPath + "site-" + data.imageSiteId + "/" + data.strContentLink;
+                            var msFileName =
+                                "https://view.officeapps.live.com/op/embed.aspx?src=" + fileName;
+                            if (data.fType == "normal") {
+                                object =
+                                    "<object data=\"{FileName}\"  type=\"application/pdf\" width=\"100%\" height=\"600px\"></object>";
+                                // this is not allowing scroll style =\"Pointer-events:none\"
+                                object = object.replace(/{FileName}/g, "" + fileName);
+                                //$('#divMSFilePreviewPopup').hide();
+                                $("#divFilePreviewBody").html(object).show();
+                            }
+                            else if (data.fType == "mstype") {
+                                $('#myIframe').attr('src', '');
+                                var myIframe = document.getElementById('myIframe');
+                                myIframe.setAttribute("src", msFileName);
+                                object1 = $('#myIframe').appendTo('body');
+                                //$('#divFilePreviewPopup').hide();
+                                $("#divFilePreviewBody").html(object1).show();
+                            }
+                        } else if (data.strString == "Fail") {
+                            console.log("failed to load preview");
+                        } else {
+                            object = "<html width=\"100%\" height=\"500px\" > <head></head><body>" + data.strString;
+                            object += ", you can download from <a href = /\FolderFile/DownloadFile?GUId=" + strContentLink + "&SId=" + SID + "&GenericId=" + GID + ">here</a>";
+                            object += "</body></html>";
+                            //$('#divMSFilePreviewPopup').hide();
+                            $("#divFilePreviewBody").html(object).show();
+                        }
+
+                        $('#lblFolderFileName').html(data.imageTitle);
+                        $("#ShowFilePreviewPopUp").click();
+                    },
+                    complete: function () {
+                        //BaseLayout_InlineLoadingIcon.hideLoadingIcon($("#BlogItemEditLoadingIconHoldDiv" + postId));
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        //BaseLayout_InlineLoadingIcon.hideLoadingIcon($("#BlogItemEditLoadingIconHoldDiv" + postId));
+                    }
+                });
+            }
+        </script>
+    </div>
+    @* File Preview Ends*@
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Emails
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <button class="btn btn-default" onclick="javascript: sendEmail();">Send Email</button>
+        <script>
+            function sendEmail() {
+                $.ajax({
+                    url: '../Email/SendMail',
+                    type: 'POST',
+                    beforeSend: function (e) {
+
+                    },
+                    success: function (returnData) {
+                        if (returnData.success) {
+                            alert("email sent");
+                        } else {
+                            alert("email failed");
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                    },
+                    complete: function () {
+
+                    }
+                });
+            }
+        </script>
+    </div>
+
+    @* Emails *@
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            PDF Converter
+        </span>
+    </div>
+    <div class="col-sm-6 col-md-6 col-lg-6 ">
+        <div>
+            <button class="btn btn-default" onclick="javascript: pdfConvert();">Convert Pdf</button>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span id="PdfName"></span>
+    </div>
+    <script>
+        function pdfConvert() {
+            $.ajax({
+                url: '../RnD/CreatePdf',
+                type: 'POST',
+                beforeSend: function (e) {
+                },
+                success: function (returnData) {
+                    $("#PdfName").html(returnData.fileName);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+
+                },
+                complete: function () {
+
+                }
+            });
+        }
+    </script>
+    @* Pdf convert end *@
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    @* Editor *@
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Editor
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div id="divCreatePostHold">
+
+        </div>
+        <button id="btnEditorOpen" class="btn btn-default" onclick="javascript: OpenEditor();">Open Editor</button>
+        <script>
+            function OpenEditor() {
+                $.ajax({
+                    url: '../RnD/OpenEditor',
+                    type: 'POST',
+                    beforeSend: function (e) {
+                    },
+                    success: function (returnData) {
+                        $("#divCreatePostHold").html(returnData);
+                        $("#divCreatePostHold").show();
+                        $("#btnEditorOpen").hide();
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                    },
+                    complete: function () {
+
+                    }
+                });
+            }
+        </script>
+    </div>
+
+    @* Editor End *@
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Progress Bar
+        </span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div id="divLoading"></div>
+
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                parentElement: $('#divLoading'),
+                position: "center"
+            });
+        });
+    </script>
+
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Tabs
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div class="vtabs ">
+            <ul class="nav nav-tabs tabs-vertical" role="tablist">
+                <li class="nav-item "> <a class="nav-link" data-toggle="tab" href="#home9" role="tab"><span>Tab 1</span></a> </li>
+                <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#profile9" role="tab"><span>Tab 2</span></a> </li>
+                <li class="nav-item active"> <a class="nav-link " data-toggle="tab" href="#messages9" role="tab" aria-expanded="true"><span>Tab 3</span></a> </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane" id="home9" role="tabpanel">
+                    <div class="p20">
+                        <h4> Tab 1</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+                <div class="tab-pane  p20" id="profile9" role="tabpanel">
+                    <div class="p20">
+                        <h4> Tab 2</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+                <div class="tab-pane p20 active" id="messages9" role="tabpanel" aria-expanded="true">
+                    <div class="p20">
+                        <h4> Tab 3</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Right hand tabs
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div class="vtabs ">
+            <ul class="nav nav-tabs tabs-vertical" role="tablist">
+                <li class="nav-item  pull-right"> <a class="nav-link" data-toggle="tab" href="#home91" role="tab"><span> Tab 3</span></a> </li>
+                <li class="nav-item pull-right"> <a class="nav-link" data-toggle="tab" href="#profile91" role="tab"><span>Tab 2</span></a> </li>
+                <li class="nav-item active pull-right"> <a class="nav-link " data-toggle="tab" href="#messages91" role="tab"><span>Tab 1</span></a> </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane" id="home91" role="tabpanel">
+                    <div class="p20">
+                        <h4> Tab 3</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+                <div class="tab-pane  p20" id="profile91" role="tabpanel">
+                    <div class="p20">
+                        <h4> Tab 2</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+                <div class="tab-pane p20 active" id="messages91" role="tabpanel">
+                    <div class="p20">
+                        <h4> Tab 1</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Tabs with images
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div class="vtabs ">
+            <ul class="nav nav-tabs tabs-vertical" role="tablist">
+                <li class="nav-item "> <a class="nav-link" data-toggle="tab" href="#home92" role="tab"><span><i class="fa fa-home" aria-hidden="true"></i> Tab 1</span></a> </li>
+                <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#profile92" role="tab"><span><i class="fa fa-bar-chart" aria-hidden="true"></i> Tab 2</span></a> </li>
+                <li class="nav-item active"> <a class="nav-link " data-toggle="tab" href="#messages92" role="tab" aria-expanded="true"><span><i class="fa fa-gift" aria-hidden="true"></i> Tab 3</span></a> </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane" id="home92" role="tabpanel">
+                    <div class="p20">
+                        <h4> Tab 1</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+                <div class="tab-pane  p20" id="profile92" role="tabpanel">
+                    <div class="p20">
+                        <h4> Tab 2</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+                <div class="tab-pane p20 active" id="messages92" role="tabpanel" aria-expanded="true">
+                    <div class="p20">
+                        <h4> Tab 3</h4>
+                        <p>The quick brown fox jumps over the lazy dog. 1234567890..</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>Grid</span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>
+            Badges
+        </span>
+    </div>
+    <div class="col-sm-6 col-md-6 col-lg-6 ">
+        @*<h4 class="text-black">With </h4>*@
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center"> Badge line item 1 <span class="badge badge-primary badge-pill">14</span> </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center"> Badge line item 2 <span class="badge badge-primary badge-pill">2</span> </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center"> Badge line item 3 <span class="badge badge-primary badge-pill">1</span> </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center"> Badge line item 4 <span class="badge badge-primary badge-pill">14</span> </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center"> Badge line item 5 <span class="badge badge-primary badge-pill">2</span> </li>
+        </ul>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Activities
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div class="info-box">
+            @*<h4 class="m-b-2 text-black">Recent Activities</h4>*@
+            <div class="sl-item sl-primary">
+                <div class="sl-content">
+                    <small class="text-muted"><i class="fa fa-user "></i> 5 mins ago</small>
+                    <p>The quick brown fox jumps over the lazy dog. 1234567890. The quick brown fox jumps over the lazy dog. 1234567890.</p>
+                    <p>The quick brown fox jumps over the lazy dog. 1234567890. The quick brown fox jumps over the lazy dog. 1234567890.</p>
+                </div>
+            </div>
+            <div class="sl-item sl-danger">
+                <div class="sl-content">
+                    <small class="text-muted"><i class="fa fa-user "></i> 8 mins ago</small>
+                    <p>The quick brown fox jumps over the lazy dog. 1234567890. The quick brown fox jumps over the lazy dog. 1234567890.</p>
+                </div>
+            </div>
+            <div class="sl-item sl-success">
+                <div class="sl-content">
+                    <small class="text-muted"><i class="fa fa-user"></i> 10 mins ago</small>
+                    <p>The quick brown fox jumps over the lazy dog. 1234567890. The quick brown fox jumps over the lazy dog. 1234567890.</p>
+                </div>
+            </div>
+            <div class="sl-item sl-warning">
+                <div class="sl-content">
+                    <small class="text-muted"><i class="fa fa-user"></i> 12 mins ago</small>
+                    <p>The quick brown fox jumps over the lazy dog. 1234567890. The quick brown fox jumps over the lazy dog. 1234567890.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span>Profile</span>
+    </div>
+    <div class="col-sm-4 col-md-4 col-lg-4 ">
+        <div class="box box-widget widget-user">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-aqua-active">
+                <h3 class="widget-user-username">Alexander Pierce</h3>
+                <h6 class="widget-user-desc">Founder &amp; CEO</h6>
+            </div>
+            <div class="widget-user-image"> <img class="img-circle" src="~/Images/Profile.jpg" alt="User Avatar"> </div>
+            <div class="box-footer">
+                <div class="text-center">
+                    <p> A small river named Duden flows by their place and with the necessary.</p>
+                </div>
+                <div class="row margin-bottom">
+                    <div class="col-sm-4 border-right">
+                        <div class="description-block">
+                            <h5 class="description-header">3,200</h5>
+                            <span class="description-text">SALES</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 border-right">
+                        <div class="description-block">
+                            <h5 class="description-header">13,000</h5>
+                            <span class="description-text">FOLLOWERS</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="description-block">
+                            <h5 class="description-header">35</h5>
+                            <span class="description-text">PRODUCTS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-5 col-md-5 col-lg-5 ">
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <span> progress bar</span>
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <div class="progress mt3">
+            <div class="progress-bar bg-danger" role="progressbar" style="width: 65%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">65%</div>
+        </div>
+        <div class="progress mt3">
+            <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+        </div>
+        <div class="progress mt3">
+            <div class="progress-bar bg-info" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%</div>
+        </div>
+        <div class="progress mt3">
+            <div class="progress-bar bg-warning" role="progressbar" style="width:100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">100%</div>
+        </div>
+        @*<div class="info-box">
+            <span class="irs js-irs-0">
+                <span class="irs">
+                    <span class="irs-line" tabindex="0">
+                        <span class="irs-line-left"></span><span class="irs-line-mid"></span>
+                        <span class="irs-line-right"></span>
+                    </span>
+                    <span class="irs-min" style="visibility: visible;">1</span><span class="irs-max" style="visibility: hidden;">100</span>
+                    <span class="irs-from" style="visibility: hidden;">10</span><span class="irs-to" style="visibility: hidden;">10</span>
+                    <span class="irs-single" style="left: 98.5783%;">100</span>
+                </span><span class="irs-grid"></span>
+                <span class="irs-bar" style="left: 0.425367%; width: 99.1493%;"></span><span class="irs-bar-edge"></span>
+                <span class="irs-shadow shadow-single" style="display: none;"></span><span class="irs-slider single" style="left: 99.1493%;">
+                </span>
+            </span>
+            <div id="range_01" class="irs-hidden-input" tabindex="-1"></div>
+                </div>*@
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Cards
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="col-img-hover">
+            <div class="img-hover-st-3">
+                <div class="imgbox"><img src="~/Images/forest.jpg" alt=""></div>
+                <div class="text">
+                    <h3 class="f20 mb2">Cards</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Suspendisse et justo.</p>
+                    <a class="btn btn-default" href="#">Read more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        <div class="col-img-hover">
+            <div class="img-hover-st-2">
+                <div class="imgbox"><img src="~/Images/forest.jpg" alt=""></div>
+                <div class="text">
+                    <h3 class="f20 mb2">Cards</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Suspendisse et justo.</p>
+                    <a class="btn btn-default" href="#">Read more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm-6 m-b-3">
+
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Date Functions:
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        @*@{ var dateTime = DateTime.Now;}
+        <span>Current Date Time: </span>@dateTime<br />
+        <span>Current Date Time: </span>@dateTime.TimeAgo()<br />*@
+        @{
+            var dateTime1 = "07/02/2021 2:57:31 PM";
+            DateTime dateTime2 = Convert.ToDateTime(dateTime1);
+        }
+        <span>Current Date Time: </span>@dateTime2.TimeAgo()<br />
+        <span>Short Date Format: </span>@dateTime2.GetConvertedShortDate()<br />
+        <span>Short Date Time Format: </span>@dateTime2.GetConvertedShortDateTime()<br />
+
+        @dateTime2.TimeAway()<br />
+        @dateTime2.TimeAwayWithNoConvert()<br />
+        @*@dateTime2.TimeAgoForMyBlogs()<br />*@
+        @*@dateTime.ConvertUtcToSystemTimeZone()<br />*@
+        @*@dateTime2.ToConfigLocalTime()<br />*@
+        @*@dateTime2.ToConfigLocalTimeWithoutTimezoneConvert()<br />*@
+        @*@dateTime2.ToUTCTime()<br />
+        @dateTime2.ConvertSystemTimeZoneToUtc()<br />*@
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Growls
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <button class="btn btn-default" onclick="javascript: successGrowl();">Success Growl</button>
+        <button class="btn btn-default" onclick="javascript: failGrowl();">Fail Msg</button>
+    </div>
+    <script>
+        function successGrowl() {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+        }
+        function failGrowl() {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+        }
+    </script>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        Tags:
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3">
+        <span class="col-lg-4 col-md-4 col-sm-4 p0" style="width: 45%;">
+            <input type="text" class=" form-control" id="txtTagsSearch" placeholder="Select from list" />
+            @*<span class="loading-icon-2"><i class="fa fa-spinner fa-1x fa-fw"></i></span>*@
+        </span>
+        <button type='button' id="btnAddTag" class="btn btn-xs btn-raised btn-cancel " onclick="javascript: addTag();">Add Tag </button>
+    </div>
+    <div class="col-sm-3 col-md-3 col-lg-3">
+        <div id="addedTagDiv" style="border: none;">
+
+        </div>
+    </div>
+    <script>
+        (function () {
+            //For getting the saved tags on edit operations
+            //var tagsString = CreateDiscussionObj._GetTagsStr;
+
+            //on edit operation split and arrange the tags
+            //addTagsToDiv(tagsString);
+
+            window.addTag = function () {
+                var names = $("#txtTagsSearch").val();
+                addTagsToDiv(names);
+                $("#txtTagsSearch").val("");
+
+                Spinner.StopSpinner($("#txtTagsSearch"));
+            }
+
+            window.removeTag = function (obj) {
+                $(obj).parent().remove();
+                if ($(".tagElement").length == 0) {
+                    $("#addedTagDiv").hide();
+                }
+            }
+
+            function addTagsToDiv(names) {
+                names = $.trim(names);
+                console.log((names != ""));
+                if (names != "") {
+                    var names = $.trim(names).split(",");
+
+                    names.forEach(function (tag, index) {
+                        $("#addedTagDiv").append("<span class='tagElement'>"
+                                        + tag +
+                                        "<span onclick='removeTag(this)' class='tagRemoveIcon'></span>" +
+                                        "</span>");
+                    });
+
+                    if ($("#addedTagDiv").hasClass(".tags-hold-div") == false) {
+                        $("#addedTagDiv").addClass("tags-hold-div");
+                    }
+                    $("#addedTagDiv").show();
+                }
+            }
+
+            //$("#txtTagsSearch").autocomplete({
+            //    source: function (request, response) {
+
+            //        Spinner.StartSpinner($("#txtTagsSearch"));
+            //        $.getJSON("/Blogs/SearchPostTags?param=" + request.term + "&SiteId=" + _getModuleSiteId() + "&subAccountId=" + CreateDiscussionObj._SubAccountId + "&moduleId=" + _getModuleModuleId(), function (data) {
+            //            Spinner.StopSpinner($("#txtTagsSearch"));
+            //            response(data);
+            //        });
+            //    },
+            //    focus: function (event, ui) {
+            //        return false;
+            //    },
+            //    change: function (event, ui) {
+            //    },
+            //    select: function (event, ui) {
+            //        $("#txtTagsSearch").val(ui.item.label);
+            //        return false;
+            //    },
+            //    search: function () {
+            //    },
+            //    minLength: 0,
+            //    delay: 100
+            //})
+            //.data("ui-autocomplete")._renderItem = function (ul, item) {
+            //    return $("<li>")
+            //        .append("<a>" + item.label + "</a>")
+            //        .appendTo(ul);
+            //};
+            //Below function to supply the selected tags data to save functions
+            //window.CreateDiscussionObj._GetTagsString = function () {
+            //    var tags = [];
+            //    $(".tagElement").each(function (index, element) {
+            //        tags.push($(element).text());
+            //    });
+            //    return tags.join(",");
+            //}
+
+        })();
+    </script>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <button class="btn btn-default" onclick="javascript: showPageLoadIcon();">Show Page Loading Icon</button>
+        <script>
+            function showPageLoadIcon() {
+                HideAndShowCompletePageLoadingIcon(true);
+                setTimeout(HideAndShowCompletePageLoadingIcon, 3000);
+            }
+        </script>
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+    </div>
+</div>
+<div class="clearfix"></div>
+<div class="col-sm-12 col-md-12 col-lg-12 p0 mt10 mb25">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+    </div>
+    <div class="col-sm-9 col-md-9 col-lg-9 ">
+        <span>------------------------------------------</span>
+    </div>
+</div>
+<div class="clearfix"></div>

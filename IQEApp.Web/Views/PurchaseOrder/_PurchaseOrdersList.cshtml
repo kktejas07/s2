@@ -1,0 +1,629 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderViewModel>
+
+
+<meta name="viewport" content="width=device-width" />
+
+<title>Purchase Order</title>
+<style type="text/css">
+    table {
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        background-color: #fff;
+        align-content: center;
+        width: -webkit-fill-available;
+    }
+
+    th, thead {
+        position: sticky;
+        top: 0;
+        border: 1px solid #dddddd;
+        background-color: #1f2d54;
+        text-align: center;
+        color: white;
+        table-layout: fixed;
+        word-break: break-word;
+        height: 40px;
+    }
+
+    .filter {
+        position: absolute;
+        width: 15vw;
+        height: 30vh;
+        display: none;
+        text-align: left;
+        font-size: small;
+        z-index: 9999;
+        overflow: auto;
+        background: #ffffff;
+        color: #1f2d54;
+        border: 1px solid #dddddd;
+    }
+
+        .filter input {
+            margin: 5px !important;
+            padding: 0 !important;
+            width: 7%;
+        }
+
+    .form-control {
+        width: 150px;
+        background-color: aliceblue !important;
+    }
+
+    /* Set custom column widths */
+    th.file-no {
+        width: 8%;
+    }
+
+    th.last-column {
+        width: 8%;
+    }
+</style>
+
+<table id="tblPurchaseOrders" cellpadding="0" cellspacing="0" align="center">
+    <thead>
+        <tr>
+            <th data-column="PurchaseID" class="file-no" index=0>@Html.Label("File No")<div class="filter"></div></th>
+            <th data-column="ClientName" index=1>@Html.Label("Customer Name")<div class="filter"></div></th>
+            <th data-column="ClientUnitName" index=2>@Html.Label("Unit No")<div class="filter"></div></th>
+            <th data-column="ManufacturerName" index=3>@Html.Label("Supplier Details")<div class="filter"></div></th>
+            <th data-column="PONumber" index=4>@Html.Label("PO Number")<div class="filter"></div></th>
+            <th data-column="Qty" class="last-column" index=5>@Html.Label("PO Items Qty")<div class="filter"></div></th>
+            <th data-column="Remarks" class="last-column" index=6>@Html.Label("Remarks")<div class="filter"></div></th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    @if (Model == null || Model.Count() == 0)
+    {
+        <tr>
+            <td colspan="8" style="text-align: center;">No Data Found</td>
+        </tr>
+    }
+    else
+    {
+        foreach (var purchaseOrder in Model.OrderByDescending(x => x.PurchaseId))
+        {
+            <tr>
+                <td align="center"><a href="javascript:void(0);" class="lnkPurchase" data-purchaseid="@purchaseOrder.PurchaseId">@purchaseOrder.PurchaseId</a></td>
+                <td>@purchaseOrder.ClientName</td>
+                <td>@purchaseOrder.ClientUnitName</td>
+                <td>@(string.IsNullOrEmpty(purchaseOrder.ManufacturerName) ? "" : purchaseOrder.ManufacturerName.Substring(1))</td>
+                <td>@Html.Raw(purchaseOrder.PONumber != null ? purchaseOrder.PONumber.Substring(1) : "")</td>
+                <td>@purchaseOrder.TotalItems</td>
+                <td></td>
+                <td>
+                    <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                        @if (purchaseOrder.IsPOActive)
+                        {
+                            if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderEdit, @User.RoleId.FirstOrDefault()) || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderInActive, @User.RoleId.FirstOrDefault()))
+                            {
+                                <div class="btn-group" style="display: inline-block;" role="group">
+                                    <span id="PurchaseOrderGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                    </span>
+                                    <ul class="dropdown-menu ellipse-menu-left">
+                                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderEdit, @User.RoleId.FirstOrDefault()))
+                                        {
+                                            <li>
+                                                <a href="javascript:EditPurchaseOrder('@purchaseOrder.POGuid','@purchaseOrder.ControlNoSONo','@purchaseOrder.POId',false);">
+                                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                    </i> Edit Purchase Order
+                                                </a>
+                                            </li>
+                                        }
+                                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderEdit, @User.RoleId.FirstOrDefault()))
+                                        {
+                                            <li>
+                                                <a href="javascript:EditPurchaseOrder('@purchaseOrder.POGuid','@purchaseOrder.ControlNoSONo','@purchaseOrder.POId', true);">
+                                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                    </i> Update Control Number
+                                                </a>
+                                            </li>
+                                        }
+                                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderInActive, @User.RoleId.FirstOrDefault()))
+                                        {
+                                            <li>
+                                                <a href="javascript:UpdatePurchaseOrderStatus('@purchaseOrder.POGuid',false);">
+                                                    <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                    </i> Inactivate Purchase Order
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderActive, @User.RoleId.FirstOrDefault()))
+                            {
+                                <div class="btn-group" style="display: inline-block;" role="group">
+                                    <span id="PurchaseOrderGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                    </span>
+                                    <ul class="dropdown-menu ellipse-menu-left">
+                                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderActive, @User.RoleId.FirstOrDefault()))
+                                        {
+                                            <li>
+                                                <a href="javascript:UpdatePurchaseOrderStatus('@purchaseOrder.POGuid',true);">
+                                                    <i class="fa fa-undo mr20" aria-hidden="true">
+                                                    </i> Activate Purchase Order
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                </td>
+            </tr>
+        }
+    }
+</table>
+
+<div class="modal fade" id="purchasePopup" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                <h5 class="modal-title">
+                    Purchase Details : <span id="spnPurchaseId"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <table class="table table-bordered table-condensed" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>PO Number</th>
+                            <th>Visit ID</th>
+                            <th>Inspection Date</th>
+                            <th>Manufacturer</th>
+                            <th>Location</th>
+                            <th>Report No</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchasePopupBody">
+                        <tr>
+                            <td colspan="5" class="text-center">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+    });
+        //function UpdateCNOByPurchaseOrder(poGuid, ControlNoSONo, POId) {
+        //    // //debugger;
+        //    $.ajax({
+        //        url: '../PurchaseOrder/UpdateCNOByPurchaseOrder',
+        //        type: 'POST',
+        //        data: {
+        //            purchaseOrderGuid: poGuid,
+        //            ControlNoSONo: ControlNoSONo,
+        //            POId: POId
+        //        },
+        //        beforeSend: function (e) {
+        //            BaseLayout_InlineLoadingIcon.showLoadingIcon({
+        //                parentElement: $('#divPOLoadingIconId'),
+        //                position: "center"
+        //            });
+        //        },
+        //        success: function (data) {
+        //            //  debugger;
+        //            $("#divMainSearch").hide();
+        //            $('#spnPOHeadTitle').html('Operations &#8667; Edit Purchase Order');
+        //            $('#divAddOrUpdatePurchaseOrder').html(data);
+        //            $('#btnNewPO').hide();
+        //            $('#PurchaseOrderPager').hide();
+        //            $('#btnPOList').hide();
+        //            $("#divPODetails").html('');
+        //            $("#divPODetails").hide();
+        //            $('#divPurchaseOrders').hide();
+        //            $('#divActiveInActive').hide();
+        //            $('#AlphaSorting').hide();
+        //            $('#btnPOList').show();
+        //            showPurchaseOrderItems();
+
+        //        },
+        //        error: function (xhr, textStatus, errorThrown) {
+        //        },
+        //        complete: function () {
+        //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+        //        }
+        //    });
+        //}
+    function EditPurchaseOrder(poGuid,ControlNoSONo, POId, flag) {
+       // //debugger;
+        $.ajax({
+            url: '../PurchaseOrder/EditPurchaseOrder',
+            type: 'POST',
+            data: {
+                purchaseOrderGuid: poGuid,
+                ControlNoSONo: ControlNoSONo,
+                POId: POId,
+                IsReadonly: flag
+            },
+            beforeSend: function(e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divPOLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function (data) {
+              //  debugger;
+                $("#divMainSearch").hide();
+                $('#spnPOHeadTitle').html('Operations &#8667; Edit Purchase Order');
+                $('#divAddOrUpdatePurchaseOrder').html(data);
+                $('#btnNewPO').hide();
+                $('#PurchaseOrderPager').hide();
+                $('#btnPOList').hide();
+                $("#divPODetails").html('');
+                $("#divPODetails").hide();
+                $('#divPurchaseOrders').hide();
+                $('#divActiveInActive').hide();
+                $('#AlphaSorting').hide();
+                $('#btnPOList').show();
+                showPurchaseOrderItems();
+
+            },
+            error: function(xhr, textStatus, errorThrown) {
+            },
+            complete: function() {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function UpdatePurchaseOrderStatus(poGuid, status) {
+
+        if (status == true) {
+            var options = {};
+            options.msg = "Are you sure you want to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(poGuid, status);
+            }, options);
+        }
+
+        if (status == false) {
+            var options = {};
+            options.msg = "Are you sure you want to InActivate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(poGuid, status);
+            }, options);
+        }
+        else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(poGuid, status);
+            });
+        }
+
+    }
+    function UpdateStatus(poGuid, status) {
+        $.ajax({
+            url: '../PurchaseOrder/UpdatePurchaseOrderStatus',
+            type: 'POST',
+            data: {
+                POGuid: poGuid,
+                IsPOActive: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divPOLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    }
+                    window.FilterPurchaseOrderDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function addPurchaseOrderItems() {
+        var POId = $('#POId').val();
+        $.ajax({
+            url: '../PurchaseOrder/GetItemDetailsToAdd',
+            type: 'POST',
+            data: {
+                poId: POId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $('#spnPurchaseItemsTitle').html('Create Item');
+                $('#btnAddPurchaseOrderItems').hide();
+                $('#PurchaseItemsList').html('').hide();
+                $('#btnPurchaseOrderItemsList').show();
+                $('#divAddPurchaseOrderItem').html(response).show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function showPurchaseOrderItems() {
+        var POId = $('#POId').val();
+        $.ajax({
+            url: '../PurchaseOrder/GetItemsByPurchaseOrder',
+            type: 'POST',
+            data: {
+                poId: POId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $('#spnPurchaseItemsTitle').html('Items');
+                $('#btnPurchaseOrderItemsList').hide();
+                $('#divAddPurchaseOrderItem').hide();
+                $('#btnAddPurchaseOrderItems').show();
+                $('#PurchaseItemsList').html(response).show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+
+        (function ($) {
+            $.fn.ddTableFilter = function (options) {
+                options = $.extend(true, $.fn.ddTableFilter.defaultOptions, options);
+
+                return this.each(function () {
+                    const table = $(this);
+
+                    if (table.hasClass('ddtf-processed')) return;
+
+                    let debounceTimer;
+
+                    $('th:visible', table).each(function (index) {
+                        const header = $(this);
+
+                        // Skip last column (assuming it's action buttons)
+                        if (index === $('th:visible', table).length - 1) return;
+
+                        const dataColumn = header.attr("data-column");
+                        if (!dataColumn || header.find('input.ddtf-filter').length > 0) return;
+
+                        const columnWidth = header.outerWidth();
+                        const input = $('<input type="text" class="form-control ddtf-filter" placeholder="Search..." />').css({
+                            width: columnWidth - 10 + 'px',
+                            margin: '5px 0',
+                            height: '25px'
+                        });
+
+                        input.attr('data-column', dataColumn);
+                        header.append(input);
+
+                        input.on('keyup', function (e) {
+                            const ignoreKeys = [37, 38, 39, 40, 9, 16, 17, 18];
+                            if (ignoreKeys.includes(e.keyCode)) return;
+
+                            clearTimeout(debounceTimer);
+                            debounceTimer = setTimeout(function () {
+                                const filterState = {};
+                                let activeColumn = "";
+                                let activeText = "";
+
+                                table.find('thead input.ddtf-filter').each(function () {
+                                    const columnName = $(this).data('column');
+                                    const value = $(this).val().trim();
+
+                                    if (value) {
+                                        filterState[columnName] = value;
+                                        activeColumn = columnName;
+                                        activeText = value;
+                                    }
+                                });
+
+                                // Store for persistence across reload
+                                window.ddtfFilterState = filterState;
+                                window.currentSearchColumnName = activeColumn;
+                                window.currentSearchText = activeText;
+
+                                // Call Filter method with backToFirstPage
+                                if (typeof window.FilterPurchaseOrderDirectory === 'function') {
+                                    window.FilterPurchaseOrderDirectory(function (status) { }, { backToFirstPage: true });
+                                }
+
+                            }, 300);
+                        });
+                    });
+
+                    table.addClass('ddtf-processed');
+
+                    if (window.ddtfFilterState) {
+                        table.find('thead input.ddtf-filter').each(function () {
+                            const columnName = $(this).data('column');
+
+                            if (window.ddtfFilterState[columnName]) {
+                                $(this).val(window.ddtfFilterState[columnName]);
+                            }
+                        });
+
+                        /* 🔥 RESTORE FOCUS TO ACTIVE INPUT */
+                        if (window.currentSearchColumnName) {
+                            const $activeInput = table
+                                .find(`thead input.ddtf-filter[data-column="${window.currentSearchColumnName}"]`);
+
+                            if ($activeInput.length) {
+                                $activeInput.focus();
+
+                                // move cursor to end
+                                const val = $activeInput.val();
+                                $activeInput[0].setSelectionRange(val.length, val.length);
+                            }
+                        }
+                    }
+
+                    if ($.isFunction(options.afterBuild)) {
+                        options.afterBuild.call(table);
+                    }
+
+                });
+            };
+
+            $.fn.ddTableFilter.defaultOptions = {
+                afterBuild: null,
+                debug: false
+            };
+        })(jQuery);
+
+
+    // Initialize the filter on your table
+    $(document).ready(function () {
+        $('#tblPurchaseOrders').ddTableFilter();
+    });
+
+    function showLoadingIcon(selector) {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $(selector), position: "center" });
+    }
+
+    function hideLoadingIcon(selector) {
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($(selector));
+    }
+
+    $(document)
+        .off('click', '.lnkPurchase')   // remove old bindings
+        .on('click', '.lnkPurchase', function () {
+            debugger;
+
+            const purchaseId = $(this).data('purchaseid');
+
+            $('#spnPurchaseId').text(purchaseId);
+            $('#purchasePopupBody').html(`
+            <tr><td colspan="5" class="text-center">Loading...</td></tr>
+        `);
+
+            $('#purchasePopup').modal('show');
+
+            $.ajax({
+                url: '../VisitProcessing/GetInspRepoNoByPurchaseId',
+                type: 'GET',
+                data: { purchaseId: purchaseId },
+                success: function (res) {
+                    const data = res?.data || [];
+                    let rows = '';
+
+                    if (!data.length) {
+                        rows = `<tr><td colspan="5" class="text-center">No data found</td></tr>`;
+                    } else {
+                        data.forEach(x => {
+                            rows += `
+                        <tr>
+                            <td>${x.PONumber || '--'}</td>
+                            <td>${x.VisitSeqId || '--'}</td>
+                            <td>${formatJsonDate(x.VisitDate) || '--'}</td>
+                            <td>${x.ManufacturerName || '--'}</td>
+                            <td>${x.LocationDetails || '--'}</td>
+                            <td>${x.InspReportNo || '--'}</td>
+                        </tr>`;
+                        });
+                    }
+
+                    $('#purchasePopupBody').html(rows);
+                },
+                error: function () {
+                    $('#purchasePopupBody').html(`
+                    <tr>
+                        <td colspan="5" class="text-center text-danger">
+                            Error loading data
+                        </td>
+                    </tr>
+                `);
+                }
+            });
+        });
+    //$(document).on('click', '.lnkPurchase', function () {
+    //    debugger;
+    //    const purchaseId = $(this).data('purchaseid');
+    //    $('#spnPurchaseId').text(purchaseId);
+    //    $('#purchasePopupBody').html(
+    //        `<tr><td colspan="5" class="text-center">Loading...</td></tr>`
+    //    );
+
+    //    $('#purchasePopup').modal('show');
+
+    //    $.ajax({
+    //        url: '../VisitProcessing/GetInspRepoNoByPurchaseId',
+    //        type: 'GET',
+    //        data: { purchaseId: purchaseId },
+    //        success: function (res) {
+    //            debugger;
+    //            const data = res.data || [];
+    //            let rows = '';
+
+    //            if (data.length === 0) {
+    //                rows = `<tr><td colspan="5" class="text-center">No data found</td></tr>`;
+    //            } else {
+    //                data.forEach(x => {
+    //                    rows += `
+    //                <tr>
+    //                    <td>${x.PONumber || '--'}</td>
+    //                    <td>${formatJsonDate(x.VisitDate) || '--'}</td>
+    //                    <td>${x.ManufacturerName || '--'}</td>
+    //                    <td>${x.LocationDetails || '--'}</td>
+    //                    <td>${x.InspReportNo || '--'}</td>
+    //                </tr>`;
+    //                });
+    //            }
+
+    //            $('#purchasePopupBody').html(rows);
+    //        },
+    //        error: function () {
+    //            $('#purchasePopupBody').html(
+    //                `<tr><td colspan="5" class="text-center text-danger">Error loading data</td></tr>`
+    //            );
+    //        }
+    //    });
+    //});
+    function formatJsonDate(msDate) {
+        if (!msDate) return "";
+        const timestamp = parseInt(msDate.replace(/[^0-9]/g, ""), 10);
+        if (isNaN(timestamp)) return "";
+
+        const date = new Date(timestamp);
+        return date.toLocaleDateString("en-GB"); // "dd/mm/yyyy"
+    }
+</script>

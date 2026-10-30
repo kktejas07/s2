@@ -1,0 +1,53 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@model  IQEApp.Web.Models.MasteModel.MasterBusinessModel
+@using IQEApp.Web.Models.MasteModel;
+
+<div class="masterbg mt10" id="divSaveMasters">
+    @Html.Partial("_AddMaster", @Model.objMasterViewModel)
+</div>
+<div class="clearfix"> </div>
+    @if (@Model.lstMasterViewModel.Any())
+    {
+        <div>
+
+            @{
+        var counter = 1;
+            }
+            @foreach (var objMstViewModel in @Model.lstMasterViewModel)
+            {
+                objMstViewModel.counter = counter;
+                @Html.Partial("_MasterDataDisplay", objMstViewModel)
+                                                                    counter++;
+            }
+        </div>
+    }
+    else
+    {
+        <span class="mt10"> No data found.</span>
+    }
+<div class="clearfix"> </div>
+
+
+<script type="text/javascript">
+
+    function onSuccessSaveMaster(response) {
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            var secId = $('#SectionId').val();
+            displayDetails(secId, true, $('#DisplayText').val());
+        } else {
+            if (response.message == 'DuplicateRecord') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            }
+            $("#btnSaveMaster").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divMastersLoading'));
+        }
+    }
+
+</script>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

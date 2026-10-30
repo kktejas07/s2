@@ -1,0 +1,1035 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.CompetanceModel.CompetanceViewModel>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width" />
+    <title>Competance</title>
+    <style type="text/css">
+
+        #CompetanceTable th {
+            font-weight: 700;
+            padding: 5px 8px; /* Reduce padding */
+            line-height: 1; /* Adjust line height */
+            /*font-size: 12px;*/ /* Adjust font size */
+            vertical-align: middle; /* Ensure content is vertically aligned */
+            font-family: Arial;
+            font-size: 9.5pt;
+            /*white-space: nowrap;*/
+        }
+
+        .tooltip-remarks, .tooltip-othertext {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 1000;
+            display: none;
+            word-wrap: break-word;
+        }
+        body {
+            font-family: Arial;
+            font-size: 9.5pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+                height: min-content;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .Div1 {
+            border: 1px solid #ddd;
+            width: 98%;
+            overflow: auto;
+            position: absolute;
+        }
+
+        .rotate {
+            transform: scale(-1);
+            writing-mode: vertical-rl;
+            overflow: visible;
+            /*white-space: nowrap;*/
+        }
+
+        /*.no-nowrap {
+            white-space: normal;
+            
+        }*/
+
+        .fa-folder {
+            color: #ffbb33; /* Yellow color */
+        }
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Enables horizontal scrolling */
+        }
+
+        table {
+            width: 100%;
+            max-width: 100%;
+            table-layout: auto; /* Adjust table layout for responsive columns */
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+           /* white-space: nowrap; *//* Keeps the text in each cell from wrapping */
+        }
+
+    </style>
+</head>
+<body>
+    @*<div class="Div1">*@
+    <input type="hidden" id="Compteance" value="@ViewData["Compteance"]" />
+    <div class="table-wrapper">
+        <table cellpadding="0" cellspacing="0" class="center" id="CompetanceTable1">
+            <tr style="border-style:solid">
+                <th rowspan="3">@Html.Label("Employee Code")</th>
+                <th rowspan="3">@Html.Label("Inspector Name")</th>
+                <th rowspan="3">@Html.Label("Educational Qualification")</th>
+                <th rowspan="3">@Html.Label("Professional Qualification")</th>
+                <th rowspan="3" class="rotate">@Html.Label("Experience (Yrs)")</th>
+                <th rowspan="3">@Html.Label("Location")</th>
+                <th colspan="21" align="center" style="text-align:center">Mechanical</th>
+                <th colspan="20" align="center" style="text-align:center">Electrical</th>
+                <th rowspan="3" class="rotate">@Html.Label("Civil & Infrastructure")</th>
+                <th rowspan="3" class="rotate">@Html.Label("Others")</th>
+                <th rowspan="3" class="rotate">@Html.Label("Credentials")</th>
+                <th rowspan="3"></th>
+
+            </tr>
+            <tr>
+                <th rowspan="2" class="rotate" style="border: 1px solid #ddd;">@Html.Label("Materials")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Welding ")</th>
+                <th rowspan="2" class="rotate">@Html.Label("NDE ")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Line Pipe Inspection")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Fabricated Piping")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Valves / Actuators")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Fittings ")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Gaskets ")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Coatings / Painting")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Steel Structures Fabrication")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Pressure Vessels")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Heat Exchangers")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Boilers ")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Tanks ")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Skid Packages")</th>
+                <th colspan="4">@Html.Label("Rotating Equipment")</th>
+
+                <th rowspan="2" class="rotate">@Html.Label("HVAC")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Lifting Equipment")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Generators")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Motors")</th>
+                <th rowspan="2" class="rotate">@Html.LabelFor(m => m.FirstOrDefault().Switchboards_PMCCs_MCCs_Dist_Boards) </th>
+                <th colspan="3">@Html.Label("Transformers")</th>
+                @*<th rowspan="2">@Html.Label("Instrument Transformers CTs/CVTs/PTs")</th>*@
+                <th colspan="1">@Html.Label("Switchgears Switchyard / Substation")</th>
+                <th colspan="2">@Html.Label("Cables / Conductors")</th>
+                @*<th rowspan="2">@Html.Label("Conductors")</th>*@
+                <th rowspan="2" class="rotate">@Html.Label("AC-DC Drives")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Battery Chargers / UPS")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Battery Cells / Banks") </th>
+                <th rowspan="2" class="rotate">@Html.Label("Capacitors")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Ex-Equipmnent (Hazardous Area Equip)")</th>
+                <th rowspan="2" class="rotate">@Html.Label("DG Sets")</th>
+                <th rowspan="2" class="rotate">@Html.Label("Solar PV Modules") </th>
+                <th colspan="2">@Html.Label("Control Systems")</th>
+                <th colspan="2">@Html.Label("E&I Verification Work")</th>
+                @*<th rowspan="2">@Html.Label("Construction Site QA")</th>*@
+
+
+            </tr>
+            <tr>
+                <th class="rotate">@Html.Label("Pumps")</th>
+                <th class="rotate">@Html.Label("Compressors")</th>
+                <th class="rotate">@Html.Label("Turbines")</th>
+                <th class="rotate">@Html.Label("Gears")</th>
+                <th class="rotate">@Html.Label("Power")</th>
+                <th class="rotate">@Html.Label("Distribution")</th>
+                <th class="rotate">@Html.Label("Instrument Transformers CTs/CVTs/PTs")</th>
+                <th class="rotate">@Html.Label("Circuit Breakers / Isolators / Lightning Arresters")</th>
+                @*<th>@Html.Label("Lightning Arresters")</th>*@
+                <th class="rotate">@Html.Label("Power & Control")</th>
+                <th class="rotate">@Html.Label("Signal")</th>
+                <th class="rotate">@Html.Label("Field Instruments")</th>
+                <th class="rotate">@Html.Label("DCS / PLC SCADA")</th>
+                <th class="rotate">@Html.Label("Onshore")</th>
+                <th class="rotate">@Html.Label("Offshore")</th>
+
+            </tr>
+            @foreach (var competance in Model)
+            {
+                <tr>
+                    <td>
+                        @competance.EmployeeCode
+                        <input type="hidden" class="userID1" id="userID1" value="@competance.UserId" />
+                    </td>
+                    <td>@competance.UserFullName</td>
+                    <td>@competance.Qualification</td>
+                    <td>@competance.ProfCourses</td>
+                    <td>@competance.Experience</td>
+                    <td>@competance.CityName</td>
+                    @if (competance.Materials)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Welding)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.NDE)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Line_Pipe_Inspection)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Fabricated_Piping)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Valves_Actuators)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Fittings)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Gaskets)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Coatings_Painting)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Steel_Structures_Fabrication)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Pressure_Vessels)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Heat_Exchangers)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Boilers)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Tanks)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Skid_Packages)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Rotating_Equipment_Pumps)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Rotating_Equipment_Compressors)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Rotating_Equipment_Turbines)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Rotating_Equipment_Gears)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.HVAC)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Lifting_Equipment)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Generators)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Motors)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Switchboards_PMCCs_MCCs_Dist_Boards)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Power)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Distribution)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Instrument_Transformers_CTs_CVTs_PTs)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Circuit_Breakers_Isolators_Lightning_Arresters)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Power_Control)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Signal)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.AC_DC_Drives)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Battery_Chargers_UPS)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Battery_Cells_Banks)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Capacitors)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Ex_Equipmnent_Hazardous_Area_Equip)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.DG_Sets)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Solar_PV_Modules)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Field_Instruments)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.DCS_PLC_SCADA)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Onshore)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Offshore)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    @if (competance.Civil_Infrastructure)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                    <td>@competance.OthersText</td>
+                    <td>@competance.FileName</td>
+                    <td>
+                        <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                            <div class="btn-group" style="display: inline-block;" role="group">
+                                <span id="competanceDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                </span>
+                                <ul class="dropdown-menu ellipse-menu-left">
+                                    @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceEdit, @User.RoleId.FirstOrDefault()))
+                                    {
+                                        <li>
+                                            <a href="javascript:EditCompetance('@competance.EmployeeCode');">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                </i> Edit Competance
+                                            </a>
+                                        </li>
+                                    }
+                                    @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.HumanResourceInActive, @User.RoleId.FirstOrDefault()))
+                                    {
+                                        <li>
+                                            <a href="javascript:UpdateCompetanceStatus('@competance.EmployeeCode','false');">
+                                                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                </i> InActivate Competance
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+            }
+        </table>
+
+        @*</div>*@
+    </div>
+    <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="fileModalLabel">User Resume</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul id="fileList"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script type="text/javascript">
+    $(function () {
+        var fileIndex = -1;
+        var remarksIndex = -1;
+        var maxRemarksLength = 15; // Maximum number of characters to display in the table
+
+        // Array to track the actual column indexes considering colspan and rowspan
+        var columnMap = [];
+
+        // Traverse each header row to map column positions
+        $("#CompetanceTable1 tr").each(function (rowIndex) {
+            var currentColumn = 0; // Track the actual position of the column
+
+            $(this).find('th').each(function () {
+                var colspan = parseInt($(this).attr('colspan') || 1);
+                var rowspan = parseInt($(this).attr('rowspan') || 1);
+                var text = $(this).text().trim();
+
+                // Skip already occupied columns (due to rowspan)
+                while (columnMap[currentColumn] > 0) {
+                    currentColumn++;
+                }
+
+                // Check if this is the "Documents" column
+                if (text === "Credentials") {
+                    fileIndex = currentColumn;  // Save the column index for documents
+                }
+
+                // Check if this is the "Remarks" column
+                if (text === "Professional Qualification") {
+                    remarksIndex = currentColumn;  // Save the column index for remarks
+                }
+                if (text === "Others") {
+                    othersTextIndex = currentColumn;  // Save the column index for remarks
+                }
+                // Mark the next columns as occupied due to colspan
+                for (var i = 0; i < colspan; i++) {
+                    columnMap[currentColumn] = rowspan;  // Mark this column as occupied
+                    currentColumn++;
+                }
+            });
+
+            // Decrement rowspan counters for all columns that span multiple rows
+            for (var j = 0; j < columnMap.length; j++) {
+                if (columnMap[j] > 0) {
+                    columnMap[j]--;
+                }
+            }
+
+            // Break loop if both indexes for "Documents" and "Remarks" are found
+            if (fileIndex >= 0 && remarksIndex >= 0) {
+                return false;
+            }
+        });
+
+        // Ensure the column indexes were found
+        if (fileIndex >= 0 || remarksIndex >= 0 || othersTextIndex >=0 ) {
+            // Iterate through all table rows to update the "Documents" and "Remarks" columns
+            $("#CompetanceTable1 tr").each(function () {
+               // //debugger;
+                var tr = $(this);
+                var rows = tr.children('td');
+
+                if (rows.length > 0) {
+                    var userId = tr.find('.userID1').val();
+
+                    // Process the "Documents" column
+                    if (fileIndex >= 0) {
+                        var cell = rows.eq(fileIndex);
+
+                        if (cell.length > 0) {
+                            var fileList = cell.text().trim().split(';').filter(function (file) {
+                                return file.trim() !== "";  // Ensure no empty or null entries
+                            });
+
+                            if (fileList.length > 0) {
+                                // Generate folder icon with data attributes
+                                cell.html(`<i class="fas fa-folder" data-user-id="${userId}" data-files="${fileList.join(',')}"></i>`);
+                            } else {
+                                cell.html('');  // If no files, leave the cell empty
+                            }
+                        }
+                    }
+
+
+                    // Process the "OthersText" column
+                    if (remarksIndex >= 0) {
+                        var remarksCell = rows.eq(remarksIndex);
+
+                        if (remarksCell.length > 0) {
+                            var fullRemarks = remarksCell.text().trim();
+
+                            if (fullRemarks === "" || fullRemarks === null) {
+                                remarksCell.html('');  // If the remarks are empty or null, clear the cell
+                            } else if (fullRemarks.length > maxRemarksLength) {
+                                var shortenedRemarks = fullRemarks.substring(0, maxRemarksLength) + '...';
+
+                                // Save full remarks in a data attribute and display shortened text
+                                remarksCell.html(`<span class="shortened-remarks" data-full-remarks="${fullRemarks}">${shortenedRemarks}</span>`);
+                            }
+                        }
+                    }
+
+                    if (othersTextIndex >= 0) {
+                        var otherstextCell = rows.eq(othersTextIndex);
+
+                        if (otherstextCell.length > 0) {
+                            var fullOthersText = otherstextCell.text().trim();
+
+                            if (fullOthersText === "" || fullOthersText === null) {
+                                otherstextCell.html('');  // If the remarks are empty or null, clear the cell
+                            } else if (fullOthersText.length > maxRemarksLength) {
+                                var shortenedOtherText = fullOthersText.substring(0, maxRemarksLength) + '...';
+
+                                // Save full remarks in a data attribute and display shortened text
+                                otherstextCell.html(`<span class="shortened-othertext" data-full-othertext="${fullOthersText}">${shortenedOtherText}</span>`);
+                            }
+                        }
+                    }
+
+                }
+            });
+
+            // Handle hover event for the shortened remarks to show the full remarks
+            $(document).on('mouseenter', '.shortened-remarks', function () {
+                var fullRemarks = $(this).data('full-remarks');
+
+                // Create and show a tooltip near the element
+                var tooltip = $('<div class="tooltip-remarks"></div>').text(fullRemarks);
+                $('body').append(tooltip);
+                tooltip.css({
+                    top: $(this).offset().top + $(this).height() + 5,
+                    left: $(this).offset().left
+                }).fadeIn('fast');
+            });
+
+            // Remove the tooltip when mouse leaves
+            $(document).on('mouseleave', '.shortened-remarks', function () {
+                $('.tooltip-remarks').remove();
+            });
+
+            $(document).on('mouseenter', '.shortened-othertext', function () {
+                var fullRemarks = $(this).data('full-othertext');
+
+                // Create and show a tooltip near the element
+                var tooltip = $('<div class="tooltip-othertext"></div>').text(fullRemarks);
+                $('body').append(tooltip);
+                tooltip.css({
+                    top: $(this).offset().top + $(this).height() + 5,
+                    left: $(this).offset().left
+                }).fadeIn('fast');
+            });
+
+            // Remove the tooltip when mouse leaves
+            $(document).on('mouseleave', '.shortened-othertext', function () {
+                $('.tooltip-othertext').remove();
+            });
+
+
+            // Handle click event for the folder icon to show files in a modal
+            $(document).on('click', '.fa-folder', function () {
+              //  //debugger;
+                var userid = $(this).data('userid');
+                var files = $(this).data('files').split(',');
+
+                // Generate the file list HTML
+                var fileListHtml = files.map(function (file) {
+                    return '<li><a href="../User/DownloadFile?UserId=' + userId + '&FileName=' + file.trim() + '">' + file.trim() + '</a></li>';
+                }).join('');
+
+                // Update and display the modal with the file list
+                $("#fileList").html(fileListHtml);
+                $("#fileModal").modal('show');
+            });
+        }
+
+    });
+
+    $(document).ready(function () {
+
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+
+    window.ReSortTheFilter = function (obj, sortingType) {
+        $("#hdnSortingOrder").val(sortingType);
+        //show the other sort icon
+        $(".sortIconHide").show();
+        $(".sortIconHide").removeClass("sortIconHide");
+        $(obj).addClass("sortIconHide").hide();
+        window.paginationObj.setCurrentPageCount("0");
+
+        window.FilterUserDirectory(function (status, newclass) {
+            //call any call back function if u want to call
+        }, { backToFirstPage: true });
+    }
+    function EditCompetance(empcode) {
+        $('#divActiveInActive').hide();
+        $.ajax({
+            url: '../User/EditCompetance',
+            type: 'POST',
+            data: {
+                empCode: empcode
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                //debugger;
+                $("#AlphaSorting").hide();
+                $("#UserPager").hide();
+                $("#divMainSearch").hide();
+                $('#spnUserTitle').html('');
+                $('#spnUserTitle').html('Admin &#8667; Edit Competance');
+                $('#divEmpDetails').html('');
+                $('#divEmpDetails').html(data);
+               // $('#liCompetance').show();
+                $('#btnAddEmp').hide();
+                $('#TitleId').focus();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+            }
+        });
+    }
+function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+    }
+
+    function UpdateCompetanceStatus(employeeCode, status) {
+        var options = {};
+        //debugger;
+
+        if (status === 'true') {
+            options.msg = "Are you sure you want to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(employeeCode, status);
+            }, options);
+        } else if (status === 'false') {
+            options.msg = "Are you sure you want to InActivate? Please provide remarks:<br><textarea id='remarksInput' placeholder='Enter remarks' style='width:100%; margin-top: 10px;'></textarea>";
+
+            ShowConfirmationPrompt(function () {
+                //debugger;
+                // Only close the prompt if valid remarks are provided
+                var remarks = document.getElementById("remarksInput").value;
+                if (remarks && remarks.trim() !== "") {
+                    $('#DeleteConfirmationDiv').removeClass('is-visible'); // Manually close the prompt
+                    UpdateStatus(employeeCode, status, remarks);
+                } else {
+                    alert("Remarks are required to inactivate the user.");
+                    $('#DeleteConfirmationDiv').addClass('is-visible');
+                    //document.getElementById("remarksInput").focus();
+                }
+            }, options);
+        } else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(employeeCode, status);
+            });
+        }
+    }
+
+
+    function UpdateStatus(employeeCode, status, remarks = null) {
+        //debugger;
+        var userType = getActiveTabOnClickValue();
+                $.ajax({
+                    url: '../User/UpdateCompetanceStatus',
+                    type: 'POST',
+                    data: {
+                        employeeCode: employeeCode,
+                        status: status,
+                        userType: userType,
+                        remarks: remarks
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                        //debugger;
+                        if (data.status) {
+                            $('#spnUserTitle').html('');
+                            $('#spnUserTitle').html('Admin &#8667; Competence Matrix');
+                            $('#divEmpDetails').html('');
+                            $('#divEmpDetails').html(data);
+                            $("#AlphaSorting, #UserPager, #divMainSearch").show();
+                            $('#btnEmpList').hide();
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            // openEmployeeList(!statusVal);
+                            if (userType === 'Competance1')
+                                ShowEmployeeDetails('Competance1');
+                            else if (userType === 'Competance')
+                                ShowEmployeeDetails('Competance');
+                            //else
+                            //    ShowEmployeeDetails('Active');
+                        }
+                        else {
+                            $("#AlphaSorting").hide();
+                            $("#UserPager").hide();
+                            $("#divMainSearch").hide();
+                            $('#spnUserTitle').html('');
+                            $('#spnUserTitle').html('Admin &#8667; Edit Competance');
+                            $('#divEmpDetails').html('');
+                            $('#divEmpDetails').html(data);
+                            $('#btnEmpList').show();
+                            $('#btnAddEmp').hide();
+                            $('#TitleId').focus();
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                        }
+                    },
+                   error: function (xhr, textStatus, errorThrown) {
+                         window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+            }
+
+    function ShowEmployeeDetails(empStatus) {
+        //debugger;
+        $('#hdnActive').val(empStatus);
+
+        var statusMapping = {
+            "Active": { tabId: "#liActive", downloadVisible: false },
+            "InActive": { tabId: "#liInActive", downloadVisible: false },
+            "Competance": { tabId: "#liCompetance", downloadVisible: true },
+            "Competance1": { tabId: "#liCompetance1", downloadVisible: true },
+            "Payroll": { tabId: "#liPayroll", downloadVisible: false },
+            "Contract": { tabId: "#liContracts", downloadVisible: false },
+            "Associate": { tabId: "#liAssociates", downloadVisible: false }
+        };
+
+        var config = statusMapping[empStatus] || {};
+
+        $(config.tabId).addClass("active").siblings().removeClass("active");
+        //document.getElementById('btndownload').style.visibility = config.downloadVisible ? 'visible' : 'hidden';
+
+        if (empStatus == 'Competance1') {
+            document.getElementById('btndownload1').style.visibility = config.downloadVisible ? 'visible' : 'hidden';
+            document.getElementById('btndownload').style.visibility = 'hidden';
+        }
+        else if (empStatus == 'Competance') {
+            document.getElementById('btndownload').style.visibility = config.downloadVisible ? 'visible' : 'hidden';
+            document.getElementById('btndownload1').style.visibility = 'hidden'
+        }
+        else {
+            document.getElementById('btndownload').style.visibility = 'hidden';
+            document.getElementById('btndownload1').style.visibility = 'hidden'
+        }
+
+        window.FilterUserDirectory({ backToFirstPage: true });
+    }
+    window.FilterUserDirectory = function (options) {
+        if (!options.backToFirstPage) {
+            var pageNum = window.paginationObj.getCurrentPageCount() - 10;
+            window.paginationObj.setCurrentPageCount(pageNum);
+        } else {
+            window.paginationObj.setCurrentPageCount("0");
+        }
+        var countryId = $('#CountryId').val();
+        var activeStatus = $('#hdnActive').val();
+
+        //var ajaxUrl = (countryId === '1' || activeStatus === 'Competance1' ) ? '../User/CompetanceDetails1' : '../User/CompetanceDetails';
+
+        var ajaxUrl = (activeStatus === 'Competance' || activeStatus === 'Competance1')
+            ? '../User/CompetanceDetails' + ((activeStatus === 'Competance1' || countryId === '1') ? '1' : '')
+            : '../User/UserTypeList';
+
+        $.ajax({
+            url: ajaxUrl,
+            type: 'POST',
+            data: {
+                pageCount: window.paginationObj.getCurrentPageCount(),
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                UserType: activeStatus,
+                sortingOrder: $("#hdnSortingOrder").val(),
+            },
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divEmpLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnUserTitle').html('Admin &#8667; ' + ((activeStatus === 'Competance' || activeStatus === 'Competance1')
+                    ? 'Competence Matrix'
+                    : 'Human Resources'));
+                $('#divEmpDetails').html(data);
+                $("#AlphaSorting, #UserPager, #divMainSearch").show();
+                $('#divActiveInActive').show();
+                window.paginationObj.CreateListGridPager(options);
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divEmpLoadingIconId'));
+            }
+        });
+    }
+    function getActiveTabOnClickValue() {
+        // Select the active <li> element
+        const activeTab = document.querySelector('.nav-item.active');
+
+        if (activeTab) {
+            // Find the <a> element within the active <li>
+            const activeLink = activeTab.querySelector('a');
+
+            // Retrieve the onclick attribute value
+            if (activeLink && activeLink.getAttribute('onclick')) {
+                const onClickValue = activeLink.getAttribute('onclick');
+                console.log('onclick Parameter:', onClickValue);
+
+                // Extract the parameter value from the onclick string
+                const parameterMatch = onClickValue.match(/\('([^']+)'\)/);
+                const parameterValue = parameterMatch ? parameterMatch[1] : null;
+
+                console.log('Parameter Value:', parameterValue);
+                return parameterValue;
+            }
+        }
+
+        console.log('No active tab or onclick attribute found.');
+        return null;
+    }
+
+    // Call the function to get the onclick parameter value
+
+
+
+</script>
+
+
+

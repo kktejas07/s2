@@ -1,0 +1,74 @@
+# Development stack. Bind-mounts the source and runs the API with --reload, so
+# a change on disk restarts the server. Do not deploy this file: see
+# docker-compose.prod.yml, which builds the code into the image instead.
+#
+# Removed from an earlier version of this file: a `celery_worker` service
+# running `celery -A app.tasks.celery_app worker`. There is no app/tasks
+# module, no Celery in requirements.txt, and no Celery anywhere in the
+# codebase - the container crash-looped on every `docker compose up`.
+
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      MONGODB_URL: mongodb://iqe:${MONGO_PASSWORD:-devpassword}@mongodb:27017/iqe?authSource=admin
+      REDIS_URL: redis://redis:6379/0
+      PUBLIC_WEB_URL: http://localhost:3000
+    env_file:
+      - path: ./backend/.env
+        required: false
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  web:
+    build:
+      context: ./apps/web
+      target: dev
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_URL: http://api:8000
+    depends_on:
+      - api
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+
+  mongodb:
+    image: mongo:7.0
+    # Even in development: an unauthenticated Mongo on a published port is
+    # reachable by anything on the host's network, and the inspection data in
+    # it is a client's.
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: iqe
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-devpassword}
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      # The API's first act is init_beanie, which fails if Mongo is not
+      # accepting commands yet. depends_on alone only waits for the container.
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+
+volumes:
+  mongodb_data:

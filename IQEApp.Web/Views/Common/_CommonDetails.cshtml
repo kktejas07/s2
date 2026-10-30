@@ -1,0 +1,273 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.CommonModels.CommonDetailsViewModel
+@*<style>
+    /* width */
+    ::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>*@
+
+<div class="row mt10">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+        <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 150px">
+            <small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Customer Details</small>
+            <div>
+                <b>Name:</b> @Model.ClientUnitDetails.ClientName
+            </div>
+            <div class="mt5">
+                <b>Unit Name:</b> @Model.ClientUnitDetails.ClientUnitName
+            </div>
+            <div class="mt5">
+               <b>Unit Address:</b> @Model.ClientUnitDetails.Address, @Model.ClientUnitDetails.City, @Model.ClientUnitDetails.StateName, @Model.ClientUnitDetails.CountryName
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 150px;overflow-y: auto">
+            <small class="text-muted"><i class="fa fa-futbol-o mr5"></i> Manufacturer Details</small>
+            @*@if (Model.ManufacturerUnitDetails != null)
+            {
+                <div>
+                    Name: <b>@Model.ManufacturerUnitDetails.ManufacturerName</b>
+                </div>
+                <div class="mt5">
+                    Unit Name: <b>@Model.ManufacturerUnitDetails.ManufacturerUnitName</b>
+                </div>
+                <div class="mt5">
+                    Unit Address: <b>@Model.ManufacturerUnitDetails.Address, @Model.ManufacturerUnitDetails.City, @Model.ManufacturerUnitDetails.MFUnitStateName, @Model.ManufacturerUnitDetails.MFUnitCountryName</b>
+                </div>
+            }
+            else
+            {
+                <div>Manufacturer not mapped</div>
+            }*@
+           @if (Model.LstManufacturerUnitDetails.Any())
+           {
+               foreach (var mUnit in Model.LstManufacturerUnitDetails)
+               {
+                   <div><span><b>Name:</b>@mUnit.ManufacturerName</span>
+                        <p>
+                            <span class="mt5">
+                                <b>Unit Name:</b> @mUnit.ManufacturerUnitName
+                            </span>
+                        </p>
+                   </div>
+                  
+                   @*<div class="mt5">
+                       Unit Address: <b>@Model.ManufacturerUnitDetails.Address, @Model.ManufacturerUnitDetails.City, @Model.ManufacturerUnitDetails.MFUnitStateName, @Model.ManufacturerUnitDetails.MFUnitCountryName</b>
+                   </div>*@
+               }
+           }
+           else
+           {
+               <div>Manufacturer not mapped</div>
+           }
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 150px">
+            <small class="text-muted"><i class="fa fa-bandcamp mr5"></i> Service Order Details</small>
+            <div>
+               <b> Number:</b> @Model.ServiceOrderDetails.SONumber
+            </div>
+            <div class="mt5">
+               <b>Type:</b> @Model.ServiceOrderDetails.ServiceOrderTypeName
+            </div>
+            <div class="mt5">
+                <b>Date:</b> @Model.ServiceOrderDetails.SODate?.GetConvertedShortDate() ?? ""
+            </div>
+            <div class="mt5">
+                <b>Due Date:</b>@Model.ServiceOrderDetails.SODueDate?.GetConvertedShortDate()??""
+            </div>
+            <div class="mt5">
+                Comments: <b>@Model.ServiceOrderDetails.SOComments</b>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 150px">
+            <small class="text-muted"><i class="fa fa-paper-plane-o mr5"></i> Control Number Details</small>
+            @if (Model.ControlNumberDetails != null)
+            {
+                <div>
+                    Number : <b>@Model.ControlNumberDetails.ControlNo</b>
+                </div>
+                <div class="mt5">
+                    Comments: &nbsp;<b>@Model.ControlNumberDetails.ControlNumberComments</b>
+                </div>
+            }
+            else
+            {
+                <div>Control Number not mapped</div>
+            }
+        </div>
+    </div>
+</div>
+<div class=" bg mt5">
+    <div class="col-sm-12 col-md-12 col-lg-12 p0">
+        <div class="col-sm-2 col-md-2 col-lg-2">
+            <small class="text-muted"><i class="fa fa-first-order mr5"></i> Purchase Order Details</small>
+        </div>
+        <div class="col-sm-10 col-md-10 col-lg-10">
+            <small class="text-muted"><i class="fa fa-list mr5"></i> Purchase Order Items List</small>
+        </div>
+    </div>
+    @if (Model.LstPurchaseOrderDetails != null)
+    {
+        foreach (var purchaseOrder in Model.LstPurchaseOrderDetails)
+        {
+            <div class="col-sm-12 col-md-12 col-lg-12 p0">
+                <div class="col-sm-2 col-md-2 col-lg-2">
+                    Number : <b>@purchaseOrder.PONumber</b><br/>
+                    Date : <b>@purchaseOrder.PoDate?.GetConvertedShortDate()??""</b><br/>
+                    Comments : <b>@purchaseOrder.POComments</b><br/>
+                </div>
+                <div class="col-sm-10 col-md-10 col-lg-10">
+                    @if (purchaseOrder.LstPurchaseOrderItems.Any())
+                    {
+                        <!--Header Div Starts-->
+                        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+                            <div class="">
+                                Item Number
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                                Description
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                                Quantity
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                                Allowed Visits
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 table-header">
+                                Remarks
+                            </div>
+                        </div>
+                        <!--Header Div Ends-->
+                        foreach (var purchaseOrderItem in purchaseOrder.LstPurchaseOrderItems)
+                        {
+                            <!-- Data display Div Starts -->
+                            <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                                <div class="col-lg-3 col-md-3 col-sm-3">
+                                    @purchaseOrderItem.POItemNo
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-3">
+                                    @purchaseOrderItem.Description
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-sm-1" style="text-align: center;">
+                                    @purchaseOrderItem.Quantity
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-sm-1" style="text-align: center;">
+                                    @purchaseOrderItem.NumberOfVisits
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    @purchaseOrderItem.Remarks
+                                </div>
+                            </div>
+                            <!-- Data display Div ends -->
+                        }
+                    }
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        }
+    }
+    else
+    {
+        <div>Purchase Order not mapped</div>
+    }
+    <div class="clearfix"></div>
+    @*@if (Model.LstPurchaseOrderDetails != null)
+            {
+                foreach (var purchaseOrder in Model.LstPurchaseOrderDetails)
+                {
+                    <div class="mb10">
+                        Number : <b>@purchaseOrder.PONumber</b>
+                        Date : <b>@purchaseOrder.PoDate.GetConvertedShortDate()</b>
+                        Comments : <b>@purchaseOrder.POComments</b>
+                    </div>
+                    <div class="clearfix"></div>
+                    <small class="text-muted"><i class="fa fa-list mr5"></i> Purchase Order Items List</small>
+                    <div id="" class="col-sm-12 col-md-12 col-lg-12 p0">
+                        <div class="clearfix"></div>
+                        @if (purchaseOrder.LstPurchaseOrderItems.Any())
+                        {
+                            <!--Header Div Starts-->
+                            <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+                                <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                                    Item Number
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                                    Description
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                                    Quantity
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                                    Allowed Visits
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4 table-header">
+                                    Remarks
+                                </div>
+                            </div>
+                            <!--Header Div Ends-->
+                            foreach (var purchaseOrderItem in purchaseOrder.LstPurchaseOrderItems)
+                            {
+                                <!-- Data display Div Starts -->
+                                <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        @purchaseOrderItem.POItemNo
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        @purchaseOrderItem.Description
+                                    </div>
+                                    <div class="col-lg-1 col-md-1 col-sm-1" style="text-align: center;">
+                                        @purchaseOrderItem.Quantity
+                                    </div>
+                                    <div class="col-lg-1 col-md-1 col-sm-1" style="text-align: center;">
+                                        @purchaseOrderItem.NumberOfVisits
+                                    </div>
+                                    <div class="col-lg-4 col-md-4 col-sm-4">
+                                        @purchaseOrderItem.Remarks
+                                    </div>
+                                </div>
+                                <!-- Data display Div ends -->
+                            }
+                        }
+                        <div class="clearfix"></div>
+                    </div>
+
+                }
+
+            }
+            else
+            {
+                <div>Purchase Order not mapped</div>
+            }
+            <div class="clearfix"></div>*@
+</div>
+
+        <script>
+            $(document).ready(function () {
+                //   @*alert('@ViewBag.IsBlockEquipmentItem');*@
+                $("#EquipmentName").val('');
+                if ('@ViewBag.IsBlockEquipmentItem' == 'True') {
+                    //$("#EquipmentName").prop('readonly', true);
+                    $("#EquipmentName").prop('readonly', true);
+                    // $("#EquipmentName").val('test');
+                } else {
+                    $("#EquipmentName").prop('readonly', false);
+                    //  $("#EquipmentName").val('test1');
+                    //$("#EquipmentName").prop('readonly', false);
+                }
+            });
+        </script>

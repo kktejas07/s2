@@ -1,0 +1,352 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.CompetanceModel.CompetanceViewModel>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Competance</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 10.5pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+                height: min-content;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .Div1 {
+            border: 1px solid #ddd;
+            width: 98%;
+            overflow: auto;
+            position: absolute;
+        }
+
+        .rotate {
+            transform: scale(-1);
+            writing-mode: vertical-rl;
+            overflow: visible;
+            
+        }
+    </style>
+</head>
+<body>
+    @*<div class="Div1">*@
+
+    <table cellpadding="0" cellspacing="0" class="center">
+        <tr>
+            <th>@Html.Label("Employee Code")</th>
+            <th>@Html.Label("Inspector Name")</th>
+            <th>@Html.Label("Edu Qualification")</th>
+            <th class="rotate">@Html.Label("Experience (Yrs)")</th>
+            <th>@Html.Label("Location")</th>
+            <th class="rotate">@Html.Label("Heat Exchangers")</th>
+            <th class="rotate">@Html.Label("Pressure Vessels")</th>
+            <th class="rotate">@Html.Label("Tanks")</th>
+            <th class="rotate">@Html.Label("Valves / Actuators")</th>
+            <th class="rotate">@Html.Label("Tubes")</th>
+            <th class="rotate">@Html.Label("Skids")</th>
+            <th class="rotate">@Html.Label("Steel Structures")</th>
+            <th class="rotate">@Html.Label("Pumps")</th>
+            <th class="rotate">@Html.Label("Compressors")</th>
+            <th class="rotate">@Html.Label("Turbines")</th>
+            <th class="rotate">@Html.Label("Motors")</th>
+            <th class="rotate">@Html.Label("Transformers")</th>
+            <th class="rotate">@Html.Label("Cables")</th>
+            <th class="rotate">@Html.Label("LinePipes")</th>
+            <th class="rotate">@Html.Label("FRP/HDPE")</th>
+            <th class="rotate">@Html.Label("Castings")</th>
+            <th class="rotate">@Html.Label("Forgings")</th>
+            <th class="rotate">@Html.Label("Machined Components")</th>
+            <th class="rotate">@Html.Label("Manufacturer Assesment")</th>
+            <th class="rotate">@Html.Label("Painting & Coating")</th>
+            <th class="rotate">@Html.Label("Civil Structures")</th>
+            <th class="rotate">@Html.Label("Others")</th>
+            <th></th>
+        </tr>
+        @foreach (var competance in Model)
+        {
+            <tr>
+                <td>@competance.EmployeeCode</td>
+                <td>@competance.UserFullName</td>
+                <td>@competance.Qualification</td>
+                <td>@competance.Experience</td>
+                <td>@competance.CityName</td>
+                @if (competance.HeatExchangers)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.PressureVessels)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+
+                @if (competance.Tanks)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Valves_Actuators)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Tubes)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Skids)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.SteelStructures)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Pumps)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Compressors)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Turbines)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Motors)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Transformers)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Cables)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.LinePipes)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.FRP_HDPE)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Castings)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Forgings)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.MachinedComponents)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.ManufacturerAssesment)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.PaintingCoating)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.CivilStructures)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+                @if (competance.Others)
+                {
+                    <td>X</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            <td>
+                <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                        <div class="btn-group" style="display: inline-block;" role="group">
+                            <span id="competanceDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            </span>
+                            <ul class="dropdown-menu ellipse-menu-left">
+                                <li>
+                                    <a href="javascript:EditCompetance();">
+                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                        </i> Edit Competance
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:UpdateCompetanceStatus('',false);">
+                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                        </i> InActivate Competance
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                </div>
+                </td>
+            </tr>
+
+        }
+    </table>
+    @*</div>*@
+</body>
+
+<div class="clearfix"></div>
+<script>
+            $(document).ready(function () {
+                window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+                if ($.trim("@ViewBag.Total") != "") {
+                    paginationObj.setTotalPageCount("@ViewBag.Total");
+                    paginationObj.updateTotalRecords("@ViewBag.Total");
+                }
+
+            });
+            function EditCompetance(username) {
+                $.ajax({
+                    url: '../Competance/EditCompetance',
+                    type: 'POST',
+                    data: {
+                        username: username
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                        $('#spnHeadTitle').html('Edit Competance');
+                        $("#divMainSearch").hide();
+                        $('#divActiveInActive').hide();
+                        $("#divCompetanceDetails").html('').hide();
+                        $('#divAddUpdateCompetance').html(data).show();
+                        $('#btnCompetanceList').show();
+                        $('#btnAddCompetance').hide();
+                        $('#AlphaSorting').hide();
+                        $('#CompetancePager').hide();
+                        $('#CompetanceDataPostDiv').show();
+                       // ManufacturerUnitsList();
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+            }
+            
+</script>

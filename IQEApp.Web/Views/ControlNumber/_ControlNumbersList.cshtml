@@ -1,0 +1,634 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.ControlNumberModel.ControlNumberViewModel>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="~/Content/Site.css" rel="stylesheet" />
+<style>
+
+    .blur-text {
+        color: transparent !important;
+        text-shadow: 0 0 8px rgba(0,0,0,0.4);
+        user-select: none;
+        pointer-events: none;
+    }
+
+    #ControNumberTable td table {
+        margin: 0;
+        border: none;
+        width: 100%;
+    }
+    .controlno-col{ width: 6%;  }
+    .enquiry-col {  width: 7%;  }
+    .customer-col { width: 9%; }
+    .details-col {  width: 9%; }
+    .scope-col {    width: 9%; }
+    .location-col { width: 9%; }
+    .details1-col { width: 8%; }
+    .scope1-col {  width: 8%; }
+    .location1-col { width: 8%; }
+    .loi-col { width: 8%;  }
+    .sonum-col { width: 6%;   }
+    .soeff-col { width: 6%;   }
+    .sodue-col { width: 6%;   }
+    .sotype-col { width: 6%;   }
+    .amount-col { width: 6%;}
+    .comments-col {  width: 8%; }
+    .action-col { width: 6%; }
+
+    table {
+        /*border: 1px solid #ccc;*/
+        border-collapse: collapse;
+        background-color: #fff;
+        align-content: center;
+        width: -webkit-fill-available;
+    }
+
+    ul {
+        position: relative;
+        left: -14px;
+    }
+
+    body {
+        font-family: Tahoma;
+        font-size: 9pt;
+    }
+
+    .fa-folder {
+        color: #ffbb33; /* Yellow color */
+    }
+
+    .rotate {
+        transform: scale(-1);
+        writing-mode: vertical-rl;
+        overflow: visible;
+        /*white-space: nowrap;*/
+    }
+
+</style>
+
+@using (Ajax.BeginForm("UpdateLatestSONumber", "ControlNumber", FormMethod.Post, new AjaxOptions { HttpMethod = "POST", OnBegin = "beginProgressBar", OnSuccess = "onSuccessUploadQuation" }, new { enctype = "multipart/form-data" }))
+{<body>
+        <div>
+            <table cellpadding="0" cellspacing="0" class="center" id="ControNumberTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="text-align:center" class="controlno-col">@Html.Label("Control Number")</th>
+                        <th rowspan="2" style="text-align:center">@Html.Label("Enquiry No")</th>
+                        <th rowspan="2" style="text-align:center">@Html.Label("Customer Details")</th>
+                        <th rowspan="2" style="text-align:center" class="details-col">@Html.Label("Enquiry Details")</th>
+                        <th rowspan="2" style="text-align: center" class="scope-col">@Html.Label("Scope of Work")</th>
+                        <th rowspan="2" style="text-align: center" class="location-col">@Html.Label("Location of Work")</th>
+                        <th class="loi-col @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")" rowspan="2" style="text-align:center">@Html.Label("LOI / Others")</th>
+                        <th class="sonum-col @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")" colspan="4" style="text-align:center">@Html.Label("Service Order")</th>
+                        <th class="amount-col @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")" rowspan="2" style="text-align:center">@Html.Label("Amount")</th>
+                        <th rowspan="2" class="@(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text") rotate">@Html.Label("Document")</th>
+                       
+                        <th rowspan="2" style="text-align:center">@Html.Label("Comments")</th>
+                        <th rowspan="2">&nbsp;</th>
+                    </tr>
+                    <tr>
+                            <th class="sonum-col @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")">@Html.Label("Number")</th>
+                            <th class="soeff-col @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")">@Html.Label("Effective Date")</th>
+                            <th class="sodue-col @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")">@Html.Label("Due Date")</th>
+                            <th class="@(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")" style="width:50px">@Html.Label("Type")</th>
+                        </tr>
+                    
+
+                </thead>
+                @foreach (var controlNumber in Model)
+                {
+                    var categories = controlNumber.LstEnquiryCategoryModel.ToList();
+                    var firstCat = categories.Count > 0 ? categories[0] : null;
+                    var extraCats = categories.Count > 1 ? categories.Skip(1).ToList() : null;
+
+                    <tr>
+                        <td class="controlno-col">
+                            @controlNumber.ControlNo
+                            <input type="hidden" class="controlID" id="controlID" value="@controlNumber.ControlNumberGuid" />
+                            <input type="hidden" class="serviceID" id="serviceID" value="@controlNumber.ServiceOrderGuid" />
+                        </td>
+                        <td class="enquiry-col">
+                            @controlNumber.EnquiryId
+                            <input type="hidden" class="enquiryID" id="enquiryID" value="@controlNumber.EnquiryId" />
+                        </td>
+                        <td class="customer-col">@controlNumber.ClientName / @controlNumber.ClientUnitName</td>
+
+                        <td colspan="3" class="p-0">
+                            <div class="category-details d-none mt-2" id="cat-@controlNumber.EID">
+                                <table class="table table-categories table-bordered mb-0">
+                                    <tbody>
+                                        @if (firstCat != null)
+                                        {
+                                            <tr>
+                                                <td class="details1-col">@(firstCat != null ? firstCat.Details : "")</td>
+                                                <td class="scope1-col">@(firstCat != null ? firstCat.Scope : "")</td>
+                                                <td class="location1-col">@(firstCat != null ? firstCat.Location : "")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                @if (extraCats != null)
+                                {
+                                    <div class="category-wrapper">
+                                        <a href="#" class="view-categories" data-id="@controlNumber.EID" data-state="collapsed"
+                                           data-cats='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(extraCats))'>
+                                            <i class="fa fa-plus-square"></i> View @extraCats.Count Categories
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+
+                        <td class="loi-col  @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")">@controlNumber.LOINumber</td>
+                        <td class="sonum-col  @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")">@controlNumber.SONumber</td>
+                        <td class="soeff-col  @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")">@(controlNumber.SODate.HasValue ? controlNumber.SODate.Value.ToShortDateString() : "")</td>
+                        <td class="sodue-col  @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")">@(controlNumber.SODueDate.HasValue ? controlNumber.SODueDate.Value.ToShortDateString() : "")</td>
+                        <td class="@(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")" style="width:50px">@controlNumber.SOTypeName</td>
+
+                         <td class="amount-col @(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")" style="text-align:right;">
+                                <span style="float:left;">@controlNumber.CurrencySymbol</span>
+                                <span style="display:inline-block; margin-right:0px;">@string.Format("{0:#,###0}", controlNumber.Amount)</span>
+                            </td>
+                            <td class="@(ViewBag.RoleId == 1 || ViewBag.RoleId == 2 ? "" : "blur-text")" style="text-align: center;">
+                                @controlNumber.FileName
+                                <input type="hidden" class="fileId" id="FileId" value="@controlNumber.FileId" />
+                            </td>
+                        
+                        <td class="comments-col">@controlNumber.ControlNumberComments</td>
+                        <td>
+                            <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                                <span id="enquiryDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                </span>
+                                <ul class="dropdown-menu ellipse-menu-left">
+                                    @if (@controlNumber.IsCNActive)
+                                    {
+                                        <li>
+                                            <a href="javascript:UpdateControlNumberStatus('@controlNumber.ControlNumberGuid',false);">
+                                                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                </i> Inactivate Control Number
+                                            </a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a href="javascript:UpdateControlNumberStatus('@controlNumber.ControlNumberGuid',true);">
+                                                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                </i> Activate Control Number
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li>
+                                        <a href="javascript:EditServiceOrder('@controlNumber.ServiceOrderGuid','@controlNumber.ControlNo');">
+                                            <i class="fa fa-pencil-square-o  mr20" aria-hidden="true">
+                                            </i> Edit Service Order
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a href="javascript:AddServiceOrderCNo(@controlNumber.ClientId, '@controlNumber.ClientName', @controlNumber.ControlId,@controlNumber.ControlNo,@controlNumber.EID,@controlNumber.EnquiryId);">
+                                            <i class="fa fa-plus-circle mr20" aria-hidden="true">
+                                            </i> Add Service Order
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a href="javascript:UpdateLOISONumber1('@controlNumber.ControlNumberGuid',@controlNumber.SOId );">
+                                            <i class="fa fa-pencil-square-o mr20" aria-hidden="true">
+                                            </i> Update LOI /SO Number
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document" style="width:450px;">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                        <h5 class="modal-title" id="fileModalLabel">SO Documents</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul id="fileList"></ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </body>
+
+    <table id="popuptable" title="LOI/SO Number Update">
+        <tbody>
+            <tr style="height: 10px;">
+                <th>Control No </th>
+
+            </tr>
+        </tbody>
+    </table>
+}
+
+<script>
+
+        $(function () {
+            $(document).on('click', '.view-categories', function (e) {
+                debugger;
+                e.preventDefault();
+
+                var $link = $(this);
+                var $catDiv = $link.closest('.category-details');
+                var $tbody = $catDiv.find('table.table-categories tbody');
+
+                var dataCats = $link.attr('data-cats');
+                var cats = [];
+                try { cats = JSON.parse(dataCats); } catch (err) { cats = []; }
+
+                // If rows already appended → remove them
+                if ($tbody.find('tr.cat-extra').length > 0) {
+                    $tbody.find('tr.cat-extra').remove();
+                    $link.html('<i class="fa fa-plus-square"></i> View ' + cats.length + ' Categories');
+                    return;
+                }
+
+                // Build the extra rows
+                var rowsHtml = "";
+                for (var i = 0; i < cats.length; i++) {
+                    rowsHtml += "<tr class='cat-extra'>" +
+                        "<td class='details-col'>" + (cats[i].Details || '') + "</td>" +
+                        "<td class='scope-col'>" + (cats[i].Scope || '') + "</td>" +
+                        "<td class='location-col'>" + (cats[i].Location || '') + "</td>" +
+                        "</tr>";
+                }
+
+                // Append to the existing tbody
+                $tbody.append(rowsHtml);
+                $link.html('<i class="fa fa-minus-square"></i> Hide Categories');
+            });
+        });
+
+    $(function () {
+    var maxLength = 15;
+
+    // iterate over each data row only (skip header rows)
+        $("#ControNumberTable tr").each(function () {
+            debugger;
+        var $tr = $(this);
+
+        // pick up the hidden fields in the current row
+            var controlGUID = $tr.find('.controlID').val();
+            var serviceOrderGUID = $tr.find('.serviceID').val();
+        var fileId = $tr.find('.fileId').val();
+
+        // detect the <td> which contains the file name text
+        var $fileTd = $tr.find('.fileId').closest('td');
+
+        // file name text
+        var fileNameText = $fileTd.clone()    // clone to avoid mutating
+            .children()                       // remove hidden inputs
+            .remove()                        // strip them
+            .end()
+            .text().trim();
+
+        // Build the folder icon if we have files
+        if (fileNameText) {
+            var fileList = fileNameText.split(';').filter(f => f.trim() !== "");
+            if (fileList.length > 0) {
+                $fileTd.html(`
+                    <i class="fas fa-folder folder-icon"
+                       style="cursor:pointer;color:#ffbb33"
+                       data-control-guid="${serviceOrderGUID}"
+                       data-file-id="${fileId}"
+                       data-files="${fileList.join(',')}"></i>`);
+            } else {
+                $fileTd.html('');
+            }
+        }
+
+        // --- handle Enquiry Details truncation ---
+        var $enquiryTd = $tr.find('td').eq(3); // your 4th column is "Enquiry Details"
+        //if ($enquiryTd.length) {
+        //    var fullText = $enquiryTd.text().trim();
+        //    if (fullText.length > maxLength) {
+        //        var shortText = fullText.substring(0, maxLength) + '...';
+        //        $enquiryTd.html(
+        //            `<span class="short-enquirydetails"
+        //                    title="${fullText}"
+        //                    data-full-enquirydetails="${fullText}">
+        //                ${shortText}
+        //             </span>`);
+        //    }
+        //}
+    });
+});
+
+    $(document).ready(function () {
+        $("#popuptable").hide();
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+    });
+
+    $(document).on('click', '.folder-icon', function () {
+        debugger;
+        var controlGUID = $(this).data('control-guid');
+        var fileIds = $(this).data('file-id').toString().split(',').map(id => id.trim());
+        var files = $(this).data('files').toString().split(',').map(f => f.trim());
+
+        // If IDs and files count mismatch, log for debugging
+        if (fileIds.length !== files.length) {
+            console.warn("Mismatch between fileIds and files:", fileIds, files);
+        }
+
+        var fileListHtml = files.map(function (file, index) {
+            var currentFileId = fileIds[index] || fileIds[0]; // fallback to first if mismatch
+            return `<li>
+                    <a href="../ControlNumber/DownloadFile?GUId=${controlGUID}
+                        &FileName=${encodeURIComponent(file)}
+                        &FileId=${currentFileId}">
+                        ${file}
+                    </a>
+                </li>`;
+        }).join('');
+
+        $("#fileList").html(fileListHtml);
+        $("#fileModal").modal('show');
+    });
+
+    function EditServiceOrder1(serviceOrderGuid, controlNo) {
+      //  //debugger;
+        $.ajax({
+            url: '/ServiceOrder/EditServiceOrder',
+            type: 'POST',
+            data: {
+                serviceOrderGuid: serviceOrderGuid,
+                ControlNo: controlNo
+
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divSOLoadingIconId'), position: "center"
+                });
+            },
+            success: function (data) {
+                $('#spnSOHeadTitle').html('Edit Service Order');
+                $('#divAddOrUpdateServiceOrder').html(data).show();
+                $('#btnSOList').show();
+                $('#btnNewSO').hide();
+                $("#divSODetails").html('');
+                $('#divActiveInActive').hide();
+                $('#divServiceOrders').hide();
+                $("#divMainSearch").hide();
+                //$('#divPurchaseItemsToggle').show();
+                //$('#btnAddPurchaseOrderItems').show();
+                //showPurchaseOrderItems();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    function EditServiceOrder(serviceOrderGuid, controlNo) {
+          var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.assign(currentUrl + "ServiceOrder/EditServiceOrder?serviceOrderGuid=" + serviceOrderGuid + "&controlNo=" + controlNo);
+
+       // window.location.assign(location.origin + "/ServiceOrder/CreateServiceOrder1?clientId=" + clientId + "&clientName=" + clientName + "&enquiryID=" + enquiryID);
+        $('#spnSOHeadTitle').html('Edit Service Order');
+        $('#divAddOrUpdateServiceOrder').html(data);
+        $(obj).hide();
+        $('#btnSOList').show();
+        $("#divSODetails").html('');
+        $('#divServiceOrders').hide();
+        $('#divActiveInActive').hide();
+        $("#divMainSearch").hide();
+
+    }
+
+    function AddServiceOrderCNo(clientId, clientName, controlId, controlNo, EID, EnquiryID) {
+       ////debugger;
+      //  alert(location.origin );
+        var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.assign(currentUrl + "ServiceOrder/AddServiceOrderCNo?clientId=" + clientId + "&clientName=" + clientName + "&controlId=" + controlId + "&controlNo=" + controlNo + "&EID=" + EID + "&EnquiryID=" + EnquiryID);
+
+       // window.location.assign(location.origin + "/ServiceOrder/CreateServiceOrder1?clientId=" + clientId + "&clientName=" + clientName + "&enquiryID=" + enquiryID);
+        $('#spnSOHeadTitle').html('Add Service Order');
+        $('#divAddOrUpdateServiceOrder').html(data);
+        $(obj).hide();
+        $('#btnSOList').show();
+        $("#divSODetails").html('');
+        $('#divServiceOrders').hide();
+        $('#divActiveInActive').hide();
+        $("#divMainSearch").hide();
+
+
+    }
+
+    function EditControlNumberDetails(controlNumberGuid) {
+        $.ajax({
+            url: '../ControlNumber/GetControlNumberDetailsToUpdate',
+            type: 'POST',
+            data: {
+                controlNumberGuid: controlNumberGuid,
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divCNLoadingIconId'), position: "center"
+                });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Sales &#8667; Edit Control Number');
+                $('#divAddOrUpdateControlNumber').html(data);
+                $('#btnControlNumbersList').show();
+                $("#divControlNumbersDetails").html('');
+                $('#btnCreateControlNo').hide();
+                $('#divControlNumbers').hide();
+                $('#divActiveInActive').hide();
+                $.ajax({
+                    url: '../Common/LoadCommonDetails',
+                    type: 'POST',
+                    data: {
+                        visitGuid: null,
+                        controlNumberGuid: controlNumberGuid,
+                        serviceOrderId: 0
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                            parentElement: $('#divCNLoadingIconId'), position: "center"
+                        });
+                    },
+                    success: function (data) {
+                        $('#divPurchaseItemsDetails').html(data);
+                       },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divCNLoadingIconId'));
+                    }
+                });
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divCNLoadingIconId'));
+            }
+        });
+    }
+    function UpdateControlNumberStatus(controlNumberGuid, status) {
+        if (status) {
+            var options = {};
+            options.msg = "Are you sure to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(controlNumberGuid, status);
+            }, options);
+        } else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(controlNumberGuid, status);
+            });
+        }
+
+    }
+    function UpdateStatus(controlNumberGuid, status) {
+        $.ajax({
+            url: '../ControlNumber/UpdateControlNumberActiveStatus',
+            type: 'POST',
+            data: {
+                controlNumberGuid: controlNumberGuid,
+                status: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divCNLoadingIconId'), position: "center"
+                });
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    }
+                    window.FilterControlNumberDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divCNLoadingIconId'));
+            }
+        });
+    }
+    function ScheduleVisit(controlNumberGuid) {
+        $.ajax({
+            url: '../ControlNumber/UpdateControlNumberActiveStatus',
+            type: 'POST',
+            data: {
+                controlNumberGuid: controlNumberGuid,
+                status: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divCNLoadingIconId'), position: "center"
+                });
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    }
+                    window.FilterControlNumberDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divCNLoadingIconId'));
+            }
+        });
+    }
+    function UpdateLOISONumber1(controlNumberGuid,SoId) {
+        $.ajax({
+            url: '../ControlNumber/GetControlNumberToUpdateLOISONumber',
+            type: 'POST',
+            data: {
+                SOId: SoId,
+                controlNumberGuid: controlNumberGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Sales &#8667; LOI SO Number');
+                $("#divMainSearch").hide();
+                $('#divActiveInActive').hide();
+                $('#divAddOrUpdateControlNumber').html(data);
+                //$('#btnControlNumbersList').hide();
+
+                //$("#divControlNumbersDetails").html('');
+                $("#divControlNumbersDetails").hide();
+                $('#btnCreateControlNo').hide();
+                $('#divControlNumbers').hide();
+                $('#divActiveInActive').hide();
+                //  alert('Quotation Uploaded Successfully');
+                //  location.reload();
+                // enquiryList();
+                // ManufacturerUnitsList();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    $(document).on("click", "#Submit", function (event) {
+       // //debugger;
+        event.preventDefault();
+        var fileOptions = {
+            success: res,
+            dataType: "json"
+        }
+        $("#formid").ajaxSubmit(fileOptions);
+
+    });
+
+
+</script>

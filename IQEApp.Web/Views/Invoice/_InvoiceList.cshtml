@@ -1,0 +1,603 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@using IQEApp.Web.Models.VisitProcessing
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.InvoiceModel.InvoiceViewModel>
+
+
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Invoices</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 9pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+            width: -webkit-fill-available;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <table cellpadding="0" cellspacing="0" class="center">
+        <tr>
+            <th>@Html.Label("SNo")</th>
+            <th>@Html.Label("Invoice No")</th>
+            <th>@Html.Label("Invoice Date")</th>
+            @if (ViewBag.InvoiceType != null && ViewBag.InvoiceType.ToString() == "Supplier")
+            {
+                <th style="max-width:140px;">@Html.Label("Supplier Name")</th>
+            }
+            else
+            {
+                <th style="max-width: 100px;">@Html.Label("Customer Name")</th>
+                <th style="max-width: 140px;">@Html.Label("Project / Unit")</th>
+            }
+            @*<th>@Html.Label("Base Value (INR)")</th>*@
+            <th style="padding: 5px; text-align: center; min-width: 95px;">
+                <div>Base Amount</div>
+                <div style="border-top: 1px solid #ccc; margin-top: 1px;"></div>
+                <div style="margin-top: 5px; color: #333;">
+                    <span style="float: left;">₹</span>
+                    <span style="float: right;">@string.Format("{0:N2}", ViewBag.TotalAmount)</span>
+                </div>
+            </th>
+            <th style="padding:5px;  text-align: center; min-width: 100px;">
+                <div>Invoice (GST)</div>
+                <div style="border-top: 1px solid #ccc; margin-top: 1px;"></div>
+                <div style="margin-top: 5px; color: #333;">
+                    <span style="float: left;">₹</span>
+                    <span style="float: right;">@string.Format("{0:N2}", ViewBag.GrandTotalAmount)</span>
+                </div>
+            </th>
+
+            @*<th>@Html.Label("Invoice Value (Incl_GST)")</th>*@
+
+            <th>@Html.Label("Ageing")</th>
+            <th style="padding:5px;  text-align: center; min-width: 50px;">
+                <div>TDS</div>
+                <div style="border-top: 1px solid #ccc; margin-top: 1px;"></div>
+                <div style="margin-top: 5px; color: #333;">
+                    <span style="float: left;">₹</span>
+                    <span style="float: right;">@string.Format("{0:N2}", ViewBag.GrandTDS)</span>
+                </div>
+            </th>
+            <th style="padding:5px;  text-align: center; min-width: 80px;">
+                <div>Received</div>
+                <div style="border-top: 1px solid #ccc; margin-top: 1px;"></div>
+                <div style="margin-top: 5px; color: #333;">
+                    <span style="float: left;">₹</span>
+                    <span style="float: right;">@string.Format("{0:N2}", ViewBag.AmountReceived)</span>
+                </div>
+            </th>
+            <th>@Html.Label("Received Date")</th>
+            <th>@Html.Label("Status")</th>
+            <th style="padding:5px;  text-align: center; min-width: 90px;">
+                <div>Balance</div>
+                <div style="border-top: 1px solid #ccc; margin-top: 1px;"></div>
+                <div style="margin-top: 5px; color: #333;">
+                    <span style="float: left;">₹</span>
+                    <span style="float: right;">@string.Format("{0:N2}", ViewBag.OutstandingAmount)</span>
+                </div>
+            </th>
+            <th>@Html.Label("Paid In Days")</th>
+            <th>@Html.Label("Remarks")</th>
+            <th>&nbsp;</th>
+        </tr>
+        @*<tr>
+            <th colspan="5"></th>
+            <th>12346</th>
+            <th>12346</th>
+            <th></th>
+            <th>12346</th>
+            <th>12346</th>
+            <th colspan="2"></th>
+            <th>12121</th>
+            <th colspan="3"></th>
+        </tr>*@
+        @if (Model == null || Model.Count() == 0)
+        {
+            <tr>
+                No Data Found
+            </tr>
+        }
+        else
+        {
+
+            foreach (var invoice in Model)
+            {
+    <tr>
+        <td>@invoice.InvoiceID</td>
+        <td>@invoice.InvoiceNo</td>
+        <td>@invoice.InvoiceDate.GetConvertedShortDate()</td>
+        @*<td style="max-width: 100px;">@invoice.ClientName</td>
+        <td style="max-width: 140px;">@invoice.ClientUnitName</td>*@
+        @if (ViewBag.InvoiceType != null && ViewBag.InvoiceType.ToString() == "Supplier")
+        {
+            <td style="max-width: 140px;">@invoice.ManufacturerName</td>
+        }
+        else
+        {
+            <td style="max-width: 100px;">@invoice.ClientName</td>
+            <td style="max-width: 140px;">@invoice.ClientUnitName</td>
+        }
+
+        <td style="text-align:right;">
+            @*@if (@invoice.Currency == "USD")
+            {
+                <span>$ </span>
+            }
+            else
+            {
+                <span>Rs.</span>
+            }*@
+            @string.Format("{0:#,###0}", @invoice.TotalAmount)
+        </td>
+        <td style="text-align:right;">
+            @*@if (@invoice.Currency == "USD")
+            {
+                <span>$ </span>
+            }
+            else
+            {
+                <span>Rs.</span>
+            }*@
+            @string.Format("{0:#,###0}", invoice.GrandTotalAmount)
+        </td>
+        <td>
+            @if (invoice.AmountReceived == 0)
+            {
+                @DateTime.Now.Subtract(invoice.InvoiceDate).Days.ToString();
+            }
+            else
+            {
+                @DateTime.Now.Subtract(DateTime.Now).Days.ToString();
+            }
+        </td>
+        <td style="text-align:right;">@string.Format("{0:#,###0}", invoice.TDS)</td>
+        <td style="text-align:right;">@string.Format("{0:#,###0}", invoice.AmountReceived)</td>
+        <td>
+            @(invoice.AmountReceivedDate == DateTime.MinValue ? "" : invoice.AmountReceivedDate.GetConvertedShortDate())
+        </td>
+        <td>@invoice.InvoiceStatus</td>
+        <td style="text-align:right;">
+            @string.Format("{0:#,###0}", (invoice.TotalAmount - (invoice.AmountReceived + invoice.TDS)))
+        </td>
+        <td>
+            @if (invoice.AmountReceived > 0)
+            {
+                @invoice.AmountReceivedDate.Subtract(invoice.InvoiceDate).Days.ToString();
+            }
+            else
+            {
+                @DateTime.Now.Subtract(DateTime.Now).Days.ToString();
+            }
+        </td>
+        <td>
+        </td>
+
+        <td>
+            <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                @if (invoice.InvoiceStatusId != Convert.ToInt32(VisitStatus.InvoiceCancelled))
+                {
+                    <div class="btn-group" style="display: inline-block;" role="group">
+                        <span id="InvoiceDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                        </span>
+                        <ul class="dropdown-menu ellipse-menu-left">
+                            @if (invoice.InvoiceStatusId == Convert.ToInt32(VisitStatus.InvoiceInitiated))
+                            {
+                                <li>
+                                    <a href="~/Invoice/GetConsolidatedInvoiceDetails?invoiceGuid=@invoice.InvoiceGuid">
+                                        <i class="fa fa-eye mr20" aria-hidden="true">
+                                        </i> Proceed Invoice Summary
+                                    </a>
+                                </li>
+
+                            }
+                            @**@
+                            else if (invoice.InvoiceStatusId == Convert.ToInt32(VisitStatus.InvoiceCompleted))
+                            {
+
+                                if (!invoice.IsInvoicePrinted)
+                                {
+                                    <li>
+                                        <a href="javascript:void(0);" onclick="javascript: PrintInvoice('@invoice.InvoiceID');">
+                                            <i class="fa fa-print mr20" aria-hidden="true">
+                                            </i> Print Invoice
+                                        </a>
+                                    </li>
+                                }
+                                if (invoice.IsInvoicePrinted)
+                                {
+                                    <li>
+                                        <a href="~/Invoice/DownloadFile?GUId=@invoice.InvoiceGuid">
+                                            @*<a href="javascript:void(0);" onclick="javascript: PrintInvoice('@invoice.InvoiceID');">*@
+                                            <i class="fa fa-print mr20" aria-hidden="true">
+                                            </i> Download Invoice
+                                        </a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li>
+                                        <a href="javascript:void(0);" onclick="javascript: PreviewInvoice('@invoice.InvoiceGuid');">
+                                            <i class="fa fa-eye mr20" aria-hidden="true">
+                                            </i> Preview
+                                        </a>
+                                    </li>
+                                }
+                                //if (invoice.InvoiceStatusId != Convert.ToInt32(VisitStatus.PaymentInitiated))
+                                //{
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.InvoiceCancel, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <li>
+                                        <a href="javascript:void(0);" onclick="javascript: fnCancelInvoice('@invoice.InvoiceGuid');">
+                                            <i class="fa fa-ban mr20" aria-hidden="true">
+                                            </i> Cancel Invoice
+                                        </a>
+                                    </li>
+                                }
+                                if (!@invoice.IsInvoiceFrozen)
+                                {
+                                    if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ScheduleVisitEdit, @User.RoleId.FirstOrDefault()))
+                                    {
+
+                                        <li>
+                                            <a href="~/Invoice/GetDataForEditInvoice?invoiceGuid=@invoice.InvoiceGuid">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                </i> Edit
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                if(@ViewBag.RoleId == 1 || @ViewBag.RoleId == 2)
+                                {
+                                        if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ScheduleVisitEdit, @User.RoleId.FirstOrDefault()))
+                                        {
+
+                                        <li>
+                                            <a href="~/Invoice/GetInvoiceDetailsForEdit?invoiceId=@invoice.InvoiceID">
+                                                <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                </i> Edit
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                if (@invoice.IsInvoiceFrozen)
+                                {
+                                    if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.InvoiceUnFreeze, @User.RoleId.FirstOrDefault()))
+                                    {
+
+                                        <li>
+                                            <a href="javascript:void(0);" onclick="javascript: UnFreezeInvoice('@invoice.InvoiceID');">
+                                                <i class="fa fa-unlock-alt mr20" aria-hidden="true">
+                                                </i> Unfreeze Invoice
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                //}
+
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.InvoicePayments, @User.RoleId.FirstOrDefault()))
+                                {
+
+                                    <li>
+                                        <a href="javascript:void(0);" onclick="javascript: PaymentDetails('@invoice.InvoiceID');">
+                                            <i class="fa fa-money mr20" aria-hidden="true">
+                                            </i> Payment Details
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            //else if (invoice.InvoiceStatusId
+                            //== Convert.ToInt32(VisitStatus.PrintInvoice))
+                            //{
+
+                            //}
+                            else if (invoice.InvoiceStatusId == Convert.ToInt32(VisitStatus.PaymentInitiated))
+                            {
+                                <li>
+                                    <a href="javascript:void(0);" onclick="javascript: PreviewInvoice('@invoice.InvoiceGuid');">
+                                        <i class="fa fa-eye mr20" aria-hidden="true">
+                                        </i> Preview
+
+                                    </a>
+                                </li>
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.InvoicePayments, @User.RoleId.FirstOrDefault()))
+                                {
+
+                                    <li>
+                                        <a href="javascript:void(0);" onclick="javascript: PaymentDetails('@invoice.InvoiceID');">
+                                            <i class="fa fa-money mr20" aria-hidden="true">
+                                            </i> Payment Details
+                                        </a>
+                                    </li>
+                                }
+                            }
+
+                        </ul>
+                    </div>
+                }
+            </div>
+
+        </td>
+    </tr>
+            }
+        }
+    </table>
+</body>
+
+
+<script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+    //$(function () {
+    //    ////debugger;
+    //    $("#TotalAmount").val().toLocaleString();
+
+    //});
+
+    //function numberWithCommas(num) {
+    //    var num = num.value;
+    //    //  alert(num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+    //    $("#AmountReceived").val(num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+    //    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    //}
+    function PaymentDetails(InvoiceID) {
+        //alert(InvoiceID);
+         var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.href = currentUrl + "/Payment/index?invoiceId=" + InvoiceID;
+
+        //window.location.href = "/Payment/index?invoiceId=" + InvoiceID;
+
+    }
+    function UnFreezeInvoice(InvoiceID) {
+        var options = {};
+        options.msg = "You are unfreezing the invoice.. Do you want to unfreeze?";
+        ShowConfirmationPrompt(function() {
+        $.ajax({
+            url: '../Invoice/UnFreezeInvoice',
+            type: 'POST',
+            data: {
+                invoiceId: InvoiceID
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                if (response.status) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    // need to refresh the list
+                    window.FilterInvoiceDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+        }, options);
+    }
+    function PreviewInvoice(invoiceGuid) {
+        $.ajax({
+            url: '../Invoice/InvoicePreview',
+            type: 'POST',
+            data: {
+                invoiceGuid: invoiceGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                var object = null;
+                var object1 = null;
+                //create iframe
+                var iframe = document.createElement('iframe');
+                // div tag in which iframe will be added should have id attribute with value myDIV
+                document.getElementById("divMSFilePreviewPopup").appendChild(iframe);
+                // add id to dynamically generated iframe
+                iframe.setAttribute("id", "myIframe");
+                // provide height and width to it
+                iframe.setAttribute("style", "height:600px;width:100%;");
+
+                if (data.strString == "success") {
+                    var fileName = data.containerPath + "site-" + data.imageSiteId + "/" + data.strContentLink;
+                    alert(data.containerPath);
+                    //var msFileName =
+                    //    "https://view.officeapps.live.com/op/embed.aspx?src=" + fileName;
+                    //if (data.fType == "normal") {
+                    object =
+                        "<object data=\"{FileName}\"  type=\"application/pdf\" width=\"100%\" height=\"600px\"></object>";
+                    // this is not allowing scroll style =\"Pointer-events:none\"
+                    object = object.replace(/{FileName}/g, "" + fileName);
+                    //$('#divMSFilePreviewPopup').hide();
+                    $("#divFilePreviewPopup").html(object).show();
+                    //}
+                    //else if (data.fType == "mstype") {
+                    //    $('#myIframe').attr('src', '');
+                    //    var myIframe = document.getElementById('myIframe');
+                    //    myIframe.setAttribute("src", msFileName);
+                    //    object1 = $('#myIframe').appendTo('body');
+                    //    //$('#divFilePreviewPopup').hide();
+                    //    $("#divMSFilePreviewPopup").html(object1).show();
+                    //}
+                } else if (data.strString == "Fail") {
+                    console.log("failed to load preview");
+                }
+                //else {
+                //    object = "<html width=\"100%\" height=\"500px\" > <head></head><body>" + data.strString;
+                //    object += ", you can download from <a href = /\FolderFile/DownloadFile?GUId=" + strContentLink + "&SId=" + SID + "&GenericId=" + GID + ">here</a>";
+                //    object += "</body></html>";
+                //    //$('#divMSFilePreviewPopup').hide();
+                //    $("#divFilePreviewPopup").html(object).show();
+                //}
+
+                $('#lblFolderFileName').html(data.imageTitle);
+                $("#ShowFilesPreview").click();
+                //$("#title").html("eswar");
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    function editInvoice(invoiceGuid) {
+        $.ajax({
+            url: '../Invoice/GetDataForEditInvoice',
+            type: 'POST',
+            data: { invoiceGuid: invoiceGuid },
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function () {
+
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            },
+            error: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            },
+        });
+    }
+
+    @*function fnCancelInvoice(invoiceGuid) {
+        var options = {};
+        options.msg = "You are cancelling the invoice, the changes cannot be undone.. Do you want to proceed?";
+        ShowConfirmationPrompt(function() {
+                $.ajax({
+                    url: '../Invoice/CancelInvoice',
+                    type: 'POST',
+                    data: { invoiceGuid: invoiceGuid },
+                    beforeSend: function () {
+                        //BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                        HideAndShowCompletePageLoadingIcon(true);
+                    },
+                    success: function (response) {
+                        if (response.status) {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            // need to refresh the list
+                            window.FilterInvoiceDirectory(function (status, newclass) {
+                                //call any call back function if u want to call
+                            }, { backToFirstPage: false });
+                        }
+                        else {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                        }
+                    },
+                    complete: function () {
+                        // BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                        HideAndShowCompletePageLoadingIcon();
+                    },
+                    error: function () {
+                        //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                        HideAndShowCompletePageLoadingIcon();
+                    }
+                });
+            }, options);
+    }*@
+
+    function fnCancelInvoice(invoiceGuid) {
+        var options = {};
+        options.msg = "You are cancelling the invoice, the changes cannot be undone.. Do you want to proceed?";
+        ShowConfirmationPrompt(function () {
+            $.ajax({
+                url: '../Invoice/ShowInvoiceCancellationRemarksCapture',
+                type: 'POST',
+                data: { invoiceGuid: invoiceGuid },
+                beforeSend: function () {
+                    //BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    HideAndShowCompletePageLoadingIcon(true);
+                },
+                success: function (response) {
+                    $("#divModalBody").html(response);
+                    $("#ShowModalPopup").click();
+                },
+                complete: function () {
+                    // BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    HideAndShowCompletePageLoadingIcon();
+                },
+                error: function () {
+                    //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    HideAndShowCompletePageLoadingIcon();
+                }
+            });
+        }, options);
+    }
+    function PrintInvoice(invoiceId) {
+        $.ajax({
+            url: '../Invoice/PrintInvoiceManually',
+            type: 'POST',
+            data: { invoiceId: invoiceId },
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                if (data.status) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.InvoicePrintSuccess");
+                } else { window.GrowlObj.getGrowlMessage("@NotificationType.InvoicePrintFailed"); }
+                // need to refresh the list
+                window.FilterInvoiceDirectory(function (status, newclass) {
+                    //call any call back function if u want to call
+                }, { backToFirstPage: false });
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            },
+            error: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            },
+        });
+    }
+
+</script>

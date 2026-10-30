@@ -1,0 +1,29 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitDetailsModel
+
+@{
+    ViewBag.Title = "CreateServiceOrder";
+}
+
+
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h3 class="box-title"> <span id="spnSOHeadTitle">Schedule Visit</span></h3>
+        </div>
+
+    </div>
+    <div id="divSOLoadingIconId"></div>
+    <div class="clearfix"></div>
+    <div id="divAddOrUpdateServiceOrder" class="">
+    </div>
+
+    <div class="clearfix"></div>
+    <div id="divServiceOrders">
+
+        <div id="controlNumDetails" class="bg mt10">
+            @Html.Partial("~/Views/VisitProcessing/_ControlNumberDetails.cshtml", Model)
+        </div>
+        <p class="JsListGridPager pull-right" id="ServiceOrderPager"></p>
+    </div>
+</div>

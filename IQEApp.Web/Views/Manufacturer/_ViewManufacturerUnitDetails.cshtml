@@ -1,0 +1,24 @@
+﻿@model IQEApp.Web.Models.ManufacturerModel.ManufacturerUnitsViewModel
+
+@*<div>
+        <span> Manufacturer Unit Name : <b>@Model.ManufacturerUnitName</b> Contact Name : <b>@Model.ContactPersonName</b> Designation : <b>@Model.ContactPersonDesignation</b> Address : <b>@Model.Address, @Model.City</b> </span>
+    </div>*@
+
+<div class="col-sm-12 col-md-12 col-lg-12 ">
+    <small class="text-muted"><i class="fa fa-futbol-o mr5"></i> Manufacturer Unit Details</small>
+    <div>
+        Name: <b>@Model.ManufacturerName</b>
+    </div>
+    <div class="mt5">
+        Unit Name: <b>@Model.ManufacturerUnitName</b>
+    </div>
+    <div class="mt5">
+        Contact Name: <b>@Model.ContactPersonName</b>
+    </div>
+    <div class="mt5">
+        Designation : <b>@Model.ContactPersonDesignation</b>
+    </div>
+    <div class="mt5">
+        Unit Address: <b>@Model.Address, @Model.City, @Model.MFUnitStateName, @Model.MFUnitCountryName</b>
+    </div>
+</div>

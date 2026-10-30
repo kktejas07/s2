@@ -1,0 +1,99 @@
+# Production stack.
+#
+# Differences from docker-compose.yml that matter, rather than as a matter of
+# taste:
+#
+#   No bind mounts. The dev file mounts ./backend over /app, so the container
+#   runs whatever is on the host's disk and the image is decoration. Here the
+#   code that was built and tested is the code that runs.
+#
+#   No --reload. The reloader watches the filesystem, holds a supervisor
+#   process, and restarts the server on any write - including one made by the
+#   application itself. ./uploads lives inside /app.
+#
+#   Nothing but the web port is published. Mongo and Redis are reachable on
+#   the compose network and nowhere else. The dev file binds them to
+#   127.0.0.1; here they are not published at all.
+#
+#   Secrets are required, not defaulted. A compose file that falls back to
+#   "devpassword" in production is how a default password reaches production.
+#
+# Replica set: Mongo runs standalone here, which means no multi-document
+# transactions. Nothing in the codebase opens one - the sequence allocator
+# uses a single-document findAndModify, which is atomic standalone. If a
+# transaction is ever needed, this becomes a single-node replica set first.
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d --build
+# with MONGO_PASSWORD, JWT_SECRET_KEY and PUBLIC_WEB_URL set in the
+# environment or a .env file beside this one.
+
+services:
+  api:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      MONGODB_URL: mongodb://iqe:${MONGO_PASSWORD:?set MONGO_PASSWORD}@mongodb:27017/iqe?authSource=admin
+      # The api service also ships a dev .env (with MONGODB_DB_NAME=iqeapp_dev);
+      # this keeps the prod database name pinned to the one MONGODB_URL targets.
+      MONGODB_DB_NAME: iqe
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?set JWT_SECRET_KEY - the default is "change-me-in-production"}
+      PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:?set PUBLIC_WEB_URL - QR codes on issued certificates encode it}
+      ALLOWED_ORIGINS: ${PUBLIC_WEB_URL}
+      AUTH_ALLOW_ANONYMOUS: "false"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      # Evidence and generated documents outlive the container.
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  web:
+    build:
+      context: ./apps/web
+      target: runner
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_URL: http://api:8000
+      NODE_ENV: production
+    depends_on:
+      - api
+
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: iqe
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?set MONGO_PASSWORD}
+    # Deliberately not published. Reach it with `docker compose exec mongodb`.
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mongodb_data:
+  uploads:
+  redis_data:

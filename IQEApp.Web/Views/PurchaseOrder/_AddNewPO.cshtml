@@ -1,0 +1,563 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderDetailsModel
+
+<div class="mt20 bg p20">
+    <section id="AddPurchaseOrderForm">
+        @using (Ajax.BeginForm("SavePurchaseOrder", "PurchaseOrder",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onAddPurchaseOrderSuccess",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+        <div class="row mt10">
+            <div class="col-sm-3 col-md-3 col-lg-3" style="height: 100px">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.LstControlNumber, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.LstControlNumber, new SelectList(Model.LstControlNumber, "ControlNo", "ControlNo", 1), "Select", new { @class = "form-control dropDownStyle redborder", style = "width:200px", @placeholder = @Html.DisplayNameFor(model => model.LstControlNumber), onchange = "GetClientDetailsByControlNo(this)" })
+                    @Html.ValidationMessageFor(m => m.LstControlNumber)
+                    <span id="spnControlNumber" class="error" style="display: none;"></span>
+                </div>
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3" style="height: 100px">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ClientDetails.ClientName, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients, "ClientId", "ClientName"), "Select" ,new { @class = "form-control dropDownStyle redborder", style = "width:200px", @placeholder = @Html.DisplayNameFor(model => model.ClientId) })
+                    @Html.ValidationMessageFor(m => m.ClientId)
+                    <span id="spnClientId" class="error" style="display: none;"></span>
+                </div>
+            </div>
+            <div class="col-sm-3 col-md-3 col-lg-3" style="height: 100px">
+                <div class="form-group">
+                    @Html.Label("Unit", new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.ClientUnitId, new SelectList(Model.LstClientUnits, "ClientUnitId", "ClientUnitName"), "Select", new { @class = "form-control dropDownStyle redborder", style = "width:200px", @placeholder = @Html.DisplayNameFor(model => model.ClientUnitId) })
+                    @Html.ValidationMessageFor(m => m.ClientUnitId)
+                    <span id="spnClientUnitId" class="error" style="display: none;"></span>
+                    @*     @Html.Hidden("ControlNo", "")*@
+                </div>
+            </div>
+        </div>
+            <div class="row mt12">
+                <div class="col-sm-4 col-md-4 col-lg-4" style="height: 100px">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ManufacturerDetails.ManufacturerName, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.ManufacturerId, new SelectList(Model.LstManufacturers, "ManufacturerId", "ManufacturerName"), "Select", new { @class = "form-control dropDownStyle redborder", style = "width:200px", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerId), onchange = "AddManufacturers(this)" })
+                        @Html.ValidationMessageFor(m => m.ManufacturerDetails.ManufacturerName)
+                        <span id="spnManufacturerId" class="error" style="display: none;"></span>
+                    </div>
+                </div>
+
+                  <div class="col-sm-8 col-md-8 col-lg-8">
+                    <div id="POMappingList" Style="display: none;">
+                        <div class="clearfix"></div>
+                        @*Header Div Starts*@
+                        <div class="directory-table-header" style="background-color: #B8DBFF; border: groove">
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                Manufacturer Name
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                PO Number
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                PO Date
+                            </div>
+                            @*<div class="col-lg-3 col-md-3 col-sm-3">
+                                    PO Comments
+                                </div>*@
+                            <div class="col-lg-3 col-md-3 col-sm-3">
+                                &nbsp;
+                            </div>
+                        </div>
+                        @*Header Div Ends*@
+                        <div id="MappedPOs">
+
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-sm-10 col-md-10  form-group">
+                    <div id="divPODetails" style="padding: 15px 0px 0px 0px;">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt20 ">
+               <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCancelPurchaseOrder" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: GetPurchaseOrders();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                    <button type="submit" class="btn btn-success pull-right mr5" id="btnSavePurchaseOrder" value="Save" title="Save" data-toggle="tooltip" onclick="javascript:SavePurchaseOrders();"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                </div>
+            </div>
+
+            @Html.HiddenFor(m => m.POId)
+            @Html.HiddenFor(m => m.ClientId, new { id = "hdnClientId" })
+            @Html.HiddenFor(m => m.ClientUnitId , new { id = "hdnClientUnitId" })
+            <span>@ViewBag.Message </span>
+            <div class="row" id="divPurchaseItemsToggle" style="display: none">
+                <div class="form-group ">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"> <span id="spnPurchaseItemsTitle"> </span></h3>
+                        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddPurchaseOrderItems" style="display: none" value="Add Items" title="Add Items" data-toggle="tooltip" onclick="javascript: addPurchaseOrderItems();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Items </button>
+                        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnPurchaseOrderItemsList" onclick="javascript: showPurchaseOrderItems();"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Items</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </section>
+</div>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>
+<script>
+    $(function () {
+        $("#PoDate").datepicker({
+            // format: 'dd-MM-yyyy',
+            endDate: '+0d',
+            autoclose: true
+        });
+    });
+    $(document).ready(function () {
+        var s = '<option value="-1">Select</option>';
+       // $("#LstControlNumber").append(s);
+        //$("#LstControlNumber option[value=-1]").attr('selected', 'selected');
+
+        $('#PoDate').val('');
+    });
+    function getManufacturerUnitsByManufacturerIds() {
+        var selectedManufacturerIds = [];
+        $('.jsManufacturerId').each(function (index, element) {
+            if ($(element).is(":checked")) {
+                selectedManufacturerIds.push($(element).val());
+            }
+        });
+
+        $.ajax({
+            url: '../PurchaseOrder/GetManufacturerUnitsByForPO',
+            type: 'POST',
+            data: {
+                manufacturerIds: selectedManufacturerIds.join(",")
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (responseHtml) {
+                $("#divManufacturerUnitDetails").html(responseHtml);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function getManufacturerUnitsByManufacturerId(obj) {
+        var manufacturerId = $(obj).find('option:selected').val();
+
+        $.ajax({
+            url: '../PurchaseOrder/GetManufacturerUnitsByManufacturerId',
+            type: 'POST',
+            data: {
+                manufacturerId: manufacturerId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (manufacturerUnits) {
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < manufacturerUnits.length; i++) {
+                    s += '<option value="' + manufacturerUnits[i].ManufacturerUnitId + '">' + manufacturerUnits[i].ManufacturerUnitName + '</option>';
+                }
+                $("#ManufacturerUnitId").html(s);
+                $("#divManfDetails").html('');
+                $("#divManfDetails").html('<small class="text-muted"><i class="fa fa-futbol-o mr5"></i> Manufacturer Unit Details</small>');
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+
+    function GetClientDetailsByControlNo(obj) {
+        debugger;
+        var controlNumber = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../Common/GetClientDetailsByControlNo1',
+            type: 'POST',
+            data: {
+                controlNumber: controlNumber
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (clientUnits) {
+              //  debugger;
+                if (clientUnits.length > 0) {
+                    var c = '';
+                    for (var i = 0; i < clientUnits.length; i++) {
+                        c += '<option value="' + clientUnits[i].ClientId + '">' + clientUnits[i].ClientName + '</option>';
+                    }
+                    $("#ClientId").html(c);
+
+                    var cu = '';
+                    for (var i = 0; i < clientUnits.length; i++) {
+                        cu += '<option value="' + clientUnits[i].ClientUnitId + '">' + clientUnits[i].ClientUnitName + '</option>';
+                    }
+                    $("#ClientUnitId").html(cu);
+
+                    var cno = ''
+                    for (var i = 0; i < clientUnits.length; i++) {
+                        cno = clientUnits[i].ControlNo;
+                    }
+                    $("#ControlNo").val(cno);
+                }
+                $('#divClientDetails').html('');
+                $('#divClientDetails').html('<small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Client Unit Details</small>');
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function getClientUnitsByClientId(obj) {
+        var clientId = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../PurchaseOrder/GetClientUnitsByClientId',
+            type: 'POST',
+            data: {
+                clientId: clientId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (clientUnits) {
+                //alert(JSON.parse(clientUnits));
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < clientUnits.length; i++) {
+                    s += '<option value="' + clientUnits[i].ClientUnitId + '">' + clientUnits[i].ClientUnitName + '</option>';
+                }
+                $("#ClientUnitId").html(s);
+                $('#divClientDetails').html('');
+                $('#divClientDetails').html('<small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Client Unit Details</small>');
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function getManufacturerUnitsByManufacturerId(obj) {
+        var manufacturerId = $(obj).find('option:selected').val();
+
+        $.ajax({
+            url: '../PurchaseOrder/GetManufacturerUnitsByManufacturerIdForPO',
+            type: 'POST',
+            data: {
+                manufacturerId: manufacturerId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (manufacturerUnits) {
+                //var s = '<option value="-1">Select</option>';
+                //for (var i = 0; i < manufacturerUnits.length; i++) {
+                //    s += '<option value="' + manufacturerUnits[i].ManufacturerUnitId + '">' + manufacturerUnits[i].ManufacturerUnitName + '</option>';
+                //}
+                //$("#ManufacturerUnitId").html(s);
+                $("#divManufacturerDetails").html(manufacturerUnits);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function beginProgressBar() {
+        debugger;
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+       // $("#btnSavePurchaseOrder").prop('disabled', true);
+    }
+    function onAddPurchaseOrderSuccess(response) {
+      // alert('test');
+      //  //debugger;
+        if (response.status) {
+            //$("#btnAddClientUnits").show();
+            $("#spnMUnitReq").hide();
+            $("#POId").val(response.PurchaseOrderId);
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            $("#divPurchaseItemsToggle").show();
+            //$("#addPOItem").show();
+            $(".js-PurchaseOrderNumber").each(function (index) {
+                // debugger
+                var dataId1 = $(this).val();
+                $("#addPOItem_" + dataId1).show();
+                $("#RemovePOItem_" + dataId1).hide();
+
+            });
+          //  addPurchaseOrderItems();
+        } else {
+            if (response.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            }
+            else if (response.message == 'ManufacturerUnit') {
+                $("#spnMUnitReq").show();
+            }
+            else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+        }
+        $("#btnSavePurchaseOrder").prop('disabled', false);
+    }
+    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+    }
+
+    function addPurchaseOrderItems1(mfr, ponId, POId) {
+       debugger;
+        var POId = $("#POId").val();
+        $.ajax({
+            url: '../PurchaseOrder/GetItemDetailsToAdd',
+            type: 'POST',
+            data: {
+                poId: POId,
+                ponId: ponId,
+                PONumber: $("#PONumber_" + mfr).val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $('#spnPurchaseItemsTitle').html('Create Item');
+                $('#btnAddPurchaseOrderItems').hide();
+                $('#PurchaseItemsList').html('').hide();
+                $('#btnPurchaseOrderItemsList').show();
+                $('#divAddPurchaseOrderItem').html(response).show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+
+    function addPurchaseOrderItems() {
+        var POId = $("#POId").val();
+        $.ajax({
+            url: '../PurchaseOrder/GetItemDetailsToAdd',
+            type: 'POST',
+            data: {
+                poId: POId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $('#spnPurchaseItemsTitle').html('Create Item');
+                $('#btnAddPurchaseOrderItems').hide();
+                $('#PurchaseItemsList').html('').hide();
+                $('#btnPurchaseOrderItemsList').show();
+                $('#divAddPurchaseOrderItem').html(response).show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    var manufacturersList = [];
+    function AddManufacturers(obj) {
+        $("#DuplicateUserValidation").hide();
+        var manufacturerId = $("#ManufacturerId").val();
+        if (manufacturerId < 1) {
+            $("#btnAddEngg").prop("disabled", true);
+            $('#divPODetails').html('');
+            return;
+        } else {
+            var index = jQuery.inArray(manufacturerId, manufacturersList);
+            if (index > -1) {
+                $("#DuplicateUserValidation").show();
+                $("#ManufacturerId").val('-1');
+                return;
+            }
+        }
+        $.ajax({
+            url: '../PurchaseOrder/GetManufacturerDetails',
+            type: 'POST',
+            data: {
+                manufacturerId: manufacturerId
+            },
+            beforeSend: function (e) {
+            },
+            success: function (response) {
+                $('#divPODetails').html(response);
+                if (manufacturerId > 0) {
+                    $("#btnAddEngg").prop("disabled", false);
+                    $("#UserListValidation").hide();
+                    AddPONumberForManufacturerSelection(manufacturerId);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    function AddPONumberForManufacturerSelection(obj) {
+       // //debugger;
+        var manufacturerId = obj;
+        if (manufacturerId < 1) {
+            //$("#UserListValidation").html("Assign at least one user").show();
+            return;
+        }
+       // $("#UserListValidation").hide();
+        $(".MappedPOsTemp").appendTo("#MappedPOs");
+        $(".MappedPOsTemp").removeClass("MappedPOsTemp").show();
+        $("#POMappingList").show();
+        $('#divPODetails').html('');
+        manufacturersList.push($("#ManufacturerId").val());
+      //  $("#ManufacturerId").val('-1');
+    }
+
+
+    function SavePurchaseOrders() {
+        var isValidationRaised = window.validator.validate([
+            { elementVal: $('#ClientId').val(), isRequired: true, isValidateDropdown: true, errorElement: "spnClientId", errorString: "Select Client" },
+            { elementVal: $('#ManufacturerId').val(), isRequired: true, isValidateDropdown: true, errorElement: "spnManufacturerId", errorString: "Select at least one Manufacturer Name" },
+            { elementVal: $('#LstControlNumber').val(), isRequired: true, errorElement: "spnControlNumber", errorString: "Select ControlNo-SO No" },
+           // { elementVal: $('#MappedPOs').val(), isRequired: true, errorElement: "RFIScheduleDateValidation", errorString: "RFI Date Required" },
+            //{ elementVal: $('#VisitDate').val(), isRequired: true, errorElement: "VisitDateValidation", errorString: "Visit Date Required" },
+
+        ]);
+        if (isValidationRaised) {
+            return;
+        }
+
+        else {
+            var PONumberValidationRaised = false;
+         //  debugger;
+            PurchaseOrderArray = [];
+            $(".js-PurchaseOrderNumber").each(function (index) {
+                // //debugger;
+                var PurchaseOrderData = {};
+                var dataId = $(this).val();
+                PurchaseOrderData.ManufacturerId = $("#hdnManufacturerId_" + dataId).val(); // dataId.val();
+                if ($("#PONumber_" + dataId).val() == '' || $("#PoDate_" + dataId).val() == '') {
+                    PONumberValidationRaised = window.validator.validate([
+                        { elementVal: $('#PONumber_' + dataId).val(), isRequired: true, errorElement: "spnPONumber_" + dataId, errorString: "Enter PO Number" },
+                        { elementVal: $('#PoDate_' + dataId).val(), isRequired: true, errorElement: "spnPODate_" + dataId, errorString: "PO Date Required" },
+                    ]);
+
+                }
+                PurchaseOrderData.PONumber = $("#PONumber_" + dataId).val();
+                PurchaseOrderData.PODate = $("#PoDate_" + dataId).val();
+                PurchaseOrderArray.push(PurchaseOrderData);
+            });
+
+            if (PONumberValidationRaised) {
+                $("#btnSavePurchaseOrder").prop('disabled', false);
+                return true;
+               // $('#SavePurchaseOrder').attr('onsubmit', 'return false;');
+            }
+            else {
+            $.ajax({
+                url: '../PurchaseOrder/SavePurchaseOrder1',
+                type: 'POST',
+                data: {
+                    ControlNo: $("#LstControlNumber option:selected").val(),
+                    ControlNoSONo: $("#LstControlNumber option:selected").text(),
+                    ClientId: $("#ClientId option:selected").val(),
+                    ClientUnitId: $("#ClientUnitId option:selected").val(),
+                    // ManufacturersIds: manufacturersList.join(","), //$("#hdnUserIds").val()
+                    LstPurchaseOrderNumbers: PurchaseOrderArray, //{ "ManufacturerId": "7", "PONumber": "test", "PoDate": "27-01-2023" }//["'ManufacturerId':'7'", "'PONumber':'sdfg'", "'PoDate':'01/01/0001 00:00:00'"]
+                    //  LstPurchaseOrderNumbers: [{ ManufacturerId: 7, PONumber: '121', PoDate: '27-01-2023' }] //[{ ManufacturerId: 7, PONumber: '121', PoDate: "27-01-2023" }, { ManufacturerId: 8, PONumber: '122', PoDate: "27-01-2023" }]  //JSON.stringify(tempList) //$("#MappedPOs").val() //manufacturersList
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                        parentElement: $('#divPOLoadingIconId'),
+                        position: "center"
+                    });
+                },
+                success: function (data) {
+                  //  debugger;
+                    if (data.status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+                        $("#POId").val(data.PurchaseOrderId);
+                        $("#btnSavePurchaseOrder").prop('disabled', true);
+                       // debugger;
+                        $("#MappedPOs").find("input, textarea, select").each(function () {
+                            if ($(this).is(':text') || $(this).is('textarea')) {
+                                $(this).prop('readonly', true);
+                            } else {
+                                $(this).prop('disabled', true);
+                            }
+                        });
+
+                        // ✅ Disable datepicker controls (if using jQuery UI / Bootstrap datepicker)
+                        $("#MappedPOs").find(".datepicker").datepicker("disable"); 
+
+
+                        if (data.PONumberDetailsList && data.PONumberDetailsList.length > 0) {
+                            $.each(data.PONumberDetailsList, function (index, item) {
+                                var ponId = item.PONID;
+                                var mfgId = item.ManufacturerId;
+                                var poId = data.PurchaseOrderId;
+                
+                                if (mfgId != null) {
+                                    var $addLink = $("#addPOItem_" + mfgId);
+                
+                                    var hrefValue = "javascript:addPurchaseOrderItems1('" + mfgId + "','" + ponId + "','" + poId + "');";
+                
+                                    if ($addLink.length) {
+                                        $addLink.attr("href", hrefValue);
+                                        $addLink.data("ponid", ponId);
+                                        $addLink.data("poid", poId);
+                                        $addLink.show();
+                                    }
+                
+                                    $("#RemovePOItem_" + mfgId).hide();
+                                }
+                            });
+                        }
+                    } else {
+                        alert(data.message);
+                        window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+                        $("#btnSavePurchaseOrder").prop('disabled', false);
+
+                    }
+                },
+
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+                }
+            });
+        }
+        }
+
+    }
+    function UnMapManufacturer(manufacturerId, obj) {
+      //  debugger;
+        $('#divPOMap_' + manufacturerId).remove();
+        var indexNum = manufacturersList.indexOf(manufacturerId);
+        if (indexNum > -1) {
+            manufacturersList.splice(indexNum, 1);
+        }
+        if (manufacturersList.length < 1) {
+            $("#POMappingList").hide();
+        }
+    }
+
+</script>

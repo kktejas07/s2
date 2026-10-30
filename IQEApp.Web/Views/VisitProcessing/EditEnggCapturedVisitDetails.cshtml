@@ -1,0 +1,609 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.VisitProcessing.VisitProcessingDetailsModel
+@{
+    ViewBag.Title = "Edit Captured Visit Details";
+}
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h3 class="box-title"> <span id="spnHeadTitle"> Visit Processing </span></h3>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6 ">
+            <div id="divScheduleVisitLoadingIconId"></div>
+
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+        </div>
+    </div>
+    <div class="bg mt20">
+        <div class="row ">
+            <div class="col-sm-12 col-md-12 col-lg-12 " id="commonDetails">
+
+            </div>
+            @*<div class="col-sm-12 col-md-12 col-lg-12 ">
+
+                    <div>
+                        Client Name:
+                        <b>
+                            @Model.ClientDetails.ClientName
+                        </b>
+                        <span>
+                            Client Unit Name:
+                            <b>
+                                @Model.ClientUnitDetails.ClientUnitName
+                            </b>
+                        </span>
+                        <span>
+                            Address:
+                            <b>
+                                @Model.ClientUnitDetails.Address, @Model.ClientUnitDetails.City, @Model.ClientUnitDetails.StateName, @Model.ClientUnitDetails.CountryName
+                            </b>
+                        </span>
+                    </div>
+                    <div>
+                        Manufacturer Name: <b>
+                            @Model.ManufacturerDetails.ManufacturerName
+                        </b>
+                        <span>
+                            Manufacturer Unit Name:
+                            <b>
+                                @Model.ManufacturerUnitsDetails.ManufacturerUnitName
+                            </b>
+                        </span>
+                        <span>
+                            Address:
+                            <b>
+                                @Model.ManufacturerUnitsDetails.Address, @Model.ManufacturerUnitsDetails.City, @Model.ManufacturerUnitsDetails.StateName, @Model.ManufacturerUnitsDetails.CountryName
+                            </b>
+                        </span>
+                    </div>
+                    <div>
+                        Schedule Comments: <b>
+                            @Model.ScheduleDetails.ScheduleComments
+                        </b>
+                    </div>
+                    <div>
+                        Control No.
+                        <b>@Model.ControlNumberDetails.ControlNo</b>
+                        <span>
+                            Control NO Comments: <b>@Model.ControlNumberDetails.ControlNumberComments</b>
+                        </span>
+                    </div>
+                </div>*@
+        </div>
+    </div>
+    <div class="bg">
+        <small class="text-muted"><i class="fa fa-sticky-note mr5"></i> Technical Details</small>
+        <div class="row mt10">
+            <div class="col-sm-6 col-md-6 col-lg-6">
+                <div class="row">
+                    <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                        @Html.LabelFor(m => m.VisitedFrom, new { @class = "control-label" })
+                        @*@Html.TextBoxFor(m => m.VisitedFrom,"{0:dd-MM-yyyy}" new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                        @Html.ValidationMessageFor(m => m.VisitedFrom)*@
+                        <div class="input-group date" id="divVisitedFrom" style="display: contents;">
+                            <div class="input-group-append ">
+                                <input type="text" class="form-control inputStyle redboder" id="VisitedFrom">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar" style="right:7px"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <span id="VisitedFromValidation" class="error" style="display: none;"></span>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                        @Html.LabelFor(m => m.VisitedTo, new { @class = "control-label" })
+                        @* @Html.TextBoxFor(m => m.VisitedTo, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                        @Html.ValidationMessageFor(m => m.VisitedTo)*@
+                        <div class="input-group date" id="divVisitedTo" style="display: contents;">
+                            <div class="input-group-append ">
+                                <input type="text" class="form-control inputStyle redboder" id="VisitedTo">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar" style="right:7px"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <span id="VisitedToValidation" class="error" style="display: none;"></span>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-12 col-md-12 col-lg-12 ">
+                        @Html.LabelFor(m => m.VisitComments, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.VisitComments, new { @class = "form-control inputStyle ", @placeholder = @Html.DisplayNameFor(model => model.VisitComments) })
+                        @Html.ValidationMessageFor(m => m.VisitComments)
+                        <span id="VisitCommentsValidation" class="error" style="display: none;"></span>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-6 col-md-6 col-lg-6 ">
+                        @Html.LabelFor(m => m.InspReportNumber, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.InspReportNumber, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.InspReportNumber) })
+                        @Html.ValidationMessageFor(m => m.InspReportNumber)
+                        <span id="VisitInspReportNumberValidation" class="error" style="display: none;"></span>
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6 ">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2">
+                <input type="hidden" id="hdnTechDocFileGUID" name="hdnTechDocFileGUID" value="0" />
+                <input type="hidden" id="hdnTechDocFileSize" name="hdnTechDocFileSize" value="0" />
+                <input type="hidden" id="hdnTechDocFileTitle" name="hdnTechDocFileTitle" value="0" />
+                <div class="uploadBg">
+                    <div class="dropzone" id="TechnicalDocsUploadForm">
+                        <div class="fallback">
+                            <input name="files" type="file" />
+                        </div>
+                    </div>
+                    <div>
+                        <span id="TechnicalDocs-submit-all" class="btn btn-success mt5" style="display: none; width: 100%;">
+                            <span>
+                                <i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 col-md-4 col-lg-4">
+                <div id="divTechnicalDocs">
+                    @foreach (var techDoc in Model.TechnicalDocsList)
+                    {
+                        <div>
+                            <span class='attachmentElement tag label label-info'>
+                                <span>@techDoc.FileTitle</span>
+                                <span style='display:none'>@techDoc.FileLink</span>
+                                <span style='display:none'>@techDoc.FileSize</span>
+                                <span style='display:none'>@techDoc.FileId</span>
+                                <span style='display:none'>@techDoc.FileGUID</span>
+                                <span onclick="removeAttachedSupportDocs(this, '@techDoc.FileLink','@techDoc.FileId')" class='tagRemoveIcon'></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg mt20">
+        <small class="text-muted"><i class="fa fa-car mr5"></i> Travel Details</small>
+        <div class="row mt10">
+            <div class="col-sm-6 col-md-6 col-lg-6">
+                <div class="row">
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        @Html.LabelFor(m => m.TravelExpenses.FirstOrDefault().TravelType, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.TravelExpenses.FirstOrDefault().TravelType, new SelectList(Model.LstTravelTypes, "TravelTypeId", "TravelType"), "Select", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.TravelExpenses.FirstOrDefault().TravelType) })
+                        @Html.ValidationMessageFor(m => m.TravelExpenses.FirstOrDefault().TravelType)
+                        <span id="errorTravelType" class="error" style="display: none;"></span>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        @Html.LabelFor(m => m.TravelExpenses.FirstOrDefault().FromDate, new { @class = "control-label" })
+                        @*@Html.TextBoxFor(m => m.TravelExpenses.FirstOrDefault().FromDate, new { @id = "txtExpenseFromDate", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })*@
+                        <input id="txtExpenseFromDate" class="form-control inputStyle" />
+                        @Html.ValidationMessageFor(m => m.TravelExpenses.FirstOrDefault().FromDate)
+                        <span id="errorExpenseFromDate" class="error" style="display: none;"></span>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        @Html.LabelFor(m => m.TravelExpenses.FirstOrDefault().ToDate, new { @class = "control-label" })
+                        @*@Html.TextBoxFor(m => m.TravelExpenses.FirstOrDefault().ToDate, new { @id = "txtExpenseToDate", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })*@
+                        <input id="txtExpenseToDate" class="form-control inputStyle" />
+                        @Html.ValidationMessageFor(m => m.TravelExpenses.FirstOrDefault().ToDate)
+                        <span id="errorExpenseToDate" class="error" style="display: none;"></span>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        @Html.LabelFor(m => m.TravelExpenses.FirstOrDefault().TravelKM, new { @class = "control-label" })
+                        <input id="txtExpenseTravelKM" class="form-control inputStyle" />
+                        @*@Html.TextBoxFor(m => m.TravelExpenses.FirstOrDefault().TravelKM, new { @class = "form-control inputStyle ", @placeholder = @Html.DisplayNameFor(model => model.TravelExpenses.FirstOrDefault().TravelKM) })*@
+                        @Html.ValidationMessageFor(m => m.TravelExpenses.FirstOrDefault().TravelKM)
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        @Html.LabelFor(m => m.TravelExpenses.FirstOrDefault().Expenses, new { @class = "control-label" })
+                        <input id="txtExpenseExpenses" class="form-control inputStyle" />
+                        @*@Html.TextBoxFor(m => m.TravelExpenses.FirstOrDefault().Expenses, new { @class = "form-control inputStyle ", @placeholder = @Html.DisplayNameFor(model => model.TravelExpenses.FirstOrDefault().Expenses) })*@
+                        @Html.ValidationMessageFor(m => m.TravelExpenses.FirstOrDefault().Expenses)
+                        <span id="errorExpenseExpenses" class="error" style="display: none;"></span>
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddTravelExpenses" value="Add Expenses" title="Add Expenses" data-toggle="tooltip" onclick="javascript: AddExpenses();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add </button>
+                    </div>
+                </div>
+                <div class=" ">
+                    <div id="ExpenseTable">
+                        <!--Header Div Starts-->
+                        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+                            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                                Expense Type
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                                From Date
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                                To Date
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                                Travel Km
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                                Expenses
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+
+                            </div>
+                        </div>
+                        <!--Header Div Ends-->
+                        <div id="ExpenseTableBody">
+                            @foreach (var expenses in Model.TravelExpenses)
+                            {
+                                <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        @expenses.TravelType
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">
+                                        @(expenses.FromDate.ToShortDateString() == "01/01/1900" ? "--" : expenses.FromDate.ToShortDateString())
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">
+                                        @(expenses.ToDate.ToShortDateString() == "01/01/1900" ? "--" : expenses.ToDate.ToShortDateString())
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">
+                                        @expenses.TravelKM
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">
+                                        @expenses.Expenses
+                                    </div>
+                                    <div class="col-lg-1 col-md-1 col-sm-1">
+                                        <a onclick="javascript:RemoveExpensesFromTable('@expenses.ExpenseId',this);" style="cursor: pointer"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2">
+                <input type="hidden" id="hdnTravelFileGUID" name="hdnTravelFileGUID" value="0" />
+                <input type="hidden" id="hdnTravelFileSize" name="hdnTravelFileSize" value="0" />
+                <input type="hidden" id="hdnTravelFileTitle" name="hdnTravelFileTitle" value="0" />
+                <div class="uploadBg">
+                    <div class="dropzone" id="TravelDocsUploadForm">
+                        <div class="fallback">
+                            <input name="files" type="file" />
+                        </div>
+                    </div>
+                    <div>
+                        <span id="TravelDocs-submit-all" class="btn btn-success mt5" style="display: none; width: 100%;">
+                            <span>
+                                <i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 col-md-4 col-lg-4">
+                <div id="divTravelDocs">
+                    @foreach (var travelDoc in Model.TravelDocsList)
+                    {
+                        <div>
+                            <span class='attachmentElement tag label label-info'>
+                                <span>@travelDoc.FileTitle</span>
+                                <span style='display:none'>@travelDoc.FileLink</span>
+                                <span style='display:none'>@travelDoc.FileSize</span>
+                                <span style='display:none'>@travelDoc.FileId</span>
+                                <span style='display:none'>@travelDoc.FileGUID</span>
+                                <span onclick="removeAttachedSupportDocs(this, '@travelDoc.FileLink','@travelDoc.FileId')" class='tagRemoveIcon'></span>
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @Html.HiddenFor(m => m.VEM_ID)
+        @Html.HiddenFor(m => m.VisitId)
+        @Html.HiddenFor(m => m.ScheduleDetails.VisitGuid)
+        <span>@ViewBag.Message </span>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+            <button type='button' class="btn btn-secondary pull-right" id="btnCancelVisitRemarks" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: cancelVisitProcessing();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+            <button type="submit" class="btn btn-success pull-right mr5" id="btnSubmitVisitRemarks" value="Save" title="Save" data-toggle="tooltip" onclick="UpdateVisitEngineerComments();"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Update </button>&nbsp;&nbsp;
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $("#divVisitedFrom").datetimepicker({
+            defaultDate: new Date(),
+            format: 'DD-MM-YYYY HH:mm',
+            maxDate: new Date()
+            //   endDate: '+0d',
+            //   autoclose: true
+        });
+        $("#divVisitedTo").datetimepicker({
+            defaultDate: new Date(),
+            format: 'DD-MM-YYYY HH:mm',
+            maxDate: new Date()
+            // endDate: '+0d',
+            //  autoclose: true
+        });
+    });
+    $(function () {
+        $("#txtExpenseFromDate").datepicker({
+            //format: 'dd-MM-yyyy',
+            endDate: '+0d',
+            autoclose: true
+        });
+        $("#txtExpenseToDate").datepicker({
+            endDate: '+0d',
+            autoclose: true
+        });
+    });
+    $(document).ready(function () {
+        LoadCommonDetails();
+        $('#VisitedFrom').val('@Model.VisitedFrom');
+        $('#VisitedTo').val('@Model.VisitedTo');
+        Dropzone.autoDiscover = false;
+        try {
+            window.uploader.create({
+                elementId: "TechnicalDocsUploadForm",   //dropzone will be created to this element
+                submitButtonId: "TechnicalDocs-submit-all", //dropzone uploader submit button Id
+                hiddenFilePathId: "hdnTechDocFileGUID",  //unique id  after uploading the file the path which is return value would be binded to this element
+                hiddenFilePathId3: "hdnTechDocFileTitle",
+                hiddenFileSize: "hdnTechDocFileSize", //Id after uploading the file the uploaded file size which is return value would be binded to this element
+                siteId: '1',   //site id the uploaded file to be stored
+                canValidateImgExtension: false, //for validating file types (if it sets  true it only takes image files)
+                canValidateContactExtensions: false,//for validating file types (if it sets  true it only takes files specified as contact extensions in baselayout)
+                url: '../FileUpload/UploadDocWithoutCrop', //any specified Url to upload or else it will take default url
+                clearUploaderAfterUploading: true, //boolean, it will clear the uploader if it sets true
+                uploadMultiple: true, //boolean, can upload multiple files at once if it sets true
+                onCompleteCallback: function (data) {
+                    addTechnicalAttachment('divTechnicalDocs');
+                }  //we can define any call back function, to done something upon file successful upload, if not we can remover this parameter
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        try {
+            window.uploader.create({
+                elementId: "TravelDocsUploadForm",   //dropzone will be created to this element
+                submitButtonId: "TravelDocs-submit-all", //dropzone uploader submit button Id
+                hiddenFilePathId: "hdnTravelFileGUID",  //unique id  after uploading the file the path which is return value would be binded to this element
+                hiddenFilePathId3: "hdnTravelFileTitle",
+                hiddenFileSize: "hdnTravelFileSize", //Id after uploading the file the uploaded file size which is return value would be binded to this element
+                siteId: '1',   //site id the uploaded file to be stored
+                canValidateImgExtension: false, //for validating file types (if it sets  true it only takes image files)
+                canValidateContactExtensions: false,//for validating file types (if it sets  true it only takes files specified as contact extensions in baselayout)
+                url: '../FileUpload/UploadDocWithoutCrop', //any specified Url to upload or else it will take default url
+                clearUploaderAfterUploading: true, //boolean, it will clear the uploader if it sets true
+                uploadMultiple: true, //boolean, can upload multiple files at once if it sets true
+                onCompleteCallback: function (data) {
+                    addTechnicalAttachment('divTravelDocs');
+                }  //we can define any call back function, to done something upon file successful upload, if not we can remover this parameter
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        @*var techDocs = '@Model.TechnicalDocsList';
+        $.each(techDocs, function() {
+            addAttachmentsToDiv('divTechnicalDocs', techDocs.FileTitle, techDocs.FileLink, techDocs.FileSize);
+        });
+        var travelDocss = '@Model.TravelDocsList';
+        $.each(travelDocss, function () {
+            addAttachmentsToDiv('divTravelDocs', travelDocss.FileTitle, travelDocss.FileLink, travelDocss.FileSize);
+        });*@
+    });
+    var technicalDocs = [];
+    var travelDocs = [];
+    window.addTechnicalAttachment = function (divName) {
+        if (divName == 'divTechnicalDocs') {
+            var attachmentName = $("#hdnTechDocFileTitle").val();
+            var attachmentLink = $("#hdnTechDocFileGUID").val();
+            var fileSize = $("#hdnTechDocFileSize").val();
+        } else {
+            var attachmentName = $("#hdnTravelFileTitle").val();
+            var attachmentLink = $("#hdnTravelFileGUID").val();
+            var fileSize = $("#hdnTravelFileSize").val();
+        }
+        addAttachmentsToDiv(divName, attachmentName, attachmentLink, fileSize);
+        console.log(fileSize);
+        $("#hdnTechDocFileTitle").val("");
+        $("#hdnTechDocFileGUID").val("");
+    }
+    function addAttachmentsToDiv(divName, attachmentName, attachmentLink, fileSize) {
+
+        attachmentName = $.trim(attachmentName);
+        //if (attachmentNames != "") {
+        //    var attachmentName = $.trim(attachmentNames).split("/");
+        //    var attachmentGuid = $.trim(attachmentLinks).split("|");
+        //    var fileSize = $.trim(fileSizes).split("$");
+        //    attachmentName.forEach(function (Name, index) {
+        //        $("#divTechnicalDocs").append("<span class='attachmentElement'>" +
+        //            "<span>" + Name + "</span>" +
+        //            "<span style='display:none'>" + attachmentGuid[index] + "</span>" +
+        //            "<span style='display:none'>" + fileSize[index] + "</span>" +
+        //            "<span onclick='removePostAttachment(this)' class='tagRemoveIcon'></span>" +
+        //            "</span>");
+        //    });
+        //    $("#divTechnicalDocs").show();
+        //}
+        $("#" + divName).append("<div><span class='attachmentElement tag label label-info'>" +
+            "<span>" + attachmentName + "</span>" +
+            "<span style='display:none'>" + attachmentLink + "</span>" +
+            "<span style='display:none'>" + fileSize + "</span>" +
+            "<span onclick='removePostAttachment(this)' class='tagRemoveIcon'></span>" +
+            "</span></div>");
+        if (divName == 'divTechnicalDocs') {
+            var technicalDocsObj = {};
+            technicalDocsObj.FileTitle = attachmentName;
+            technicalDocsObj.FileLink = attachmentLink;
+            technicalDocsObj.FileSize = fileSize;
+            technicalDocs.push(technicalDocsObj);
+            console.log("techdoc array:" + technicalDocs);
+
+        } else {
+            var travelDocsObj = {};
+            travelDocsObj.FileTitle = attachmentName;
+            travelDocsObj.FileLink = attachmentLink;
+            travelDocsObj.FileSize = fileSize;
+            travelDocs.push(travelDocsObj);
+            console.log("travel docs array:" + travelDocs);
+        }
+        $("#" + divName).show();
+
+    }
+
+    var removedSupportDocsArray = []; //This array is to store the file details which are need to delete from db asulas azure as the user requested too
+    window.removeAttachedSupportDocs = function(obj,fileLink,fileId) {
+        removedSupportDocsObj = {};
+        removedSupportDocsObj.FileId = fileId;
+        removedSupportDocsObj.FileLink = fileLink;
+        removedSupportDocsArray.push(removedSupportDocsObj);
+        $(obj).parent().remove();
+    }
+    var travelExpenses = [];
+    function AddExpenses() {
+        var isValidationRaised = window.validator.validate([
+            { elementVal: $("#TravelType").val(), isRequired: true, errorElement: "errorTravelType", errorString: "Select Expense Type" },
+            { elementVal: $("#txtExpenseExpenses").val(), isRequired: true, errorElement: "errorExpenseExpenses", errorString: "Expense Amount Required" }
+        ]);
+        if (isValidationRaised) {
+            return;
+        }
+        var TravelExpenseArrayIndex = travelExpenses.length;
+        //alert("array index:" + TravelExpenseArrayIndex);
+        var expense = {};
+        expense.TravelTypeId = $("#TravelType").val();
+        expense.FromDate = $("#txtExpenseFromDate").val();
+        expense.ToDate = $("#txtExpenseToDate").val();
+        expense.TravelKM = $("#txtExpenseTravelKM").val();
+        expense.Expenses = $("#txtExpenseExpenses").val();
+        travelExpenses.push(expense);
+
+        $("#ExpenseTableBody").append("<div class='col-lg-12 col-md-12 col-sm-12 directory-table-row '>" +
+            "<div class='col-lg-3 col-md-3 col-sm-3'>" +
+            //$("#TravelType").val() +
+        $("#TravelType option:selected").text()+
+            "</div>" +
+            "<div class='col-lg-2 col-md-2 col-sm-2'>" +
+            $("#txtExpenseFromDate").val() +
+            "</div>" +
+            "<div class='col-lg-2 col-md-2 col-sm-2'>" +
+            $("#txtExpenseToDate").val() +
+            "</div>" +
+            "<div class='col-lg-2 col-md-2 col-sm-2'>" +
+            $("#txtExpenseTravelKM").val() +
+            "</div>" +
+            "<div class='col-lg-2 col-md-2 col-sm-2'>" +
+            $("#txtExpenseExpenses").val() + "</div>" +
+            "<div class='col-lg-1 col-md-1 col-sm-1'>" +
+            "<a onclick='RemoveVisitExpense(this," + TravelExpenseArrayIndex + ")' style='cursor:pointer'><i class='fa fa-trash' aria-hidden='true'></i></span>" +
+            "</div>");
+        $("#ExpenseTable").show();
+        $("#TravelType").val('');
+        $("#txtExpenseFromDate").val('');
+        $("#txtExpenseToDate").val('');
+        $("#txtExpenseTravelKM").val('');
+        $("#txtExpenseExpenses").val('');
+    }
+    function RemoveVisitExpense(obj,index) {
+        $(obj).parent().parent().remove();
+        if (index > -1) {
+            travelExpenses.splice(index, 1);
+        }
+        console.log("final array" + travelExpenses);
+    }
+    function UpdateVisitEngineerComments() {
+        //alert($("#VisitedFrom").val());
+        //alert($("#VisitedTo").val());
+        //return;
+        var isValidationRaised = window.validator.validate([
+            //{ elementVal: $('#VisitComments').val(), isRequired: true, errorElement: "VisitCommentsValidation", errorString: "Visit Comments Required" },
+            { elementVal: $('#InspReportNumber').val(), isRequired: true, errorElement: "VisitInspReportNumberValidation", errorString: "Inspector Report Number Required" },
+            { elementVal: $('#VisitedFrom').val(), isRequired: true, errorElement: "VisitedFromValidation", errorString: "Visited From  Required" },
+            { elementVal: $('#VisitedTo').val(), isRequired: true, errorElement: "VisitedToValidation", errorString: "Visited To Required" }
+        ]);
+        if (isValidationRaised) {
+            return;
+        }
+        var fit_start_time = $("#VisitedFrom").val();
+        var fit_end_time = $("#VisitedTo").val();
+        //alert(new Date(fit_start_time));
+        //alert(new Date(fit_end_time));
+        if (new Date(fit_start_time) > new Date(fit_end_time)) {//compare end <=, not >=
+           // alert("stasrt date");
+            //your code here
+            $("#VisitedToValidation").html('Visited To date should be below start date');
+            return;
+        }
+        $.ajax({
+            url: '../VisitProcessing/UpdateCapturedVisitDetails',
+            type: 'POST',
+            data: {
+                VEM_ID: $("#VEM_ID").val(),
+                VisitId: $("#VisitId").val(),
+                VisitedFrom: $("#VisitedFrom").val(),
+                VisitedTo: $("#VisitedTo").val(),
+                VisitComments: $("#VisitComments").val(),
+                TravelKm: $("#TravelKm").val(),
+                TravelExpense: $("#TravelExpense").val(),
+                OtherExpense: $("#OtherExpense").val(),
+                TechnicalDocsList: technicalDocs,
+                TravelDocsList: travelDocs,
+                InspReportNumber: $("#InspReportNumber").val(),
+                TravelExpenses: travelExpenses,
+                RemovedExpenseIds: removedExpenseIds.join(","),
+                RemovedSupportDocs: removedSupportDocsArray
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                if (response.status) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    setTimeout(function () { cancelVisitProcessing(); }, 5000);
+                } else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+    function cancelVisitProcessing() {
+         var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+         window.location.href = currentUrl + "/Home/HomePage";
+       
+       // window.location.href = '/Home/HomePage';
+    }
+    function LoadCommonDetails() {
+        $.ajax({
+            url: '../Common/LoadCommonDetailsForVisit',
+            type: 'POST',
+            data: {
+                visitGuid: $("#ScheduleDetails_VisitGuid").val(),
+                controlNumberGuid: null,
+                ServiceOrderId: 0,
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $("#commonDetails").html(response);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+
+    removedExpenseIds = [];
+    function RemoveExpensesFromTable(expenseId,obj) {
+        removedExpenseIds.push(expenseId);
+        $(obj).parent().parent().remove();
+        console.log("removed ids" + removedExpenseIds);
+    }
+</script>

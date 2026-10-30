@@ -1,0 +1,444 @@
+@font-face {
+  font-family: 'Arial';
+  src: url('../fonts/Arial-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Arial';
+  src: url('../fonts/Arial-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Arial';
+  src: url('../fonts/Arial-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Arial';
+  src: url('../fonts/Arial-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'DejaVu Sans';
+  src: url('../fonts/DejaVuSans.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* --- IQE brand palette ------------------------------------------------
+   The documents previously used Word's default blues (#365F91 / #D9E2F3),
+   which belong to no brand. These are IQE's own, matching the web app so a
+   printed report and the screen it came from look like the same system.
+
+   WeasyPrint supports custom properties, but several of these are also needed
+   inside @page margin boxes where variables do not resolve, so the literals
+   appear there too. Change both if you retune.                             */
+:root {
+  --iqe-blue:        #0084bf;
+  --iqe-blue-dark:   #00618e;
+  --iqe-navy:        #001a2c;
+  --iqe-orange:      #e35f14;
+
+  --iqe-tint:        #e6f3f9;   /* table header fill */
+  --iqe-tint-strong: #cfe8f4;   /* grouped/total rows */
+  --iqe-rule:        #b8d9e8;   /* hairlines inside tables */
+
+  /* Semantic. Colour here carries meaning - a reader should be able to find
+     the rejected line without reading every row. Each is dark enough to stay
+     legible in greyscale, because these documents get photocopied. */
+  --ok:        #1a7f4b;
+  --ok-bg:     #e6f5ed;
+  --warn:      #b45309;
+  --warn-bg:   #fdf3e3;
+  --bad:       #b91c1c;
+  --bad-bg:    #fdecec;
+  --idle:      #475569;
+  --idle-bg:   #eef2f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', 'Liberation Sans', sans-serif;
+  color: #000000;
+  line-height: 1.25;
+}
+
+.checkbox-glyph {
+  font-family: 'DejaVu Sans', sans-serif;
+  font-size: 1.05em;
+  line-height: 1;
+  display: inline-block;
+}
+
+/* Section Headings */
+.section-heading {
+  font-family: 'Arial', 'Liberation Sans', sans-serif;
+  font-weight: bold;
+  color: #0084bf;
+  border-left: 2.5pt solid #e35f14;
+  padding-left: 5pt;
+  text-transform: uppercase;
+  margin-top: 18pt;
+  margin-bottom: 2pt;
+  page-break-after: avoid;
+}
+
+.first-heading {
+  margin-top: 10pt;
+}
+
+/* Document Title & Subtitle */
+.doc-header-block {
+  text-align: center;
+  margin-bottom: 10pt;
+  page-break-after: avoid;
+}
+
+.doc-title {
+  font-family: 'Arial', 'Liberation Sans', sans-serif;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+.doc-subtitle {
+  font-style: italic;
+  text-align: center;
+  margin-top: 2pt;
+  margin-bottom: 0;
+}
+
+/* Running Header Table (top of page) */
+.running-header-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: none;
+  margin-bottom: 12pt;
+}
+
+.running-header-table td {
+  border: none;
+  padding: 0;
+  vertical-align: top;
+}
+
+.header-left-cell {
+  text-align: left;
+  font-weight: bold;
+}
+
+.header-company-name {
+  display: block;
+  color: #333333;
+}
+
+.header-subline {
+  display: block;
+  font-weight: bold;
+  color: #cc0000;
+}
+
+.header-right-cell {
+  text-align: right;
+  font-weight: bold;
+  font-size: 8.5pt;
+  line-height: 1.25;
+}
+
+/* Scan-to-verify QR in the running header */
+.running-header-table td.header-qr-cell {
+  width: 0.72in;
+  padding-left: 8pt;
+  text-align: center;
+  vertical-align: top;
+}
+
+.header-qr {
+  width: 0.62in;
+  height: 0.62in;
+  display: block;
+  margin: 0 auto;
+}
+
+.header-qr-caption {
+  font-size: 5.5pt;
+  font-weight: bold;
+  color: #003752;
+  letter-spacing: 0.02em;
+  margin-top: 1pt;
+}
+
+/* Grid & KV Tables */
+table.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2pt;
+  margin-bottom: 4pt;
+}
+
+table.report-table th,
+table.report-table td {
+  border: 0.5pt solid #7fa8bd;
+  padding: 1.5pt 0.075in;
+  vertical-align: middle;
+}
+
+table.report-table thead {
+  display: table-header-group;
+}
+
+table.report-table tr {
+  page-break-inside: avoid;
+}
+
+.th-label,
+th.th-label,
+td.td-label {
+  background-color: #e6f3f9;
+  font-weight: bold;
+  color: #001a2c;
+}
+
+td.td-value {
+  background-color: #FFFFFF;
+}
+
+/* Free Text Box */
+.free-text-box {
+  border: 0.5pt solid #000000;
+  padding: 3pt 0.075in;
+  min-height: 24pt;
+  white-space: pre-wrap;
+  background-color: #FFFFFF;
+  margin-top: 2pt;
+  margin-bottom: 4pt;
+}
+
+.free-text-underscores {
+  color: #333333;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Photo Grid */
+.photo-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2pt;
+  margin-bottom: 4pt;
+}
+
+.photo-grid-table td {
+  border: 0.5pt solid #000000;
+  width: 50%;
+  padding: 4pt 0.075in;
+  vertical-align: top;
+}
+
+.photo-cell-header {
+  font-weight: bold;
+  margin-bottom: 2pt;
+}
+
+.photo-box {
+  height: 1.75in;
+  border: 0.5pt dashed #999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #FAFAFA;
+  margin-bottom: 3pt;
+}
+
+.photo-box img {
+  max-width: 100%;
+  max-height: 1.7in;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.photo-caption {
+  font-size: 0.95em;
+  margin-top: 2pt;
+}
+
+/* Signatures Block */
+.signature-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4pt;
+  margin-bottom: 6pt;
+}
+
+.signature-table th,
+.signature-table td {
+  border: 0.5pt solid #000000;
+  padding: 3pt 0.075in;
+  vertical-align: top;
+}
+
+.signature-table td {
+  height: 0.65in;
+}
+
+.stamp-box {
+  min-height: 0.6in;
+  margin-top: 4pt;
+}
+
+/* Closing Block */
+.disclaimer-block {
+  margin-top: 8pt;
+  font-size: 0.9em;
+  line-height: 1.3;
+}
+
+.disclaimer-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 2pt;
+}
+
+.end-marker {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10pt;
+  margin-bottom: 4pt;
+  letter-spacing: 1px;
+}
+
+.page-break {
+  page-break-before: always;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* --- Brand identity on every rendered document ------------------------- */
+
+.header-logo-cell {
+  width: 42pt;
+  vertical-align: middle;
+  padding-right: 7pt;
+}
+
+.header-logo {
+  width: 38pt;
+  height: auto;
+  display: block;
+}
+
+/* The watermark is the IQE mark, not the wordmark: at this opacity a wordmark
+   turns into illegible grey smear, whereas the mark still reads as the brand.
+   Kept faint enough that printed text over it stays legible on a photocopy. */
+.brand-watermark {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  width: 46%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.055;
+}
+
+.brand-watermark img {
+  width: 100%;
+  height: auto;
+}
+
+/* Content must sit above the watermark or WeasyPrint paints it over the text. */
+.page-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Semantic colour -----------------------------------------------------
+   Used by the generic renderer and the project report. The rule throughout:
+   colour marks an outcome a reader needs to find quickly (a rejection, a
+   deduction, an overdue balance), never decoration. Anything colour conveys
+   is also carried by the text itself, so the document still works in
+   greyscale and for a colour-blind reader.                                */
+
+.pill {
+  display: inline-block;
+  padding: 0.5pt 4pt;
+  border-radius: 7pt;
+  font-size: 0.92em;
+  font-weight: bold;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.pill-ok   { background-color: #e6f5ed; color: #1a7f4b; border: 0.4pt solid #1a7f4b; }
+.pill-warn { background-color: #fdf3e3; color: #b45309; border: 0.4pt solid #b45309; }
+.pill-bad  { background-color: #fdecec; color: #b91c1c; border: 0.4pt solid #b91c1c; }
+.pill-idle { background-color: #eef2f6; color: #475569; border: 0.4pt solid #94a3b8; }
+.pill-info { background-color: #e6f3f9; color: #00618e; border: 0.4pt solid #0084bf; }
+
+/* Money and counts. A certified figure and a deduction are the two numbers
+   people argue over; they should be findable without reading the row. */
+.v-ok   { color: #1a7f4b; font-weight: bold; }
+.v-bad  { color: #b91c1c; font-weight: bold; }
+.v-warn { color: #b45309; font-weight: bold; }
+
+/* A row that totals or concludes the ones above it. */
+tr.total-row > td {
+  background-color: #cfe8f4;
+  border-top: 1pt solid #0084bf;
+  font-weight: bold;
+}
+
+/* Zebra striping on long tables, light enough not to fight the ink budget. */
+table.striped tbody tr:nth-child(even) td.td-value {
+  background-color: #f7fbfd;
+}
+
+/* A band that introduces a group of rows (a discipline, a bill). */
+.group-band {
+  margin: 8pt 0 2pt 0;
+  padding: 2.5pt 6pt;
+  background-color: #e6f3f9;
+  border-left: 2.5pt solid #0084bf;
+  font-size: 8.5pt;
+  font-weight: bold;
+  color: #001a2c;
+  page-break-after: avoid;
+}
+
+/* Callout for the one number that should not be missed. */
+.callout {
+  margin: 6pt 0;
+  padding: 5pt 8pt;
+  border-left: 3pt solid #e35f14;
+  background-color: #fdf3e3;
+  font-size: 8.5pt;
+  color: #7c3d0b;
+}

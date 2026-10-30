@@ -1,0 +1,1419 @@
+{
+  "source_file": "/Users/devendervutukuru/Downloads/DBScripts_UAT.sql",
+  "database": "IQEIMS_DEV",
+  "script_date": "27-10-2026 21:00:07",
+  "file_size_bytes": 57136358,
+  "file_size_mb": 54.49,
+  "total_lines": 117025,
+  "encoding": "UTF-16LE",
+  "compatibility_level": 150,
+  "summary": {
+    "total_tables": 99,
+    "tables_with_data": 82,
+    "tables_empty": 17,
+    "total_insert_statements": 32973,
+    "stored_procedures": 405,
+    "views": 1,
+    "functions": 10,
+    "triggers": 0,
+    "foreign_keys": 92,
+    "primary_keys": 95,
+    "identity_columns": 159,
+    "file_blobs_in_dump": false,
+    "file_storage": "FileName/FilePath nvarchar (registry only, e.g. /UploadedFiles/ServiceOrderDocuments/<guid>.pdf)"
+  },
+  "tables": [
+    {
+      "table": "AssociateDetails",
+      "insert_statements": 36,
+      "has_data": true,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "ClientDetails",
+      "insert_statements": 118,
+      "has_data": true,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "ClientUnits",
+      "insert_statements": 186,
+      "has_data": true,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "CompetanceDetails",
+      "insert_statements": 306,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "CompetanceDetails1",
+      "insert_statements": 69,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "ComplaintAppealStatus",
+      "insert_statements": 2,
+      "has_data": true,
+      "group": "complaints"
+    },
+    {
+      "table": "ComplaintMode",
+      "insert_statements": 2,
+      "has_data": true,
+      "group": "complaints"
+    },
+    {
+      "table": "ComplaintResposible",
+      "insert_statements": 4,
+      "has_data": true,
+      "group": "complaints"
+    },
+    {
+      "table": "ComplaintType",
+      "insert_statements": 2,
+      "has_data": true,
+      "group": "complaints"
+    },
+    {
+      "table": "ControlDetails",
+      "insert_statements": 130,
+      "has_data": true,
+      "group": "orders_controls"
+    },
+    {
+      "table": "CustomerComplaintDetails",
+      "insert_statements": 9,
+      "has_data": true,
+      "group": "complaints"
+    },
+    {
+      "table": "DBError",
+      "insert_statements": 43,
+      "has_data": true,
+      "group": "system"
+    },
+    {
+      "table": "DBPatches",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "system"
+    },
+    {
+      "table": "DocumentDetails",
+      "insert_statements": 86,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "EmailRecipients",
+      "insert_statements": 4,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "Emploee",
+      "insert_statements": 5,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "EnquiryCategory",
+      "insert_statements": 4,
+      "has_data": true,
+      "group": "enquiries_quotations"
+    },
+    {
+      "table": "EnquiryCategoryDetails",
+      "insert_statements": 251,
+      "has_data": true,
+      "group": "enquiries_quotations"
+    },
+    {
+      "table": "EnquiryDetails1",
+      "insert_statements": 239,
+      "has_data": true,
+      "group": "enquiries_quotations"
+    },
+    {
+      "table": "EnquiryWorkScope",
+      "insert_statements": 6,
+      "has_data": true,
+      "group": "enquiries_quotations"
+    },
+    {
+      "table": "EnquiryWorkScopeMapping",
+      "insert_statements": 125,
+      "has_data": true,
+      "group": "enquiries_quotations"
+    },
+    {
+      "table": "EnquriyQuotationBackUpFiles",
+      "insert_statements": 35,
+      "has_data": true,
+      "group": "enquiries_quotations"
+    },
+    {
+      "table": "EnquriyQuotationFiles",
+      "insert_statements": 152,
+      "has_data": true,
+      "group": "enquiries_quotations"
+    },
+    {
+      "table": "FileDetails",
+      "insert_statements": 86,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "FileHistoryDetails",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "other"
+    },
+    {
+      "table": "InspectorRate",
+      "insert_statements": 4,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "InspectorUploadedBackUpFiles",
+      "insert_statements": 3,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "InspectorUploadedFiles",
+      "insert_statements": 1,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "InvoiceConsolidateDetails",
+      "insert_statements": 45,
+      "has_data": true,
+      "group": "invoices_payments"
+    },
+    {
+      "table": "InvoiceConsolidateDetailsHistory",
+      "insert_statements": 77,
+      "has_data": true,
+      "group": "invoices_payments"
+    },
+    {
+      "table": "InvoiceDetails",
+      "insert_statements": 11,
+      "has_data": true,
+      "group": "invoices_payments"
+    },
+    {
+      "table": "InvoiceHistoryDetails",
+      "insert_statements": 11,
+      "has_data": true,
+      "group": "invoices_payments"
+    },
+    {
+      "table": "InvoicePaymentDetails",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "invoices_payments"
+    },
+    {
+      "table": "InvoiceTemplateType",
+      "insert_statements": 2,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "InvoiceVisitMapping",
+      "insert_statements": 21,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "InvoiceVisitMappingHistory",
+      "insert_statements": 32,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "Log",
+      "insert_statements": 4320,
+      "has_data": true,
+      "group": "system"
+    },
+    {
+      "table": "ManufacturerDetails",
+      "insert_statements": 489,
+      "has_data": true,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "ManufacturerUnits",
+      "insert_statements": 505,
+      "has_data": true,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "ManufacturerVisitLocation",
+      "insert_statements": 2413,
+      "has_data": true,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "mstControlStatus",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "masters"
+    },
+    {
+      "table": "mstCountry",
+      "insert_statements": 238,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstCurrencyType",
+      "insert_statements": 3,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstDesignation",
+      "insert_statements": 16,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstDocumentCategory",
+      "insert_statements": 5,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstDocumentType",
+      "insert_statements": 6,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstEmployeeType",
+      "insert_statements": 3,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstFeaturesList",
+      "insert_statements": 88,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstIndustryTypes",
+      "insert_statements": 6,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstLOISOType",
+      "insert_statements": 2,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstManufacturerUnitNameFlag",
+      "insert_statements": 2,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstPaymentModes",
+      "insert_statements": 5,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstScreenFeatureMapping",
+      "insert_statements": 88,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstScreensList",
+      "insert_statements": 27,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstSection",
+      "insert_statements": 13,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstSectionTypes",
+      "insert_statements": 4,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstServiceOrderType",
+      "insert_statements": 3,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstSkillSet",
+      "insert_statements": 9,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstState",
+      "insert_statements": 269,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstTravelTypes",
+      "insert_statements": 4,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstUnitOfMeasurment",
+      "insert_statements": 4,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstUOMDays",
+      "insert_statements": 3,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstUserRoles",
+      "insert_statements": 14,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstUserTitle",
+      "insert_statements": 6,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "mstVisitStatus",
+      "insert_statements": 11,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "paymentdetails",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "invoices_payments"
+    },
+    {
+      "table": "PONumberManufacturerUnitMapping",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "ProcessedEmail",
+      "insert_statements": 32,
+      "has_data": true,
+      "group": "system"
+    },
+    {
+      "table": "PurchaseOrderDetails",
+      "insert_statements": 1338,
+      "has_data": true,
+      "group": "orders_controls"
+    },
+    {
+      "table": "PurchaseOrderItems",
+      "insert_statements": 2614,
+      "has_data": true,
+      "group": "orders_controls"
+    },
+    {
+      "table": "PurchaseOrderNumber",
+      "insert_statements": 1286,
+      "has_data": true,
+      "group": "orders_controls"
+    },
+    {
+      "table": "RoleScreenFeatureMapping",
+      "insert_statements": 559,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "ScheduleVisitSelectedPOItems",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "visits_execution"
+    },
+    {
+      "table": "ServiceOrderBackFiles",
+      "insert_statements": 89,
+      "has_data": true,
+      "group": "orders_controls"
+    },
+    {
+      "table": "ServiceOrderDetails",
+      "insert_statements": 148,
+      "has_data": true,
+      "group": "orders_controls"
+    },
+    {
+      "table": "ServiceOrderUploadedFiles",
+      "insert_statements": 112,
+      "has_data": true,
+      "group": "orders_controls"
+    },
+    {
+      "table": "SiteDetails",
+      "insert_statements": 1,
+      "has_data": true,
+      "group": "masters"
+    },
+    {
+      "table": "SOAuditTrail",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "orders_controls"
+    },
+    {
+      "table": "SONoManufacturerUnitMapping",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "clients_manufacturers"
+    },
+    {
+      "table": "SoPoAssociation",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "orders_controls"
+    },
+    {
+      "table": "UploadDetails",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "other"
+    },
+    {
+      "table": "UserDetails",
+      "insert_statements": 479,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "UserDetails2",
+      "insert_statements": 84,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "userdetails_bkp",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "people_hr"
+    },
+    {
+      "table": "UserDetailsResumeBackFiles",
+      "insert_statements": 219,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "UserDetailsUploadedResumes",
+      "insert_statements": 600,
+      "has_data": true,
+      "group": "people_hr"
+    },
+    {
+      "table": "VisitControlReassignHistory",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "orders_controls"
+    },
+    {
+      "table": "VisitDetails",
+      "insert_statements": 2331,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitDetailsProspective",
+      "insert_statements": 54,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitEmpExpensesMapping",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitEmpMapping",
+      "insert_statements": 2331,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitEmpUploadBackUpFiles",
+      "insert_statements": 358,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitEmpUploadDetils",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitEmpUploadFiles",
+      "insert_statements": 6334,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitReferences",
+      "insert_statements": 8,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitReportReferences",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitScheduleSelectedPOItems",
+      "insert_statements": 0,
+      "has_data": false,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitScheduleSelectedPOItems1",
+      "insert_statements": 3330,
+      "has_data": true,
+      "group": "visits_execution"
+    },
+    {
+      "table": "VisitTypeMaster",
+      "insert_statements": 3,
+      "has_data": true,
+      "group": "masters"
+    }
+  ],
+  "empty_tables": [
+    "DBPatches",
+    "FileHistoryDetails",
+    "InvoicePaymentDetails",
+    "mstControlStatus",
+    "paymentdetails",
+    "PONumberManufacturerUnitMapping",
+    "ScheduleVisitSelectedPOItems",
+    "SOAuditTrail",
+    "SONoManufacturerUnitMapping",
+    "SoPoAssociation",
+    "UploadDetails",
+    "userdetails_bkp",
+    "VisitControlReassignHistory",
+    "VisitEmpExpensesMapping",
+    "VisitEmpUploadDetils",
+    "VisitReportReferences",
+    "VisitScheduleSelectedPOItems"
+  ],
+  "stored_procedures": [
+    "AcceptVisitSchedule",
+    "AddClientUnit",
+    "AddCompetanceDetails",
+    "AddCustomerComplaint",
+    "AddEmpannlementUpdateUser",
+    "AddEnquiry1",
+    "AddEnquiry11",
+    "AddEnquiry12",
+    "AddNewPONumbers",
+    "AddNewPONumbers1",
+    "AddNewPurchaseOrder",
+    "AddNewPurchaseOrder1",
+    "AddPurchaseOrderItem",
+    "AddScheduleVisitSelectedPOItems",
+    "AddScheduleVisitSelectedPOItems1",
+    "AddTravelExpense",
+    "AddVisitScheduleSelectedPOItems1",
+    "CancelInvoiceByInvoiceGuid",
+    "CaptureVisitEnggVisitDetails",
+    "CheckLoginNameExistsOrNot",
+    "CheckUserExistsOrNot",
+    "CheckUserExistsOrNotForUpdate",
+    "ClearPreviousConsolidatedInvoiceDetailsOnUpdate",
+    "CloseVisitWithReference",
+    "CloseVisitWithReference_bkp",
+    "CreateMaster",
+    "CreatePayment",
+    "CreateUser",
+    "CreateUser1",
+    "DeleteInspector",
+    "DeleteOrUndoMaster",
+    "DeletePurchaseOrderItem",
+    "DeletePurchaseOrderNumber",
+    "DeleteTravelExpensesByExpenseId",
+    "DeleteVisitSupportDocFromDB",
+    "DocumentUploadedByDocId",
+    "DocumentsBackupFilesByDocId",
+    "EditPONumbers",
+    "EditVisitScheduleByVisitID",
+    "EditVisitScheduleDetailsByVID",
+    "FetchPaymentDetails",
+    "FetchScreenFeatureMapping",
+    "FetchScreenFeatureMapping1",
+    "FetchScreenFeatureMappingByRoleId",
+    "FetchScreenFeatureMappingByRoleId2",
+    "GeInvoiceListToDownload",
+    "GenerateControlNumber",
+    "GenerateControlNumber1",
+    "GenerateControlNumber_New1",
+    "GetAbrotiveCancelledInactiveCalls",
+    "GetAllAssociateDetails",
+    "GetAllClientDetails",
+    "GetAllClientDetails_dd",
+    "GetAllCounts",
+    "GetAllInspectorsDetails",
+    "GetAllMstUserRoles",
+    "GetAllPONumbersByClient",
+    "GetAllPONumbersByClient_Latest",
+    "GetAllPONumbersByManufacturer",
+    "GetAssociateContactPersonDetails",
+    "GetAssociateContactPersonDetails1",
+    "GetAssociateDetails",
+    "GetAssociateDetailsToAdd",
+    "GetAssociateDetailsToEdit",
+    "GetClientDetails",
+    "GetClientDetailsByClientId",
+    "GetClientDetailsByControlNumber",
+    "GetClientDetailsByControlNumber1",
+    "GetClientDetailsToAdd",
+    "GetClientDetailsToEdit",
+    "GetClientManufacturerDetails",
+    "GetClientSearchList",
+    "GetClientUnitDetailsByUnitGuid",
+    "GetClientUnitDetailsByUnitId",
+    "GetClientUnitDetailsToAdd",
+    "GetClientUnitDetailsToEdit",
+    "GetClientUnitsByClientId",
+    "GetClientUnitsByClientName",
+    "GetCompetanceDetailsBySiteId",
+    "GetCompetanceDetailsToEdit",
+    "GetCompetanceListBySiteId",
+    "GetCompetanceListDetails",
+    "GetCompetanceMatrixDetailsDownload",
+    "GetComplaintDetailsToAdd",
+    "GetComplaintDetailsToEdit",
+    "GetComplaintFilesByID",
+    "GetConsolidatedInvoiceDetails",
+    "GetConsolidatedInvoiceDetailsToEdit",
+    "GetControlNoCumVisitDetailsByServiceOrder",
+    "GetControlNosByClientUnitId",
+    "GetControlNumberDetails",
+    "GetControlNumberDetails1",
+    "GetControlNumberDetails2",
+    "GetControlNumberDetailsToAdd",
+    "GetControlNumberDetailsToUpdate",
+    "GetControlNumberDetails_New",
+    "GetControlNumberDetails_New1",
+    "GetControlNumberDetails_New11",
+    "GetControlNumberToUpdateLOISONumber",
+    "GetControlNumbersByClientUnitId",
+    "GetControlNumbersByManufacturerId",
+    "GetCountries",
+    "GetCountryMaster",
+    "GetCountryStateUserDetails",
+    "GetCreditorsList",
+    "GetCurrencyType",
+    "GetCustomerComplaintListBySiteId",
+    "GetDebtorsList",
+    "GetDebtorsList1",
+    "GetDebtorsListForDirectory",
+    "GetDefaultDetailsToGenerateInvoice",
+    "GetDesignationMaster",
+    "GetDocumentCategory",
+    "GetDocumentDetailsToAdd",
+    "GetDocumentDetailsToEdit",
+    "GetDocumentDetailsToEdit1",
+    "GetDocumentFilesByID",
+    "GetDocumentFilesByID1",
+    "GetDocumentTypes",
+    "GetDocumentsListBySiteId",
+    "GetEmpannelmentDetailsToAdd",
+    "GetEmployeeDetailsToAdd",
+    "GetEmployeeDetailsToEdit",
+    "GetEmployeeType",
+    "GetEnquiryDetailsToAdd",
+    "GetEnquiryDetailsToAdd1",
+    "GetEnquiryDetailsToEdit",
+    "GetEnquiryDetailsToEdit1",
+    "GetEnquiryDetailsToEdit11",
+    "GetEnquiryListBySiteId",
+    "GetEnquiryListBySiteId1",
+    "GetEnquiryListBySiteId11",
+    "GetEnquiryListBySiteId12",
+    "GetEnquiryListWithCategories",
+    "GetEnquiryQuotationBackupFiles",
+    "GetEnquiryQuotationBackupFiles1",
+    "GetEnquiryQuotationFileDetailsByID",
+    "GetEnquiryQuotationFileDetailsByID1",
+    "GetEnquiryQuotationsFiles",
+    "GetEnquiryQuotationsFiles1",
+    "GetEnquiryWorkScope",
+    "GetEnquiryWorkScopeMapping",
+    "GetExistingControlNosByClient",
+    "GetExpiredDocumentsEmail",
+    "GetFileDetailsByVisitId",
+    "GetIndustryTypes",
+    "GetInspRepoNoByPurchaseId",
+    "GetInspectionReportBackupFiles",
+    "GetInspectionReportFiles",
+    "GetInspectorFileDetailsByID",
+    "GetInspectorRevisionsFiles",
+    "GetInspectorUploadedBackupFiles",
+    "GetInspectorsByCountry",
+    "GetInvoiceDataToPrint",
+    "GetInvoiceDetailsForEdit",
+    "GetInvoiceDetailsToEdit",
+    "GetInvoiceDetailsToEdit1",
+    "GetInvoiceDetailsToPreviewOrDownload",
+    "GetInvoiceListForDirectory",
+    "GetInvoiceListForDirectory1",
+    "GetInvoiceListForDirectory2",
+    "GetLogSheetDetailsDownload",
+    "GetLogSheetDetailsDownload1",
+    "GetLogSheetDownload2",
+    "GetLogSheetVisitScheduledList",
+    "GetLogSheetVisitScheduledList1",
+    "GetLogSheetVisitScheduledList2",
+    "GetManufactureDetailsByControlNo",
+    "GetManufacturerDetails",
+    "GetManufacturerDetailsToAdd",
+    "GetManufacturerDetailsToEdit",
+    "GetManufacturerDetailsToEditPO",
+    "GetManufacturerDetailsToEditPONumbers",
+    "GetManufacturerUnitDetailsByUnitId",
+    "GetManufacturerUnitDetailsToAdd",
+    "GetManufacturerUnitDetailsToEdit",
+    "GetManufacturerUnitsByManufacturerId",
+    "GetManufacturerUnitsByManufacturerIds",
+    "GetManufacturersList",
+    "GetManufacturersListBySiteId",
+    "GetManufacturersListBySiteId1",
+    "GetManufacturersSearchList",
+    "GetMappedPONumbersByVisitId",
+    "GetMappedPONumbersByVisitId1",
+    "GetMappedPONumbersByVisitId11",
+    "GetMasterDetailsById",
+    "GetMastersDetails",
+    "GetMatchingPONumbers",
+    "GetMatchingPONumbers1",
+    "GetMyScheduledVisits",
+    "GetMyScheduledVisits_bkp",
+    "GetMyVisitsSummary",
+    "GetOpenCallsVisitsList",
+    "GetOpenCallsVisitsList1",
+    "GetOpenCallsVisitsList2",
+    "GetPODetailsByClientUnitId",
+    "GetPOItemDetailsToEdit",
+    "GetPOItemDetailsToEdit1",
+    "GetPONumberByVisitId",
+    "GetPONumbersByClient",
+    "GetPONumbersByClientId",
+    "GetPONumbersByManufacturerId",
+    "GetPaymentDetailsAgainstInvoice",
+    "GetPendingEnquiryEmail",
+    "GetProspectiveByVisitPId",
+    "GetProspectiveVisitSchedule",
+    "GetProspectiveVisitSchedule1",
+    "GetProspectiveVisits",
+    "GetProspectiveVisitsEmail",
+    "GetPurchaseOrderDetailsById",
+    "GetPurchaseOrderDetailsById1",
+    "GetPurchaseOrderDetailsById_bkp",
+    "GetPurchaseOrderDetailsByIds",
+    "GetPurchaseOrderDetailsToAdd",
+    "GetPurchaseOrderDetailsToEdit",
+    "GetPurchaseOrderDetailsToEdit1",
+    "GetPurchaseOrderDetailsToEdit_Latest",
+    "GetPurchaseOrderItemsByOrderId",
+    "GetPurchaseOrderNumber",
+    "GetPurchaseOrderNumber1",
+    "GetPurchaseOrdersBySiteId",
+    "GetPurchaseOrdersBySiteId1",
+    "GetPurchaseOrdersBySiteId2",
+    "GetPurchaseOrdersForVisitScheduling",
+    "GetPurchaseOrdersForVisitScheduling1",
+    "GetRolesMaster",
+    "GetSOFileDetailsByGUID",
+    "GetSONumbersByControlId",
+    "GetScheduleVisitFilters1",
+    "GetScheduleVisitFilters2",
+    "GetScheduleVisitFilters3",
+    "GetScheduleVisitFilters4",
+    "GetScheduleVisitFilters_Download",
+    "GetScheduledVisitDetailsByControlNo",
+    "GetScheduledVisitDetailsByGuid",
+    "GetScheduledVisitDetailsToProcess",
+    "GetScheduledVisitsList",
+    "GetScheduledVisitsList1",
+    "GetSelectDateScheduledVisitsList1",
+    "GetSelectDateScheduledVisitsList12",
+    "GetSelectDateScheduledVisitsList3",
+    "GetServiceOrderDetailsByClientDetails",
+    "GetServiceOrderDetailsForControlNumber",
+    "GetServiceOrderDetailsToAdd",
+    "GetServiceOrderDetailsToEdit1",
+    "GetServiceOrderFilesBackup",
+    "GetSkillSet",
+    "GetStateDetailsByCountryId",
+    "GetStateListByCountyId",
+    "GetStateMaster",
+    "GetStateMaster1",
+    "GetUserDetailsByGUID",
+    "GetUserDetailsByStateId",
+    "GetUserDetailsByUserId",
+    "GetUserListDetails",
+    "GetUserListDetails1",
+    "GetUserListDetails1111",
+    "GetUserListDetails1212",
+    "GetUserListDetails121212",
+    "GetUserListDetails12212",
+    "GetUserListDetails2",
+    "GetUserListDetails_Bkp",
+    "GetUserListDetails_bkplatest",
+    "GetUserListDetails_bkplatest1",
+    "GetUserResumeBackupFiles",
+    "GetUserResumeByID",
+    "GetUserSearchList",
+    "GetUserTitles",
+    "GetVisitEmpUploadFileDetailsByID",
+    "GetVisitPODetailsByVisitId",
+    "GetVisitPODetailsByVisitIds",
+    "GetVisitPODetailsByVisitIds1",
+    "GetVisitScheduleByVisitId",
+    "GetVisitScheduleFilteredData",
+    "GetVisitsListForInvoice1",
+    "GetVisitsListForInvoice11",
+    "GetVisitsListForInvoice2",
+    "GetVisitsListForInvoice2_Latest",
+    "GetVisitsListForInvoiceEdit",
+    "InActivateProspective",
+    "InactivateClientUnit",
+    "IsAssociateExistsAlready",
+    "IsClientExistsAlready",
+    "IsClientUnitExistsAlready",
+    "IsEnquiryExistsAlready",
+    "IsEnquiryExistsAlready1",
+    "IsInspReportNumberExitsAlready",
+    "IsInspectorAlreadyExists",
+    "IsManufacturerExistsAlready",
+    "IsManufacturerUnitExistsAlready",
+    "IsMasterRecordExitsAlready",
+    "IsPurchaseOrderExistsAlready",
+    "IsPurchaseOrderExistsAlready1",
+    "IsPurchaseOrderExistsAlready2",
+    "IsPurchaseOrderExistsAlready3",
+    "IsServiceOrderExistsAlready",
+    "LoadCommonDetailsForViewVisit",
+    "OnHoldCancalledInspectionVisit",
+    "PreviewScheduledVisit",
+    "ReCreateScheduleVisitSelectedPOItems",
+    "ReCreateVisitScheduleSelectedPOItems",
+    "ReassignVisitControlNumber",
+    "RemoveResumesByUserId",
+    "RemoveServiceOrderFileBySOID",
+    "ReportSubmitToClientDateByVisitID",
+    "SaveAnnexureDetails",
+    "SaveAssociateDetails",
+    "SaveClientDetails",
+    "SaveConsolidatedInvoiceDetails",
+    "SaveDocumentDetails",
+    "SaveEditorTextSample",
+    "SaveEnquiryCategoryDetail",
+    "SaveInspectorDocument",
+    "SaveInvoiceDetails",
+    "SaveInvoiceDetails1",
+    "SaveManufacturerDetails",
+    "SaveManufacturerDetails1",
+    "SaveManufacturerUnits",
+    "SaveManufacturerVisitLocation",
+    "SaveManufacturerVisitLocation1",
+    "SaveManufacturerVisitLocation2",
+    "SaveProcessedEmails",
+    "SaveRoleFeatureMapping",
+    "SaveRoleFeatureMapping1",
+    "SaveScheduleVisit",
+    "SaveScheduleVisit11",
+    "SaveScheduleVisitByProspective",
+    "SaveServiceOrder",
+    "SaveServiceOrderCNo",
+    "SaveUpdateInspector",
+    "SaveVisitReportReference",
+    "ScheduleVisitFilters",
+    "ScheduleVisitFilters1",
+    "ScheduleVisitFilters2",
+    "ServiceOrderUploadedFilesBySOID",
+    "SubmitEnquiryStatus",
+    "SubmitEnquiryStatus1",
+    "SubmitInspectorNameByVisitID",
+    "SubmitQualityCheckDateVisitID",
+    "SubmitQualityCheckDateVisitID1",
+    "UpdateAnnexureDetails",
+    "UpdateAssociateDetails",
+    "UpdateAssociateStatus",
+    "UpdateCaptureVisitEnggVisitDetails",
+    "UpdateClientDetails",
+    "UpdateClientStatus",
+    "UpdateClientUnit",
+    "UpdateCommentsByVisitID",
+    "UpdateCompetanceDetails",
+    "UpdateCompetanceStatus",
+    "UpdateComplaintDetailsByComplaintID",
+    "UpdateConsolidatedInvoiceDetails",
+    "UpdateControlNumber",
+    "UpdateControlNumberStatus",
+    "UpdateCostValueByVisitID",
+    "UpdateDocumentsByDocId",
+    "UpdateEnquiryDetailsByEID",
+    "UpdateEnquiryDetailsByEID1",
+    "UpdateEnquiryDetailsByEnquiryID",
+    "UpdateEnquiryStatus",
+    "UpdateFinanceApprovalStatus",
+    "UpdateInspectionDateByVisitID",
+    "UpdateInspectionReportByVisitID",
+    "UpdateInspectionReportByVisitID1",
+    "UpdateInvoiceDetails",
+    "UpdateInvoiceFileDetails",
+    "UpdateInvoiceStatus",
+    "UpdateLatestSONumber",
+    "UpdateManufacturerDetails",
+    "UpdateManufacturerDetails1",
+    "UpdateManufacturerStatus",
+    "UpdateManufacturerUnit",
+    "UpdateManufacturerUnitStatus",
+    "UpdateMaster",
+    "UpdatePassword",
+    "UpdatePurchaseOrder",
+    "UpdatePurchaseOrderItem",
+    "UpdatePurchaseOrderNumbers",
+    "UpdatePurchaseOrderNumbers1",
+    "UpdatePurchaseOrderStatus",
+    "UpdateSOFilesBySOID",
+    "UpdateScheduleVisit",
+    "UpdateServiceOrder",
+    "UpdateServiceOrderStatus",
+    "UpdateUser",
+    "UpdateUserResumeByUserID",
+    "UpdateUserStatus",
+    "UpdateVisitDetails",
+    "UpdateVisitSchedule",
+    "UploadIRDocumentsToAdd_Edit",
+    "UploadInspectionReportByVisitID",
+    "UploadInspectionReportByVisitID1",
+    "UploadQuotationByEnquiryID",
+    "UploadQuotationByEnquiryID1",
+    "UploadQuotationFilesByEnquiryID",
+    "UploadQuotationFilesByEnquiryID1",
+    "UploadResumeByUserID",
+    "ValidateLoginEmailIdInfo",
+    "ValidateLoginUserInfo",
+    "ViewCommonDetails",
+    "VisitScheduleSave",
+    "VisitScheduleSave1",
+    "VisitScheduleSave2",
+    "checkUserLogin",
+    "updateUnFreezeInvoiceStatus"
+  ],
+  "views": [
+    "vw_UserListDetails"
+  ],
+  "functions": [
+    "SplitString",
+    "fnGenerateComplaintNumber",
+    "fnGenerateControlNumber",
+    "fnGenerateEnquiryNumber",
+    "fnGenerateInvoiceNumber",
+    "fnGeneratePurchaseOrderNumber",
+    "fnGenerateVIsitNumber",
+    "fnGenerateVIsitNumber_bkp",
+    "string2Table",
+    "udfGetLocalDt"
+  ],
+  "top_tables_by_inserts": [
+    {
+      "table": "VisitEmpUploadFiles",
+      "inserts": 6334
+    },
+    {
+      "table": "Log",
+      "inserts": 4320
+    },
+    {
+      "table": "VisitScheduleSelectedPOItems1",
+      "inserts": 3330
+    },
+    {
+      "table": "PurchaseOrderItems",
+      "inserts": 2614
+    },
+    {
+      "table": "ManufacturerVisitLocation",
+      "inserts": 2413
+    },
+    {
+      "table": "VisitDetails",
+      "inserts": 2331
+    },
+    {
+      "table": "VisitEmpMapping",
+      "inserts": 2331
+    },
+    {
+      "table": "PurchaseOrderDetails",
+      "inserts": 1338
+    },
+    {
+      "table": "PurchaseOrderNumber",
+      "inserts": 1286
+    },
+    {
+      "table": "UserDetailsUploadedResumes",
+      "inserts": 600
+    },
+    {
+      "table": "RoleScreenFeatureMapping",
+      "inserts": 559
+    },
+    {
+      "table": "ManufacturerUnits",
+      "inserts": 505
+    },
+    {
+      "table": "ManufacturerDetails",
+      "inserts": 489
+    },
+    {
+      "table": "UserDetails",
+      "inserts": 479
+    },
+    {
+      "table": "VisitEmpUploadBackUpFiles",
+      "inserts": 358
+    },
+    {
+      "table": "CompetanceDetails",
+      "inserts": 306
+    },
+    {
+      "table": "mstState",
+      "inserts": 269
+    },
+    {
+      "table": "EnquiryCategoryDetails",
+      "inserts": 251
+    },
+    {
+      "table": "EnquiryDetails1",
+      "inserts": 239
+    },
+    {
+      "table": "mstCountry",
+      "inserts": 238
+    },
+    {
+      "table": "UserDetailsResumeBackFiles",
+      "inserts": 219
+    },
+    {
+      "table": "ClientUnits",
+      "inserts": 186
+    },
+    {
+      "table": "EnquriyQuotationFiles",
+      "inserts": 152
+    },
+    {
+      "table": "ServiceOrderDetails",
+      "inserts": 148
+    },
+    {
+      "table": "ControlDetails",
+      "inserts": 130
+    },
+    {
+      "table": "EnquiryWorkScopeMapping",
+      "inserts": 125
+    },
+    {
+      "table": "ClientDetails",
+      "inserts": 118
+    },
+    {
+      "table": "ServiceOrderUploadedFiles",
+      "inserts": 112
+    },
+    {
+      "table": "ServiceOrderBackFiles",
+      "inserts": 89
+    },
+    {
+      "table": "mstFeaturesList",
+      "inserts": 88
+    },
+    {
+      "table": "mstScreenFeatureMapping",
+      "inserts": 88
+    },
+    {
+      "table": "DocumentDetails",
+      "inserts": 86
+    },
+    {
+      "table": "FileDetails",
+      "inserts": 86
+    },
+    {
+      "table": "UserDetails2",
+      "inserts": 84
+    },
+    {
+      "table": "InvoiceConsolidateDetailsHistory",
+      "inserts": 77
+    },
+    {
+      "table": "CompetanceDetails1",
+      "inserts": 69
+    },
+    {
+      "table": "VisitDetailsProspective",
+      "inserts": 54
+    },
+    {
+      "table": "InvoiceConsolidateDetails",
+      "inserts": 45
+    },
+    {
+      "table": "DBError",
+      "inserts": 43
+    },
+    {
+      "table": "AssociateDetails",
+      "inserts": 36
+    },
+    {
+      "table": "EnquriyQuotationBackUpFiles",
+      "inserts": 35
+    },
+    {
+      "table": "InvoiceVisitMappingHistory",
+      "inserts": 32
+    },
+    {
+      "table": "ProcessedEmail",
+      "inserts": 32
+    },
+    {
+      "table": "mstScreensList",
+      "inserts": 27
+    },
+    {
+      "table": "InvoiceVisitMapping",
+      "inserts": 21
+    },
+    {
+      "table": "mstDesignation",
+      "inserts": 16
+    },
+    {
+      "table": "mstUserRoles",
+      "inserts": 14
+    },
+    {
+      "table": "mstSection",
+      "inserts": 13
+    },
+    {
+      "table": "InvoiceDetails",
+      "inserts": 11
+    },
+    {
+      "table": "InvoiceHistoryDetails",
+      "inserts": 11
+    },
+    {
+      "table": "mstVisitStatus",
+      "inserts": 11
+    },
+    {
+      "table": "CustomerComplaintDetails",
+      "inserts": 9
+    },
+    {
+      "table": "mstSkillSet",
+      "inserts": 9
+    },
+    {
+      "table": "VisitReferences",
+      "inserts": 8
+    },
+    {
+      "table": "EnquiryWorkScope",
+      "inserts": 6
+    },
+    {
+      "table": "mstDocumentType",
+      "inserts": 6
+    },
+    {
+      "table": "mstIndustryTypes",
+      "inserts": 6
+    },
+    {
+      "table": "mstUserTitle",
+      "inserts": 6
+    },
+    {
+      "table": "Emploee",
+      "inserts": 5
+    },
+    {
+      "table": "mstDocumentCategory",
+      "inserts": 5
+    },
+    {
+      "table": "mstPaymentModes",
+      "inserts": 5
+    },
+    {
+      "table": "ComplaintResposible",
+      "inserts": 4
+    },
+    {
+      "table": "EmailRecipients",
+      "inserts": 4
+    },
+    {
+      "table": "EnquiryCategory",
+      "inserts": 4
+    },
+    {
+      "table": "InspectorRate",
+      "inserts": 4
+    },
+    {
+      "table": "mstSectionTypes",
+      "inserts": 4
+    },
+    {
+      "table": "mstTravelTypes",
+      "inserts": 4
+    },
+    {
+      "table": "mstUnitOfMeasurment",
+      "inserts": 4
+    },
+    {
+      "table": "InspectorUploadedBackUpFiles",
+      "inserts": 3
+    },
+    {
+      "table": "mstCurrencyType",
+      "inserts": 3
+    },
+    {
+      "table": "mstEmployeeType",
+      "inserts": 3
+    },
+    {
+      "table": "mstServiceOrderType",
+      "inserts": 3
+    },
+    {
+      "table": "mstUOMDays",
+      "inserts": 3
+    },
+    {
+      "table": "VisitTypeMaster",
+      "inserts": 3
+    },
+    {
+      "table": "ComplaintAppealStatus",
+      "inserts": 2
+    },
+    {
+      "table": "ComplaintMode",
+      "inserts": 2
+    },
+    {
+      "table": "ComplaintType",
+      "inserts": 2
+    },
+    {
+      "table": "InvoiceTemplateType",
+      "inserts": 2
+    },
+    {
+      "table": "mstLOISOType",
+      "inserts": 2
+    },
+    {
+      "table": "mstManufacturerUnitNameFlag",
+      "inserts": 2
+    },
+    {
+      "table": "InspectorUploadedFiles",
+      "inserts": 1
+    },
+    {
+      "table": "SiteDetails",
+      "inserts": 1
+    }
+  ],
+  "comparison_with_repo": {
+    "repo_has_full_dump": false,
+    "repo_migrations_dir": "migrations/ (10 small incremental patches)",
+    "repo_runtime_db": "MongoDB iqeapp_dev (docker-compose.yml, backend/.env)",
+    "migrator": "scripts/migrate_sql_to_mongo.py covers only ClientDetails, ManufacturerDetails, UserDetails, ServiceOrderDetails",
+    "already_in_uat": [
+      "VisitReportReferences",
+      "VisitControlReassignHistory",
+      "ReassignVisitControlNumber",
+      "SaveVisitReportReference",
+      "ControlDetails.ClientID/ClientUnitId"
+    ],
+    "not_in_uat": [
+      "UpdateLatestSONumber @CreateInCurrentFy param (migrations/20260702_*)",
+      "GetVisitsListForInvoice2 normalized version (migrations/20260523_*)"
+    ]
+  },
+  "migration_notes": {
+    "possible": true,
+    "method": "Restore UAT .sql to SQL Server staging (fix F: paths), then ETL to Mongo; direct mongorestore not possible (T-SQL, IDENTITY, uniqueidentifier, GO batches).",
+    "blockers": [
+      "LoginPassword hashes are ASP.NET Identity format, need reset/re-hash for JWT backend",
+      "UploadedFiles binaries not in dump, need file-share copy",
+      "ServiceOrderDetails.Amount is nvarchar with commas e.g. '90,000'",
+      "UserDetails contains PII: EmailId, ContactNumber, DOB, BankAcc, PAN, Aadhar, IFSC"
+    ]
+  }
+}

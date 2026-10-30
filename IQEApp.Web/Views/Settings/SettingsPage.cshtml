@@ -1,0 +1,65 @@
+﻿@using IQEApp.Web.Models.LoginModel
+
+@{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Settings Page";
+}
+<div class="box-header with-border">
+    <h3 class="box-title"> <span id="spnMasterTitle"> @ViewBag.Title </span></h3>
+</div>
+
+
+<div class="container-fluid topspace">
+
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4 bg">
+            <ul class="list-group">
+                <li class="list-group-items" data-module="stChangePwd">
+                    <span id="btnChangePassword" onclick="displaySettings('@((Int32) SettingsDataType.ChangePassword)', this)">1. Change Password</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <input type="hidden" id="hdnSecId" name="hdnSecId" value="0" />
+            <div id="divSettingsLoading">
+
+            </div>
+            <div id="manageData" class="bg">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        displaySettings(7);
+        $('#hdnSecId').val(2);
+    });
+    function displaySettings(secId, obj) {
+        $('#hdnSecId').val(secId);
+        $.ajax({
+            type: "GET",
+            url: '../Settings/GetSettingsDetails',
+            data: {
+                stSectionId: secId
+            },
+            success: function (data) {
+                $("#manageData").html('');
+                $("#manageData").html(data);
+                $(window).scrollTop(0);
+            },
+            error: function (error) {
+            },
+            beforeSend: function (data) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSettingsLoading'), position: "center" });
+            },
+            complete: function (data) {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSettingsLoading'));
+            }
+        });
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSettingsLoading'), position: "center" });
+    }
+</script>

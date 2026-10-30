@@ -1,0 +1,63 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.VisitProcessing.ScheduleVisitModel>
+
+<div id="">
+    <div class="clearfix"></div>
+    <small class="text-muted"><i class="fa fa-paper-plane-o mr5"></i> Previous Visit Details</small>
+    <!--Header Div Starts-->
+    <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Control Number
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            Visit Id
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Schedule Date
+        </div>
+        <div class="col-lg-5 col-md-5 col-sm-5 table-header">
+            Schedule Comments
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Status
+        </div>
+    </div>
+    <!--Header Div Ends-->
+    @if (Model == null || Model.Count() == 0)
+    {
+        <!--No data display Div Starts-->
+        <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row text-center">
+            No records found
+        </div>
+        <!--No data display Div ends-->
+    }
+    else
+    {
+        foreach (var task in Model)
+        {
+            <!-- Data display Div Starts -->
+            <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @task.ControlNo
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    @task.VisitId
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @task.ScheduleDate.GetConvertedShortDate()
+                </div>
+                <div class="col-lg-5 col-md-5 col-sm-5">
+                    @task.ScheduleComments
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @task.VisitStatusName
+                </div>
+            </div>
+            <!-- Data display Div ends -->
+        }
+    }
+
+</div>
+<div class="clearfix"></div>

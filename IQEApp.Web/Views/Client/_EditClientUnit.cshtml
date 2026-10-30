@@ -1,0 +1,243 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ClientModel.ClientUnitsDetailsModel
+<div>
+    <section id="AddClientUnitsForm">
+        @using (Ajax.BeginForm("UpdateClientUnit", "Client", new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnBegin = "beginProgressBar",
+            OnSuccess = "onSuccessUpdateClientUnit",
+        }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ClientUnitName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ClientUnitName, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.ClientUnitName) })
+                    @Html.ValidationMessageFor(m => m.ClientUnitName)
+                    <span id="spnUnitDuplicateError" class="field-validation-error" style="display: none;">Customer Unit already exists</span>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ContactPersonName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ContactPersonName, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ContactPersonName) })
+                    @Html.ValidationMessageFor(m => m.ContactPersonName)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ContactPersonDesignation, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ContactPersonDesignation, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ContactPersonDesignation) })
+                    @Html.ValidationMessageFor(m => m.ContactPersonDesignation)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ClientUnitEmailId, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ClientUnitEmailId, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ClientUnitEmailId) })
+                    @Html.ValidationMessageFor(m => m.ClientUnitEmailId)
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.PhoneNumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PhoneNumber) })
+                    @Html.ValidationMessageFor(m => m.PhoneNumber)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.CountryId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.CountryId, new SelectList(Model.LstCountries, "CountryId", "CountryName"), "Select", new { @class = "form-control dropDownStyle", @placeholder = @Html.DisplayNameFor(model => model.CountryId), onchange = "GetStateDetailsByCountryId(this)" })
+                    @Html.ValidationMessageFor(m => m.CountryId)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.StateId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select", new { @class = "form-control dropDownStyle", @placeholder = @Html.DisplayNameFor(model => model.StateId) })
+                    @Html.ValidationMessageFor(m => m.StateId)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.City, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.City, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.City) })
+                    @Html.ValidationMessageFor(m => m.City)
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                    @Html.LabelFor(m => m.Address, new { @class = "control-label" })
+                    @Html.TextAreaFor(m => m.Address, new { @class = "form-control inputStyle", @rows = 2, @placeholder = @Html.DisplayNameFor(model => model.Address) })
+                    @Html.ValidationMessageFor(m => m.Address)
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group">
+                    @Html.CheckBoxFor(m => m.IsSEZ, new { @onclick = "setGSTStatus(this)" })
+                    @Html.LabelFor(m => m.IsSEZ, new { @class = "control-label" })
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group">
+                    @Html.CheckBoxFor(m => m.IsOverseas, new { @onclick = "setGSTStatus(this)" })
+                    @Html.LabelFor(m => m.IsOverseas, new { @class = "control-label" })
+                </div>
+                <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.GSTNo, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.GSTNo, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.GSTNo), onfocusout = "javascript:GSTDetails();" })
+                    @Html.ValidationMessageFor(m => m.GSTNo)
+                    @*<span>36AAAAA0000A1Z4</span>*@
+                </div>
+
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                    <div id="divCGST" style="display: none">
+                        <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                            @Html.LabelFor(m => m.SGST, new { @class = "control-label" })
+                            @Html.TextBoxFor(m => m.SGST, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.SGST) })
+                            @Html.ValidationMessageFor(m => m.SGST)
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                            @Html.LabelFor(m => m.CGST, new { @class = "control-label" })
+                            @Html.TextBoxFor(m => m.CGST, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.CGST) })
+                            @Html.ValidationMessageFor(m => m.CGST)
+                        </div>
+                    </div>
+                    <div id="divIGST" style="display: none">
+                        <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                            @Html.LabelFor(m => m.IGST, new { @class = "control-label" })
+                            @Html.TextBoxFor(m => m.IGST, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.IGST) })
+                            @Html.ValidationMessageFor(m => m.IGST)
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="form-group ">
+                    <div class="col-sm-6 col-md-6 col-lg-8">
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-4 ">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCancelAddClientUnit" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: showClientUnits();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveClientUnit" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.ClientId)
+            @Html.HiddenFor(m => m.ClientUnitId)
+            @Html.HiddenFor(m => m.ClientUnitGuid)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+</div>
+<script>
+    $(document).ready(function () {
+        //  alert($('#GSTNo').val());
+        var gstValue = $('#GSTNo').val();
+        if (gstValue != '') {
+            var gstStateValue = gstValue.slice(0, 2);
+            if (gstStateValue == "36") {
+                $('#divCGST').show();
+                $('#divIGST').hide();
+            }
+            else {
+                $('#divCGST').hide();
+                $('#divIGST').show();
+            }
+        }
+        setGSTStatus();
+    });
+    $.validator.unobtrusive.parse(document);
+
+    function setGSTStatus() {
+        if (($("#IsSEZ").is(":checked") == true) || ($("#IsOverseas").is(":checked") == true)) {
+            $('#IGST').attr('readonly', true).addClass('input-disabled');
+            $('#SGST').attr('readonly', true).addClass('input-disabled');
+            $('#CGST').attr('readonly', true).addClass('input-disabled');
+        } else if (($("#IsSEZ").is(":checked") == false) || ($("#IsOverseas").is(":checked") == false)) {
+            $('#IGST').attr('readonly', false).removeClass('input-disabled');
+            $('#SGST').attr('readonly', false).removeClass('input-disabled');
+            $('#CGST').attr('readonly', false).removeClass('input-disabled');
+        }
+        if ($("#IsOverseas").is(":checked") == true) {
+            $('#GSTNo').attr('readonly', true).addClass('input-disabled');
+        } else if ($("#IsOverseas").is(":checked") == false) {
+            $('#GSTNo').attr('readonly', false).addClass('input-disabled');
+        }
+    }
+
+    function onSuccessUpdateClientUnit(response) {
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            $("#AddClientUnits").html('').hide();
+            showClientUnits();
+        } else {
+            if (response.message == 'duplicate') {
+                $("#spnUnitDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            }
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+        }
+    }
+    function GSTDetails() {
+        //  alert($('#GSTNo').val());
+        $('#SGST').val('');
+        $('#CGST').val('');
+        $('#IGST').val('');
+        var gstVal = $('#GSTNo').val();
+        if (gstVal != '') {
+            var gstStateVal = gstVal.slice(0, 2);
+            //  alert(gstStateVal);
+            if (gstStateVal == "36") {
+                $('#divCGST').show();
+                $('#divIGST').hide();
+            }
+            else {
+                $('#divCGST').hide();
+                $('#divIGST').show();
+            }
+        }
+    }
+
+    function GetStateDetailsByCountryId(obj) {
+        var countryId = $(obj).find('option:selected').val();
+        if (countryId == null || countryId == undefined || countryId == '') {
+            countryId = 0;
+        }
+        $.ajax({
+            url: '../Common/GetStateDetailsByCountryId',
+            type: 'POST',
+            data: {
+                countryId: countryId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (stateList) {
+                //alert(JSON.stringify(stateList));
+                //alert(JSON.stringify(stateList.length));
+                var options = '<option value="-1">Select</option>';
+                for (var i = 0; i < stateList.length; i++) {
+                    options += '<option value="' + stateList[i].StateId + '">' + stateList[i].StateName + '</option>';
+                }
+                $('#StateId').html(options);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+
+    $("#IsSEZ").click(function () {
+        if ($(this).is(":checked")) {
+            $("#IsOverseas").prop("checked", false);
+        }
+    });
+    $("#IsOverseas").click(function () {
+        if ($(this).is(":checked")) {
+            $("#IsSEZ").prop("checked", false);
+        }
+    });
+</script>

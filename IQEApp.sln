@@ -1,0 +1,60 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IQEApp.Web", "IQEApp.Web\IQEApp.Web.csproj", "{A47754D7-3723-496C-9C18-C0F31F1F8823}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IQEApp.Service", "IQEApp.Service\IQEApp.Service.csproj", "{577B7A02-E8CD-4797-A4D8-1F7351AE2EFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IQEApp.Domain", "IQEApp.Domain\IQEApp.Domain.csproj", "{CC21F2A2-6769-4063-A4AE-365F9819BD10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IQEApp.Core", "IQEApp.Core\IQEApp.Core.csproj", "{F18FEF18-A7D0-43AC-B5FC-2A4C04FF4BCF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A47754D7-3723-496C-9C18-C0F31F1F8823}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A47754D7-3723-496C-9C18-C0F31F1F8823}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A47754D7-3723-496C-9C18-C0F31F1F8823}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A47754D7-3723-496C-9C18-C0F31F1F8823}.Release|Any CPU.Build.0 = Release|Any CPU
+		{577B7A02-E8CD-4797-A4D8-1F7351AE2EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{577B7A02-E8CD-4797-A4D8-1F7351AE2EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{577B7A02-E8CD-4797-A4D8-1F7351AE2EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{577B7A02-E8CD-4797-A4D8-1F7351AE2EFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC21F2A2-6769-4063-A4AE-365F9819BD10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC21F2A2-6769-4063-A4AE-365F9819BD10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC21F2A2-6769-4063-A4AE-365F9819BD10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC21F2A2-6769-4063-A4AE-365F9819BD10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F18FEF18-A7D0-43AC-B5FC-2A4C04FF4BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F18FEF18-A7D0-43AC-B5FC-2A4C04FF4BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F18FEF18-A7D0-43AC-B5FC-2A4C04FF4BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F18FEF18-A7D0-43AC-B5FC-2A4C04FF4BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {997E7453-574B-4ADD-8831-D255C558E613}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 5
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://edataexperts.visualstudio.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = IQEApp.Core\\IQEApp.Core.csproj
+		SccProjectName1 = IQEApp.Core
+		SccLocalPath1 = IQEApp.Core
+		SccProjectUniqueName2 = IQEApp.Domain\\IQEApp.Domain.csproj
+		SccProjectName2 = IQEApp.Domain
+		SccLocalPath2 = IQEApp.Domain
+		SccProjectUniqueName3 = IQEApp.Service\\IQEApp.Service.csproj
+		SccProjectName3 = IQEApp.Service
+		SccLocalPath3 = IQEApp.Service
+		SccProjectUniqueName4 = IQEApp.Web\\IQEApp.Web.csproj
+		SccProjectName4 = IQEApp.Web
+		SccLocalPath4 = IQEApp.Web
+	EndGlobalSection
+EndGlobal

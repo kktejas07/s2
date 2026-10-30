@@ -1,0 +1,289 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Utils
+@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitDetailsModel
+@{
+    ViewBag.Title = "Schedule Visit";
+}
+<style type="text/css">
+
+</style>
+
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h3 class="box-title"> <span id="spnHeadTitle"> View Visits Details</span></h3>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6 ">
+            <div id="divLoadingIconId"></div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="col-sm-12 col-md-12 col-lg-12 mt10 bg">
+        <div class="row ml1">
+            <small class="text-muted"><i class="fa fa-paper-plane-o mr5"></i> Visit Information</small>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 col-md-10 col-lg-10" style="padding: 10px 0px 0px 10px;">
+                Number : <b>@Model.VisitId</b> Schedule Date : <b>@Model.ScheduleDate.HasValue?? @Model.ScheduleDate.Value.GetConvertedShortDate() </b> &nbsp; Comments : <b>@Model.ScheduleComments</b> &nbsp; Customer confirmation : <b>@Model.ClientConfirmation</b> &nbsp; Manufacturer confirmation : <b> @Model.ManufacturerConfirmation</b>
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2">
+                <h4 style="color: #e86129;">@Model.VisitStatusName</h4>
+            </div>
+        </div>
+        @Html.HiddenFor(m => m.VisitGuid)
+    </div>
+    <div id="CommonDetailsDiv">
+
+    </div>
+    <div class="clearfix"></div>
+    <div>
+        @if (Model.LstVisitProcessing.Any())
+        {
+            <div class="bg mt10">
+                <small class="text-muted"><i class="fa fa-user mr5"></i> Engineer Details</small>
+                <div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 directory-table-header ">
+                        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                            Code
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                            Employee Name
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                            Travel Expenses
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                            Travel Time
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                            Comments
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                            Documents
+                        </div>
+                    </div>
+                    <div class="clearfix">
+
+                    </div>
+                    @foreach (var emp in Model.LstVisitProcessing)
+                    {
+                        <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row">
+                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                <div>
+                                    Emp Code : @emp.EmployeeCode
+                                </div>
+
+                                <div>
+                                    Inspector Code : @emp.InspectorCode
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                <div>
+                                    @emp.UserFullName
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                @foreach (var visitExpense in emp.TravelExpenses)
+                                {
+                                    <span>@visitExpense.TravelType</span>
+                                    @*<span>@(visitExpense.FromDate.GetConvertedShortDateTime() == "01/01/1900"?"") - @(visitExpense.ToDate.GetConvertedShortDateTime() == "01/01/1900"?"")</span>*@
+                                    <span>@visitExpense.Expenses/-</span>
+                                    <span>@(visitExpense.TravelKM == 0 ? "" : visitExpense.TravelKM.ToString())</span>    <br />
+                                }
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                @if (@Model.VisitStatusId >= 3)
+                                {
+                                    <div>
+                                        From : @emp.VisitedFrom.GetConvertedShortDateTime()
+                                    </div>
+                                    <div>
+                                        To : &nbsp;&nbsp;&nbsp;&nbsp; @emp.VisitedTo.GetConvertedShortDateTime()
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                @if (@Model.VisitStatusId >= 3)
+                                {
+                                    <span>@emp.VisitComments </span>
+                                }
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2">
+                                @if (@Model.VisitStatusId >= 3)
+                                {
+
+                                    if (emp.TechnicalDocsList.Any())
+                                    {
+                                        foreach (var doc in @emp.TechnicalDocsList)
+                                        {
+                                            <span><a href="javascript:void(0);" title="@doc.FileTitle@Path.GetExtension(@doc.FileLink)" data-toggle="tooltip" onclick="javascript: FilePreview('@doc.FileGUID', '@doc.SectionId', '1');">@Html.ShortString(@doc.FileTitle, 20)@Path.GetExtension(@doc.FileLink)</a></span>
+                                            <span>
+                                                <a href="~/FileUpload/DownloadFile?GUId=@doc.FileGUID&SId=@doc.SectionId&GenericId=@doc.GenericId" target="_blank" download="" data-toggle='tooltip' title='Download'><i class="fa fa-cloud-download bg-color-gray" aria-hidden="true"></i> </a>
+                                            </span>
+                                            <span> &nbsp;</span>
+                                            @*<br/>*@
+                                        }
+                                    }
+                                    if (emp.TravelDocsList.Any())
+                                    {
+                                        foreach (var doc in @emp.TravelDocsList)
+                                        {
+                                            <span><a href="javascript:void(0);" title="@doc.FileTitle@Path.GetExtension(@doc.FileLink)" data-toggle="tooltip" onclick="javascript: FilePreview('@doc.FileGUID', '@doc.SectionId', '1');">@Html.ShortString(@doc.FileTitle, 20)@Path.GetExtension(@doc.FileLink)</a></span>
+                                            <span>
+                                                <a href="~/FileUpload/DownloadFile?GUId=@doc.FileGUID&SId=@doc.SectionId&GenericId=@doc.GenericId" target="_blank" download="" data-toggle='tooltip' title='Download'><i class="fa fa-cloud-download bg-color-gray" aria-hidden="true"></i> </a>
+                                            </span>
+                                            <span> &nbsp;</span>
+                                            @*<br/>*@
+                                        }
+                                    }
+                                    if (!(emp.TechnicalDocsList.Any()) && !(emp.TravelDocsList.Any()))
+                                    {
+                                        <span>No Docs Uploaded</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    }
+                </div>
+            </div>
+        }
+        <div class="mt10 bg">
+            <small class="text-muted"><i class="fa fa-balance-scale mr5"></i> Quality Check </small>
+            <div>
+                @if (@Model.VisitStatusId >= 4)
+                {
+                    <span>Performed by :<b>@Model.QualityDoneByName </b> Performed on : <b>@Model.QualityDoneOn.GetConvertedShortDate()</b> Comments : <b>@Model.QualityHeadComments</b></span>
+                }
+                else
+                {
+                    <span> No action performed</span>
+                }
+            </div>
+        </div>
+        <div class="mt10 bg">
+            <small class="text-muted"><i class="fa fa-money mr5"></i> Finance Approval </small>
+            <div>
+                @if (@Model.VisitStatusId == 5)
+                {
+                    <span>Performed by :<b> @Model.FinanceApprovedByName </b> Performed on : <b> @Model.FinanceApprovedOn.GetConvertedShortDate()</b> Comments : <b> @Model.FinanceApproverComments</b></span>
+                }
+                else
+                {
+                    <span> No action performed</span>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    //$(document).ready(function () {
+    //    $('#ScheduleDate').val('');
+    //});
+    $(function () {
+        $("#ScheduleDate").datepicker({
+            //format: 'dd-MM-yyyy',
+            //endDate: '+0d',
+            //autoclose: true
+
+        });
+    });
+    $(document).ready(function () {
+        LoadCommonDetails();
+    });
+    function LoadCommonDetails() {
+        //  alert($("#ScheduleDetails_VisitGuid").val());
+        $.ajax({
+            url: '../Common/LoadCommonDetailsForVisit',
+            type: 'POST',
+            data: {
+                visitGuid: $("#VisitGuid").val(),
+                controlNumberGuid: null,
+                ServiceOrderId: 0,
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $("#CommonDetailsDiv").html(response);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    function FilePreview(fileGuid, SectionId, GID) {
+        $.ajax({
+            url: '../FileUpload/PreviewFile',
+            type: 'POST',
+            data: {
+                GUId: fileGuid,
+                SId: SectionId
+            },
+            beforeSend: function (e) {
+                //BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $("#BlogItemEditLoadingIconHoldDiv" + postId), position: "center" });
+            },
+            success: function (data) {
+                var object = null;
+                var object1 = null;
+                //create iframe
+                var iframe = document.createElement('iframe');
+                // div tag in which iframe will be added should have id attribute with value myDIV
+                document.getElementById("divMSFilePreviewPopup").appendChild(iframe);
+                // add id to dynamically generated iframe
+                iframe.setAttribute("id", "myIframe");
+                // provide height and width to it
+                iframe.setAttribute("style", "height:600px;width:100%;");
+
+
+                if (data.strString == "success") {
+                    var fileName = data.containerPath + "site-" + data.imageSiteId + "/" + data.strContentLink;
+                    var msFileName =
+                        "https://view.officeapps.live.com/op/embed.aspx?src=" + fileName;
+                    if (data.fType == "normal") {
+                        object =
+                            "<object data=\"{FileName}\"  type=\"application/pdf\" width=\"100%\" height=\"600px\"></object>";
+                        // this is not allowing scroll style =\"Pointer-events:none\"
+                        object = object.replace(/{FileName}/g, "" + fileName);
+                        $('#divMSFilePreviewPopup').hide();
+                        $("#divFilePreviewPopup").html(object).show();
+                    }
+                    else if (data.fType == "mstype") {
+                        $('#myIframe').attr('src', '');
+                        var myIframe = document.getElementById('myIframe');
+                        myIframe.setAttribute("src", msFileName);
+                        object1 = $('#myIframe').appendTo('body');
+                        $('#divFilePreviewPopup').hide();
+                        $("#divMSFilePreviewPopup").html(object1).show();
+                    }
+                } else if (data.strString == "Fail") {
+                    console.log("failed to load preview");
+                } else {
+                    object = "<html width=\"100%\" height=\"500px\" > <head></head><body>" + data.strString;
+                    object += ", you can download from <a href = /\FolderFile/DownloadFile?GUId=" + strContentLink + "&SId=" + SID + "&GenericId=" + GID + ">here</a>";
+                    object += "</body></html>";
+                    $('#divMSFilePreviewPopup').hide();
+                    $("#divFilePreviewPopup").html(object).show();
+                }
+
+                $('#lblFolderFileName').html(data.imageTitle);
+                $("#ShowFilesPreview").click();
+            },
+            complete: function () {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($("#BlogItemEditLoadingIconHoldDiv" + postId));
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($("#BlogItemEditLoadingIconHoldDiv" + postId));
+            }
+        });
+    }
+</script>
+

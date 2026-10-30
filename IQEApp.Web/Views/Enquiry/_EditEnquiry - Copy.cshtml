@@ -1,0 +1,1164 @@
+﻿@using IQEApp.Domain
+@using System.Globalization;
+@model IQEApp.Web.Models.EnquiryModel.EnquiryDetailsModel
+
+<style>
+
+    .row-item.collapsed {
+        background: #f8f9fa;
+        border: 1px dashed #ccc;
+        padding: 6px;
+    }
+
+        /* hide the large form area when collapsed, keep S.No and action buttons visible */
+        .row-item.collapsed .content-container {
+            display: none;
+        }
+
+    /* smaller visual tweak for sno */
+    .row-item .sno {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* spacing for action buttons */
+    .container3 .btn {
+        margin-left: 6px;
+    }
+
+    .hidden-category {
+        display: none !important;
+    }
+
+    .redborder {
+        border: 1px solid red !important;
+    }
+
+    .row-error {
+        background: #ffe5e5; /* optional row-level highlight */
+    }
+    /* Grid-based layout for perfect column alignment */
+    .design-wrapper {
+        /*display: flex;*/
+        /*gap: 12px;*/
+        /*align-items: flex-start;*/
+    }
+
+    .hidden-row {
+        display: none !important;
+    }
+
+
+    .container1 {
+        width: 30px;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    .container2 {
+        width: 1140px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 16px;
+    }
+
+    .container3 {
+        width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+        .container3 .btn {
+            width: 32px; /* keep all buttons same width if you want */
+            padding: 4px 6px;
+        }
+    /*  .sno {
+        border-radius: 50%;
+        text-align: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 1px solid #236883;
+        font-weight: bold;
+    }*/
+    /* Default 6-column grid (Design/Training) */
+    .design-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .inspection-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .training-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .secondement-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .c1 {
+        grid-column: 1;
+    }
+
+    .c2 {
+        grid-column: 2;
+    }
+
+    .c3 {
+        grid-column: 3;
+    }
+
+    .c4 {
+        grid-column: 4;
+    }
+
+    .c5 {
+        grid-column: 5;
+    }
+
+    .c6 {
+        grid-column: 6;
+    }
+
+    .c7 {
+        grid-column: 7;
+    }
+
+    .span45 {
+        grid-column: 4 / 6;
+    }
+
+    .span67 {
+        grid-column: 6 / 8;
+    }
+
+    .full {
+        grid-column: 1 / -1;
+    }
+
+    .design-grid .inspection-grid .training-grid .secondement-grid .form-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #236883;
+        font-weight: 600;
+    }
+
+    .design-grid .inspection-grid .training-grid .secondement-grid .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Custom form styles */
+    .form-control {
+        max-width: 200px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 6px;
+    }
+
+    label {
+        color: #236883;
+        font-weight: bold;
+    }
+
+    .dropDownStyle {
+        background-color: #f8f9fa;
+        color: #236883;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .redborder {
+        border: 1px solid #dc3545;
+    }
+
+    .container {
+        width: 1300px;
+    }
+</style>
+
+<div class="container mt5 bg p10">
+    <section id="AddEnquiryForm">
+        @using (Ajax.BeginForm("UpdateEnquiry", "Enquiry",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessUpdateEnquiry",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        @Html.LabelFor(m => m.EnquiryID)
+                        @Html.TextBoxFor(m => m.EnquiryID, new { @class = "form-control inputStyle", @style = "width:200px;", @readonly = "readonly" })
+                        @Html.HiddenFor(m => m.EID)
+                    </div>
+                    <div class="col-md-3">
+                        @Html.LabelFor(m => m.ClientName)
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients.OrderBy(x => x.ClientName), "ClientId", "ClientName"), "Select", new { style = "width: 200px;", @class = "form-control dropDownStyle redborder" })
+                        @Html.ValidationMessageFor(m => m.ClientId)
+                    </div>
+                    <div class="col-md-2">
+                        @Html.LabelFor(m => m.EnquiryDate, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.EnquiryDate, "{0:dd/MM/yyyy}", new { @class = "form-control inputStyle redboder" })
+                        @Html.ValidationMessageFor(m => m.EnquiryDate)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                    <div class="form-group d-flex align-items-center">
+                        @Html.Label("Select Enquiry Category : ")
+                        <div>
+                            @foreach (var category in Model.LstEnquiryCategories)
+                            {
+                                <label class="ms-2">
+                                    @Html.RadioButton("EnquiryCategoryId_Disabled", category.ID,
+                                        Model.EnquiryCategoryId == category.ID,
+                                        new { @class = "form-check-input me-1 enquiry-type", data_type = category.ID, disabled = "disabled" })
+                                    <b>@category.Name</b>
+                                </label>
+                            }
+
+                            @Html.HiddenFor(m => m.EnquiryCategoryId)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (Model.EnquiryCategoryId == 1)
+            {
+                for (int i = 0; i < Model.LstEnquiryCategoryModel.Count; i++)
+                {
+                    var flag = false;
+                    var counter = Model.LstEnquiryCategoryModel.Count;
+                    {
+                        if (i == counter - 1)
+                        {
+                            flag = true;
+                        }
+                    }
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper row-item" id="design">
+                        <div class="container1 sno-container">
+                            <div class="design-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                    @Html.HiddenFor(m => m.LstEnquiryCategoryModel[i].EID)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="design-grid">
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Details, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Details, "Please Enter Details", new { @class = "text-danger" })
+                                </div>
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Scope)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Scope, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Scope, "Please Enter Scope", new { @class = "text-danger" })
+                                </div>
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].UOMId)
+                                    @Html.DropDownListFor(m => m.LstEnquiryCategoryModel[i].UOMId, new SelectList(Model.LstUOM.OrderBy(x => x.UOMName),
+                                    "UOMId", "UOMName", Model.LstEnquiryCategoryModel[i].UOMId), new
+                                         {
+                                             @class = "form-control dropDownStyle redborder",
+                                          onchange = "EnableOtherUOM(this, " + i + ")",
+                                             style = "width:90px;",
+                                             required = "required"
+                                         })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].UOMId, "Please Select UOM", new { @class = "text-danger" })
+
+                                </div>
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Qty)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Qty, new { @class = "form-control redborder", required = "required", type = "number", style = "max-width:90px;" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Qty, "Please Enter Qty", new { @class = "text-danger" })
+                                </div>
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].ApplicableCodeStandards)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].ApplicableCodeStandards, new { @class = "form-control redborder", required = "required", style = "max-width:200px;" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].ApplicableCodeStandards, "Please Enter Applicable..", new { @class = "text-danger" })
+                                </div>
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].ResponseTime, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].ResponseTime, "Please Enter Response..", new { @class = "text-danger" })
+                                </div>
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Location, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Location, "Please Enter Location..", new { @class = "text-danger" })
+                                </div>
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Remarks, new { @class = "form-control" })
+                                </div>
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Budget, new { @class = "form-control", type = "number", style = "max-width:90px;", placeholder = "numeric value" })
+                                </div>
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Food, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+                                <div class="d-flex gap-2 mt-1" style="max-width:200px;">
+                                    <div style="flex: 0 0 100px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance)
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                    <div style="flex: 0 0 90px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].MobDeMob)
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].MobDeMob, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                </div>
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            @if (flag)
+                            {
+                                <button type="button" class="btn btn-success btn-sm mb-1  addRow" title="+ Add Row">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            }
+                            @if (!flag)
+                            {
+                                <button type="button" class="btn btn-warning btn-sm mb-1 hideRow" title="Hide Row">
+                                    <i class="fa fa-eye-slash"></i>
+                                </button>
+                            }
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                }
+            }
+
+            @if (Model.EnquiryCategoryId == 2)
+            {
+                for (int i = 0; i < Model.LstEnquiryCategoryModel.Count; i++)
+                {
+                    var flag = false;
+                    var counter = Model.LstEnquiryCategoryModel.Count;
+                    {
+                        if (i == counter - 1)
+                        {
+                            flag = true;
+                        }
+                    }
+
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper  row-item" id="inspection">
+                        <div class="container1 sno-container">
+                            <div class="inspection-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                    @Html.HiddenFor(m => m.LstEnquiryCategoryModel[i].EID)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="inspection-grid">
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Details, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Details, "Please Enter Details", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Scope)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Scope, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Scope, "Please Enter Scope", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].UOMId)
+                                    @Html.DropDownListFor(m => m.LstEnquiryCategoryModel[i].UOMId, new SelectList(Model.LstUOM.OrderBy(x => x.UOMName),"UOMId", "UOMName", Model.LstEnquiryCategoryModel[i].UOMId),
+                                    new  {   @class = "form-control dropDownStyle redborder",     onchange = "EnableOtherUOM(this, " + i + ")",
+                                             style = "width:90px;",    required = "required"   })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].UOMId, "Please Select UOM", new { @class = "text-danger" })
+                                </div>
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Qty)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Qty, new { @class = "form-control redborder", required = "required", type = "number", style = "max-width:90px;" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Qty, "Please Enter Qty", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Qualification)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Qualification, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Qualification, "Please Enter Qualification", new { @class = "text-danger" })
+
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Competance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Competance, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Competance, "Please Enter Competance", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Experience)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Experience, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Qualification, "Please Enter Experience", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Duration)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Duration, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Duration, "Please Enter Duration", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].ResponseTime, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Location, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Remarks, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Budget, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Food, new { @class = "form-control" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].MobDeMob)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].MobDeMob, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges, "Please Enter OvertimeCharges", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            @if (flag)
+                            {
+                                <button type="button" class="btn btn-success btn-sm mb-1  addRow" title="+ Add Row">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            }
+                            @if (!flag)
+                            {
+                                <button type="button" class="btn btn-warning btn-sm mb-1 hideRow" title="Hide Row">
+                                    <i class="fa fa-eye-slash"></i>
+                                </button>
+                            }
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+
+            @if (Model.EnquiryCategoryId == 3)
+            {
+
+                for (int i = 0; i < Model.LstEnquiryCategoryModel.Count; i++)
+                {
+                    var flag = false;
+                    var counter = Model.LstEnquiryCategoryModel.Count;
+                    {
+                        if (i == counter - 1)
+                        {
+                            flag = true;
+                        }
+                    }
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper row-item" id="training">
+                        <div class="container1 sno-container">
+                            <div class="training-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                    @Html.HiddenFor(m => m.LstEnquiryCategoryModel[i].EID)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="training-grid">
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Details, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Details, "Please Enter Details", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Scope)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Scope, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Scope, "Please Enter Scope", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].UOMId, "UOM")
+                                    @Html.DropDownListFor(m => m.LstEnquiryCategoryModel[i].UOMId, new SelectList(Model.LstUOM.OrderBy(x => x.UOMName),"UOMId", "UOMName", 
+                                      Model.LstEnquiryCategoryModel[i].UOMId), new { @class = "form-control dropDownStyle redborder",   onchange = "EnableOtherUOM(this, " + i + ")",
+                                      style = "width:90px;",  required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].UOMId, "Select UOM", new { @class = "text-danger" })
+                                </div>
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Attendees, "Attendees(No)")
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Attendees, new { @class = "form-control redborder", style = "max-width:90px;", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Attendees, "Please Enter Attendees", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Duration)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Duration, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Duration, "Please Enter Duration", new { @class = "text-danger" })
+                                </div>
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].ResponseTime, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Location, new { @class = "form-control redborder", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Location, "Please Enter Location", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Remarks, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Budget, new { @class = "form-control", type = "number", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Food, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="d-flex gap-2 mt-1" style="max-width:200px;">
+                                    <div style="flex: 0 0 100px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance, "Conveyance")
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                    <div style="flex: 0 0 90px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].MobDeMob, "Mob/De_Mob")
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].MobDeMob, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges, new { @class = "form-control" })
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            @if (flag)
+                            {
+                                <button type="button" class="btn btn-success btn-sm mb-1  addRow" title="+ Add Row">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            }
+                            @if (!flag)
+                            {
+                                <button type="button" class="btn btn-warning btn-sm mb-1 hideRow" title="Hide Row">
+                                    <i class="fa fa-eye-slash"></i>
+                                </button>
+                            }
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+            @if (Model.EnquiryCategoryId == 4)
+            {
+
+                for (int i = 0; i < Model.LstEnquiryCategoryModel.Count; i++)
+                {
+                    var flag = false;
+                    var counter = Model.LstEnquiryCategoryModel.Count;
+                    {
+                        if (i == counter - 1)
+                        {
+                            flag = true;
+                        }
+                    }
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper row-item" id="secondement">
+                        <div class="container1 sno-container">
+                            <div class="secondement-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                    @Html.HiddenFor(m => m.LstEnquiryCategoryModel[i].EID)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="secondement-grid">
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Details, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Details, "Please Enter Details", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Position)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Position, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Position, "Please Enter Position", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].UOMId, "UOM")
+                                    @Html.DropDownListFor(m => m.LstEnquiryCategoryModel[i].UOMId, new SelectList(Model.LstUOM.OrderBy(x => x.UOMName),"UOMId", "UOMName",
+                                     Model.LstEnquiryCategoryModel[i].UOMId), new  {  @class = "form-control dropDownStyle redborder",   onchange = "EnableOtherUOM(this, " + i + ")",
+                                     style = "width:90px;",     required = "required"  })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].UOMId, "Please Select UOM", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Qty)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Qty, new { @class = "form-control", style = "max-width:90px;", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Qty, "Please Enter Qty", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Qualification)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Qualification, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Qualification, "Please Enter Qualification", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Competance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Competance, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Competance, "Please Enter Competance", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Experience)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Experience, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Experience, "Please Enter Experience", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Duration)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Duration, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Duration, "Please Enter Duration", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].ResponseTime, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Location, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].Location, "Please Enter Location", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Remarks, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Budget, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].Food, new { @class = "form-control" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].LocalConveyance, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].MobDeMob)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].MobDeMob, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(m => m.LstEnquiryCategoryModel[i].OvertimeCharges, "Please Enter OvertimeCharges", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            @if (flag)
+                            {
+                                <button type="button" class="btn btn-success btn-sm mb-1  addRow" title="+ Add Row">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            }
+                            @if (!flag)
+                            {
+                                <button type="button" class="btn btn-warning btn-sm mb-1 hideRow" title="Hide Row">
+                                    <i class="fa fa-eye-slash"></i>
+                                </button>
+                            }
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+            <div class="row mt-3">
+                <button type='button' class="btn btn-secondary pull-right" id="btnCloseAddEnquriy" onclick="enquiryList();"><i class="fa fa-ban"></i> Cancel </button>
+                <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveEnquiry"><i class="fa fa-floppy-o"></i> Save </button>
+            </div>
+        </div>
+            @Html.HiddenFor(m => m.EnquiryID)
+            <span>@ViewBag.Message </span>
+
+            }
+</section>
+</div>
+
+
+<script type="text/javascript">
+    $.validator.unobtrusive.parse(document);
+</script>
+
+<script>
+
+    $(function () {
+        $("#EnquiryDate").datepicker({ dateFormat: "dd/mm/yy" });
+        $("#Validity").datepicker({ dateFormat: "dd/mm/yy" });
+    });
+
+
+    $(document).ready(function () {
+       // debugger;
+        toggleSections('@Model.EnquiryCategoryId');
+        EnableOtherUOM($("#UOMId")[0]);
+
+    });
+
+    function toggleSections(obj) {
+       // debugger;
+        if (obj == '1' || obj == 3) {
+            $("#QualificationDiv").hide();
+        }
+        else {
+            $("#QualificationDiv").show();
+        }
+    }
+
+    function beginProgressBar() {
+        let isValid = true;
+
+        $(".row-item").each(function () {
+            // You can check all required fields here:
+            let details = $(this).find("input[name*='Details']").val().trim();
+            let scope = $(this).find("input[name*='Scope']").val().trim();
+            let uom = $(this).find("select[name*='UOMId']").val();
+            let qty = $(this).find("input[name*='Qty']").val().trim();
+
+            // Example: mark empty fields and stop submit
+            if (details === "" || scope === "" || uom === "" || qty === "") {
+                isValid = false;
+                // highlight empty fields
+                $(this).find("input[name*='Details'],input[name*='Scope'],input[name*='Qty']").each(function () {
+                    if (!$(this).val().trim()) {
+                        $(this).addClass("is-invalid");
+                    } else {
+                        $(this).removeClass("is-invalid");
+                    }
+                });
+                if (uom === "") {
+                    $(this).find("select[name*='UOMId']").addClass("is-invalid");
+                } else {
+                    $(this).find("select[name*='UOMId']").removeClass("is-invalid");
+                }
+            }
+        });
+
+        if (!isValid) {
+            alert("Please fill all mandatory fields in each category row.");
+            return false; // stop Ajax form submission
+        }
+
+        // if all good, allow Ajax form to proceed
+        return true;
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnUpdateEnquiry").prop('disabled', true);
+    }
+    function onSuccessUpdateEnquiry(data) {
+        var selectedWorkScopeIds = [];
+        $('.jsWorkScopeId').each(function (index, element) {
+            if ($(element).is(":checked")) {
+                selectedWorkScopeIds.push($(element).val());
+            }
+        });
+
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            alert('Enquiry Id:' + data.enquiryId +  ' has been Updated Successfully');
+           location.reload();
+
+        } else {
+            if (data.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+            $("#btnUpdateEnquiry").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+        }
+    }
+
+    function getSelectedCategory() {
+        var v = $('.enquiry-type:checked').val() || $('.enquiry-type').val();
+        if (v === "1") return "design";
+        if (v === "2") return "inspection";
+        if (v === "3") return "training";
+        if (v === "4") return "secondement";
+        return null;
+    }
+
+    // ===== ADD ROW =====
+    $(document).on('click', '.addRow', function () {
+        var $currentRow = $(this).closest('.row-item');
+        var category = $currentRow.attr('data-category') || $currentRow.attr('id');
+
+        // clone without copying events/data (false) to avoid duplicate handlers
+        var $newRow = $currentRow.clone(false);
+
+        // Remove id on clone and any child ids to avoid duplicates
+        $newRow.removeAttr('id');
+        $newRow.find('[id]').removeAttr('id');
+
+        // Make sure the clone has same data-category
+        $newRow.attr('data-category', category);
+
+        // clear values except S.No
+        $newRow.find('input, select, textarea').not('.sno').each(function () {
+            var $el = $(this);
+            if ($el.is(':checkbox') || $el.is(':radio')) {
+                $el.prop('checked', false);
+            } else {
+                $el.val('');
+            }
+            // ensure not disabled
+            $el.prop('disabled', false);
+        });
+
+        // Insert after current row
+        $currentRow.after($newRow);
+
+        // Reindex, renumber and fix buttons
+        renumber(category);
+        reindexInputs(category);
+        updateRowButtons(category);
+
+        // Re-parse unobtrusive validation for only the newRow so validation works
+        try {
+            $.validator.unobtrusive.parse($newRow);
+        } catch (e) { /* ignore if not available */ }
+    });
+
+    // ===== REMOVE ROW =====
+    $(document).on('click', '.removeRow', function () {
+        var $row = $(this).closest('.row-item');
+        var category = $row.attr('data-category') || $row.attr('id');
+
+        $row.remove();
+
+        renumber(category);
+        reindexInputs(category);
+        updateRowButtons(category);
+    });
+
+    // ===== HIDE / UNHIDE (collapse/expand) ROW =====
+    $(document).on('click', '.hideRow', function () {
+        var $row = $(this).closest('.row-item');
+        var category = $row.attr('data-category') || $row.attr('id');
+        var $btn = $(this);
+
+        if (!$row.hasClass('collapsed')) {
+            // Collapse: keep row bar visible, hide the big content, disable inputs so they don't post
+            $row.addClass('collapsed');
+            $row.find('input, select, textarea').not('.sno').prop('readonly', true);
+            $btn.html('<i class="fa fa-eye"></i>').attr('title', 'Unhide Item');
+        } else {
+            // Uncollapse
+            $row.removeClass('collapsed');
+            $row.find('input, select, textarea').not('.sno').prop('readonly', false);
+            $btn.html('<i class="fa fa-eye-slash"></i>').attr('title', 'Hide Item');
+        }
+
+        renumber(category);
+        reindexInputs(category);
+        updateRowButtons(category);
+    });
+
+    $(".enquiry-type").on("change", function () {
+        debugger;
+        var toShow = getSelectedCategory();
+        var cats = ['design', 'inspection', 'training', 'secondement'];
+
+        // hide all categories
+        cats.forEach(function (cat) {
+            $('#' + cat).addClass('hidden-category');
+            $('.row-item[data-category="' + cat + '"]').addClass('hidden-category');
+        });
+
+        if (toShow) {
+            $('#' + toShow).removeClass('hidden-category');
+            $('.row-item[data-category="' + toShow + '"]').removeClass('hidden-category');
+
+            var $allRows = rowsFor(toShow);
+
+            $allRows.each(function () {
+                var $row = $(this);
+
+                // Uncollapse all rows
+                $row.removeClass('collapsed');
+
+                // Loop through all inputs/selects/textareas
+                $row.find('input, select, textarea').each(function () {
+                    var $input = $(this);
+                    var name = $input.attr('name') || '';
+
+                    // Determine if this field exists in the new category
+                    if (!fieldExistsInCategory(name, toShow)) {
+                        // Clear value for fields that are not in this category
+                        $input.val('');
+                    }
+                    // Else: retain existing value
+                    $input.prop('readonly', false);
+                });
+            });
+
+            renumber(toShow);
+            reindexInputs(toShow);
+            updateRowButtons(toShow);
+        }
+    });
+
+    // Helper function: define fields per category
+    function fieldExistsInCategory(fieldName, category) {
+        // Adjust these arrays according to your actual fields per category
+        var categoryFields = {
+            design: ['SNo', 'Description', 'DesignField1', 'DesignField2'],
+            inspection: ['SNo', 'Description', 'Inspector', 'InspectionDate'],
+            training: ['SNo', 'Description', 'Trainer', 'TrainingDate'],
+            secondement: ['SNo', 'Description', 'SecondementField1', 'SecondementField2']
+        };
+
+        // Remove index part if needed (like LstEnquiryCategoryModel[0].SNo)
+        var cleanName = fieldName.replace(/\[\d+\]/, '').split('.').pop();
+        return categoryFields[category] && categoryFields[category].includes(cleanName);
+    }
+
+    function renumber(category) {
+        //rowsFor(category).each(function (i) {
+        //    $(this).find('.sno').val(i + 1);
+        //});
+        $('.row-item[data-category="' + category + '"]').each(function (index) {
+            $(this).find('.sno').val(index + 1);
+        });
+    }
+
+
+    function EnableOtherUOM(obj) {
+     //   debugger;
+        var uomid = $(obj).val();
+        if (uomid == 3)
+            $("#othersTextboxDiv").show();
+        else
+            $("#othersTextboxDiv").hide();
+    }
+    function reindexInputs(category) {
+        // find all row-items with same category and update [index] in names
+        $('.row-item[data-category="' + category + '"]').each(function (rowIndex) {
+            $(this).find('input, select, textarea, label').each(function () {
+                var $el = $(this);
+
+                // update name attributes like LstEnquiryCategoryModel[0].Field
+                if ($el.attr('name')) {
+                    var newName = $el.attr('name').replace(/\[\d+\]/, '[' + rowIndex + ']');
+                    $el.attr('name', newName);
+                }
+
+                // also update data-valmsg-for on validation messages if present
+                if ($el.attr('data-valmsg-for')) {
+                    var newFor = $el.attr('data-valmsg-for').replace(/\[\d+\]/, '[' + rowIndex + ']');
+                    $el.attr('data-valmsg-for', newFor);
+                }
+
+                // update id attributes for labels & inputs to keep them unique
+                if ($el.attr('id')) {
+                    var newId = $el.attr('id').replace(/\_\d+\_/, '_' + rowIndex + '_');
+                    $el.attr('id', newId);
+                }
+
+                // update label for attributes
+                if ($el.is('label') && $el.attr('for')) {
+                    var newForAttr = $el.attr('for').replace(/\_\d+\_/, '_' + rowIndex + '_');
+                    $el.attr('for', newForAttr);
+                }
+            });
+        });
+    }
+
+    function rowsFor(category) {
+        return $('.row-item').filter(function () {
+            var $r = $(this);
+            var cat = $r.attr('data-category') || this.id;
+            return cat === category;
+        });
+    }
+    // Show/hide correct buttons for each row depending on count and position.
+    function updateRowButtons(category) {
+        var $rows = rowsFor(category);
+        var total = $rows.length;
+
+        $rows.each(function (i) {
+            var $row = $(this);
+            var $addBtn = $row.find('.addRow').first();
+            var $removeBtn = $row.find('.removeRow').first();
+            var $hideBtn = $row.find('.hideRow').first();
+
+            // Default: show all, then we'll hide selectively
+            $addBtn.hide(); $removeBtn.hide(); $hideBtn.hide();
+
+            if (total === 1) {
+                // Only 1 row total: show only Add (+)
+                $addBtn.show();
+                $removeBtn.hide();
+                $hideBtn.hide();
+            } else {
+                // Multiple rows:
+                if (i === total - 1) {
+                    // Last row -> show Add and Hide (not delete)
+                    $addBtn.show();
+                    $hideBtn.show();
+                    $removeBtn.hide();
+                } else {
+                    // Middle rows -> show Delete and Hide (no add)
+                    $removeBtn.show();
+                    $hideBtn.show();
+                    $addBtn.hide();
+                }
+            }
+
+            // If the row is collapsed, ensure hide button shows Unhide icon
+            if ($row.hasClass('collapsed')) {
+                $hideBtn.html('<i class="fa fa-eye"></i>').attr('title', 'Unhide Item');
+            } else {
+                $hideBtn.html('<i class="fa fa-eye-slash"></i>').attr('title', 'Hide Item');
+            }
+        });
+    }
+
+    //$(document).ready(function () {
+
+    //    debugger;
+    //    var uomid = $(obj).find('option:selected').val();
+    //    if (uomid == 3)
+    //        EnableOtherUOM(uomid);
+
+    //    //var isOtherChecked = $('input.jsWorkScopeId[value="6"]').is(':checked');
+
+    //    //if (isOtherChecked) {
+    //    //    $('#othersTextboxDiv').show();
+    //    //} else {
+    //    //    $('#othersTextboxDiv').hide();
+    //    //}
+    //    //$(document).on('change', '.jsWorkScopeId', function () {
+    //    //    var selectedValue = $(this).val(); // Get the value of the checkbox that was changed
+    //    //    var isChecked = $(this).is(':checked'); // Check if the checkbox is checked
+
+    //    //    if (selectedValue === "6" && isChecked) {
+    //    //        // If the selected checkbox value is "6" and it is checked, show the textbox
+    //    //        $('#othersTextboxDiv').show();
+    //    //    } else if (selectedValue === "6" && !isChecked) {
+    //    //        // If the selected checkbox value is "6" and it is unchecked, hide the textbox
+    //    //        $('#othersTextboxDiv').hide();
+    //    //    }
+    //    //});
+    //});
+</script>

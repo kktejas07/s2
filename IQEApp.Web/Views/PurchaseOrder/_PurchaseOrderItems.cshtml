@@ -1,0 +1,149 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderItemsViewModel>
+
+<link href="~/Content/Site.css" rel="stylesheet" />
+<style>
+
+table {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+    background-color: #fff;
+    align-content: center;
+    width: 100%;
+}
+
+table th, table td {
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: middle;
+    border: 1px solid #ddd;
+}
+
+/* Column Specific Styling for Description */
+table td.description {
+    max-width: 300px; /* Adjust this to control the max width of the Description column */
+    white-space: normal; /* Ensures text wrapping */
+    word-wrap: break-word; /* Allows text to wrap inside the cell */
+    word-break: break-word; /* Breaks long words to avoid overflow */
+}
+
+
+</style>
+<body>
+    <div>
+        <table cellpadding="0" cellspacing="0" class="center">
+            <tr>
+                <th>@Html.Label("PO Number")</th>
+                <th>@Html.Label("Item Number")</th>
+                <th>@Html.Label("Description")</th>
+                <th>@Html.Label("Quantity")</th>
+                <th>@Html.Label("UOM")</th>
+                <th>@Html.Label("Allowed Visits")</th>
+                <th>@Html.Label("Remarks")</th>
+                <th>&nbsp;</th>
+            </tr>
+            @foreach (var poItem in Model.OrderBy(x => x.POId))
+            {
+                <tr>
+                    <td>@poItem.PONumber</td>
+                    <td>@poItem.POItemNo</td>
+                    <td class="description">@poItem.Description</td>
+                    <td>@poItem.Quantity</td>
+                    <td>@poItem.UOMName</td>
+                    <td>@poItem.NumberOfVisits</td>
+                    <td>@poItem.Remarks</td>
+                    <td>
+                        <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderInActive, @User.RoleId.FirstOrDefault()))
+                            {
+                                <div class="btn-group" style="display: inline-block;" role="group">
+                                    <span id="PurchaseOrderItemsGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                    </span>
+                                    <ul class="dropdown-menu ellipse-menu-left">
+                                        @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.PurchaseOrderDelete, @User.RoleId.FirstOrDefault()))
+        {*@
+                                        <li>
+                                            <a href="javascript:EditPurchaseOrderItems('@poItem.POItemGuid',this);">
+                                                <i class="fa fa-pencil-square-o mr20" aria-hidden="true">
+                                                </i> Edit Purchase Order Item
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:DeletePurchaseOrderItem('@poItem.POItemGuid',false);">
+                                                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                </i> Delete Purchase Order Item
+                                            </a>
+                                        </li>
+
+                                        @* } *@
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </table>
+
+
+</div>
+ </body>
+
+
+
+        <script>
+            function EditPurchaseOrderItems(POItemGuid) {
+               // debugger;
+              // var POId = obj;
+                $.ajax({
+                    url: '../PurchaseOrder/GetItemDetailsToEdit',
+                    type: 'POST',
+                    data: {
+                        purchaseOrderGuid: POItemGuid,
+                       // PONumber: $("#PONumber_Edit_" + obj).val()
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+                    },
+                    success: function (response) {
+                        $('#spnPurchaseItemsTitle').html('Create Item');
+                        $('#btnAddPurchaseOrderItems').hide();
+                        $('#PurchaseItemsList').html('').hide();
+                        $('#btnPurchaseOrderItemsList').show();
+                        $('#divAddPurchaseOrderItem').html(response).show();
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+                    }
+                });
+            }
+    function DeletePurchaseOrderItem(POItemGuid) {
+        $.ajax({
+            url: '../PurchaseOrder/DeletePurchaseOrderItem',
+            type: 'POST',
+            data: {
+                purchaseOrderGuid: POItemGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                if (response.status) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    showPurchaseOrderItems();
+                } else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+        </script>

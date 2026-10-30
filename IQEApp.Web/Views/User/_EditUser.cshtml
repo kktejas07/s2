@@ -1,0 +1,911 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Utils
+@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.UserModel.UserDetailsModel
+
+<link href="~/Content/multiselectcheckbox/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/Content/multiselectcheckbox/js/bootstrap-multiselect.js"></script>
+<script defer src="~/Scripts/bootstrap-tagsinput.min.js"></script>
+<link href="~/Content/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" />
+
+<style>
+    /* Custom styles for form inputs */
+    .form-control {
+        width: 100%;
+        max-width: 200px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        color: #236883;
+        font-weight: bold;
+    }
+
+    .inputStyle {
+        background-color: #f8f9fa;
+    }
+
+    .redborder {
+        border: 1px solid #dc3545;
+    }
+
+    .dropDownStyle {
+        /*max-width: 120px !important;*/
+        background-color: #f8f9fa;
+        color: #236883;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .multiselect-native-select .multiselect.dropdown-toggle {
+        width: 190px !important; /* Match the width of the ListBox */
+    }
+
+    .open > .dropdown-menu {
+        width: 190px !important; /* Match the width of the ListBox */
+    }
+
+    .width {
+        width: 19%;
+    }
+
+    .file-container {
+        display: flex;
+        align-items: center;
+        gap: 3px; /* Increases space between elements */
+        margin-bottom: 3px; /* More space between each file row */
+    }
+
+    .add-existing-cvfile {
+        max-width: 240px; /* Slightly wider for better display */
+        font-size: 12px; /* Adjusted font size for better readability */
+    }
+
+    .remove-file {
+        padding: 8px 12px; /* Increased button padding for better clickability */
+        border-radius: 50px !important; /* More curved edges */
+    }
+
+    .new-file {
+        /*background-color: #d4edda;*/ /* Light green to indicate new addition */
+        border-left: 2px solid #28a745; /* Green border for emphasis */
+        transition: background-color 1s ease-in-out;
+    }
+
+    .remove-file {
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #dc3545;
+        background-color: #ffffff;
+        color: #dc3545;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+        .remove-file:hover {
+            background-color: #dc3545;
+            color: #ffffff;
+        }
+</style>
+
+
+<div class="container mt20 bg p20">
+    <section id="updateUserForm">
+        @using (Ajax.BeginForm("UpdateUser", "User",
+                        new AjaxOptions
+                        {
+                            HttpMethod = "POST",
+                            OnBegin = "beginProgressBar",
+                            OnSuccess = "onSuccessUpdateUser",
+                            OnFailure = "onFailureEditUser"
+                        }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+
+            <div class="row">
+                <div class="col-sm-9 col-md-9 col-lg-9 form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.UserTypeId, new { @class = "control-label", style = "color:#236883" })
+                            @Html.DropDownListFor(m => m.UserTypeId, new SelectList(Model.LstEmployeeType, "EmployeeTypeId", "EmployeeTypeName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.UserTypeId), @disabled = "disabled" })
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.EmployeeCode, new { @class = "control-label", style = "color:#236883" })
+                            @Html.TextBoxFor(m => m.EmployeeCode, new { @class = "form-control inputStyle redboder", style = "color:#236883", @placeholder = @Html.DisplayNameFor(model => model.EmployeeCode), @readonly = "readonly" })
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center">
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.IsSecondment, new { @class = "form-check-label ms-2", style = "color:#236883" })
+                                @Html.CheckBoxFor(m => m.IsSecondment, new { @class = "form-check-input" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Title, First Name, Last Name -->
+            <div class="row">
+                <div class="col-sm-9 col-md-9 col-lg-9 form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.TitleId)
+                            @Html.DropDownListFor(m => m.TitleId, new SelectList(Model.LstUserTitles, "TitleId", "TitleName"), "Select", new { @class = "form-control dropDownStyle" })
+                            @Html.ValidationMessageFor(m => m.TitleId)
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.FirstName)
+                            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control inputStyle redborder", @placeholder = "First Name" })
+                            @Html.ValidationMessageFor(m => m.FirstName)
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.LastName)
+                            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control inputStyle redborder", @placeholder = "Last Name" })
+                            @Html.ValidationMessageFor(m => m.LastName)
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.DOB)
+                            @Html.TextBoxFor(m => m.DOB, "{0:dd/MM/yyyy}", new { @class = "form-control inputStyle", @placeholder = "Date of Birth" })
+                            @Html.ValidationMessageFor(m => m.DOB)
+                        </div>
+
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.LoginName)
+                                @Html.TextBoxFor(m => m.LoginName, new { @class = "form-control inputStyle redborder", @placeholder = "Login Name" })
+                                @Html.ValidationMessageFor(m => m.LoginName)
+                            </div>
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.EmailId)
+                                @Html.TextBoxFor(m => m.EmailId, new { @class = "form-control inputStyle redborder", @placeholder = "Email ID" })
+                                @Html.ValidationMessageFor(m => m.EmailId)
+                            </div>
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.InspectorCode)
+                                @Html.TextBoxFor(m => m.InspectorCode, new { @class = "form-control inputStyle redborder", @placeholder = "Inspector Code" })
+                                @Html.ValidationMessageFor(m => m.InspectorCode)
+                            </div>
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.Qualification)
+                                @Html.TextBoxFor(m => m.Qualification, new { @class = "form-control inputStyle", @placeholder = "Qualification" })
+                                @Html.ValidationMessageFor(m => m.Qualification)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" id="divProfilePicture">
+                    <div>
+                        @Html.HiddenFor(m => m.UserImageFileSize)
+                        <input type="hidden" id="hdnOldImageGUId" value="@Model.UserImageGUID" />
+                        @Html.HiddenFor(m => m.UserImageGUID)
+                        <div class="row" id="divShowProfileImage" style="width:600px;">
+                            <div class="col-md-3 p0 image-container-center">
+                                <div class="avatar avatar-xxl">
+                                    <img src="@Url.Action("GetUserImage", "User", new { userId = Model.UserId })" alt="User Image" />
+                                </div>
+                            </div>
+                            <div class="col-md-1 p0">
+                                <button type="button" id="btnEditProfileImage" class="btn-round-icon" title="Edit Image" data-toggle="tooltip" onclick="EditProfileImage() ">
+                                    <i class=" fa fa-pencil" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" id="divShowUploadImage" style="display: none">
+                            <div class="image-container-center">
+                                <div class="uploadBg">
+                                    <div class="dropzone" id="userProfileUploadForm">
+                                        <div class="fallback">
+                                            <input name="fileImage" type="file" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span id="userProfileSubmit" class="btn btn-success mt5" style="display: none; width: 100%;">
+                                            <span>
+                                                <i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 p0" style="padding-left:50px;">
+                                <button type="button" id="btnCloseProfileImage" class="btn-round-icon" title="Close Uploader" data-toggle="tooltip" onclick="CloseProfileImage() ">
+                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                    <div class="row">
+                        <div class="col-md-3 width">
+                            @Html.LabelFor(m => m.Experience)
+                            @Html.TextBoxFor(m => m.Experience, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.Experience) })
+                            @Html.ValidationMessageFor(m => m.Experience)
+                        </div>
+                        <div class="col-md-2 width">
+                            @Html.LabelFor(m => m.CountryId)
+                            @Html.DropDownListFor(m => m.CountryId, new SelectList(Model.LstCountry, "CountryId", "CountryName"), "Select", new { @class = "form-control dropDownStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.CountryId), onchange = "GetStateDetailsByCountryId(this)" })
+                            @Html.ValidationMessageFor(m => m.CountryId)
+                        </div>
+                        <div class="col-md-2 width">
+                            @Html.LabelFor(m => m.StateId, new { @class = "control-label", style = "color:#236883" })
+                            @if (Model.StateId > 0)
+                            {
+                                @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select", new { @class = "ddlState form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.StateId) })
+                                @Html.TextBoxFor(m => m.StateName, new { @class = "txtState form-control inputStyle redborder", @style = "display: none;", @placeholder = @Html.DisplayNameFor(model => model.StateName) })
+                            }
+                            @if (Model.StateId == 0)
+                            {
+                                @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select", new { @class = "ddlState form-control dropDownStyle redborder", @style = "display: none;", @placeholder = @Html.DisplayNameFor(model => model.StateId) })
+                                @Html.TextBoxFor(m => m.StateName, new { @class = "txtState form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.StateName) })
+                            }
+                            @Html.ValidationMessageFor(m => m.StateId)
+                        </div>
+                        <div class="col-md-2 width">
+                            @Html.LabelFor(m => m.CityName)
+                            @Html.TextBoxFor(m => m.CityName, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.CityName) })
+                            @Html.ValidationMessageFor(m => m.CityName)
+                        </div>
+                        <div class="col-md-2 width">
+                            @Html.LabelFor(m => m.Address)
+                            @Html.TextAreaFor(m => m.Address, new { @class = "form-control inputStyle", @placeholder = "Address", @style = "height: 33px;", @rows = 1 })
+                            @Html.ValidationMessageFor(m => m.Address)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group" id="divBank">
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.BankAcc)
+                                @Html.TextBoxFor(m => m.BankAcc, new { @class = "form-control inputStyle", @placeholder = "Bank Acc" })
+                                @Html.ValidationMessageFor(m => m.BankAcc)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.IFSCCode)
+                                @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control inputStyle", @placeholder = "IFSC Code" })
+                                @Html.ValidationMessageFor(m => m.IFSCCode)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.Branch)
+                                @Html.TextBoxFor(m => m.Branch, new { @class = "form-control inputStyle", @placeholder = "Branch" })
+                                @Html.ValidationMessageFor(m => m.Branch)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.PAN)
+                                @Html.TextBoxFor(m => m.PAN, new { @class = "form-control inputStyle", @placeholder = "PAN" })
+                                @Html.ValidationMessageFor(m => m.PAN)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.Aadhar)
+                                @Html.TextBoxFor(m => m.Aadhar, new { @class = "form-control inputStyle", @placeholder = "Aadhar" })
+                                @Html.ValidationMessageFor(m => m.Aadhar)
+                            </div>
+                        </div>
+                    </div>
+                    <div>&nbsp;</div>
+
+                    <div class="row" id="divshowhide">
+                        <div id="divRoleDesig">
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.RoleId, new { @class = "control-label", style = "color:#236883" })
+                                @Html.DropDownListFor(m => m.RoleId, new SelectList(Model.LstEmployeeRoles, "RoleId", "RoleName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.RoleId) })
+                                @Html.ValidationMessageFor(m => m.RoleId)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.DesignationId, new { @class = "control-label", style = "color:#236883" })
+                                @Html.DropDownListFor(m => m.DesignationId, new SelectList(Model.LstDesignations, "DesignationId", "DesignationName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.DesignationId) })
+                                @Html.ValidationMessageFor(m => m.DesignationId)
+                            </div>
+                        </div>
+                        <div class="row" id="divESIPF">
+                            <div class="col-md-2 width">
+                                @Html.Label("ESI", new { @class = "control-label", style = "color:#236883" })
+                                @Html.TextBoxFor(m => m.ESI, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ESI) })
+                                @Html.ValidationMessageFor(m => m.ESI)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.Label("PF", new { @class = "control-label", style = "color:#236883" })
+                                @Html.TextBoxFor(m => m.PF, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PF) })
+                                @Html.ValidationMessageFor(m => m.PF)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.Label("PA", new { @class = "control-label", style = "color:#236883" })
+                                @Html.TextBoxFor(m => m.PA, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PA) })
+                                @Html.ValidationMessageFor(m => m.PA)
+                            </div>
+                        </div>
+                        <div class="row" id="divPAMedical" style="display: none;">
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.Medical, new { @class = "control-label", style = "color:#236883" })
+                                @Html.TextBoxFor(m => m.Medical, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.Medical) })
+                                @Html.ValidationMessageFor(m => m.Medical)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.Label("PA", new { @class = "control-label", style = "color:#236883" })
+                                @Html.TextBoxFor(m => m.PA, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PA) })
+                                @Html.ValidationMessageFor(m => m.PA)
+                            </div>
+                        </div>
+                        <div class="row" id="divAssociate" style="display: none;">
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.AssociateId)
+                                @Html.DropDownListFor(m => m.AssociateName, new SelectList(Model.LstAssociates, "AssociateName", "AssociateName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.AssociateName), onchange = "GetAssociateContactPersonDetails(this)" })
+                                @Html.ValidationMessageFor(m => m.AssociateName)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.ContactPerson)
+                                @Html.DropDownListFor(m => m.ContactPerson, new SelectList(Model.LstAssociateContactPerson, "ContactPerson", "ContactPerson"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.ContactPerson) })
+                                @Html.ValidationMessageFor(m => m.ContactPerson)
+                            </div>
+                        </div>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-2 width">
+                                @Html.Label("Professional Qualification")
+                                @Html.ListBoxFor(m => m.SkillSetIds, new SelectList(Model.LstSkillSet, "SkillSetId", "SkillSetName"), new { @class = "form-control dropDownStyle width" })
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.ProfQualification, new { @class = "control-label", style = "color:#236883" })
+                                @Html.TextBoxFor(m => m.ProfQualification, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ProfQualification) })
+                                @Html.ValidationMessageFor(m => m.ProfQualification)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.EmpContactNumber, new { @class = "control-label", style = "color:#236883" })
+                                @Html.TextBoxFor(m => m.EmpContactNumber, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.EmpContactNumber) })
+                                @Html.ValidationMessageFor(m => m.EmpContactNumber)
+                            </div>
+
+                            <div class="col-sm-5 col-md-5 col-lg-5 form-group form-row align-items-center" id="CVUploadContainer">
+                                <div class="d-flex justify-content-between w-100">
+                                    <label class="control-label">Uploaded CV(s)</label>
+                                    <label class="control-label" style="padding-right: 150px;">Validity</label>
+                                </div>
+
+
+                                @{
+                                    var fileList = Model.FileNameWithValidity != null ? Model.FileNameWithValidity.Split(';') : new string[0];
+                                    var filePaths = Model.FilePath != null ? Model.FilePath.Split(';') : new string[0];
+                                }
+                                <!-- Existing Uploaded Files (Edit Mode) -->
+                                @if (fileList.Length > 0)
+                                {
+                                    for (int i = 0; i < fileList.Length; i++)
+                                    {
+
+                                        var fileData = fileList[i].Trim();
+                                        var fileParts = fileData.Split('(');
+                                        var fileName = fileParts[0].Trim();
+                                        var validityDate = fileParts.Length > 1 ? fileParts[1].Replace(")", "").Trim() : "No Validity";
+
+                                        var formattedDate = "";
+
+                                        if (!string.IsNullOrEmpty(validityDate))
+                                        {
+                                            DateTime parsedDate;
+                                            if (DateTime.TryParse(validityDate, out parsedDate))
+                                            {
+                                                formattedDate = parsedDate.ToString("dd-MM-yyyy");
+                                            }
+                                        }
+
+                                        var filePath = filePaths.Length > i ? filePaths[i].Trim() : "N/A";
+
+                                        <div class="input-group mb-3 file-container">
+                                            <input type="hidden" name="ExistingFiles" value="@fileName" />
+                                            <input type="text" class="form-control" value="@fileName" readonly style="max-width: 250px;" />
+                                            <input type="hidden" name="RemovedFiles" id="RemovedFiles" value="" />
+                                            <!-- Validity Date Input -->
+                                            <input type="text" name="ExistingValidityDates" value="@formattedDate"
+                                                   class="form-control validation-date" onchange="checkExpiry(this)"
+                                                   style="max-width: 120px;" placeholder="DD-MM-YYYY" />
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-outline-danger remove-file" onclick="removeFile('@fileName')">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+                                    <!-- Dynamic File Upload Inputs -->
+                                    <div id="fileUploadContainer">
+                                        <div class="input-group mb-3 file-container">
+                                            <input type="file" name="NewCredentials" class="form-control file-input" style="max-width: 250px;"  multiple />
+                                            <input type="text" name="NewValidityDates" class="form-control validation-date"  style="max-width: 120px;"  onchange="checkExpiry(this)" />
+
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-outline-success">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                        </div>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="row">
+                        <div id="othersTextboxDiv" style="display: none;" class="col-md-2 width">
+                            <div class="form-group">
+                                @Html.Label("Other Courses", new { @class = "control-label" })
+                                @Html.TextAreaFor(m => m.OtherProfessional, new { @class = "form-control inputStyle redboder", style = "width: 200px; height: 35px;", placeholder = "Enter Other Professional Courses" })
+                                @Html.ValidationMessageFor(m => m.OtherProfessional)
+                            </div>
+                        </div>
+                        <div id="divEmpannelment">
+                            <div class="col-md-2 width">
+                                @Html.LabelFor(m => m.CurrencyId, new { @class = "control-label", style = "color:#236883" })
+                                @Html.DropDownListFor(m => m.CurrencyId, new SelectList(Model.LstCurrencyType, "CurrencyId", "CurrencyName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.CurrencyId) })
+                                @Html.ValidationMessageFor(m => m.CurrencyId)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.Label("Cost (Per Hour) ", new { @class = "control-label" })
+                                @Html.TextBoxFor(m => m.CostPerHour, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.CostPerHour) })
+                                @Html.ValidationMessageFor(m => m.CostPerHour)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.Label("Milage In Km (Round Trip)", new { @class = "control-label" })
+                                @Html.TextBoxFor(m => m.MilageInKm, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.MilageInKm) })
+                                @Html.ValidationMessageFor(m => m.MilageInKm)
+                            </div>
+                            <div class="col-md-2 width">
+                                @Html.Label("All Inclusive", new { @class = "control-label" })
+                                @Html.TextBoxFor(m => m.AllInclusive, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.AllInclusive) })
+                                @Html.ValidationMessageFor(m => m.AllInclusive)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group ">
+                            <div class="col-sm-9 col-md-9 col-lg-9">
+                                @Html.HiddenFor(m => m.UserId)
+                                @Html.HiddenFor(m => m.UserGuid)
+                                @Html.HiddenFor(m => m.SiteId)
+                                @Html.HiddenFor(m => m.IsEmpannlementflag)
+
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3 ">
+                                <button type='button' class="btn btn-secondary pull-right" id="btnCloseEmp" onclick="javascript: openEmployeeList('true');"><i class="fa fa-ban" aria-hidden="true"></i> Cancel</button>
+                                <button type="submit" id="btnUserSave" value="Submit" title="Submit" data-toggle="tooltip" class="btn btn-success pull-right mr5"><i class="fa fa-floppy-o" aria-hidden="true"></i> Update </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span id="spnEditError" class="error">@ViewBag.Message </span>
+                </div>
+            </div>
+        }
+    </section>
+</div>
+
+
+<script type="text/javascript">
+    var Empannlementflag = '@ViewBag.Empannlementflag';
+
+
+
+    $(function () {
+        $("#SkillSetIds").multiselect({
+            includeSelectAllOption: true
+        });
+
+    });
+
+    if (Empannlementflag == 'True')
+        $("#divEmpannelment").show();
+    else if (Empannlementflag == 'False')
+        $("#divEmpannelment").hide();
+
+    function onSuccessUpdateUser(data) {
+        debugger;
+        //  alert('Edit');
+        @*openEmployeeList('true');
+        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");*@
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            //var oldImageGUid = $("#hdnOldImageGUId").val();
+            //var newImageGUid = $("#UserImageGUID").val();
+            //if (newImageGUid != oldImageGUid) {
+            //    DeleteFileFromAzure(oldImageGUid);
+            //}
+            openEmployeeList('true');
+        } else {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+           // openEmployeeList('true');
+        }
+
+    }
+    function GetAssociateContactPersonDetails(obj) {
+        //   document.getElementById('divAssociateContact').style.visibility = 'visible';
+        // //debugger;
+        var associateName = $(obj).find('option:selected').val();
+
+        $.ajax({
+            url: '../User/AssociateContactPersonDeatails',
+            type: 'POST',
+            data: {
+                AssociateName: associateName
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (associateContactPerson) {
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < associateContactPerson.LstAssociateContactPerson.length; i++) {
+                    s += '<option value="' + associateContactPerson.LstAssociateContactPerson[i].ContactPerson + '">' + associateContactPerson.LstAssociateContactPerson[i].ContactPerson + '</option>';
+                }
+                $('#ContactPerson').html(s);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+
+    function onFailureEditUser() {
+        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+    }
+
+    function GetAssociateDetails(obj) {
+        //debugger;
+        var usertypeId = $(obj).find('option:selected').val();
+        if (usertypeId == '3') {
+            $("#divRoleDesig").hide();
+            $("#divESIPF").hide();
+            $("#divPAMedical").hide();
+            $("#divAssociate").show();
+            $("#divbank").hide();
+           // $("#divlogin").hide();
+
+            //document.getElementById('divAssociate').style.visibility = 'visible';
+            $.ajax({
+                url: '../User/AssociateDeatails',
+                type: 'POST',
+                data: '',
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (AssociateList) {
+
+                    var s = '<option value="-1">Select</option>';
+                    for (var i = 0; i < AssociateList.LstAssociates.length; i++) {
+                        s += '<option value="' + AssociateList.LstAssociates[i].AssociateId + '">' + AssociateList.LstAssociates[i].AssociateName + '</option>';
+                    }
+                    $('#AssociateId').html(s);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+
+        if (usertypeId == '2') {
+            $("#divRoleDesig").show();
+            $("#divESIPF").hide();
+            $("#divPAMedical").show();
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+        }
+
+        if (usertypeId == '1') {
+            $("#divRoleDesig").show();
+            $("#divESIPF").show();
+            $("#divPAMedical").hide();
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+        }
+    }
+    $(function () {
+        $("#DOB").datepicker({
+            //format: 'MM-dd-yyyy',
+            endDate: '+0d',
+            autoclose: true
+        });
+
+        $('#BankAccount').on('input', function () {
+            if (this.value.length > 15) {
+                this.value = this.value.slice(0, 15);
+            }
+        });
+
+        $('#Aadhar').on('input', function () {
+            if (this.value.length > 12) {
+                this.value = this.value.slice(0, 12);
+            }
+        });
+    });
+
+    function removeFile(fileName) {
+        debugger;
+        if (confirm("Are you sure you want to delete this file?")) {
+            // Find the file container using jQuery
+            let fileContainer = $(".file-container").has("input[name='ExistingFiles'][value='" + fileName + "']");
+
+            if (fileContainer.length) {
+                fileContainer.remove(); // Remove the file from UI
+
+                // Get or create the RemovedFiles hidden input
+                let removedFilesInput = $("#RemovedFiles");
+                if (!removedFilesInput.length) {
+                    removedFilesInput = $("<input>", {
+                        type: "hidden",
+                        id: "RemovedFiles",
+                        name: "RemovedFiles"
+                    }).appendTo("body");
+                }
+
+                // Append file name to RemovedFiles input
+                let existingValue = removedFilesInput.val();
+                removedFilesInput.val(existingValue ? existingValue + "," + fileName : fileName);
+            }
+        }
+    }
+
+    $(document).on("input", ".validation-date", function () {
+        var input = $(this).val().replace(/[^\d]/g, ''); // Remove non-numeric characters
+        if (input.length > 2) {
+            input = input.substring(0, 2) + '-' + input.substring(2);
+        }
+        if (input.length > 5) {
+            input = input.substring(0, 5) + '-' + input.substring(5, 9);
+        }
+        $(this).val(input);
+    });
+
+    // Restrict invalid date entry (optional)
+    $(document).on("blur", ".validation-date", function () {
+        var dateValue = $(this).val();
+        var regex = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-(\d{4})$/;
+
+        if (!regex.test(dateValue)) {
+            alert("Invalid date format! Please enter date in DD-MM-YYYY format.");
+            $(this).val(""); // Clear input if invalid
+        }
+    });
+
+    $(document).off("change", "input[type='file'][name='NewCredentials']")
+        .on("change", "input[type='file'][name='NewCredentials']", function () {
+            console.log("File input changed"); // Debugging
+            let files = this.files;
+            let $fileInputContainer = $(this).closest(".input-group");
+
+            if (files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    let timestamp = new Date().getTime();
+                    let fileName = files[i].name + "_" + timestamp; // Unique name
+
+                    let fileHtml = `
+        <div class="input-group mb-2 file-container new-file" data-file-name="${fileName}">
+            <input type="text" value="${files[i].name}" class="form-control add-existing-cvfile" style="max-width: 250px;" readonly />
+            <input type="text" name="NewValidityDates" class="form-control validation-date" style="max-width: 120px;" placeholder="DD-MM-YYYY" onchange="checkExpiry(this)" />
+            <div class="input-group-append">
+                <button type="button" class="btn btn-outline-danger remove-file remove-new-uploadedfile">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        </div>`;
+
+                    $fileInputContainer.before(fileHtml);
+                }
+            }
+
+            // Replace file input for next upload
+            let newFileInput = $('<input type="file" name="NewCredentials" class="form-control file-input" style="max-width: 250px;" multiple />');
+            $(this).after(newFileInput);
+            $(this).hide();
+        });
+
+    // Remove file from UI when clicking delete
+    $(document).on("click", ".remove-new-uploadedfile", function () {
+        $(this).closest(".file-container").remove();
+    });
+
+
+     //Function to handle validation date changes and apply color coding
+    function checkExpiry(dateInput) {
+        const selectedDate = new Date(dateInput.value.split('-').reverse().join('-')); // Convert DD-MM-YYYY to YYYY-MM-DD
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
+
+        const textInputs = dateInput.closest('.file-container').querySelectorAll('input, .uploaded-file'); // Only affect inputs and text fields
+
+        if (selectedDate < today) {
+            textInputs.forEach(input => {
+                input.style.backgroundColor = "#ffe6e6"; // Light red
+                input.style.border = "1px solid #ff4d4d"; // Red border
+                input.style.borderRadius = "5px"; // Rounded edges
+            });
+        } else {
+            textInputs.forEach(input => {
+                input.style.backgroundColor = ""; // Reset if valid
+                input.style.border = "";
+            });
+        }
+    }
+
+
+
+
+    $(document).ready(function () {
+
+        $(".validation-date").each(function () {
+            checkExpiry(this);
+        });
+
+        function toggleOthersTextbox() {
+            var selectedValues = $('#SkillSetIds').val();
+            if (selectedValues && selectedValues.includes("9")) {
+                $('#othersTextboxDiv').show();
+            } else {
+                $('#othersTextboxDiv').hide();
+            }
+        }
+
+        // Initial check for Edit page
+        toggleOthersTextbox();
+
+        // Handle change event
+        $('#SkillSetIds').change(function () {
+            toggleOthersTextbox();
+        });
+
+        if ($("#UserTypeId  :selected").val() == '3') {
+           // document.getElementById('divAssociate').style.visibility = 'visible';
+            $("#divAssociate").show();
+            $("#divESIPF").hide();
+            $("#divRoleDesig").hide();
+            $("#divPAMedical").hide();
+            $("#divBank").hide();
+           // $("#divlogin").hide();
+        }
+
+        if ($("#UserTypeId  :selected").val() == '2') {
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+            $("#divESIPF").hide();
+            $("#divRoleDesig").show();
+            $("#divPAMedical").show();
+            $("#divBank").show();
+           // $("#divlogin").show();
+        }
+
+        if ($("#UserTypeId  :selected").val() == '1') {
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+            $("#divESIPF").show();
+            $("#divRoleDesig").show();
+            $("#divPAMedical").hide();
+            $("#divBank").show();
+           // $("#divlogin").show();
+        }
+
+        Dropzone.autoDiscover = false;
+
+        try {
+            window.uploader.create({
+                elementId: "userProfileUploadForm",   //dropzone will be created to this element
+                submitButtonId: "userProfileSubmit", //dropzone uploader submit button Id
+                hiddenFilePathId: "UserImageGUID",  //unique id  after uploading the file the path which is return value would be binded to this element
+                hiddenFilePathId3: "UserImageTitle",
+                hiddenFileSize: "UserImageFileSize", //Id after uploading the file the uploaded file size which is return value would be binded to this element
+                siteId: $('#SiteId').val(),   //site id the uploaded file to be stored
+                canValidateImgExtension: true, //for validating file types (if it sets  true it only takes image files)
+                canValidateContactExtensions: false,//for validating file types (if it sets  true it only takes files specified as contact extensions in baselayout)
+                url: '../FileUpload/JsonUpload', //any specified Url to upload or else it will take default url
+                clearUploaderAfterUploading: false, //boolean, it will clear the uploader if it sets true
+                uploadMultiple: false, //boolean, can upload multiple files at once if it sets true
+                //onCompleteCallback: function (data) {
+
+                //}  //we can define any call back function, to done something upon file successful upload, if not we can remover this parameter
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        let fileInputCounter = 1;
+
+
+        $(document).on('click', '.remove-cvfile', function () {
+            var fileName = $(this).data('file-id');
+            var removedFilesInput = $('#RemovedFiles');
+
+            // Get the existing removed files and convert them to an array
+            var removedFiles = removedFilesInput.val() ? removedFilesInput.val().split(',') : [];
+
+            // Add the new file to the list if it's not already there
+            if (!removedFiles.includes(fileName)) {
+                removedFiles.push(fileName);
+            }
+
+            // Update the hidden input value (convert array back to a comma-separated string)
+            removedFilesInput.val(removedFiles.join(','));
+
+            // Remove the file container from the UI
+            $(this).closest('.file-container').remove();
+        });
+    });
+    function EditProfileImage() {
+        $('#divShowProfileImage').hide();
+        $('#divShowUploadImage').show();
+       // $("#UserImageGUID").val('');
+    }
+    function CloseProfileImage() {
+        $('#divShowProfileImage').show();
+        $('#divShowUploadImage').hide();
+    }
+
+    function GetStateDetailsByCountryId(obj) {
+        var countryId = $(obj).find('option:selected').val();
+        if (countryId == null || countryId == undefined || countryId == '') {
+            countryId = 0;
+        }
+        $.ajax({
+            url: '../Common/GetStateDetailsByCountryId',
+            type: 'POST',
+            data: {
+                countryId: countryId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (stateList) {
+                //alert(JSON.stringify(stateList));
+                if (countryId == 1) {
+                    $('.ddlState').show();
+                    $('.ddlState').css("visibility", "visible");
+                    $('.txtState').hide();
+                    var options = '<option value="-1">Select</option>';
+                    for (var i = 0; i < stateList.length; i++) {
+                        options += '<option value="' + stateList[i].StateId + '">' + stateList[i].StateName + '</option>';
+                    }
+                    $('#StateId').html(options);
+                }
+                else {
+                    $('.ddlState').hide();
+                    $('.txtState').show();
+                    $('.txtState').css("visibility", "visible");
+
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+ 
+    $(document).on("change", ".file-input", function () {
+       // debugger;
+        var fileName = $(this).val().split("\\").pop(); // Extract file name
+        var parentDiv = $(this).closest(".file-container");
+
+        // Assign file name to hidden input
+        parentDiv.find("input[name='FileNames']").val(fileName);
+    });
+
+</script>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

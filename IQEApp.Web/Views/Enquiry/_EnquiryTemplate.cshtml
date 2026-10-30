@@ -1,0 +1,240 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.EnquiryModel.EnquiryViewModel
+@{
+    Layout = null;
+    int sno = 1;
+}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Enquiry Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin: 4px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 10px;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align:center; margin-bottom:20px;">Enquiry Details</h2>
+
+    <div style="display:flex; flex-wrap:wrap; justify-content:space-between;">
+        <div style="width:48%; margin-bottom:10px;">
+            <p><strong>Enquiry No:</strong> @Model.EnquiryID</p>
+            <p><strong>Date:</strong> @Model.EnquiryDate.Value.ToString("dd/MM/yyyy")</p>
+        </div>
+        <div style="width:48%; margin-bottom:10px;">
+            <p><strong>Customer Name:</strong> @Model.ClientName</p>
+            <p><strong>Category:</strong> @Model.EnquiryCategoryName</p>
+        </div>
+    </div>
+    <table>
+        <thead>
+            @if (Model.EnquiryCategoryName == "Design")
+            {
+                <tr>
+                    <th>S.No</th>
+                    <th>Details</th>
+                    <th>Scope</th>
+                    <th>UOM</th>
+                    <th>Qty</th>
+                    <th>Applicable</th>
+                    <th>Response Time</th>
+                    <th>Location</th>
+                    <th>Remarks</th>
+                    <th>Budget</th>
+                    <th>Food</th>
+                    <th>Local Conveyance</th>
+                    <th>Mob/De Mob</th>
+                    <th>Overtime Charges</th>
+                </tr>
+            }
+            else if (Model.EnquiryCategoryName.Contains("Inspection"))
+            {
+                <tr>
+                    <th>S.No</th>
+                    <th>Details</th>
+                    <th>Scope</th>
+                    <th>UOM</th>
+                    <th>Qty</th>
+                    <th>Qualification</th>
+                    <th>Competance</th>
+                    <th>Experience</th>
+                    <th>Duration</th>
+                    <th>Response Time</th>
+                    <th>Location</th>
+                    <th>Remarks</th>
+                    <th>Budget</th>
+                    <th>Food</th>
+                    <th>Local Conveyance</th>
+                    <th>Mob/De Mob</th>
+                    <th>Overtime Charges</th>
+                </tr>
+            }
+            else if (Model.EnquiryCategoryName == "Training")
+            {
+            <tr>
+                <th>S.No</th>
+                <th>Details</th>
+                <th>Scope</th>
+                <th>UOM</th>
+                <th>No. of Attendees</th>
+                <th>Duration</th>
+                <th>Response Time</th>
+                <th>Location</th>
+                <th>Remarks</th>
+                <th>Budget</th>
+                <th>Food</th>
+                <th>Local Conveyance</th>
+                <th>Mob/De Mob</th>
+                <th>Overtime Charges</th>
+            </tr>
+            }
+            else if (Model.EnquiryCategoryName == "Secondment")
+            {
+            <tr>
+                <th>S.No</th>
+                <th>Details</th>
+                <th>Position</th>
+                <th>UOM</th>
+                <th>Qty</th>
+                <th>Qualification</th>
+                <th>Competance</th>
+                <th>Experience</th>
+                <th>Duration</th>
+                <th>Response Time</th>
+                <th>Location</th>
+                <th>Remarks</th>
+                <th>Budget</th>
+                <th>Food</th>
+                <th>Local Conveyance</th>
+                <th>Mob/De Mob</th>
+                <th>Overtime Charges</th>
+            </tr>
+            }
+        </thead>
+        <tbody>
+            @foreach (var item in Model.LstEnquiryCategoryModel)
+            {
+                if (Model.EnquiryCategoryName == "Design")
+                {
+                    <tr>
+                        <td class="text-center">@item.SNo</td>
+                        <td>@item.Details</td>
+                        <td>@item.Scope</td>
+                        <td>@item.UOMName</td>
+                        <td class="text-center">@item.Qty</td>
+                        <td>@item.ApplicableCodeStandards</td>
+                        <td>@item.ResponseTime</td>
+                        <td>@item.Location</td>
+                        <td>@item.Remarks</td>
+                        <td>@item.Budget</td>
+                        <td>@item.Food</td>
+                        <td>@item.LocalConveyance</td>
+                        <td>@item.MobDeMob</td>
+                        <td>@item.OvertimeCharges</td>
+                    </tr>
+                }
+                else if (Model.EnquiryCategoryName.Contains("Inspection"))
+                {
+                    <tr>
+                        <td class="text-center">@item.SNo</td>
+                        <td>@item.Details</td>
+                        <td>@item.Scope</td>
+                        <td>@item.UOMName</td>
+                        <td class="text-center">@item.Qty</td>
+                        <td>@item.Qualification</td>
+                        <td>@item.Competance</td>
+                        <td>@item.Experience</td>
+                        <td>@item.Duration</td>
+                        <td>@item.ResponseTime</td>
+                        <td>@item.Location</td>
+                        <td>@item.Remarks</td>
+                        <td>@item.Budget</td>
+                        <td>@item.Food</td>
+                        <td>@item.LocalConveyance</td>
+                        <td>@item.MobDeMob</td>
+                        <td>@item.OvertimeCharges</td>
+                    </tr>
+                }
+                else if (Model.EnquiryCategoryName == "Training")
+                {
+                    <tr>
+                        <td class="text-center">@item.SNo</td>
+                        <td>@item.Details</td>
+                        <td>@item.Scope</td>
+                        <td>@item.UOMName</td>
+                        <td class="text-center">@item.Attendees</td>
+                        <td>@item.Duration</td>
+                        <td>@item.ResponseTime</td>
+                        <td>@item.Location</td>
+                        <td>@item.Remarks</td>
+                        <td>@item.Budget</td>
+                        <td>@item.Food</td>
+                        <td>@item.LocalConveyance</td>
+                        <td>@item.MobDeMob</td>
+                        <td>@item.OvertimeCharges</td>
+                    </tr>
+                }
+                else if (Model.EnquiryCategoryName.Contains("Secondement"))
+                {
+                    <tr>
+                        <td class="text-center">@item.SNo</td>
+                        <td>@item.Details</td>
+                        <td>@item.Position</td>
+                        <td>@item.UOMName</td>
+                        <td class="text-center">@item.Qty</td>
+                        <td>@item.Qualification</td>
+                        <td>@item.Competance</td>
+                        <td>@item.Experience</td>
+                        <td>@item.Duration</td>
+                        <td>@item.ResponseTime</td>
+                        <td>@item.Location</td>
+                        <td>@item.Remarks</td>
+                        <td>@item.Budget</td>
+                        <td>@item.Food</td>
+                        <td>@item.LocalConveyance</td>
+                        <td>@item.MobDeMob</td>
+                        <td>@item.OvertimeCharges</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

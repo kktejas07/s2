@@ -1,0 +1,33 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ControlNumberModel.ControlNumberDetailsModel
+<div class="mt20 bg p20">
+    <section id="FormAddServiceOrder">
+        @using (Ajax.BeginForm("SaveServiceOrder", "ServiceOrder",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onAddServiceOrderSuccess",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row mt10">
+                <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 200px">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ClientDetails.ClientName, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients, "ClientId", "ClientName"), "Select", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ClientId), onchange = "getClientUnitsByClientId(this)" })
+                        @Html.ValidationMessageFor(m => m.ClientId)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ClientDetails.ClientUnit.ClientUnitName, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.ClientUnitId, new SelectList(Model.LstClientUnits, "ClientUnitId", "ClientUnitName"), "Select", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ClientUnitId), onchange = "getClientUnitDetailsByUnitId(this)" })
+                        @Html.ValidationMessageFor(m => m.ClientUnitId)
+                    </div>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.SOId)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+    </div>

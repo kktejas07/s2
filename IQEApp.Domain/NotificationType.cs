@@ -1,0 +1,36 @@
+﻿namespace IQEApp.Domain
+{
+    public enum NotificationType
+    {
+        None,
+        UpdateSuccess,
+        InsertSuccess,
+        DeleteSuccess,
+        UpdateFailed,
+        InsertFailed,
+        DeleteFailed,
+        GetFailed,
+        UnAuthorized,
+        EmailSuccess,
+        EmailFailed,
+        UploadedSuccess,
+        UploadedFailed,
+        //PublishSuccess,
+        //PublishFailed,
+        //UnPublishSuccess,
+        //UnPublishFailed,
+        //FollowSuccess,
+        //FollowFailed,
+        //UnFollowSuccess,
+        //UnFollowFailed,
+        //BlockSuccess,
+        //BlockFailed,
+        //UnBlockSuccess,
+        //UnBlockFailed,
+        //DirectoryChangeIndexUpdateStatus,
+        //InvitationSendSuccess,
+        //InvitationSendFailed
+        InvoicePrintSuccess,
+        InvoicePrintFailed
+    }
+}

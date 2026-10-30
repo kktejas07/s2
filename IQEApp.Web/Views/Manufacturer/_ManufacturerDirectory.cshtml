@@ -1,0 +1,357 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.ManufacturerModel.ManufacturerViewModel>
+
+
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Enquiry & Proposal</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 10.6pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+            width: -webkit-fill-available;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <table cellpadding="0" cellspacing="0" class="center">
+            <tr>
+                <th>@Html.Label("Manufacturer ID")</th>
+                <th>@Html.Label("Manufacturer Name")</th>
+                <th>@Html.Label("Manufacturer Details")</th>
+                <th>@Html.Label("Created Date")</th>
+                <th>@Html.Label("Total Units")</th>
+                <th>&nbsp;</th>
+            </tr>
+            @foreach (var manufacturer in Model)
+            {
+                <tr>
+                    <td>@manufacturer.ManufacturerId</td>
+                    <td>@manufacturer.ManufacturerName</td>
+                    <td>@manufacturer.City, @manufacturer.StateName, @manufacturer.CountryName</td>
+                    <td>@manufacturer.CreatedDate</td>
+                    <td>@manufacturer.TotalUnits</td>
+                    <td>
+                        <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                            @if (manufacturer.IsManufacturerActive)
+                            {
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ManufacturerEdit, @User.RoleId.FirstOrDefault()) || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ManufacturerInActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="ManufacturerDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ManufacturerEdit, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:EditManufacturer('@manufacturer.ManufacturerGuid');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Edit Manufacturer
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ManufacturerInActive, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UpdateManufacturerStatus('@manufacturer.ManufacturerGuid',false);">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Manufacturer
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ManufacturerActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="ManufacturerDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ManufacturerActive, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UpdateManufacturerStatus('@manufacturer.ManufacturerGuid',true);">
+                                                        <i class="fa fa-undo mr20" aria-hidden="true">
+                                                        </i> Activate Manufacturer
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</body>
+
+
+
+<script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+    function EditManufacturer(manufacturerGuid) {
+        $.ajax({
+            url: '../Manufacturer/EditManufacturer',
+            type: 'POST',
+            data: {
+                manufacturerGuid: manufacturerGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Operations &#8667; Edit Manufacturer');
+                $("#divMainSearch").hide();
+                $('#divActiveInActive').hide();
+                $("#divManufacturerDetails").html('').hide();
+                $('#divAddUpdateManufacturer').html(data).show();
+                $('#btnManufacturerList').show();
+                $('#btnAddManufacturer').hide();
+                $('#ManufacturerName').focus();
+                $('#ManUnitsToggleBtsDiv').show();
+                $('#AlphaSorting').hide();
+                $('#ManufacturerPager').hide();
+                $('#ManufacturerDataPostDiv').show();
+                ManufacturerUnitsList();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    function UpdateManufacturerStatus(manufacturerGuid, status) {
+        if (status == 'true') {
+            var options = {};
+            options.msg = "Are you sure you want to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(manufacturerGuid, status);
+            }, options);
+        }
+
+        if (status == 'false') {
+            var options = {};
+            options.msg = "Are you sure you want to InActivate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(manufacturerGuid, status);
+            }, options);
+        }
+        else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(manufacturerGuid, status);
+            });
+        }
+
+        //if (status) {
+        //    var options = {};
+        //    options.msg = "Are you sure to Activate?";
+        //    ShowConfirmationPrompt(function () {
+        //        UpdateStatus(manufacturerGuid, status);
+        //    }, options);
+        //} else {
+        //    ShowDeleteConfirmationPrompt(function () {
+        //        UpdateStatus(manufacturerGuid, status);
+        //    });
+        //}
+    }
+
+    function UpdateStatus(manufacturerGuid, status) {
+        $.ajax({
+            url: '../Manufacturer/UpdateManufacturerStatus',
+            type: 'POST',
+            data: {
+                manufacturerGuid: manufacturerGuid,
+                IsManufacturerActive: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    }
+                    window.FilterManufacturerDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    function AddManufacturerUnit() {
+        //if ()
+        //    //debugger;
+        //var munitflag = $("#ManufacturerUnitNameFlag option:selected").val();
+
+        //if (munitflag == "2") {
+        //    CountryId1: $("#CountryId option:selected").val();
+        //    StateId1: $("#StateId option:selected").val();
+        //    City1: $("#City").val();
+        //}
+
+        if ($("#ManufacturerUnitNameFlag option:selected").val() == '2') {
+            AddManufacturerNoUnit($("#ManufacturerName").val());
+        }
+        else {
+            $.ajax({
+                url: '../Manufacturer/AddManufacturingUnit',
+                type: 'POST',
+                data: {
+                    manufacturerId: $("#ManufacturerId").val()
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    $("#divMainSearch").hide();
+                    $('#divManufacturerDetails').html('').hide();
+                    $('#spnManufacturerUnitTitle').html('Add Manufacturer Units');
+                    $('#divAddUpdateManufacturerUnit').html(data).show();
+                    $("#btnManufacturerUnitsList").show();
+                    $("#btnAddNewManufacturerUnits").hide();
+                    $('#ManufacturerDataPostDiv').show();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+    }
+    }
+
+    function AddManufacturerNoUnit(obj) {
+       // //debugger;
+        var manufacturerName = obj;
+        var CountryId1 = $("#CountryId option:selected").val();
+       var StateId1 = $("#StateId option:selected").val();
+       var  City1 = $("#City").val();
+        $.ajax({
+            url: '../Manufacturer/AddManufacturingNoUnit',
+            type: 'POST',
+            data: {
+                manufacturerId: $("#ManufacturerId").val(),
+                manufacturerName: manufacturerName,
+                CountryId: CountryId1,
+                StateId: StateId1,
+                City: City1
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $("#divMainSearch").hide();
+                $('#divManufacturerDetails').html('').hide();
+                $('#spnManufacturerUnitTitle').html('Add Manufacturer Units');
+                $('#divAddUpdateManufacturerUnit').html(data).show();
+                $("#btnManufacturerUnitsList").show();
+                $("#btnAddNewManufacturerUnits").hide();
+                $('#ManufacturerDataPostDiv').show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    function ManufacturerUnitsList(manufacturerId) {
+        if (manufacturerId == undefined) {
+            manufacturerId = $("#ManufacturerId").val();
+        }
+        $.ajax({
+            url: '../Manufacturer/GetManufacturingUnitsByManufacturer',
+            type: 'POST',
+            data: {
+                manufacturerId: manufacturerId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $("#divMainSearch").hide();
+                $('#spnManufacturerUnitTitle').html('Manufacturer Units Details').show();
+                $('#divAddUpdateManufacturerUnit').html('').hide();
+                $('#divManufacturerDetails').html(data).show();
+                $("#btnManufacturerUnitsList").hide();
+                $("#btnAddNewManufacturerUnits").show();
+                $('#AlphaSorting').hide();
+                $('#ManufacturerPager').hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+</script>

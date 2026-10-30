@@ -1,0 +1,237 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.CompetanceModel.CompetanceViewModel
+<div>
+    <section id="AddCompetanceForm">
+        @using (Ajax.BeginForm("CreateCompetance", "User",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessAddCompetance",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+
+                <div class="box-header with-border row">
+                    <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+                        @Html.HiddenFor(m => m.EmployeeCode, new { @Value = ViewBag.EmployeeCode.ToString() })
+                        @Html.LabelFor(m => m.UserFullName, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.UserFullName, new { @Value = ViewBag.UserFullName.ToString(), @readonly = "readonly", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.UserFullName) })
+                        @Html.ValidationMessageFor(m => m.UserFullName)
+                        <span id="spnDuplicateError1" class="field-validation-error" style="display: none;">There was a Competency Mapping for this User.</span>
+                        <span id="spnDuplicateError2" class="field-validation-error" style="display: none;">Invalid User Name.</span>
+                        <div class="clearfix mt10"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 ">
+                    <h4 class="box-title"><b><span id="spnHeadTitle">Choose Competance</span></b></h4>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 ">
+                        <h4 class="box-title"><h5><b><span id="spnHeadTitle" style="background-color: #017dc6">Civil</span></b></h5></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.CheckBoxFor(m => m.CivilStructures, new { @class = "inputStyle" })<span>&nbsp;<b>Civil Structures</b></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 ">
+                        <h4 class="box-title"><h5><b><span id="spnHeadTitle" style="background-color: #017dc6">Electrical</span></b></h5></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="checkbox-block">
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Batteries, new { @class = "inputStyle" })<span>&nbsp;<b>Batteries</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.BatteryChargers, new { @class = "inputStyle" })<span>&nbsp;<b>Battery Chargers</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Cables, new { @class = "inputStyle" })<span>&nbsp;<b>Cables</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Conductors, new { @class = "inputStyle" })<span>&nbsp;<b>Conductors</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.DigitalControlSystems, new { @class = "inputStyle" })<span>&nbsp;<b>DigitalControlSystems</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Generators, new { @class = "inputStyle" })<span>&nbsp;<b>Generators</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Insulators_Switchgears, new { @class = "inputStyle" })<span>&nbsp;<b>Insulators/Switchgears</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Invertors, new { @class = "inputStyle" })<span>&nbsp;<b>Invertors(Regular/Solar)</b></span>
+                        </div>
+
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Motors, new { @class = "inputStyle" })<span>&nbsp;<b>Motors(AC & DC)</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Panels, new { @class = "inputStyle" })<span>&nbsp;<b>Panels (HV/MV)</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.SolarPanels, new { @class = "inputStyle" })<span>&nbsp;<b>Solar Panels</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Transformers, new { @class = "inputStyle" })<span>&nbsp;<b>Transformers</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 ">
+                        <h4 class="box-title"><h5><b><span id="spnHeadTitle" style="background-color: #017dc6">Mechanical</span></b></h5></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="checkbox-block">
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Castings, new { @class = "inputStyle" })<span>&nbsp;<b>Castings</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Compressors, new { @class = "inputStyle" })<span>&nbsp;<b>Compressors</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Forgings, new { @class = "inputStyle" })<span>&nbsp;<b>Forgings</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.FRP_HDPE, new { @class = "inputStyle" })<span>&nbsp;<b>FRP/HDPE</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.HeatExchangers, new { @class = "inputStyle" })<span>&nbsp;<b>Heat Exchangers</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.LinePipes, new { @class = "inputStyle" })<span>&nbsp;<b>Line Pipes</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.MachinedComponents, new { @class = "inputStyle" })<span>&nbsp;<b>Machined Components</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.ManufacturerAssesment, new { @class = "inputStyle" })<span>&nbsp;<b>Manufacturer Assesment</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.PaintingCoating, new { @class = "inputStyle" })<span>&nbsp;<b>Painting Coating</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.PressureVessels, new { @class = "inputStyle" })<span>&nbsp;<b>Pressure Vessels</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Pumps, new { @class = "inputStyle" })<span>&nbsp;<b>Pumps</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Skids, new { @class = "inputStyle" })<span>&nbsp;<b>Skids</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.SteelStructures, new { @class = "inputStyle" })<span>&nbsp;<b>Steel Structures</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Tanks, new { @class = "inputStyle" })<span>&nbsp;<b>Tanks</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Tubes, new { @class = "inputStyle" })<span>&nbsp;<b>Tubes</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Turbines, new { @class = "inputStyle" })<span>&nbsp;<b>Turbines</b></span>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            @Html.CheckBoxFor(m => m.Valves_Actuators, new { @class = "inputStyle" })<span>&nbsp;<b>Valves Actuators</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 ">
+                        <h4 class="box-title"><h5><b><span id="spnHeadTitle" style="background-color: #017dc6">Others</span></b></h5></h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="checkbox-block">
+                        <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                            @Html.CheckBoxFor(m => m.Others, new { @class = "inputStyle"})<span>&nbsp;<b>Others</b></span>
+                        </div>
+                        <div class="col-sm-2 col-md-2 col-lg-2 form-group" style="visibility:hidden" id="divothertxt">
+                            @Html.TextBoxFor(m => m.OthersText, new { @class = "form-control inputStyle redboder",  @placeholder = @Html.DisplayNameFor(model => model.OthersText) })
+                            @Html.ValidationMessageFor(m => m.UserFullName)
+                        </div>
+                        <div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCloseAddCompetance" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: competanceList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveCompetance" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+
+                </div>
+            </div>
+
+        }
+    </section>
+</div>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>
+
+<script>
+
+    $("#Others").change(function () {
+        if ($(this).prop('checked')) {
+            document.getElementById("divothertxt").style.visibility = "visible"; 
+        } else {
+            document.getElementById("divothertxt").style.visibility = "hidden"; 
+        }
+    });
+
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnSaveCompetance").prop('disabled', true);
+    }
+    function onSuccessAddCompetance(data) {
+      //  getEnquiryWorkScopeIds();
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            $("#ClientId").val(data.clientId);
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+        }
+        else {
+            if (!data.status && data.competanceId == '-1'){
+                $("#spnDuplicateError1").show();
+                $("#spnDuplicateError2").hide();
+            } else if (!data.status && data.competanceId == '-2') {
+                $("#spnDuplicateError1").hide();
+                $("#spnDuplicateError2").show();
+            }
+           // $("#spnDuplicateError").show();
+            $("#btnSaveCompetance").prop('disabled', false);
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+           // window.GrowlObj.getGrowlMessage(data.messsge);
+           // $("#btnSaveCompetance").prop('disabled', false);
+        }
+
+            @*else if (data.competanceId = '-1' && data.status) {
+           // window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            window.GrowlObj.getGrowlMessage(data.messsge);
+           // $("#btnSaveCompetance").prop('disabled', false);
+        }
+        else
+             window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");*@
+     }
+
+</script>

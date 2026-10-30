@@ -1,0 +1,277 @@
+﻿@using System.Security.Policy
+@using AutoMapper.Internal
+@using IQEApp.Web.Models.CommonModels
+@using IQEApp.Web.Utils
+@using IQEApp.Web
+<nav class="navbar navbar-default ">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand">
+        <img src="~/Images/IQElogo.png">
+
+    </a>
+
+
+
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right menu-font">
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MenuHome, @User.RoleId.FirstOrDefault()))
+            {
+                <li> <a href="../Admin/Index" class="nav-link" id="SubMenuHome"><b>HOME</b></a> </li>
+            }
+
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MenuAdmin, @User.RoleId.FirstOrDefault()))
+            {
+                <li class="dropdown nav-item">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="SubMenuDirectory"><b>ADMIN</b><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.AdminMasters, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Masters/Index")" id="lnkBtnScheduleVisit">Masters</a>
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MenuSecurity, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Security/Index")" id="lnkBtnScheduleVisit">Authorizations</a>
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.AdminHumanResource, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/User/Index")" id="lnkBtnScheduleVisit">Human Resource</a>
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.AdminAssociate, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Associates/Index")" id="lnkBtnScheduleVisit">Associates</a>
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.AdminData, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Inspector/Index")" id="lnkBtnScheduleVisit">Data</a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MenuSales, @User.RoleId.FirstOrDefault()))
+            {
+
+                <li class="dropdown nav-item">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="SubMenuDirectory"><b>SALES</b><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.SalesClients, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Client/Index")" id="lnkBtnScheduleVisit">Customers</a>
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.SalesEnquiry, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Enquiry/Index")" id="lnkBtnScheduleVisit">Enquries</a>
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.SalesCustomerComplaint, @User.RoleId.FirstOrDefault()))
+                        {
+                            @*<li>
+                                <a href="@Url.Content("~/ControlNumber/Index")" id="lnkBtnScheduleVisit">Control Numbers</a>
+                            </li>*@
+                            <li>
+                                <a href="@Url.Content("~/ControlNumber/Index")" id="lnkBtnScheduleVisit">Service Orders</a>
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.SalesCustomerComplaint, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/CustomerComplaint/Index")" id="lnkBtnScheduleVisit">Customer Complaint</a>
+                            </li>
+                        }
+                        @*<li>
+        <a href="@Url.Content("~/ServiceOrder/ServiceOrders")" id="lnkBtnScheduleVisit">Service Orders</a>
+        </li>
+         <li>
+          <a href="@Url.Content("/Test/Test")" id="lnkBtnScheduleVisit">Work Orders</a>
+        </li>*@
+
+                    </ul>
+
+                </li>
+            }
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MenuOperations, @User.RoleId.FirstOrDefault()))
+            {
+                <li class="dropdown nav-item">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="SubMenuDirectory"><b>OPERATIONS</b><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.OperationsManufacturers, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Manufacturer/Index")" id="SubMenuClients">Manufacturers</a>
+
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.OperationsPurchaseOrders, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/PurchaseOrder/PurchaseOrders")" id="SubMenuClients">Purchase Orders</a>
+                            </li>
+                        }
+
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.OperationsScheduleVisit, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/VisitSchedule/Index")" id="lnkBtnScheduleVisit">Visit Schedule</a>
+                            </li>
+                            @*<li>
+                                <a href="@Url.Content("~/Operations1/Index")" id="lnkBtnScheduleVisit">Schedule Visit</a>
+                            </li>*@
+                        }
+
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.OperationsOpenCalls, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Home/HomePage")" id="SubMenuClients">Open Calls</a>
+                                @*<a href="/home/HomePage" class="nav-link" id="SubMenuHome">Open Calls </a>*@
+                            </li>
+                        }
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.OperationsLogSheet, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/VisitProcessing/LogSheet")" id="SubMenuClients">Log Sheet</a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MenuFinance, @User.RoleId.FirstOrDefault()))
+            {
+                <li class="dropdown nav-item">
+
+                    @if (User.RoleId.FirstOrDefault() == 1 || User.RoleId.FirstOrDefault() == 2)
+                    {
+                        <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="SubMenuDirectory"><b>FINANCE</b><span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.FinanceSalesRegister, @User.RoleId.FirstOrDefault()))
+                            {
+                                <li>
+                                    <a href="@Url.Content("~/Invoice/Index")" id="lnkBtnScheduleVisit">Sales Register</a>
+                                </li>
+                            }
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.FinanceCreateInvocie, @User.RoleId.FirstOrDefault()))
+                            {
+                                <li>
+                                    <a href="@Url.Content("~/Invoice/GenerateInvoice")" id="lnkBtnScheduleVisit">Create Invoice</a>
+                                </li>
+                            }
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.FinanceCreditors, @User.RoleId.FirstOrDefault()))
+                            {
+                                <li>
+                                    <a href="@Url.Content("~/Creditors/Index")" id="lnkBtnScheduleVisit">Payables(C)</a>
+                                </li>
+                            }
+                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.FinanceDebtors, @User.RoleId.FirstOrDefault()))
+                            {
+                                <li>
+                                    <a href="@Url.Content("~/Debtors/Index")" id="lnkBtnScheduleVisit">Receivables(D)</a>
+                                </li>
+                            }
+                            </ul>
+                    }
+                </li>
+            }
+
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MenuQMS, @User.RoleId.FirstOrDefault()))
+            {
+                <li class="dropdown nav-item">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="SubMenuDirectory"><b>QMS</b><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.QMSDocuments, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="@Url.Content("~/Document/Index")" id="lnkBtnScheduleVisit">Documents</a>
+                            </li>
+                        }
+                            @*<li>
+                                <a href="@Url.Content("~/CustomerComplaint/Index")" id="lnkBtnScheduleVisit"></a>
+                            </li>*@
+                        </ul>
+                </li>
+            }
+
+
+                @*<li class="nav-item"><a class="nav-link"  href="@Url.Content("~/Reports/Index")" id="lnkBtnReports">REPORTS</a></li>*@
+                <li class="dropdown user user-menu " style=" ">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span>
+                            <i class="fa fa-cog" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu1">
+                        <!-- User image -->
+                        <li class="user-header">
+                            <div class="userprofiletop">
+                                <div>
+                                    @if (!string.IsNullOrEmpty(@User.ProfileImageLink))
+                                    {
+                                        <img src="@Url.Content(Html.GetCompleteImageUrl(User.ProfileImageLink, User.SiteId).ToString())" class="img-circle" alt="User Image" onerror='this.src = "../Images/Profile.jpg"' />
+                                    }
+                                    else
+                                    {
+                                        <img src="~/Images/Profile.jpg" class="img-circle" alt="User Image">
+                                    }
+                                </div>
+                                <div class="short-text" style="text-align:-webkit-center;">
+                                    <div class="hideOverflow " style="color: #ffffff; height: 20px;">
+                                        @User.UserFullName
+                                    </div>
+                                </div>
+
+                            </div>
+                        </li>
+                        <li class="cogwheel-footer">
+                            <ul>
+                                <li>
+                                    <span> <a href="~/User/ViewProfile?userGuid=@User.UserGuid" style="margin-bottom: 10px;">My Profile</a></span>
+                                </li>
+                                <li>
+                                    <span>
+                                        <a href="~/User/EditProfile?userGuid=@User.UserGuid" style="margin-bottom : 10px; ">Edit My Profile</a>
+                                    </span>
+                                </li>
+                                <li>
+                                    <span>
+                                        <a href="~/Settings/Index" style="margin-bottom : 10px; ">Settings</a>
+                                    </span>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="cogwheel-footer">
+                            <div class="pull-right">
+
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="~/Login/Logon" class="nav-link" id="SubMenuSignOut">
+                        <i class="fa fa-sign-out" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+</div>
+
+</nav>
+<script type="text/javascript">
+
+</script>

@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no" />
+	<meta property="og:url" content="http://www.pigno.se/barn/PIGNOSE-Calendar">
+	<meta property="og:type" content="product" />
+	<meta property="og:title" content="PIGNOSE Calendar" />
+	<meta property="og:description" content="PIGNOSE Calendar is beautiful and eidetic jQuery date picker plguin." />
+	<meta property="og:image" content="http://www.pigno.se/barn/PIGNOSE-Calendar/demo/img/cover@250.png" />
+	<meta property="og:site_name" content="PIGNOSE" />
+	<title>Calendar</title>
+
+	<link rel="stylesheet" type="text/css" href="css/semantic.ui.min.css">
+	<link rel="stylesheet" type="text/css" href="css/prism.css" />
+	<link rel="stylesheet" type="text/css" href="css/calendar-style.css" />
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
+	<link rel="stylesheet" type="text/css" href="css/pignose.calendar.css" />
+	<style type="text/css">
+		.input-calendar {
+			display: block;
+			width: 100%;
+			max-width: 360px;
+			margin: 0 auto;
+			height: 3.2em;
+			line-height: 3.2em;
+			font: inherit;
+			padding: 0 1.2em;
+			border: 1px solid #d8d8d8;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+			-o-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+			-moz-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+			-webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+		}
+
+		.btn-calendar {
+			display: block;
+			width: 100%;
+			max-width: 360px;
+			height: 3.2em;
+			line-height: 3.2em;
+			background-color: #52555a;
+			margin: 0 auto;
+			font-weight: 600;
+			color: #ffffff !important;
+			text-decoration: none !important;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+			-o-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+			-moz-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+			-webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+		}
+
+		.btn-calendar:hover {
+			background-color: #5a6268;
+		}
+	</style>
+	<script type="text/javascript" src="js/jquery.latest.min.js"></script>
+	<script type="text/javascript" src="js/semantic.ui.min.js"></script>
+	<script type="text/javascript" src="js/prism.min.js"></script>
+	<script type="text/javascript" src="js/moment.min.js"></script>
+	<script type="text/javascript" src="js/pignose.calendar.js"></script>
+<script type="text/javascript">
+	//<![CDATA[
+	$(function() {
+		$('#wrapper .version strong').text('v' + pignoseCalendar.VERSION);
+		function onClickHandler(date, obj) {
+			/**
+			 * @date is an array which be included dates(clicked date at first index)
+			 * @obj is an object which stored calendar interal data.
+			 * @obj.calendar is an element reference.
+			 * @obj.storage.activeDates is all toggled data, If you use toggle type calendar.
+			 */
+
+			var $calendar = obj.calendar;
+			var $box = $calendar.parent().siblings('.box').show();
+			var text = 'You choose date ';
+
+			if(date[0] !== null) {
+				text += date[0].format('YYYY-MM-DD');
+			}
+
+			if(date[0] !== null && date[1] !== null) {
+				text += ' ~ ';
+			} else if(date[0] === null && date[1] == null) {
+				text += 'nothing';
+			}
+
+			if(date[1] !== null) {
+				text += date[1].format('YYYY-MM-DD');
+			}
+
+			$box.text(text);
+		}
+
+		// Default Calendar
+		$('.calendar').pignoseCalendar({
+			select: onClickHandler
+		});
+
+		// Input Calendar
+		$('.input-calendar').pignoseCalendar({
+			buttons: true, // It means you can give bottom button controller to the modal which be opened when you click.
+		});
+
+		// Calendar modal
+		var $btn = $('.btn-calendar').pignoseCalendar({
+			modal: true, // It means modal will be showed when you click the target button.
+			buttons: true,
+			apply: function(date) {
+				$btn.next().show().text('You applied date ' + date + '.');
+			}
+		});
+
+	
+		// Multiple picker type Calendar
+		$('.multi-select-calendar').pignoseCalendar({
+			multiple: true,
+			select: onClickHandler
+		});
+
+		// Toggle type Calendar
+		$('.toggle-calendar').pignoseCalendar({
+			toggle: true,
+			select: function(date, obj) {
+				var $target = obj.calendar.parent().next().show().html('You selected ' + 
+				(date[0] === null? 'null':date[0].format('YYYY-MM-DD')) + 
+				'.' +
+				'<br /><br />' +
+				'<strong>Active dates</strong><br /><br />' +
+				'<div class="active-dates"></div>');
+
+				for(var idx in obj.storage.activeDates) {
+					var date = obj.storage.activeDates[idx];
+					if(typeof date !== 'string') {
+						continue;
+					}
+					$target.find('.active-dates').append('<span class="ui label default">' + date + '</span>');
+				}
+			}
+		});
+
+		// Disabled date settings.
+		!(function() {
+			// IIFE Closure
+			var times = 30;
+			var disabledDates = [];
+			for(var i=0; i<times; /* Do not increase index */) {
+				var year = moment().year();
+				var month = 0;
+				var day = parseInt(Math.random() * 364 + 1);
+				var date = moment().year(year).month(month).date(day).format('YYYY-MM-DD');
+				if($.inArray(date, disabledDates) === -1) {
+					disabledDates.push(date);
+					i++;
+				}
+			}
+
+			disabledDates.sort();
+
+			var $dates = $('.disabled-dates-calendar').siblings('.guide').find('.guide-dates');
+			for (var idx in disabledDates) {
+				$dates.append('<span>' + disabledDates[idx] + '</span>');
+			}
+
+			$('.disabled-dates-calendar').pignoseCalendar({
+				select: onClickHandler,
+				disabledDates: disabledDates
+			});
+		} ());
+
+		// Disabled Weekdays Calendar.
+		$('.disabled-weekdays-calendar').pignoseCalendar({
+			select: onClickHandler,
+			disabledWeekdays: [0, 6]
+		});
+
+		// Disabled Range Calendar.
+		var minDate = moment().set('dates', Math.min(moment().day(), 2 + 1)).format('YYYY-MM-DD');
+		var maxDate = moment().set('dates', Math.max(moment().day(), 24 + 1)).format('YYYY-MM-DD');
+		$('.disabled-range-calendar').pignoseCalendar({
+			select: onClickHandler,
+			minDate: minDate,
+			maxDate: maxDate
+		});
+
+		// Disabled Ranges Calendar.
+		$('.disabled-ranges-calendar').pignoseCalendar({
+			select: onClickHandler,
+			disabledRanges: [
+				['2016-10-05', '2016-10-21'],
+				['2016-11-01', '2016-11-07'],
+				['2016-11-19', '2016-11-21'],
+				['2016-12-05', '2016-12-08'],
+				['2016-12-17', '2016-12-18'],
+				['2016-12-29', '2016-12-30'],
+				['2017-01-10', '2017-01-20'],
+			]
+		});
+
+		// I18N Calendar
+		$('.language-calendar').each(function() {
+			var $this = $(this);
+			var lang = $this.data('lang');
+			$this.pignoseCalendar({
+				lang: lang
+			});
+		});
+
+		// This use for DEMO page tab component.
+		$('.menu .item').tab();
+	});
+	//]]>
+	</script>
+</head>
+<body>
+	<div id="wrapper">
+		
+		<div id="basic" class="article">
+			<h3><span>Calendar</span></h3>
+            <h4>PIGNOSE Calendar is beautiful and eidetic jQuery date picker plguin.</h4>
+            <div class="calendar"></div>
+			<div class="box"></div>
+		</div>
+		<div id="input" class="article">
+			<h3><span>Input type</span></h3>
+            <h4>You can use calendar by input power ups.</h4>
+            <input type="text" class="input-calendar" />
+			<div class="box"></div>
+		</div>
+		
+	</div>
+</body>
+</html>

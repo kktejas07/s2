@@ -1,0 +1,135 @@
+﻿@*<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>*@
+@{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Reports";
+}
+<div class="box-header with-border">
+    <h3 class="box-title"> <span id="spnMasterTitle"> @ViewBag.Title </span></h3>
+</div>
+<div class="container-fluid topspace">
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-3 bg">
+            <span>
+                Reports
+            </span>
+            <div class="pl15">
+
+            </div>
+            <ul class="list-group">
+                <li class="list-group-items">
+                    <span id="btnVisitsByClient" onclick="fnShowReportsFilters('visits');">1. Visits By Client</span>
+                </li>
+
+                <li class="list-group-items">
+                    <span id="btnVisitsByEngineer" onclick="fnShowReportsFilters();">2. Visits By Engineer</span>
+                </li>
+                <li class="list-group-items">
+                    <span id="btnVisitsByEngineer" onclick="fnShowReportsFilters('visit expenses');">3. Visit Expenses</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9">
+            <div id="divReportFilters">
+            </div>
+            <div id="divReportBody">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function fnShowReportsFilters(type) {
+        $.ajax({
+            url: '../Reports/GetReportFilters',
+            type:'POST',
+            data: {reportType:type},
+            beforeSend:function() {
+
+            },
+            success:function(response) {
+                $("#divReportFilters").html(response);
+                $("#divReportBody").html('');
+            },
+            error:function(xhr) {
+
+            },
+            complete:function() {
+
+            }
+        });
+    }
+
+    function beginEvent() {
+        HideAndShowCompletePageLoadingIcon(true);
+    }
+
+    function fnGetReport() {
+        $.ajax({
+            url: '../Reports/GetVisitDetailsForReport',
+            type: 'POST',
+            data: {
+                FromDate: $("#FromDate").val(),
+                ToDate: $("#ToDate").val(),
+                ClientId: $("#ClientId").val(),
+                EngineerId: $("#EngineerId").val(),
+                Status: $("#drpVisitStatus").val()
+            },
+            beforeSend: function(e) {
+                HideAndShowCompletePageLoadingIcon(true);
+            },
+            success: function (response) {
+                var object = null;
+                //create iframe
+                var iframe = document.createElement('iframe');
+                // div tag in which iframe will be added should have id attribute with value myDIV
+                document.getElementById("divMSFilePreviewPopup").appendChild(iframe);
+                // add id to dynamically generated iframe
+                iframe.setAttribute("id", "myIframe");
+                // provide height and width to it
+                iframe.setAttribute("style", "height:600px;width:100%;");
+
+                if (response.retStatus) {
+                    var fileName =  response.file;
+                    object ="<object data=\"{FileName}\"  type=\"application/pdf\" width=\"100%\" height=\"500px\"></object>";
+                    // this is not allowing scroll style =\"Pointer-events:none\"
+                    object = object.replace(/{FileName}/g, "" + fileName);
+                    $("#divReportBody").html(object).show();
+                } else {
+                    console.log("failed to load preview");
+                }
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                HideAndShowCompletePageLoadingIcon(false);
+            },
+            complete: function() {
+                HideAndShowCompletePageLoadingIcon(false);
+            }
+        });
+
+
+    }
+
+    function fnShowReport(response) {
+
+                var object = null;
+                //create iframe
+                var iframe = document.createElement('iframe');
+                // div tag in which iframe will be added should have id attribute with value myDIV
+                document.getElementById("divMSFilePreviewPopup").appendChild(iframe);
+                // add id to dynamically generated iframe
+                iframe.setAttribute("id", "myIframe");
+                // provide height and width to it
+                iframe.setAttribute("style", "height:600px;width:100%;");
+
+                if (response.retStatus) {
+                    var fileName = response.file;
+                    object = "<object data=\"{FileName}\"  type=\"application/pdf\" width=\"100%\" height=\"500px\"></object>";
+                    // this is not allowing scroll style =\"Pointer-events:none\"
+                    object = object.replace(/{FileName}/g, "" + fileName);
+                    $("#divReportBody").html(object).show();
+                } else {
+                    console.log("failed to load preview");
+                }
+                HideAndShowCompletePageLoadingIcon(false);
+    }
+</script>

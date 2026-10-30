@@ -1,0 +1,178 @@
+﻿@model IEnumerable<IQEApp.Web.Models.ManufacturerModel.ManufacturerUnitsViewModel>
+@using GridMvc.Html
+@using IQEApp.Domain
+
+<div id="">
+    <div class="clearfix"></div>
+    <!--Header Div Starts-->
+    <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+            Unit Name
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+            Address
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Contact Person Name
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Designation
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            &nbsp;
+        </div>
+    </div>
+    <!--Header Div Ends-->
+    @if (Model == null || Model.Count() == 0)
+    {
+        <!--No data display Div Starts-->
+        <div class="directory-table-row text-center">
+            <span>
+                No Records found
+            </span>
+        </div>
+        <!--No data display Div ends-->
+    }
+    else
+    {
+        foreach (var manufacturerUnit in Model)
+        {
+            <!-- Directory data display Div Starts -->
+            <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    @manufacturerUnit.ManufacturerUnitName
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    @manufacturerUnit.Address
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @manufacturerUnit.ContactPersonName
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @manufacturerUnit.ContactPersonDesignation
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                    <div class="btn-group" style="display: inline-block;" role="group">
+                        <span id="ManufacturerUnitListDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                        </span>
+                        <ul class="dropdown-menu ellipse-menu-left">
+                            <li>
+                                <a href="javascript:EditManufacturerUnit('@manufacturerUnit.ManufacturerUnitGuid');">
+                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                    </i> Edit Manufacturer Unit
+                                </a>
+                            </li>
+                            @*<li>
+                                <a href="javascript:UpdateManufacturingUnitStatus('@manufacturerUnit.ManufacturerUnitGuid',0);">
+                                    <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                    </i> Delete Manufacturer Unit
+                                </a>
+                            </li>*@
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Directory data display Div ends -->
+        }
+    }
+
+</div>
+<div class="clearfix"></div>
+
+<script>
+    function EditManufacturerUnit(unitGuidId) {
+        ////debugger;
+        var manufacturerUnitNameFlag = $("#ManufacturerUnitNameFlag").val();
+
+        if ($("#ManufacturerUnitNameFlag option:selected").val() == '2') {
+            var CountryId1 = $("#CountryId option:selected").val();
+            var StateId1 = $("#StateId option:selected").val();
+            var City1 = $("#City").val();
+
+            $.ajax({
+                url: '../Manufacturer/EditManufacturingNoUnitDetails',
+                type: 'POST',
+                data: {
+                    ManufacturerUnitGuid: unitGuidId,
+                    ManufacturerUnitNameFlag: manufacturerUnitNameFlag,
+                    CountryId: CountryId1,
+                    StateId: StateId1,
+                    City: City1
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    $('#spnManufacturerUnitTitle').html('Manufacturer Units Details').show();
+                    $('#divManufacturerDetails').html('').hide();
+                    $('#divAddUpdateManufacturerUnit').html(data).show();
+                    $("#btnAddNewManufacturerUnits").hide();
+                    $("#btnManufacturerUnitsList").show();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+        else {
+
+            $.ajax({
+                url: '../Manufacturer/EditManufacturingUnitDetails',
+                type: 'POST',
+                data: {
+                    ManufacturerUnitGuid: unitGuidId,
+                    ManufacturerUnitNameFlag: manufacturerUnitNameFlag
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    $('#spnManufacturerUnitTitle').html('Manufacturer Units Details').show();
+                    $('#divManufacturerDetails').html('').hide();
+                    $('#divAddUpdateManufacturerUnit').html(data).show();
+                    $("#btnAddNewManufacturerUnits").hide();
+                    $("#btnManufacturerUnitsList").show();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+    }
+    function UpdateManufacturingUnitStatus(unitGuidId, status) {
+        $.ajax({
+            url: '../Manufacturer/UpdateManufacturerUnitStatus',
+            type: 'POST',
+            data: {
+                ManufacturerUnitGuid: unitGuidId,
+                IsManufacturerUnitActive: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                if (response.status) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    ManufacturerUnitsList();
+                } else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                }
+                //$('#spnManufacturerUnitTitle').html('Manufacturer Units Details').show();
+                //$('#AddManufacturerUnits').html('').hide();
+                //$('#ManufacturerList').html(data).show();
+                //$("#btnManufacturerUnitsList").hide();
+                //$("#btnAddNewManufacturerUnits").show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+</script>

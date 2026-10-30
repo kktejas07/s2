@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Real connection strings for THIS environment. Never commit this file.
+
+  Copy to connections.config beside Web.config and fill in the values. The
+  committed Web.config points at it with <connectionStrings configSource=... />,
+  so the application will not start until it exists.
+-->
+<connectionStrings>
+  <add name="WIConnectionString"
+       connectionString="Data Source=tcp:YOUR_SERVER;Initial Catalog=YOUR_DATABASE;Integrated Security=False;Persist Security Info=True;User ID=YOUR_USER;Password=YOUR_PASSWORD"
+       providerName="System.Data.SqlClient" />
+</connectionStrings>

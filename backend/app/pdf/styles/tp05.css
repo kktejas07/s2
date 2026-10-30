@@ -1,0 +1,65 @@
+@import "base.css";
+
+@page {
+  size: 8.5in 11in;
+  margin: 0.45in;
+  @bottom-center {
+    font-family: 'Arial', 'Liberation Sans', sans-serif;
+    font-size: 7.5pt;
+    color: #000000;
+    content: "IQE-TP-05 | Rev. 00 | Controlled Document | Page " counter(page) " of " counter(pages);
+  }
+}
+
+body {
+  font-size: 7pt;
+}
+
+.header-company-name {
+  font-size: 8.5pt;
+}
+
+.header-subline {
+  font-size: 7.5pt;
+}
+
+.header-right-cell {
+  font-size: 7.5pt;
+}
+
+.doc-title {
+  font-size: 14pt;
+}
+
+.doc-subtitle {
+  font-size: 8pt;
+}
+
+.section-heading {
+  font-size: 9pt;
+  margin-top: 9pt;
+  margin-bottom: 2pt;
+}
+
+table.report-table {
+  font-size: 6.8pt;
+}
+
+table.report-table th,
+table.report-table td {
+  padding: 1.1pt 0.05in;
+}
+
+.photo-box {
+  height: 1.05in;
+}
+
+.photo-grid-table {
+  margin-top: 2pt;
+  margin-bottom: 2pt;
+}
+
+.disclaimer-block {
+  font-size: 6.5pt;
+  margin-top: 4pt;
+}

@@ -1,0 +1,277 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.CustomerComplaintModel.CustomerComplaintViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    table {
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        background-color: #fff;
+        align-content: center;
+        width: -webkit-fill-available;
+    }
+
+   /* .tablecont {
+        border-color: #f0f0f0;
+        color: #333;
+        vertical-align: middle !important
+    }
+
+    th, td {
+        text-align: left;
+        padding: 4px;
+        border:none;
+    }*/
+</style>
+
+<div>
+    <section id="AddCustomerComplaintForm">
+        @using (Ajax.BeginForm("CreateCustomerComplaint", "CustomerComplaint",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessAddComplaint",
+            }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            <table>
+                <thead class="tablecont">
+                    <tr>
+                        <th colspan="6" style="text-align:center;"><h4><label class="control-label">Customer Complaint Form</label></h4></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th style="width:200px;">
+                            <label class="control-label">Customer Name</label>
+                        </th>
+                        <th style="width:300px;">
+                            @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control redboder", style = "width:280px;", @placeholder = @Html.DisplayNameFor(model => model.CustomerName) })
+                            @Html.ValidationMessageFor(m => m.CustomerName)
+                        </th>
+                        <th>
+                            <label class="control-label">Unit / Proj</label>
+                        </th>
+                        <th>
+                            @Html.TextBoxFor(m => m.Unit, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.Unit) })
+                            @Html.ValidationMessageFor(m => m.Unit)
+                            @*<input type="text" class="control-label" value="" />*@
+                        </th>
+
+                        <th>
+                            <label class="control-label">Contact Person</label>
+                        </th>
+                        <th>
+                            @Html.TextBoxFor(m => m.ContactPerson, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ContactPerson) })
+                            @Html.ValidationMessageFor(m => m.ContactPerson)
+                            @*<input type="text" class="control-label" value="" />*@
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="width:200px;">
+                            <label class="control-label">Equipment Name</label>
+                        </th>
+                        <th style="width:300px;">
+                            @Html.TextBoxFor(m => m.EquipmentNameQty_Complaint, new { @class = "form-control inputStyle redboder", style = "width:280px;", @placeholder = @Html.DisplayNameFor(model => model.EquipmentNameQty_Complaint) })
+                            @Html.ValidationMessageFor(m => m.EquipmentNameQty_Complaint)
+                            @* <input type="text" class="control-label" value="" />*@
+                        </th>
+                        <th>
+                            <label class="control-label">Job / Tag No</label>
+                        </th>
+                        <th>
+                            @Html.TextBoxFor(m => m.EquipmentOfferedQty, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.EquipmentOfferedQty) })
+                            @Html.ValidationMessageFor(m => m.EquipmentOfferedQty)
+                            @*<input type="text" class="control-label" value="" />*@
+                        </th>
+                        <th>
+                            <label class="control-label">PO No</label>
+                        </th>
+                        <th>
+                            @Html.TextBoxFor(m => m.POWO_Number, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.POWO_Number) })
+                            @Html.ValidationMessageFor(m => m.POWO_Number)
+                            @*<input type="text" class="control-label" value="" />*@
+                        </th>
+
+                    </tr>
+                    <tr>
+                        <th style="width:200px;">
+                            <label class="control-label">Complaint Identifiction No</label>
+                        </th>
+                        <th style="width:300px;">
+                            @Html.TextBoxFor(m => m.ComplaintIdentifictionNo, new { @class = "form-control inputStyle redboder", style = "width:280px;", @placeholder = @Html.DisplayNameFor(model => model.ComplaintIdentifictionNo) })
+                            @Html.ValidationMessageFor(m => m.ComplaintIdentifictionNo)
+                            @*<input type="text" class="control-label" value="" />*@
+                        </th>
+                        <th>
+                            <label class="control-label">Complaint Received Date</label>
+                        </th>
+                        <th>
+                            @Html.TextBoxFor(m => m.ComplaintReceivedDate, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                            @Html.ValidationMessageFor(m => m.ComplaintReceivedDate)
+                            @*<input type="datetime-local" class="control-label" value="" />*@
+                        </th>
+                        <th>
+                            <label class="control-label">Mode of Complaint</label>
+                        </th>
+                        <th>
+                            @Html.DropDownListFor(m => m.ComplaintModeId, new SelectList(Model.LstComplaintMode, "ComplaintModeID", "ComplaintModeName"), "Select", new { @class = "form-control redborder", style = "Width:212px", @placeholder = @Html.DisplayNameFor(model => model.ComplaintModeId) })
+                        </th>
+
+
+                    </tr>
+
+                    <tr>
+
+
+                        <th style="width:200px;">
+                            <label class="control-label">Complaint Status</label>
+                        </th>
+                        <th>
+                            @Html.DropDownListFor(m => m.ComplaintStatusId, new SelectList(Model.LstComplaintAppealStatus, "ComplaintStatusID", "ComplaintStatusName"), "Select", new { @class = "form-control redborder", style = "Width:212px", @placeholder = @Html.DisplayNameFor(model => model.ComplaintStatusId) })
+                            @*@Html.ValidationMessageFor(m => m.ComplaintAppealStatus)*@
+                            @* <input type="text" class="control-label" value="" />*@
+                        </th>
+                        <th>
+                            <label class="control-label">Closing Date</label>
+                        </th>
+                        <th style="width:300px;">
+                            @Html.TextBoxFor(m => m.ClosingDate,new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                            @Html.ValidationMessageFor(m => m.ClosingDate)
+                            @*<input type="datetime-local" class="control-label" value="" />*@
+                        </th>
+                        <th><label class="control-label">Upload Attachment</label></th>
+                        <th>
+                            @Html.TextBoxFor(m => m.UploadFile, new { type = "file", @class = "" })
+                        </th>
+                    </tr>
+
+
+                    <tr>
+                        <th style="width:200px;">
+                            <label class="control-label">Descrption of Complaint</label>
+                        </th>
+                        <th colspan="5">
+                            @Html.TextAreaFor(m => m.ComplaintFullDescrption, new { @class = "form-control inputStyle", rows = "2", cols = "125", @placeholder = @Html.DisplayNameFor(model => model.ComplaintFullDescrption) })
+                            @Html.ValidationMessageFor(m => m.ComplaintFullDescrption)
+                            @*<textarea id="txtComplaintDesc" name="ComplaintDescrption" rows="3" cols="130" />*@
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="width:200px;">
+                            <label class="control-label">Root Cause Analysis</label>
+                        </th>
+                        <th colspan="5">
+                            @Html.TextAreaFor(m => m.ComplaintRootCause, new { @class = "form-control inputStyle", rows = "2", cols = "125", @placeholder = @Html.DisplayNameFor(model => model.ComplaintRootCause) })
+                            @Html.ValidationMessageFor(m => m.ComplaintRootCause)
+                            @*<input type="text" class="control-label" value="" />*@
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="width:200px;">
+                            <label class="control-label">Corrective Action Taken</label>
+                        </th>
+                        <th colspan="5">
+                            @Html.TextAreaFor(m => m.CorrectiveActionBy, new { @class = "form-control inputStyle", rows = "2", cols = "125", @placeholder = @Html.DisplayNameFor(model => model.CorrectiveActionBy) })
+
+                            @* @Html.TextBoxFor(m => m.CorrectiveActionBy, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.CorrectiveActionBy) })*@
+                            @Html.ValidationMessageFor(m => m.CorrectiveActionBy)
+                            @*<input type="text" class="control-label" value="" />*@
+                        </th>
+                    </tr>
+
+                    <tr>
+                        <th><label class="control-label">Remarks</label></th>
+                        <th colspan="5">
+                            @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control inputStyle", rows = "2", cols = "125", @placeholder = @Html.DisplayNameFor(model => model.Remarks) })
+                            @*<textarea id="txtComplaintDesc" name="ComplaintDescrption" rows="2" cols="70" />*@
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="5" style="border:none">
+                            <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveComplaint" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                        </th>
+                        <th style="border:none">
+                            <button type='button' class="btn btn-secondary pull-left" id="btnCancelComplaint" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: GetPurchaseOrders();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        }
+    </section>
+</div>
+
+
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>
+
+<script>
+
+    //$(function () {
+    //    $("#ComplaintReceivedDate").datepicker({
+    //        //format: 'MM-dd-yyyy',
+    //        endDate: '+0d',
+    //        autoclose: true
+    //    });
+    //    $("#ClosingDate").datepicker({
+    //        //format: 'MM-dd-yyyy',
+    //        endDate: '+0d',
+    //        autoclose: true
+    //    });
+
+    //});
+
+    $(function () {
+        $("#ComplaintReceivedDate").datepicker({ dateFormat: "dd/mm/yy" });
+       // $("#IssueDate").datepicker({ dateFormat: "dd/mm/yy" }).datepicker("setDate", new Date());
+        $("#ClosingDate").datepicker({ dateFormat: "dd/mm/yy" });
+
+        });
+        //$(document).ready(function () {
+        //    $('#EnquiryDate').val('');
+        //});
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnSaveComplaint").prop('disabled', true);
+    }
+    function onSuccessAddComplaint(data) {
+       // getEnquiryWorkScopeIds();
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+          //  alert('Enquiry #: ' + toUnicodeVariant(data.enquiryId,  'bold sans', 'bold') + ' has been created successfully');
+            alert('Complaint Id:' + data.complaintId +  ' has been created successfully')
+            $("#btnSaveComplaint").prop('disabled', true);
+            location.reload();
+        //    $('#spnHeadTitle').html('Enquiry Details');
+        //    $('#EnquiryDataPostDiv').hide();
+        //    $("#divMainSearch").show();
+        //    $('#divActiveInActive').show();
+        //    $('#divEnquiryDetails').html(data).show();
+        //    $('#btnEnquiryList').hide();
+        //    $('#btnAddEnquiry').show();
+        //    $("#divAddUpdateEnquiry").html('').hide();
+        //    $('#AlphaSorting').show();
+        //    $('#EnquiryPager').show();
+        }
+        else {
+             if (data.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+            $("#btnUpdateComplaint").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+
+        }
+    }
+
+
+</script>

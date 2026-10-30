@@ -1,0 +1,27 @@
+﻿
+@model  List<IQEApp.Web.Models.HomeModel.VisitsSummaryViewModel>
+<div class="">
+    <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-10 col-md-10 col-sm-10 table-header">
+            Visit Status
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Count
+        </div>
+    </div>
+    @foreach (var objSummary in Model)
+    {
+        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-row ">
+            <div class="col-lg-10 col-md-10 col-sm-10 ">
+                <a href="javascript: void(0)" onclick="javascript: FetchMyScheduledVisits(@objSummary.VisitStatusId);">
+                    @objSummary.VisitStatus
+                </a>
+                
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 ">
+                @objSummary.VisitCount
+            </div>
+        </div>
+    }
+
+</div>

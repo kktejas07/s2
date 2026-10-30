@@ -1,0 +1,1930 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.VisitProcessing.ScheduleVisitModel>
+
+@using GridMvc.Html
+@using GridMvc.Sorting;
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<head>
+    <meta charset="UTF-8" />
+    <link href="@Url.Content("~/Content/Gridmvc.css")" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Schedule Visit</title>
+    <style type="text/css">
+
+        /* Uniform fixed widths with ellipsis */
+        .uniform-col {
+            max-width: 100px;
+            min-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .client-name-column {
+            max-width: 120px;
+            min-width: 120px;
+        }
+
+        .supplier-column {
+            max-width: 150px;
+            min-width: 150px;
+        }
+
+        .equipment-column {
+            max-width: 100px;
+            min-width: 100px;
+        }
+
+        .comment-column {
+            max-width: 100px;
+            min-width: 100px;
+        }
+
+        /* Add this in your CSS */
+        th.filter-applied {
+            /*background-color: #d1ecf1;*/ /* Light blue */
+            /*color: #0c5460;*/ /* Darker text for contrast */
+            /*font-weight: bold;*/
+            background-color: #007bff; /* Blue highlight */
+            color: white;
+            font-weight: bold;
+        }
+
+        .filtered-column {
+            background-color: #007bff;
+            border-color: white;
+        }
+
+        .filter-icon {
+            display: inline-block;
+            margin-right: 5px;
+            color: #333;
+        }
+
+        .scroller {
+            overflow: auto;
+            max-height: 460px;
+            border: 1px solid #ddd;
+            pointer-events: auto;
+            position: relative; /* Make sure scroller creates a new stacking context */
+        }
+
+            .scroller thead th {
+                position: sticky;
+                top: 0;
+                white-space: nowrap;
+                /*background: #fff;*/ /* Important: Otherwise th becomes transparent */
+                z-index: 5; /* So it stays above body rows */
+            }
+
+        /* Fix for filters inside header */
+        .grid-filter {
+            z-index: 9999 !important; /* Boost the filter popup */
+            position: relative !important; /* Prevent stacking issues */
+        }
+
+        .scroller th:nth-child(1), .scroller td:nth-child(1) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(2), .scroller td:nth-child(2) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(3), .scroller td:nth-child(3) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(4), .scroller td:nth-child(4) {
+            position: sticky;
+            z-index: 10;
+        }
+
+        .scroller th:nth-child(5), .scroller td:nth-child(5) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(6), .scroller td:nth-child(6) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(7), .scroller td:nth-child(7) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(8), .scroller td:nth-child(8) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(9), .scroller td:nth-child(9) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(10), .scroller td:nth-child(10) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(11), .scroller td:nth-child(11) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(12), .scroller td:nth-child(12) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(13), .scroller td:nth-child(13) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(14), .scroller td:nth-child(14) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(15), .scroller td:nth-child(15) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(16), .scroller td:nth-child(16) {
+            position: sticky;
+        }
+
+        /*   .scroller th:nth-child(17), .scroller td:nth-child(17) {
+            position: sticky;
+        }
+
+        .scroller th:nth-child(18), .scroller td:nth-child(18) {
+            position: sticky;
+        }*/
+
+        body {
+            font-family: Arial;
+            font-size: 9pt;
+        }
+        /*Simple css hack to right align text*/
+        td[data-name='SaleValue'], td[data-name='CostValue'], td[data-name='GP'] {
+            text-align: right;
+        }
+
+        td[data-name='GP'] {
+            width: 50px;
+        }
+
+        ul, li {
+            margin: 0px;
+            padding: 0px;
+            list-style-type: none;
+        }
+        /*.d-none,
+        th.d-none, td.d-none {
+            display: none !important;
+        }*/
+
+        .cost-cell .form-control {
+            padding: 2px 4px;
+            height: auto;
+        }
+        .grid-total-row {
+            background: #f5f7fa;
+            font-weight: bold;
+            border-top: 2px solid #ccc;
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <div class="scroller" style="width:99%;height:460px;">
+        @Html.Grid(Model).Named("VisitProcessGrid").Columns(c =>
+   {
+       c.Add(x => x.VisitSeqId)
+             .Titled("Visit ID")
+             .Sortable(true)
+             .Filterable(false)
+             .RenderValueAs(x => x.VisitSeqId + "<span style='display:none;' class='hidden-visit-id'>" + x.VisitId + "</span>");
+       c.Add(x => x.ControlNo).Titled("C No").Sortable(true).Filterable(false);
+       c.Add(x => x.VisitDate).Titled("Insp Date").Sortable(true).Filterable(false) // Disable built-in filter
+         .RenderValueAs(x => x.VisitDate.HasValue ? x.VisitDate.Value.ToString("dd/MM/yyyy") : string.Empty);
+       c.Add(x => x.ClientName).Titled("Customer Name").Sortable(true).Filterable(false).Css("uniform-col client-name-column");
+       c.Add(x => x.ClientUnitName).Titled("Unit/Proj").Sortable(true).Filterable(false).Css("client-unit-col");
+       // c.Add(x => x.ClientUnitName).Titled("Unit/Proj").Sortable(true).Filterable(false);
+       c.Add(x => x.ManufacturerName).Titled("Supplier").Sortable(true).Filterable(false).Css("uniform-col supplier-column");
+       // c.Add(x => x.Equipment).Titled("Equipment").Sortable(true).Filterable(false).Css("equipment-col");
+       c.Add(x => x.Equipment).Titled("Equipment").Sortable(true).Filterable(false).Css("equipment-col")
+       .RenderValueAs(x => string.Format("<span class='equipment-icon text-primary' data-equipment='{0}' style='cursor:pointer;'>🔧 {1}{2}</span>",
+       (x.Equipment ?? "").Replace("'", "\\'"),
+       (x.Equipment ?? "").Split(';')[0],
+       (x.Equipment ?? "").Contains(";") ? "..." : ""));
+
+       c.Add(x => x.InspectorName).Titled("Inspector Name").Sortable(true).Filterable(false);
+       c.Add(x => x.FileName).Titled("VR").Sortable(true).Filterable(false).Css("file-col");
+       c.Add(x => x.ScheduleComments).Titled("Comments").Sortable(true).Filterable(false).Css("comments-col");
+       if (ViewBag.RoleId == 1)
+       {
+           c.Add(x => x.InvoiceNo).Titled("Invoice No").Sortable(true).Filterable(false);
+           c.Add(x => x.InvoiceDate).Titled("Inv Date").Sortable(true).Filterable(false).Format("{0:dd/MM/yyyy}");
+           c.Add(x => x.SaleValue).Titled("Rate").Sortable(true).Filterable(false).Format("{0:#,###0}");
+           c.Add(x => x.CostValue).Titled("Cost").Sortable(true).Filterable(false).Css("cost-value-col").Format("{0:#,###0}");
+           c.Add(x => x.GP).Titled("GP").Sortable(true).Filterable(false).Format("{0:#,###0}");
+       }
+   }).Sortable(true).Filterable(false).WithPaging(10).EmptyText("No Data Found")
+
+    </div>
+
+    @Scripts.Render("~/Scripts/gridmvc.min.js")
+
+    <!-- Modals -->
+    <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:650px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="fileModalLabel">Visit Reports</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="inspectionReportBody">
+                </div>
+                @*<div class="modal-body">
+                        <ul id="fileList"></ul>
+                    </div>*@
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="clientunitModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="clientunitModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="clientunitModalLabel">ClientUnitName</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="clientunitDetails"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="equipmentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="equipmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="equipmentModalLabel">Equipment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="equipmentDetails"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="purchasePopup" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title">
+                        Purchase Details : <span id="spnPurchaseId"></span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <table class="table table-bordered table-condensed" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>PO Number</th>
+                                <th>Inspection Date</th>
+                                <th>Manufacturer</th>
+                                <th>Location</th>
+                                <th>Report No</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchasePopupBody">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="clientNameModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="clientNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="clientNameModalLabel">Customer Name</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="clientNameDetails"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="scheduleCommentsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="scheduleCommentsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="scheduleCommentsModalLabel">Schedule Comments</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="scheduleComments"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+
+        .file-icon, .clientunit-icon, .equipment-icon, .client-name-icon, .comments-icon, .quantitywithuom-icon {
+            cursor: pointer;
+            color: #337ab7;
+        }
+    </style>
+</body>
+
+<script type="text/javascript">
+    var visitCostBuffer = {};
+    var visitManufacturerMap = {};
+    var visitChildMap = {};       // visitId -> [childIds]
+    // holds edited child costs
+    var saveInProgress = {};     // prevents double save
+
+    var roleId = @ViewBag.RoleId;
+    window.activeFilters = {};
+    const dateColumns = ['VisitDate', 'InvoiceDate'];
+    const filterValues = new Map();
+    function addFilterIcons() {
+        const grid = document.querySelector('[data-gridname="VisitProcessGrid"]');
+        if (!grid) return;
+
+        const headers = grid.querySelectorAll('thead th');
+
+
+        const columnNames = [
+            "VisitSeqId", "ControlNo", "VisitDate", "ClientName", "ClientUnitName",
+            "ManufacturerName", "Equipment",// "QuantityWithUOM", //"PODate", "PONumber",
+            "InspectorName", "FileName",       // "InspectionActivity",  "InspReportNo",
+            "ScheduleComments", "InvoiceNo", "InvoiceDate", "SaleValue", "CostValue","GP"
+        ];
+
+
+        headers.forEach((header, index) => {
+            if (index < columnNames.length) {
+                header.setAttribute("data-column-name", columnNames[index]);
+            }
+        });
+
+        headers.forEach(header => {
+            // Prevent adding multiple filter icons
+            if (header.querySelector('.grid-filter-btn')) return;
+
+            const filterIcon = document.createElement('span');
+            filterIcon.className = 'grid-filter-btn';
+            filterIcon.textContent = '';
+            filterIcon.style.cssText = 'cursor: pointer; color: #007bff; font-size: 12px; margin-left: 5px;';
+
+            filterIcon.addEventListener('click', function (e) {
+                e.stopPropagation();
+                closeExistingPopups();
+
+                const columnName = header.getAttribute('data-column-name') || header.textContent.trim();
+                const popup = createFilterPopup(columnName);
+                document.body.appendChild(popup);
+
+                const rect = filterIcon.getBoundingClientRect();
+                popup.style.position = 'absolute';
+                popup.style.setProperty('top', `${rect.bottom + window.scrollY}px`, 'important');
+                popup.style.left = `${rect.left + window.scrollX - 50}px`;
+
+                setTimeout(() => {
+                    document.addEventListener('click', outsideClickHandler);
+                }, 0);
+
+                function outsideClickHandler(event) {
+                    if (!popup.contains(event.target) && !filterIcon.contains(event.target)) {
+                        popup.remove();
+                        document.removeEventListener('click', outsideClickHandler);
+                    }
+                }
+            });
+
+            // Create a span for header text
+            const headerText = document.createElement('span');
+            headerText.textContent = header.textContent.trim();
+
+            // Create wrapper div to layout text and icon using flex
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.justifyContent = 'space-between';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.width = '100%';
+
+            wrapper.appendChild(headerText);
+            wrapper.appendChild(filterIcon);
+
+            header.textContent = ''; // Clear existing content
+            header.appendChild(wrapper);
+        });
+    }
+
+    function closeExistingPopups() {
+        document.querySelectorAll('.grid-dropdown').forEach(el => el.remove());
+    }
+
+    function createFilterPopup(columnName) {
+      //  debugger;
+
+        window.__paginationInitialized = false;
+
+        const isDateColumn = dateColumns.includes(columnName); // ✅ Check if it's a date column
+        const wrapper = document.createElement('div');
+        wrapper.className = 'dropdown dropdown-menu grid-dropdown opened';
+        wrapper.style.display = 'block';
+        wrapper.style.zIndex = 1000;
+
+        const currentFilter = window.activeFilters[columnName] || {};
+        const currentValue = currentFilter.value || '';
+        const currentType = currentFilter.type || 'Equals';
+
+        const filterOptions = isDateColumn
+            ? [
+                { value: 'Equals', label: 'Equals' },
+                { value: 'GreaterThan', label: 'After' },
+                { value: 'LessThan', label: 'Before' }
+            ]
+            : [
+                { value: 'Equals', label: 'Equals' },
+                { value: 'Contains', label: 'Contains' },
+                { value: 'StartsWith', label: 'StartsWith' },
+                { value: 'EndsWith', label: 'EndsWith' }
+            ];
+
+        const filterOptionsHtml = filterOptions.map(opt =>
+            `<option value="${opt.value}" ${opt.value === currentType ? 'selected' : ''}>${opt.label}</option>`
+        ).join('');
+
+        wrapper.innerHTML = `<div class="grid-dropdown-arrow" style="left: 56.4688px;"></div>
+                             <div class="grid-dropdown-inner">
+                                 <div class="grid-popup-widget">
+                                     <div class="form-group">
+                                         <label>Type: </label>
+                                         <select class="grid-filter-type form-control">
+                                             ${filterOptionsHtml}
+                                         </select>
+                                     </div>
+                                     <div class="form-group">
+                                         <label>Value:</label>
+                                         <input type="${isDateColumn ? 'date' : 'text'}"
+                                                style="width:120px"
+                                                class="grid-filter-input form-control"
+                                                value="${currentValue}" />
+                                     </div>
+                                     <div class="grid-filter-buttons">
+                                         <button type="button" class="btn btn-primary grid-apply">Apply</button>
+                                         <button type="button" class="btn btn-secondary grid-clear mt-2">Clear</button>
+                                     </div>
+                                 </div>
+                             </div>`;
+
+        setTimeout(() => {
+            const applyBtn = wrapper.querySelector('.grid-apply');
+            const clearBtn = wrapper.querySelector('.grid-clear');
+
+            applyBtn.addEventListener('click', function () {
+                debugger;
+                const filterType = wrapper.querySelector('.grid-filter-type').value;
+                const filterValue = wrapper.querySelector('.grid-filter-input').value;
+
+                filterValues.set(columnName, filterValue);
+
+                if (filterValue && filterValue.trim() !== '') {
+                    window.activeFilters[columnName] = {
+                        type: filterType,
+                        value: filterValue
+                    };
+                } else {
+                    delete window.activeFilters[columnName];
+                }
+
+                applyGridFilter(columnName, filterType, filterValue, wrapper);
+            });
+
+            clearBtn.addEventListener('click', function () {
+                wrapper.querySelector('.grid-filter-input').value = '';
+                filterValues.delete(columnName);
+                delete window.activeFilters[columnName];
+                window.paginationObj.setCurrentPageCount("0");
+
+                applyGridFilter(columnName, 'Equals', '', wrapper);
+            });
+        }, 0);
+
+        return wrapper;
+    }
+    function applyGridFilter(columnName, filterType, value, wrapper) {
+        debugger;
+        console.log("applyGridFilter");
+        const selectedFiYear = $("#fiYear").val() || " ";  // Example: 24
+        const selectedMonth = $("#Month").val() || " ";    // Example: 3
+        // const currentPage = window.paginationObj.getCurrentPageCount() || 1;
+        const isNewFilter = typeof value === 'string' && value.trim() !== '';
+
+        // const isNewFilter = value && value.trim() !== '';
+        const currentPage = isNewFilter ? 0 : (window.paginationObj.getCurrentPageCount() || 1);
+
+        if (isNewFilter) {
+            window.activeFilters[columnName] = {
+                type: filterType,
+                value: value
+            };
+            filterValues.set(columnName, value);
+        } else {
+            delete window.activeFilters[columnName];
+            filterValues.delete(columnName);
+        }
+
+        const selectedStat = window.selectedStatistics || " ";
+
+        // Build full filters object to send
+        const filtersPayload = Object.entries(window.activeFilters).map(([col, filter]) => ({
+            column: col,
+            filterType: filter.type,
+            value: filter.value
+        }));
+
+        fetch('../VisitProcessing/GetScheduleVisitFilters', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                filters: filtersPayload,
+                Status: selectedStat,
+                pageCount: currentPage,
+                fetchCount: 10,
+                SortingOrder: 'Desc',
+                FiYear: selectedFiYear,   // <-- added
+                Month: selectedMonth
+            })
+        })
+            .then(response => response.json())
+            .then(response => {
+                if (!response.success) {
+                    alert('Something went wrong.');
+                    return;
+                }
+                debugger;
+                //const visitData = response.data || [];
+
+                const $th = $(`th[data-column-name="${columnName}"]`);
+                if (typeof value === 'string' && value.trim() !== "") {
+                    $th.addClass('filter-applied');
+                } else {
+                    $th.removeClass('filter-applied');
+                }
+
+                let totalCount = 0;
+                const visitData = response.data || [];
+                const statusCounts = response.statusCounts || {};
+                const totals = response.totals || {};
+                if (visitData?.length > 0) {
+                    totalCount = visitData[0].Total || 0;
+                }
+
+
+                const $tbody = $('[data-gridname="VisitProcessGrid"] tbody');
+                $tbody.empty();
+
+                if (visitData.length === 0 && filtersPayload.length === 0) {
+                    console.log("applyGridFilter -- updateFilters");
+                    // No filters applied: load unfiltered/default data
+                    updateFilters(); // <- define this separately
+                    return;
+                }
+                if (visitData.length === 0) {
+                    $tbody.html(`<tr><td colspan="20" class="text-left">No Data Found</td></tr>`);
+                    return;
+                }
+
+                //debugger;
+                if (statusCounts.length === 0) {
+                    $tbody.html(`<tr><td colspan="20" class="text-left">No Data Found</td></tr>`);
+                    updateStats(0, 0, 0, 0, 0);
+                    return;
+                }
+
+                visitData.forEach(item => {
+                    const rowHtml = createRowHtml(item);
+                    $tbody.append(rowHtml);
+                });
+
+                if (roleId == 1) {
+                    makeCostCellsEditable();
+                }
+                addExpandIcons();
+                updateStats(
+                    statusCounts.ActiveCount,
+                    statusCounts.ClosedCount,
+                    statusCounts.OnHoldCount,
+                    statusCounts.CancelledCount,
+                    statusCounts.TotalCount
+                );
+
+                renderGridTotals(
+                    totals.TotalSaleValue,
+                    totals.TotalCostValue,
+                    totals.TotalGPValue
+                );
+                window.paginationObj.totalCount = totalCount;
+                window.paginationObj.pageSize = 10;
+                window.paginationObj.getPageSize = function () {
+                    // console.log("test1");
+                    return Math.ceil(totalCount / 10);
+                };
+
+                if (!window.__paginationInitialized) {
+                    console.log("test3");
+                    debugger;
+                    DefineListPagerForInitialLoad();
+                    window.__paginationInitialized = true;
+                }
+
+                $(".JsListGridPager").bootpag("page", currentPage);
+
+                if (wrapper) wrapper.remove(); // Close popup if present
+
+
+            })
+            .catch(error => {
+                console.error("Error fetching filtered data:", error);
+            });
+
+    }
+
+
+    //function applyGridFilter11(columnName, filterType, value, wrapper) {
+    //    debugger;
+
+    //    const selectedFiYear = $("#fiYear").val() || " ";
+    //    const selectedMonth = $("#Month").val() || " ";
+
+    //    // 🔒 SAME CONTRACT AS updateFilters
+    //    const hasValue = typeof value === 'string' && value.trim() !== '';
+    //    const prevValue = window.activeFilters[columnName]?.value ?? null;
+
+    //    // ✅ New filter ONLY if value actually changed
+    //    const isNewFilter = hasValue && prevValue !== value;
+
+    //    const currentPage = getSafeCurrentPage(isNewFilter);
+
+    //    // Always sync safe page
+    //    window.paginationObj.setCurrentPageCount(currentPage);
+
+    //    // Maintain active filters
+    //    if (isNewFilter) {
+    //        window.activeFilters[columnName] = {
+    //            type: filterType,
+    //            value: value        // ✅ FIXED typo
+    //        };
+    //        filterValues.set(columnName, value);
+    //    } else {
+    //        delete window.activeFilters[columnName];
+    //        filterValues.delete(columnName);
+    //    }
+
+    //    const selectedStat = window.selectedStatistics || " ";
+
+    //    const filtersPayload = Object.entries(window.activeFilters).map(([col, filter]) => ({
+    //        column: col,
+    //        filterType: filter.type,
+    //        value: filter.value
+    //    }));
+
+    //    fetch('../VisitProcessing/GetScheduleVisitFilters', {
+    //        method: 'POST',
+    //        headers: { 'Content-Type': 'application/json' },
+    //        body: JSON.stringify({
+    //            filters: filtersPayload,
+    //            Status: selectedStat,
+    //            pageCount: currentPage,      // 🔒 ALWAYS 0-based
+    //            fetchCount: 10,
+    //            SortingOrder: 'Desc',
+    //            FiYear: selectedFiYear,
+    //            Month: selectedMonth
+    //        })
+    //    })
+    //        .then(response => response.json())
+    //        .then(response => {
+
+    //            if (!response.success) {
+    //                alert('Something went wrong.');
+    //                return;
+    //            }
+
+    //            const $th = $(`th[data-column-name="${columnName}"]`);
+    //            if (isNewFilter) {
+    //                $th.addClass('filter-applied');
+    //            } else {
+    //                $th.removeClass('filter-applied');
+    //            }
+
+    //            const visitData = response.data || [];
+    //            const statusCounts = response.statusCounts || {};
+    //            const totals = response.totals || {};
+
+    //            let totalCount = visitData.length > 0 ? visitData[0].Total || 0 : 0;
+
+    //            const $tbody = $('[data-gridname="VisitProcessGrid"] tbody');
+    //            $tbody.empty();
+
+    //            if (visitData.length === 0 && filtersPayload.length === 0) {
+    //                updateFilters(true);
+    //                return;
+    //            }
+
+    //            if (visitData.length === 0) {
+    //                $tbody.html(`<tr><td colspan="20">No Data Found</td></tr>`);
+    //                updateStats(0, 0, 0, 0, 0);
+    //                renderGridTotals(0, 0, 0);
+    //                return;
+    //            }
+
+    //            visitData.forEach(item => {
+    //                $tbody.append(createRowHtml(item));
+    //            });
+
+    //            if (roleId === 1) {
+    //                makeCostCellsEditable();
+    //            }
+
+    //            addExpandIcons();
+
+    //            // ✅ STATS ONLY WHEN DATASET CHANGES
+    //            if (isNewFilter) {
+    //                updateStats(
+    //                    statusCounts.ActiveCount,
+    //                    statusCounts.ClosedCount,
+    //                    statusCounts.OnHoldCount,
+    //                    statusCounts.CancelledCount,
+    //                    statusCounts.TotalCount
+    //                );
+
+    //                renderGridTotals(
+    //                    totals.TotalSaleValue,
+    //                    totals.TotalCostValue,
+    //                    totals.TotalGPValue
+    //                );
+    //            }
+
+    //            // Pagination
+    //            window.paginationObj.totalCount = totalCount;
+    //            window.paginationObj.pageSize = 10;
+    //            window.paginationObj.getPageSize = function () {
+    //                return Math.ceil(totalCount / 10);
+    //            };
+
+    //            if (!window.__paginationInitialized) {
+    //                debugger;
+    //                console.log("Initializing pagination for the first time.");
+    //                DefineListPagerForInitialLoad();
+    //                window.__paginationInitialized = true;
+    //            }
+
+    //            // 🔥 CRITICAL FIX (bootpag is 1-based)
+    //            $(".JsListGridPager").bootpag("page", currentPage + 1);
+
+    //            if (wrapper) wrapper.remove();
+    //        })
+    //        .catch(error => {
+    //            console.error("Error fetching filtered data:", error);
+    //        });
+    //}
+
+
+    function updateStats(active, closed, abortive, cancelled, total) {
+        const $ths = $('#VisitsStacktable tr:first th');
+        $ths.eq(1).html(`Active: ${active} (${getPercentage(active, total)}%)`);
+        $ths.eq(2).html(`Closed: ${closed} (${getPercentage(closed, total)}%)`);
+        $ths.eq(3).html(`Abortive: ${abortive} (${getPercentage(abortive, total)}%)`);
+        $ths.eq(4).html(`Cancelled: ${cancelled} (${getPercentage(cancelled, total)}%)`);
+        $ths.eq(5).html(`Total: ${total} (100%)`);
+    }
+
+    function renderGridTotals(totalSale, totalCost, totalGP) {
+
+        if (totalSale === undefined || totalSale === null) {
+            $('#divFinancialTotals').hide();
+            return;
+        }
+
+        const formatAmount = (val) => {
+            if (val === undefined || val === null || isNaN(val)) return '₹ 0.00';
+            return '₹ ' + Number(val).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        };
+
+        const $ths = $('#divFinancialTotals tr:first th');
+        $ths.eq(0).html(`Total Rate: ${formatAmount(totalSale)}`);
+        $ths.eq(1).html(`Total Cost: ${formatAmount(totalCost)}`);
+        $ths.eq(2).html(`Total GP: ${formatAmount(totalGP)}`);
+
+        $('#divFinancialTotals').show();
+    }
+
+    function formatCurrency(value) {
+        return (value || 0).toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function makeCostCellsEditable() {
+        //debugger;
+        var $grid = $('[data-gridname="VisitProcessGrid"]');
+
+        // Find Cost column index dynamically
+        var costColumnIndex = -1;
+        $grid.find("thead tr th").each(function (i) {
+            if ($(this).text().trim() === "Cost") {
+                costColumnIndex = i;
+                return false; // break loop
+            }
+        });
+
+        if (costColumnIndex === -1) {
+            console.warn("Cost column not found.");
+            return;
+        }
+
+        // Loop rows and inject textbox
+        $grid.find("tbody tr").each(function () {
+            //debugger;
+            var $row = $(this);
+            var visitId = $row.find('.hidden-visit-id').text().trim();
+           // var visitId = $row.find("td").first().text().trim(); // Visit ID in first column
+            var $costCell = $row.find("td").eq(costColumnIndex);
+            var costValue = parseFloat($costCell.text().trim()) || 0;
+
+            var saleValue = parseFloat($row.data("sale")) || 0;
+           // var costValue = parseFloat($row.data("cost")) || 0;
+
+          
+        });
+    }
+
+    $(document).ready(function () {
+        //debugger;
+
+        addFilterIcons();
+        paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+
+        var total = $.trim("@ViewBag.Total");
+        if (total !== "") {
+            paginationObj.setTotalPageCount(total);
+            paginationObj.updateTotalRecords(total);
+        }
+
+        initializeDatePicker();
+        enhanceExistingRows();
+
+    });
+
+    function initializePagination() {
+        if ($.fn.DataTable.isDataTable('#VisitProcessGrid')) {
+            $('#VisitProcessGrid').DataTable().destroy();
+        }
+
+        $('#VisitProcessGrid').DataTable({
+            paging: true,
+            searching: false,
+            lengthChange: false,
+            pageLength: 10
+        });
+    }
+
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    function initializeDatePicker() {
+        console.log("initializeDatePicker-updateFilters -grid-filter-input-changeDate")
+        $("input.grid-filter-input").each(function () {
+            var columnName = $(this).closest("th").attr("data-name");
+
+            if (columnName === "VisitDate") {
+                $(this).datepicker({
+                    format: "dd/mm/yyyy",
+                    autoclose: true,
+                    todayHighlight: true
+                }).on("changeDate", debounce(updateFilters, 300));
+            }
+        });
+        console.log("initializeDatePicker-updateFilters -grid-filter-input-change")
+        $(".grid-filter-input").on("change", debounce(updateFilters, 300));
+    }
+
+
+    function updateFilters() {
+        debugger;
+        let filters = {};
+        let isPartialLoad = false;
+
+        $(".grid-filter-input").each(function () {
+            let columnName = $(this).closest("th").attr("data-name");
+            let value = $(this).val().trim();
+            if (value) filters[columnName] = value;
+        });
+
+        let selectedStatus = $("#VisitsStacktable th.selected")
+            .text()
+            .split(":")[0]
+            .trim(); // e.g., 'Active', 'Closed'
+
+        if (selectedStatus && selectedStatus !== "Statistics" && selectedStatus !== "Total") {
+            filters["StrSearch"] = selectedStatus;
+        }
+
+        let selectedFiYear = $("#fiYear").val() || "";
+        if (selectedFiYear) {
+            filters["FiYear"] = selectedFiYear;
+        }
+
+        // ✅ Add selected Month
+        let selectedMonth = $("#Month").val() || "";
+        if (selectedMonth) {
+            filters["Month"] = selectedMonth;
+        }
+        let pageCount = window.paginationObj?.getCurrentPageCount?.() || 0;
+        filters["PageCount"] = pageCount;
+        isPartialLoad = pageCount > 0;
+
+        let queryString = Object.entries(filters)
+            .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+            .join("&");
+        console.log("updateFilters");
+        fetchFilteredData(queryString, isPartialLoad);
+    }
+    function bindPaginationEvents() {
+        debugger;
+        console.log("bindPaginationEvents");
+        $(".grid-mvc-page-link").off('click').on('click', function (e) {
+            e.preventDefault();
+            var queryString = $(this).attr('href').split('?')[1];
+            fetchFilteredData(queryString, true);
+        });
+    }
+
+    //function selectYear11(year) {
+    //    debugger;
+
+    //    const isNewFilter = true;
+
+    //    var baseUrl = window.location.origin + '/VisitProcessing/ScheduleVisitList';
+    //    var url = new URL(baseUrl);
+
+    //    url.searchParams.set("FIYear", year);
+    //    url.searchParams.set("isPartialLoad", false);
+
+    //    fetchFilteredData(
+    //        url.search.substring(1),
+    //        false,
+    //        isNewFilter
+    //    );
+    //}
+
+    function selectYear(year) {
+        debugger;
+        console.log("selectYear1");
+        // Create a proper URL object (you need the full URL for URL object)
+        var baseUrl = window.location.origin + '/VisitProcessing/ScheduleVisitList';
+        var url = new URL(baseUrl);
+
+        // Set the FIYear query parameter
+        url.searchParams.set("FIYear", year);
+
+        // Optionally, you can set more parameters if needed:
+        url.searchParams.set("isPartialLoad", true); // Example if you want partial load
+
+        // Now call the fetch function
+        console.log("selectYear2");
+        fetchFilteredData(url.search.substring(1), true);  // remove '?' from search
+    }
+    function selectMonth(month) {
+        debugger;
+
+        // UI highlight reset
+        window.paginationObj.setCurrentPageCount("0");
+
+        document.querySelectorAll('.status-hover').forEach(el => el.classList.remove('selected'));
+
+        // Update month dropdown value
+        $("#Month").val(month);
+
+        // Get selected FY
+        const selectedYear = $("#fiYear").val() || "";
+
+        // Keep current filters if any
+        const filtersPayload = Object.entries(window.activeFilters).map(([col, filter]) => ({
+            column: col,
+            filterType: filter.type,
+            value: filter.value
+        }));
+
+        const selectedStat =  " ";
+
+        // Prepare request body exactly like applyGridFilter()
+        const requestBody = {
+            filters: filtersPayload,
+            Status: selectedStat,
+            pageCount: 0,
+            fetchCount: 10,
+            SortingOrder: 'Desc',
+            FiYear: selectedYear,
+            Month: month
+        };
+
+        // Call the same service used by applyGridFilter
+        fetch('../VisitProcessing/GetScheduleVisitFilters', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        })
+            .then(response => response.json())
+            .then(response => {
+                if (!response.success) {
+                    alert("Something went wrong.");
+                    return;
+                }
+                debugger;
+                const visitData = response.data || [];
+                const statusCounts = response.statusCounts || {};
+                const totals = response.totals || {};   // 👈 NEW
+                let totalCount = visitData.length > 0 ? visitData[0].Total : 0;
+
+                const $tbody = $('[data-gridname="VisitProcessGrid"] tbody');
+                $tbody.empty();
+
+                if (statusCounts.length === 0) {
+                    $tbody.html(`<tr><td colspan="20" class="text-left">No Data Found</td></tr>`);
+                    updateStats(0, 0, 0, 0, 0);
+                   // renderGridTotals(0, 0, 0);
+                    return;
+                }
+                if (totals.length === 0) {
+                    $tbody.html(`<tr><td colspan="20" class="text-left">No Data Found</td></tr>`);
+                    renderGridTotals(0, 0, 0);
+                    return;
+                }
+
+                visitData.forEach(item => {
+                    const rowHtml = createRowHtml(item);
+                    $tbody.append(rowHtml);
+                });
+
+                if (roleId == 1) {
+                    makeCostCellsEditable();
+                }
+                addExpandIcons();
+
+                updateStats(
+                    statusCounts.ActiveCount,
+                    statusCounts.ClosedCount,
+                    statusCounts.OnHoldCount,
+                    statusCounts.CancelledCount,
+                    statusCounts.TotalCount
+                );
+                renderGridTotals(
+                    totals.TotalSaleValue,
+                    totals.TotalCostValue,
+                    totals.TotalGPValue
+                );
+                // pagination update
+                window.paginationObj.totalCount = totalCount;
+                window.paginationObj.pageSize = 10;
+                window.paginationObj.getPageSize = function () {
+                    return Math.ceil(totalCount / 10);
+                };
+
+                if (!window.__paginationInitialized) {
+                    debugger;
+                    console.log("test1")
+                    DefineListPagerForInitialLoad();
+                    window.__paginationInitialized = true;
+                }
+
+                $(".JsListGridPager").bootpag("page", 0);
+            })
+            .catch(error => {
+                console.error("Error loading month data:", error);
+            });
+    }
+
+    function SortByStatitics(status, event) {
+        debugger;
+
+        const selectedYear = $("#fiYear").val() || "";
+        const selectedmonth = $("#Month").val() || "";
+
+        if (window.selectedStatistics === status) {
+            status = " ";   // clear filter
+        }
+        window.selectedStatistics = status;
+
+        window.__paginationInitialized = false;
+        document.querySelectorAll('.status-hover').forEach(el => el.classList.remove('selected'));
+
+        if (status !== " ") {
+            event.target.classList.add('selected');
+        }
+
+        const filtersPayload = Object.entries(window.activeFilters).map(([col, filter]) => ({
+            column: col,
+            filterType: filter.type,
+            value: filter.value
+        }));
+
+        const requestBody = {
+            filters: filtersPayload,
+            Status: status,
+            pageCount: 0,
+            fetchCount: 10,
+            SortingOrder: 'Desc',
+            FiYear: selectedYear,
+            Month: selectedmonth
+        };
+
+        // Call the same service used by applyGridFilter
+        fetch('../VisitProcessing/GetScheduleVisitFilters', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        })
+            .then(response => response.json())
+            .then(response => {
+                if (!response.success) {
+                    alert("Something went wrong.");
+                    return;
+                }
+                debugger;
+                const visitData = response.data || [];
+                const statusCounts = response.statusCounts || {};
+                const totals = response.totals || {};
+                let totalCount = visitData.length > 0 ? visitData[0].Total : 0;
+
+                const $tbody = $('[data-gridname="VisitProcessGrid"] tbody');
+                $tbody.empty();
+
+                if (statusCounts.length === 0) {
+                    $tbody.html(`<tr><td colspan="20" class="text-left">No Data Found</td></tr>`);
+                    updateStats(0, 0, 0, 0, 0);
+                    return;
+                }
+                if (totals.length === 0) {
+                    $tbody.html(`<tr><td colspan="20" class="text-left">No Data Found</td></tr>`);
+                    renderGridTotals(0, 0, 0);
+                    return;
+                }
+
+                visitData.forEach(item => {
+                    const rowHtml = createRowHtml(item);
+                    $tbody.append(rowHtml);
+                });
+
+                if (roleId == 1) {
+                    makeCostCellsEditable();
+                }
+                addExpandIcons();
+
+                updateStats(
+                    statusCounts.ActiveCount,
+                    statusCounts.ClosedCount,
+                    statusCounts.OnHoldCount,
+                    statusCounts.CancelledCount,
+                    statusCounts.TotalCount
+                );
+                renderGridTotals(
+                    totals.TotalSaleValue,
+                    totals.TotalCostValue,
+                    totals.TotalGPValue
+                );
+                // pagination update
+                window.paginationObj.totalCount = totalCount;
+                window.paginationObj.pageSize = 10;
+                window.paginationObj.getPageSize = function () {
+                    return Math.ceil(totalCount / 10);
+                };
+                debugger;
+                // if (!window.__paginationInitialized) {
+                console.log("test3");
+                DefineListPagerForInitialLoad();
+                //   window.__paginationInitialized = true;
+                // }
+
+                //$(".JsListGridPager").bootpag("page", 0);
+            })
+            .catch(error => {
+                console.error("Error loading month data:", error);
+            });
+
+    }
+
+    function fetchFilteredData(queryString, isPartialLoad) {
+        debugger;
+
+       // const currentPage = window.paginationObj.getCurrentPageCount() || 1;
+        const isNewFilter = typeof value === 'string' && value.trim() !== '';
+
+        // const isNewFilter = value && value.trim() !== '';
+        const currentPage = isNewFilter ? 0 : (window.paginationObj.getCurrentPageCount() || 1);
+        
+        $.ajax({
+            url: `../VisitProcessing/ScheduleVisitList?${queryString}&isPartialLoad=${isPartialLoad}`,
+            method: "GET",
+            success: function (response) {
+                debugger;
+                if (!response.success) {
+                    alert('Something went wrong.');
+                    return;
+                }
+
+                let totalCount = 0;
+                const visitData = response.data?.ScheduleVisit || [];
+                const statusCounts = response.data?.StatusCounts || {};
+                const totals = response.data?.Totals || {};
+
+                if (visitData.length > 0) {
+                    totalCount = visitData[0].Total || 0;
+                }
+
+                const $tbody = $('[data-gridname="VisitProcessGrid"] tbody');
+                $tbody.empty();
+
+                if (visitData.length === 0) {
+                    $tbody.html(`<tr><td colspan="20">No Data Found</td></tr>`);
+                    updateStats(0, 0, 0, 0, 0);
+                    renderGridTotals(0, 0, 0);
+                    return;
+                }
+
+                visitData.forEach(item => {
+                    $tbody.append(createRowHtml(item));
+                });
+
+                if (roleId === 1) {
+                    makeCostCellsEditable();
+                }
+
+                addExpandIcons();
+                debugger;
+                // ✅ STATS ONLY WHEN DATASET CHANGES
+                if (isNewFilter === true) {
+                    updateStats(
+                        statusCounts.ActiveCount,
+                        statusCounts.ClosedCount,
+                        statusCounts.OnHoldCount,
+                        statusCounts.CancelledCount,
+                        statusCounts.TotalCount
+                    );
+
+                    renderGridTotals(
+                        totals.TotalSaleValue,
+                        totals.TotalCostValue,
+                        totals.TotalGPValue
+                    );
+                }
+
+                // Pagination
+                window.paginationObj.totalCount = totalCount;
+                window.paginationObj.pageSize = 10;
+                window.paginationObj.getPageSize = function () {
+                    return Math.ceil(totalCount / 10);
+                };
+
+                if (!window.__paginationInitialized) {
+                    debugger;
+                    console.log("test2");
+                    DefineListPagerForInitialLoad();
+                    window.__paginationInitialized = true;
+                }
+
+                // 🔥 CRITICAL: NEVER send negative page to bootpag
+                $(".JsListGridPager").bootpag("page", currentPage);
+            },
+            error: function (error) {
+                console.error("Error fetching filtered data:", error);
+            }
+        });
+    }
+
+    function formatDate(dateString) {
+        if (!dateString || dateString.indexOf('/Date') === -1) return '';
+        const match = /\/Date\((\-?\d+)\)\//.exec(dateString);
+        if (!match) return '';
+
+        const date = new Date(parseInt(match[1], 10));
+        if (date.getFullYear() === 1) return '';
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function shortenText(text, maxLength, className, dataAttr) {
+        if (!text) return '';
+        const shortText = text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        return `<span class="${className}" data-${dataAttr}="${text}">${shortText}</span>`;
+    }
+
+    function createRowHtml(item) {
+        const visitSeqId = item.VisitSeqId ?? '';
+        const visitId = item.VisitId ?? '';
+        const controlNo = item.ControlNo ?? '';
+       // const clientUnitName = item.ClientUnitName ?? '';
+        const manufacturerName = item.ManufacturerName ?? '';
+        const poNumber = item.PONumber ?? '';
+        const poDate = item.PODate ?? '';
+        const fileIconHtml = createFileIcon(item.FileName, visitSeqId, visitId);
+        const equipmentHtml = shortenText(item.Equipment, 21, "equipment-icon", "equipment");
+      //  const quantitywithUOMHtml = shortenText(item.QuantityWithUOM, 21, "quantitywithuom-icon", "quantitywithuom");
+        const clientNameHtml = shortenText(item.ClientName, 21, "client-name-icon", "client-name");
+        const clientUnitNameHtml = shortenText(item.ClientUnitName, 21, "clientunit-icon", "clientunit");
+        const commentsHtml = shortenText(item.ScheduleComments, 15, "comments-icon", "comments");
+
+        const rowCols = `
+            <td data-name="VisitSeqId">${visitSeqId}<span style="display:none;" class="hidden-visit-id">${visitId}</span></td>
+            <td data-name="ControlNo">${controlNo}</td>
+            <td data-name="VisitDate">${item.VisitDate ? formatDate(item.VisitDate) : ''}</td>
+            <td data-name="ClientName">${clientNameHtml}</td>
+            <td data-name="ClientUnitName">${clientUnitNameHtml}</td>
+            <td data-name="ManufacturerName">${manufacturerName}</td>
+            <td data-name="Equipment">${equipmentHtml}</td>
+            <td data-name="InspectorName">${item.InspectorName ?? ''}</td>
+            <td>${fileIconHtml}</td>
+            <td>${commentsHtml}</td>`;
+        //            <td data-name="QuantityWithUOM">${quantitywithUOMHtml}</td>
+        const invoiceCols = roleId == 1 ? `
+            <td>${item.InvoiceNo ?? ''}</td>
+            <td>${item.InvoiceDate ? formatDate(item.InvoiceDate) : ''}</td>
+            <td>${item.SaleValue?.toLocaleString() ?? ''}</td>
+            <td>${item.CostValue?.toLocaleString() ?? ''}</td>
+            <td>${item.GP?.toLocaleString() ?? ''}</td>` : '';
+
+        return `<tr data-visit-id="${visitId}">${rowCols}${invoiceCols}</tr>`;
+    }
+
+    function createFileIcon(fileNames, visitSeqId, visitId) {
+        if (!fileNames) return '';
+        const files = fileNames.split(';').filter(f => f.trim() !== '');
+        if (files.length === 0) return '';
+        return `<i class="fa fa-file file-icon" data-visit-id="${visitSeqId}" onclick="showFileList(${visitId})" data-files="${files.join(',')}"></i>`;
+    }
+
+    function updateStats(active, closed, abortive, cancelled, total) {
+        const $ths = $('#VisitsStacktable tr:first th');
+        $ths.eq(1).html(`Active: ${active} (${getPercentage(active, total)}%)`);
+        $ths.eq(2).html(`Closed: ${closed} (${getPercentage(closed, total)}%)`);
+        $ths.eq(3).html(`Abortive: ${abortive} (${getPercentage(abortive, total)}%)`);
+        $ths.eq(4).html(`Cancelled: ${cancelled} (${getPercentage(cancelled, total)}%)`);
+        $ths.eq(5).html(`Total: ${total} (100%)`);
+    }
+
+    function getPercentage(count, total) {
+        return total > 0 ? ((count / total) * 100).toFixed(2) : '0';
+    }
+
+   function enhanceExistingRows() {
+        $("tr.grid-row").each(function () {
+            var $tr = $(this);
+            var $tds = $tr.children();
+
+            var visitId = $tds.eq(0).find('span').last().text().trim();
+            $tr.attr("data-visit-id", visitId);
+           // debugger;
+            var clientunit = $tds.eq(4).text();
+            $tds.eq(4).html(shortenText(clientunit, 21, "clientunit-icon", "clientunit"));
+
+
+            // File icon
+            var files = $tds.eq(9).text().split(";").filter(f => f.trim());
+            $tds.eq(9).html(files.length ? `<i class="fa fa-file file-icon" data-files="${files.join(',')}"></i>` : '');
+
+            // Equipment
+            var equipment = $tds.eq(6).text();
+            $tds.eq(6).html(shortenText(equipment, 21, "equipment-icon", "equipment"));
+
+
+            //var quantitywithUOM = $tds.eq(7).text();
+            //$tds.eq(7).html(shortenText(quantitywithUOM, 20, "quantitywithuom-icon", "quantitywithuom"));
+
+            // Comments
+            var comments = $tds.eq(10).text();
+            $tds.eq(10).html(shortenText(comments, 15, "comments-icon", "comments"));
+        });
+    }
+   function addExpandIcons() {
+      //debugger;
+        const rows = $('[data-gridname="VisitProcessGrid"] tbody tr');
+
+        rows.each(function () {
+            const visitSeqIdCell = $(this).find('td[data-name="VisitSeqId"]');
+
+            if (visitSeqIdCell.length && visitSeqIdCell.text().trim() !== "No Data Found") {
+                // Avoid adding multiple icons if called multiple times
+                if (!visitSeqIdCell.find('.expand-arrow').length) {
+                    const expandIcon = $('<span>', {
+                        class: 'expand-arrow',
+                        style: 'cursor:pointer; color: #007bff;',
+                        html: '&#9654;',
+                        click: function () { toggleExpand(this); }
+                    });
+
+                    visitSeqIdCell.prepend(expandIcon).prepend('&nbsp;'); // Add space after arrow
+                }
+            }
+        });
+    }
+
+   function formatJsonDate(msDate) {
+        if (!msDate) return "";
+        const timestamp = parseInt(msDate.replace(/[^0-9]/g, ""), 10);
+        if (isNaN(timestamp)) return "";
+
+        const date = new Date(timestamp);
+        return date.toLocaleDateString("en-GB"); // "dd/mm/yyyy"
+    }
+
+   function toggleExpand(row) {
+       // debugger;
+        const $row = $(row).closest("tr");
+        const visitIdHidden = $row.find(".hidden-visit-id").text().trim();
+        const icon = $(row);
+        const isExpanded = $row.hasClass('expanded');
+
+        if (isExpanded) {
+            $row.removeClass('expanded');
+            icon.html('&#9654;'); // ▶
+            $row.next('.expanded-content').remove();
+            return;
+        }
+
+        $row.addClass('expanded');
+       icon.html('&#9660;'); // ▼
+
+        $(".details-row").remove();
+
+        const visitSeqId = $row.find('td[data-name="VisitSeqId"]')
+            .clone().children().remove().end().text().trim();
+
+        const showCost = roleId; // SuperAdmin = 1
+
+        $.ajax({
+            url: '../VisitProcessing/GetVisitPODetailsByVisitId',
+            type: 'GET',
+            data: { visitId: visitIdHidden },
+            success: function (res) {
+
+                const items = res.data || [];
+                let html = '';
+
+                visitChildMap[visitIdHidden] = [];
+
+                if (items.length === 0) {
+                    html = `
+                <tr class="details-row expanded-content">
+                    <td colspan="16">No PO details available</td>
+                </tr>`;
+                }
+                else {
+
+                    // ---------- GROUP BY MANUFACTURER ----------
+                    const groups = {};
+                    items.forEach(item => {
+                        const key = item.ManufacturerId;
+                        if (!groups[key]) groups[key] = [];
+                        groups[key].push(item);
+
+                        // Track child IDs
+                       // visitChildMap[visitIdHidden].push(item.VisitPODetailId);
+
+                        if (!visitManufacturerMap[visitIdHidden]) {
+                            visitManufacturerMap[visitIdHidden] = new Set();
+                        }
+
+                        visitManufacturerMap[visitIdHidden].add(item.ManufacturerId);
+
+                    });
+
+                    let poRows = '';
+
+                    Object.keys(groups).forEach(manufacturerId => {
+
+                        const group = groups[manufacturerId];
+                        const rowspan = group.length;
+
+                        group.forEach((item, idx) => {
+
+                            poRows += `
+                        <tr style="word-break: break-word;">
+                            <td>${item.PONumber || ''}</td>
+                            <td>${formatJsonDate(item.PODate) || ''}</td>
+                            <td><a href="javascript:void(0);" class="lnkPurchase" data-purchaseid="${item.PurchaseID}">${item.PurchaseID}</a></td>
+                            <td>${item.POItemNo || ''}</td>
+                            <td>${item.ControlNo || ''}</td>
+                            <td>${item.ClientUnitName || ''}</td>
+                            <td>${item.SONumber || ''}</td>
+                            <td>${item.ManufacturerName || ''}</td>
+                            <td>${item.LocationDetails || ''}</td>
+                            <td>${item.ContactNo || ''}</td>
+                            <td>${item.Description || ''}</td>
+                            <td>${item.Quantity || ''}</td>
+                            <td>${item.UOMName || ''}</td>
+                            <td>${item.InspectionActivity || ''}</td>
+
+                            ${showCost == 1 && idx === 0 ? `
+                            <td rowspan="${rowspan}"
+                                class="cost-cell"
+                                data-visitid="${visitIdHidden}"
+                                data-manufacturerid="${manufacturerId}"
+                                data-cost="${item.Cost || 0}"
+                                style="   vertical-align: middle; text-align: center;position: relative; overflow: hidden; padding: 4px; width: 90px;max-width: 90px">
+                                <span class="cost-text">
+                                    ${(item.Cost || 0).toLocaleString()}
+                                </span>
+                            </td>` : ''}
+                        </tr>`;
+                        });
+                    });
+
+                    // ---------- FINAL HTML WITH HEADERS ----------
+                    html = `
+                <tr class="details-row expanded-content">
+                    <td colspan="15">
+                        <div style="margin-left:12px;">
+                            <div class="border p-3" style="background:#f9fcff;">
+
+                                <div class="mb-2">
+                                    <strong>Visit ID:</strong> ${visitSeqId}
+                                </div>
+
+                                <table class="table table-bordered table-striped table-condensed"
+                                       style="table-layout:fixed;width:100%;">
+                                    <thead style="background:#dbeeff;">
+                                        <tr>
+                                            <th style="width:12%;">PO Number</th>
+                                            <th style="width:10%;">PO Date</th>
+                                            <th style="width:8%;">File No</th>
+                                            <th style="width:5%;">Item No</th>
+                                            <th style="width:8%;">Control No</th>
+                                            <th style="width:10%;">Customer Unit</th>
+                                            <th style="width:8%;">SO No</th>
+                                            <th style="width:15%;">Manufacturer</th>
+                                            <th style="width:10%;">Location</th>
+                                            <th style="width:10%;">Contact No</th>
+                                            <th style="width:18%;">Description</th>
+                                            <th style="width:6%;">Qty</th>
+                                            <th style="width:5%;">UOM</th>
+                                            <th style="width:10%;">Insp Activity</th>
+                                            ${showCost == 1 ? `<th style="width:9%;">Cost</th>` : ``}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${poRows}
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+                }
+
+                $row.after(html);
+            },
+            error: function () {
+                alert('Failed to load PO details.');
+            }
+        });
+    }
+
+   function showFileList(visitId) {
+//        debugger;
+        $.ajax({
+            url: '../Home/GetInspectionReportFiles',
+            type: 'GET',
+            data: { VisitId: visitId },
+            success: function (response) {
+                const body = $('#inspectionReportBody');
+                body.empty();
+
+                if (response.status && response.data && response.data.length > 0) {
+                    const grouped = {};
+
+                    response.data.forEach(item => {
+                        const key = item.InspReportNo;
+                        if (!grouped[key]) grouped[key] = [];
+                        grouped[key].push(item);
+                    });
+
+                    let tableHtml = `<div class="table-responsive">
+                                    <table class="table table-bordered table-striped align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 30%;">Report No</th>
+                                                <th style="width: 15%;">Date</th>
+                                                <th style="width: 55%;">Files</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+
+                    for (const [reportNo, items] of Object.entries(grouped)) {
+                        const date = parseJsonDate(items[0].InspReportDate);
+
+                        const fileList = items.map(f => `<li>
+                                                         <a href="../Home/DownloadFile?VisitId=${visitId}&FileName=${encodeURIComponent(f.FileName)}"
+                                                             class="text-decoration-none"  download > ${f.FileName}
+                                                         </a>
+                                                       </li>`).join('');
+
+                         const filesHtml = `<ul class="mb-0 ps-3">${fileList}</ul>`;
+
+                                tableHtml += `<tr>
+                                               <td>${reportNo}</td>
+                                               <td>${date}</td>
+                                               <td>${filesHtml || '<em>No files uploaded</em>'}</td>
+                                           </tr>`;
+                     }
+
+                    tableHtml += `</tbody></table></div>`;
+
+                    body.html(tableHtml);
+                } else {
+                    body.html(`<div class="alert alert-warning">No inspection report files available.</div>`);
+                }
+
+                $('#fileModal').modal('show');
+            },
+            error: function () {
+                $('#fileList').html('<div class="alert alert-danger">Failed to load inspection report files.</div>');
+                $('#fileModal').modal('show');
+            }
+        });
+
+
+    }
+   function parseJsonDate(jsonDateStr) {
+        if (!jsonDateStr || jsonDateStr.indexOf('Date') === -1) return '-';
+        const timestamp = parseInt(jsonDateStr.replace(/\/Date\((\d+)\)\//, '$1'), 10);
+        if (timestamp <= 0) return '-';
+        const date = new Date(timestamp);
+        return date.toLocaleDateString('en-GB');
+    }
+
+   $(function () {
+        $("tr.grid-row").each(function () {
+            var $tr = $(this);
+            var visitSeqId = $tr.find("td").eq(0).text().trim();
+
+            var $fileTd = $tr.find("td.file-col");
+            var fileList = ($fileTd.text() || "").split(";").filter(f => f.trim());
+            $fileTd.html(fileList.length
+                ? `<i class="fa fa-file file-icon" data-visit-id="${visitSeqId}" data-files="${fileList.join(',')}"></i>`
+                : ""
+            );
+
+            // CLIENT UNIT column
+            var $clientUnitTd = $tr.find("td.client-unit-col");
+            var clientunit = $clientUnitTd.text();
+            $clientUnitTd.html(shortenText(clientunit, 21, "clientunit-icon", "clientunit"));
+
+            // EQUIPMENT
+            var $equipTd = $tr.find("td.equipment-col");
+            var equipment = $equipTd.text();
+            $equipTd.html(shortenText(equipment, 21, "equipment-icon", "equipment"));
+
+            // COMMENTS
+            var $commentTd = $tr.find("td.comments-col");
+            var comments = $commentTd.text();
+            $commentTd.html(shortenText(comments, 15, "comments-icon", "comments"));
+        });
+        $(document).on('click', '.clientunit-icon', function () {
+            var clientunitDetails = $(this).data('clientunit') || '';
+            var items = clientunitDetails.split(';').map(function (item) {
+                return '<tr><td style="padding:4px 8px;">' + item.trim() + '</td></tr>';
+            }).join('');
+            var html = '<table style="width:100%; border-collapse: collapse; border: 1px solid #ccc;">' +
+                '<thead><tr></tr></thead>' +
+                '<tbody>' + items + '</tbody></table>';
+            $("#clientunitDetails").html(html);
+            $("#clientunitModal").modal('show');
+        });
+
+
+        $(document).on('click', '.equipment-icon', function () {
+            var equipmentDetails = $(this).data('equipment') || '';
+            var items = equipmentDetails.split(';').map(function (item) {
+                return '<tr><td style="padding:4px 8px;">' + item.trim() + '</td></tr>';
+            }).join('');
+            var html = '<table style="width:100%; border-collapse: collapse; border: 1px solid #ccc;">' +
+                '<thead><tr></tr></thead>' +
+                '<tbody>' + items + '</tbody></table>';
+            $("#equipmentDetails").html(html);
+            $("#equipmentModal").modal('show');
+        });
+        $(document).on('click', '.client-name-icon', function () {
+            var clientNameDetails = $(this).data('client-name');
+            $("#clientNameDetails").html(clientNameDetails);
+            $("#clientNameModal").modal('show');
+        });
+
+        $(document).on('click', '.comments-icon', function () {
+            var commentsDetails = $(this).data('comments');
+            $("#scheduleComments").html(commentsDetails);
+            $("#scheduleCommentsModal").modal('show');
+        });
+
+    });
+    $(document).on('click', '.lnkPurchase', function () {
+
+        const purchaseId = $(this).data('purchaseid');
+        $('#spnPurchaseId').text(purchaseId);
+        $('#purchasePopupBody').html(
+            `<tr><td colspan="5" class="text-center">Loading...</td></tr>`
+        );
+
+        $('#purchasePopup').modal('show');
+
+        $.ajax({
+            url: '../VisitProcessing/GetInspRepoNoByPurchaseId',
+            type: 'GET',
+            data: { purchaseId: purchaseId },
+            success: function (res) {
+
+                const data = res.data || [];
+                let rows = '';
+
+                if (data.length === 0) {
+                    rows = `<tr><td colspan="5" class="text-center">No data found</td></tr>`;
+                } else {
+                    data.forEach(x => {
+                        rows += `
+                        <tr>
+                            <td>${x.PONumber || '--'}</td>
+                            <td>${formatJsonDate(x.VisitDate) || '--'}</td>
+                            <td>${x.ManufacturerName || '--'}</td>
+                            <td>${x.LocationDetails || '--'}</td>
+                            <td>${x.InspReportNo || '--'}</td>
+                        </tr>`;
+                    });
+                }
+
+                $('#purchasePopupBody').html(rows);
+            },
+            error: function () {
+                $('#purchasePopupBody').html(
+                    `<tr><td colspan="5" class="text-center text-danger">Error loading data</td></tr>`
+                );
+            }
+        });
+    });
+
+    function UpdateCostValue(visitId) {
+        debugger;
+        var answer1 = window.confirm("Are you sure the Amount Valid?");
+        if (answer1) {
+            $.ajax({
+                url: '../Home/UpdateCostValueByVisitID',
+                type: 'POST',
+                data: {
+                    VisitId: visitId,
+                    CostValue: $('#txtCostValue_' + visitId).val()
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    //debugger;
+                  //  window.parent.$('.ui-dialog-content:visible').dialog('close');
+                    if (data.status) {
+                        alert('Cost Value Submitted Successfully');
+                        location.reload();
+                    } else {
+                        alert('There is an error for Submitting the Comments');
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) { },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+    }
+
+    $(document).on('dblclick', '.cost-cell', function () {
+
+        const $cell = $(this);
+        if ($cell.find('input').length) return;
+
+        const currentValue = $cell.data('cost') || 0;
+
+        const input = `
+        <input type="number"
+               class="cost-input form-control"
+               value="${currentValue}"
+               style="width: 100%; max-width: 100%; box-sizing: border-box; text-align: center;"/>`;
+
+        $cell.find('.cost-text').hide();
+        $cell.append(input);
+        $cell.find('input').focus().select();
+    });
+
+    $(document).on('keydown', '.cost-input', function (e) {
+      //  debugger;
+        if (e.key !== 'Enter') return;
+
+        e.preventDefault();
+        commitCostValue($(this));
+    });
+
+    function commitCostValue($input) {
+        if (!$input || !$input.length) return;
+
+        const $cell = $input.closest('.cost-cell');
+
+        const visitId = $cell.data('visitid');
+        const manufacturerId = $cell.data('manufacturerid');
+
+        let newCost = parseFloat($input.val());
+        if (isNaN(newCost)) newCost = 0;
+
+        $.ajax({
+            url: '../Home/UpdateCostValueByVisitID',
+            type: 'POST',
+            data: {
+                VisitId: visitId,
+                ManufacturerId: manufacturerId,
+                CostValue: newCost
+            },
+            success: function (res) {
+                if (!res || !res.status) return;
+
+                /* 1️⃣ Update child cell */
+                $cell.find('.cost-text').text(newCost.toLocaleString()).show();
+                $cell.data('cost', newCost);
+                $cell.find('.cost-input').remove();
+
+                /* 2️⃣ Update parent Cost column (DYNAMIC) */
+                updateParentCostUI(visitId, res.totalCost);
+            },
+            error: function () {
+                alert('Failed to save cost');
+            }
+        });
+    }
+
+    function updateParentCostUI(visitId, totalCost) {
+
+        const $parentRow = $('.hidden-visit-id')
+            .filter(function () {
+                return $(this).text().trim() === visitId.toString();
+            })
+            .closest('tr');
+
+        if (!$parentRow.length) return;
+
+        if ($parentRow.find('td').length >= 14) {
+            $parentRow.find('td:nth-child(14)')
+                .text(totalCost.toLocaleString());
+        }
+    }
+</script>
+

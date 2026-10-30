@@ -1,0 +1,431 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitListViewModel
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+
+<link href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" rel="stylesheet" />
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+@{
+    ViewBag.Title = "Scheduled Visits";
+}
+<style>
+    #loaderOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 99999;
+    }
+
+    .loaderBox {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .spinner {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #007bff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: auto;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .ui-dialog-titlebar-close:after {
+        content: 'X' !important;
+        position: absolute;
+        top: -2px;
+        right: 3px;
+    }
+
+    .d-flex {
+        display: flex;
+        justify-content: center; /* Centers the table horizontally */
+        align-items: center; /* Centers the table vertically */
+        margin-right: 10px !important;
+    }
+
+    .r-flex {
+        display: flex;
+        justify-content: right; /* Centers the table horizontally */
+        align-items: center; /* Centers the table vertically */
+    }
+
+    #VisitsStacktable th {
+        font-weight: 700;
+        padding: 5px 10px;
+        line-height: 1.5;
+        font-size: 12px;
+        vertical-align: middle;
+        font-family: Arial;
+        /*font-size: 10.1pt;*/
+    }
+
+    .status-hover {
+        cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+        .status-hover.selected {
+            background-color: #007bff; /* Blue highlight */
+            color: white;
+            font-weight: bold;
+        }
+
+    .financial-totals {
+        border-collapse: collapse;
+        white-space: nowrap; /* stop wrapping */
+    }
+
+        .financial-totals th {
+            width: 33.33%; /* force equal spacing */
+            min-width: 180px; /* prevents collapse */
+            text-align: center;
+        }
+
+    /* Download dialog styling */
+    .download-dialog .ui-dialog-titlebar { background: #f7f9fb; border-bottom: 1px solid #ddd; }
+    .download-dialog .ui-dialog-title { font-weight: 700; color: #333; }
+    .download-dialog .ui-dialog-content { padding: 14px; }
+    .download-form { display:flex; gap:12px; align-items:center; }
+    .download-form .col { flex:1; }
+    .download-form label { display:block; margin-bottom:6px; font-weight:600; }
+    .download-actions { text-align:right; margin-top:12px; }
+    .download-actions .btn { min-width:110px; }
+</style>
+
+<script src="~/CustomJS/Pagination.js"></script>
+
+<div class="box-header with-border row align-items-center" style="padding-left:5px; padding-right:5px;">
+
+    <!-- Log Sheet -->
+    <div class="col-sm-2 col-md-2 col-lg-2" style="padding-right:5px;">
+        <h3 class="box-title" style="margin-bottom:0; line-height:25px;">
+            <span id="spnHeadTitle">Operations &#8667; Log Sheet</span>
+        </h3>
+    </div>
+
+    <!-- FY -->
+    <div class="col-sm-4 col-md-4 col-lg-4 d-flex align-items-center"
+         style="padding-left:0; padding-right:5px; height:25px;">
+        @{ ViewData["ApplyMargin"] = false; }
+        @Html.Partial("_FinancialYear", new ViewDataDictionary { { "ShowMonthFilter", true } })
+    </div>
+
+    <!-- Totals -->
+    <div class="col-sm-5 col-md-5 col-lg-5 r-flex justify-content-end align-items-center"
+         id="divFinancialTotals" style="padding-right:15px; height:22px;">
+        <table class="custom-table financial-totals"
+               style="margin-bottom:0;">
+            <tr>
+                <th style="padding:0 8px; height:30px; line-height:30px;">Total Rate : @Model.Totals.TotalSaleValue.ToString("#,##0")</th>
+                <th style="padding:0 8px; height:30px; line-height:30px;">Total Cost : @Model.Totals.TotalCostValue.ToString("#,##0")</th>
+                <th style="padding:0 8px; height:30px; line-height:30px;">Total GP : @Model.Totals.TotalGPValue.ToString("#,##0") </th>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+
+<div class="center vtabs mt3" id="divStatistics">
+
+    <ul class="d-flex nav nav-tabs pull-center tabs-vertical" role="tablist">
+        <li class="nav-item pull-left">
+            <div class="table-container">
+                <table id="VisitsStacktable" cellpadding="0" cellspacing="0" class="center custom-table" style="border-collapse:collapse; border:solid 0px #000;">
+                    <tr>
+                        <th class="center custom-table" style="width:90px">Statistics :</th>
+                        <th class="center custom-table status-hover" onclick="SortByStatitics('Active',event)" style="width:170px">Active:@Model.StatusCounts.ActiveCount (@Model.StatusCounts.ActivePercentage%) </th>
+                        <th class="center custom-table status-hover" onclick="SortByStatitics('Closed',event)" style="width:170px">Closed:@Model.StatusCounts.ClosedCount (@Model.StatusCounts.ClosedPercentage%) </th>
+                        <th class="center custom-table status-hover" onclick="SortByStatitics('OnHold',event)" style="width:150px">Abortive: @Model.StatusCounts.OnHoldCount (@Model.StatusCounts.OnHoldPercentage%)</th>
+                        <th class="center custom-table status-hover" onclick="SortByStatitics('Cancelled',event)" style="width:160px">Cancelled: @Model.StatusCounts.CancelledCount (@Model.StatusCounts.CancelledPercentage%) </th>
+                        <th class="center custom-table status-hover" onclick="SortByStatitics(' ',event)" style="width:140px">Total: @Model.StatusCounts.TotalCount (100%) </th>
+                    </tr>
+                </table>
+            </div>
+        </li>
+    </ul>
+    <ul class="d-flex nav nav-tabs pull-right tabs-vertical" role="tablist">
+        <li class="nav-item pull-right">
+            <div class="input-group-append pull-right">
+                <button id="btndownload" type="button" class="btn btn-outline-secondary pull-right" style="margin-top:-35px" onclick="DownloadLogSheet()">Download</button>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<input type="hidden" id="hdnActive" />
+@*<div class="clearfix"></div>*@
+<div id="divDirectory">
+    @*@Html.Partial("_AlphabetPanel")*@
+    <div id="divDirectoryList" class="mt10">
+        @Html.Partial("_ScheduleVisit2", Model.ScheduleVisit)
+    </div>
+    @*<p class="JsListGridPager pull-right" id="TasksPager"></p>*@
+    <p class="JsListGridPager pull-right" id="VisitsPager"></p>
+</div>
+<div id="loaderOverlay">
+    <div class="loaderBox">
+        <div class="spinner"></div>
+        <div style="margin-top:10px;">Generating Excel... Please wait</div>
+    </div>
+</div>
+
+<div id="popupvisittable1" title="Inspection Log — Download" style="display:none;">
+    <div style="padding:12px; width:100%;" class="download-dialog-content">
+        <div class="download-form">
+            <div class="col">
+                <label for="startdate">Start Date</label>
+                <input type="date" id="startdate" class="form-control" />
+            </div>
+            <div class="col">
+                <label for="enddate">End Date</label>
+                <input type="date" id="enddate" class="form-control" />
+            </div>
+        </div>
+
+        <div style="margin-top:12px;">
+            <label>Download Format</label>
+            <div>
+                <label style="margin-right:15px;"><input type="radio" name="downloadFormat" value="detailed" checked /> Detailed (with PO items)</label>
+                <label><input type="radio" name="downloadFormat" value="simple" /> Simple (flat)</label>
+            </div>
+        </div>
+
+        <div class="download-actions">
+            <button class="btn btn-secondary" id="btnCancelDownload" type="button">Cancel</button>
+            <button class="btn btn-primary" id="btnConfirmDownload" type="button">Download Log</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function DownloadLogSheet() {
+
+        $("#startdate").val('');
+        $("#enddate").val('');
+
+        $("#popupvisittable1").dialog({
+            modal: true,
+            width: 450,
+            resizable: false,
+            draggable: false,
+            position: { my: "center", at: "center", of: window }
+        });
+    }
+
+    function DownloadLog() {
+        debugger;
+
+        var startdate = $('#startdate').val();
+        var enddate = $('#enddate').val();
+
+        if (!startdate || !enddate) {
+            alert("Please select dates");
+            return;
+        }
+
+        if (enddate < startdate) {
+            alert("End Date should be greater than Start Date");
+            return;
+        }
+
+        var format = $('input[name="downloadFormat"]:checked').val();
+        var isFlat = (format === "simple");
+
+        // ✅ KEEP EXISTING FILTER SYSTEM
+        var filterQuery = "";
+        if (window.activeFilters && Object.keys(window.activeFilters).length > 0) {
+            filterQuery = buildFilterQueryString(window.activeFilters);
+        }
+
+        $("#loaderOverlay").show();
+        $("#popupvisittable1").dialog("close");
+
+        document.cookie = "fileDownload=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+        var url = '../VisitProcessing/DownloadLog'
+            + '?Startdate=' + encodeURIComponent(startdate)
+            + '&Enddate=' + encodeURIComponent(enddate)
+            + '&flat=' + isFlat;
+
+        // ✅ FIXED HERE
+        if (filterQuery) {
+            url += '&filters=' + encodeURIComponent(filterQuery);
+        }
+
+        // 🔥 THIS WILL NOW HIT CONTROLLER
+        window.location.href = url;
+
+        var timer = setInterval(function () {
+            if (document.cookie.indexOf('fileDownload=true') !== -1) {
+                clearInterval(timer);
+                document.cookie = "fileDownload=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                $("#loaderOverlay").hide();
+            }
+        }, 1000);
+    }
+    function DownloadLog11() {
+        var startdate = $('#startdate').val();
+        var enddate = $('#enddate').val();
+        var flag = 1;
+        if (startdate == '' || enddate == '') {
+            alert("Please select Start Date and End Date");
+            flag = 0;
+        }
+
+        if (enddate < startdate) {
+            alert('End Date should be greater than Start Date')
+            flag = 0;
+        }
+
+        if (flag == 1) {
+            $.ajax({
+                type: "POST",
+                url: '../VisitProcessing/DownloadLog',
+                dataType: "json",
+                data: {
+                    Startdate: startdate,
+                    Enddate: enddate
+                },
+                success: function (r) {
+                    var bytes = Base64ToBytes(r);
+                    var blob = new Blob([bytes], { type: "application/octetstream" });
+                    var isIE = false || !!document.documentMode;
+                    if (isIE) {
+                        window.navigator.msSaveBlob(blob, "Download.xlsx");
+                    } else {
+                        var url = window.URL || window.webkitURL;
+                        link = url.createObjectURL(blob);
+                        var a = $("<a />");
+                        a.attr("download", "Download.xlsx");
+                        a.attr("href", link);
+                        $("body").append(a);
+                        a[0].click();
+                        $("body").remove(a);
+                    }
+                }
+            });
+        }
+    }
+
+    function Base64ToBytes(base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    $(document).ready(function () {
+
+        // ✅ bind download click
+        $('#btnConfirmDownload').off('click').on('click', function () {
+            DownloadLog();
+        });
+
+        // ✅ cancel button
+        $('#btnCancelDownload').off('click').on('click', function () {
+            $("#popupvisittable1").dialog("close");
+        });
+
+        $('#txtDirectorySearch').val('');
+        window.paginationObj.setCurrentPageCount("0");
+
+        window.FilterVisitDirectory(function (status) {
+
+        }, { backToFirstPage: true });
+
+        // });
+    });
+
+    if (!window.__showMoreBound) {
+        //  debugger;
+        // Store original ShowMore function, if exists
+        const originalShowMore = window.ShowMore;
+
+        // Override ShowMore with custom logic
+        window.ShowMore = function (callback) {
+            //  debugger;
+            // Prevent duplicate calls
+            if (!window.__showMoreCalled) {
+                window.__showMoreCalled = true;
+
+                // Reset after call stack clears
+                setTimeout(() => {
+                    window.__showMoreCalled = false;
+                }, 0);
+
+                // ✅ Check if filters exist in activeFilters
+                const hasFilters = window.activeFilters && Object.keys(window.activeFilters).length > 0;
+                // debugger;
+                if (hasFilters) {
+                    // console.log("Filters detected, calling fetchFilteredData()");
+                    const queryString = buildFilterQueryString(window.activeFilters);
+                    applyGridFilter(queryString, true);
+                } else {
+                    console.log("No filters found, calling updateFilters()");
+                    updateFilters();
+                }
+
+                // Support callback chaining
+                if (typeof callback === "function") {
+                    callback(true);
+                }
+            }
+        };
+
+        // Prevent future rebinding
+        window.__showMoreBound = true;
+    }
+    function buildFilterQueryString(filters) {
+        const params = new URLSearchParams();
+
+        for (const [column, { type, value }] of Object.entries(filters)) {
+            params.append(`filters[${column}].type`, type);
+            params.append(`filters[${column}].value`, value);
+        }
+
+        return params.toString();
+    }
+    window.FilterVisitDirectory = function (callback, obj) {
+        debugger;
+        if (obj?.backToFirstPage === true) {
+            window.paginationObj.setCurrentPageCount(0);
+        }
+        // ❌ DO NOTHING when paginating
+
+        updateFilters();
+        // initializeDatePicker();
+
+
+    }
+</script>

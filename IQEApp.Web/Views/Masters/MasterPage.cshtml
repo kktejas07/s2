@@ -1,0 +1,133 @@
+﻿@using IQEApp.Web.Models.MasteModel
+@{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Master";
+}
+@*<legend> @ViewBag.Title </legend>*@
+<div class="box-header with-border">
+    <h3 class="box-title"> <span id="spnMasterTitle"> Admin &#8667; @ViewBag.Title </span></h3>
+</div>
+
+
+<div class="container-fluid topspace">
+
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4 bg">
+            <ul class="list-group">
+                <li class="list-group-items" data-module="mstDesignation">
+                    <span id="btnRoles" onclick="displayDetails('@((Int32) MasterDataType.Roles)','true','Roles', this)">1. Roles</span>
+                </li>
+                <li class="list-group-items" data-module="mstDesignation">
+                    <span id="btnDesignations" onclick="displayDetails('@((Int32)MasterDataType.Designations)','true','Designation', this)">2. Designation</span>
+                </li>
+                <li class="list-group-items" data-module="mstPaymentModes">
+                    <span id="btnPaymentModes" onclick="displayDetails('@((Int32)MasterDataType.PaymentModes)','true','Payment Modes', this)">3. Payment Modes</span>
+                </li>
+                <li class="list-group-items" data-module="mstSkillSets">
+                    <span id="btnSkillSets" onclick="displayDetails('@((Int32)MasterDataType.SkillSets)','true','Skill Sets', this)">4. Skill Sets</span>
+                </li>
+                <li class="list-group-items" data-module="mstIndustryTypes">
+                    <span id="btnIndustryTypes" onclick="displayDetails('@((Int32)MasterDataType.IndustryTypes)','true','Industry Types', this)">5. Industry Types</span>
+                </li>
+                @*<li class="list-group-items" data-module="mstIndustryTypes">
+                    <span id="" onclick="">5. Service Order Type</span>
+                </li>*@
+                <li class="list-group-items" data-module="mstIndustryTypes">
+                    <span id="btnDocumentType" onclick="displayDetails('@((Int32)MasterDataType.DocumentType)','true','Document Type', this)">6. Document Types</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-8 col-md-8 col-sm-8">
+            <input type="hidden" id="hdnSecId" name="hdnSecId" value="0" />
+            <input type="hidden" id="hdnSecName" name="hdnSecName" value="0" />
+            <div id="divMastersLoading">
+
+            </div>
+            <div>
+                <div class="vtabs ">
+                    <ul class="nav nav-tabs tabs-vertical" role="tablist">
+                        <li class="f25"><span id="spnTabMasterTitle">sss</span></li>
+                        <li class="nav-item pull-right " id="liInActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowMasterDetails('InActive')">InActive</a> </li> 
+                        <li class="nav-item pull-right active" id="liActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="ShowMasterDetails('Active')"><span>Active</span></a> </li> 
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane   active" id="divActive" role="tabpanel">
+                        </div>
+                    </div>
+                </div>
+                <div id="manageData">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        displayDetails(1, 'true','Roles');
+        $('#hdnSecId').val(1);
+    });
+    function ShowMasterDetails(mstType) {
+        //  alert(mstType);
+        var valSecId = $("#hdnSecId").val();
+        var valSecName = $("#hdnSecName").val();
+        $('#spnTabMasterTitle').html('');
+        $('#spnTabMasterTitle').html(valSecName);
+        if (mstType == "Active") {
+            displayDetails(valSecId, 'true', valSecName);
+            $("#liActive").addClass("active");
+            $("#liInActive").removeClass("active");
+            $("#divSaveMasters").show();
+        } else if (mstType == "InActive") {
+          //  alert('2');
+            displayDetails(valSecId, 'false', valSecName);
+            $("#liActive").removeClass("active");
+            $("#liInActive").addClass("active");
+          $("#divSaveMasters").hide();
+        }
+    }
+    function displayDetails(secId, isActive, secName,obj) {
+      //  alert(isActive);
+        $('#hdnSecId').val(secId);
+        $('#hdnSecName').val(secName);
+      $("#spnTabMasterTitle").html('');
+      $("#spnTabMasterTitle").html(secName);
+        $.ajax({
+            type: "GET",
+            url: '../Masters/GetMastersDetails',
+            data: {
+                mstSectionId: secId,
+                isActive: isActive,
+                sectionName : secName
+            },
+            success: function (data) {
+                $("#manageData").html('');
+                $("#manageData").html(data);
+                $(window).scrollTop(0);
+                if (isActive == "true") {
+                  //  alert('active');
+                    $("#liActive").addClass("active");
+                    $("#liInActive").removeClass("active");
+                  $("#divSaveMasters").show();
+                } else if (isActive == "false") {
+                  //  alert('inactive');
+                    $("#liActive").removeClass("active");
+                    $("#liInActive").addClass("active");
+                  $("#divSaveMasters").hide();
+                }
+            },
+            error: function (error) {
+            },
+            beforeSend: function (data) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divMastersLoading'), position: "center" });
+            },
+            complete: function (data) {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divMastersLoading'));
+            }
+        });
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divMastersLoading'), position: "center" });
+    }
+</script>

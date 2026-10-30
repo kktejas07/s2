@@ -1,0 +1,126 @@
+{# Jinja Macros for IQE Technical Inspection Forms #}
+
+{% macro checkbox(checked, label) %}
+<span class="checkbox-item"><span class="checkbox-glyph">{% if checked %}&#x2612;{% else %}&#x2610;{% endif %}</span> {{ label }}</span>
+{% endmacro %}
+
+{% macro section(num, title, first=false) %}
+<div class="section-heading {% if first %}first-heading{% endif %}">
+  {{ num }} {{ title }}
+</div>
+{% endmacro %}
+
+{% macro running_header(form_code, revision, sub_line, third_line_label, report_no) %}
+<table class="running-header-table">
+  <tr>
+    <td class="header-logo-cell">
+      {# The mark alone, not the full lockup: the lockup's wordmark is
+         illegible at header size and only repeats the company name set
+         beside it. #}
+      <img class="header-logo" src="../images/iqe-mark.png" alt="Ideal Quality Engineers (I) Pvt. Ltd.">
+    </td>
+    <td class="header-left-cell">
+      <div class="header-company-name">IDEAL QUALITY ENGINEERS (I) PVT. LTD.</div>
+      <div class="header-subline">{{ sub_line }}</div>
+    </td>
+    <td class="header-right-cell">
+      <div>FORM NO.: {{ form_code }}</div>
+      <div>REVISION: {{ revision or '00' }}</div>
+      <div>{{ third_line_label }}: {{ report_no or '________________' }}</div>
+    </td>
+    {% if qr_data_uri %}
+    <td class="header-qr-cell">
+      <img class="header-qr" src="{{ qr_data_uri }}" alt="Scan to verify">
+      <div class="header-qr-caption">Scan to verify</div>
+    </td>
+    {% endif %}
+  </tr>
+</table>
+{% endmacro %}
+
+{% macro doc_title(title, subtitle) %}
+<div class="doc-header-block">
+  <div class="doc-title">{{ title }}</div>
+  <div class="doc-subtitle">{{ subtitle }}</div>
+</div>
+{% endmacro %}
+
+{% macro free_text(value, blank_lines=2) %}
+{% if value and value.strip() %}
+<div class="free-text-box">{{ value }}</div>
+{% else %}
+<div class="free-text-box free-text-underscores">
+  {% for _ in range(blank_lines) %}
+  ________________________________________________________________________________<br>
+  {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro signature_block(left_title, right_title, right_role='IQE Inspector:', sigs=None) %}
+{% set s = sigs if (sigs is defined and sigs) else {} %}
+<table class="report-table signature-table">
+  <thead>
+    <tr>
+      <th class="th-label" style="width: 50%;">{{ left_title }}</th>
+      <th class="th-label" style="width: 50%;">{{ right_title }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="td-value">
+        <div><strong>Name:</strong> {{ s.supplier_name or '__________________________' }}</div>
+        <div><strong>Designation:</strong> {{ s.supplier_designation or '___________________' }}</div>
+        <div><strong>Signature:</strong> {% if s.supplier_sig_img %}<img src="{{ s.supplier_sig_img }}" style="height: 18pt; vertical-align: middle;">{% else %}______________________{% endif %}</div>
+        <div><strong>Date:</strong> {{ s.supplier_date or '____ / ____ / ______' }}</div>
+        <div class="stamp-box"><strong>Company Stamp:</strong> {% if s.supplier_stamp_img %}<img src="{{ s.supplier_stamp_img }}" style="height: 35pt; vertical-align: middle;">{% endif %}</div>
+      </td>
+      <td class="td-value">
+        <div><strong>Name:</strong> {{ s.iqe_name or '__________________________' }}</div>
+        <div><strong>{{ right_role }}</strong> {{ s.iqe_inspector or '___________________' }}</div>
+        <div><strong>Signature:</strong> {% if s.iqe_sig_img %}<img src="{{ s.iqe_sig_img }}" style="height: 18pt; vertical-align: middle;">{% else %}______________________{% endif %}</div>
+        <div><strong>Date:</strong> {{ s.iqe_date or '____ / ____ / ______' }}</div>
+        <div class="stamp-box"><strong>IQE Stamp:</strong> {% if s.iqe_stamp_img %}<img src="{{ s.iqe_stamp_img }}" style="height: 35pt; vertical-align: middle;">{% endif %}</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% endmacro %}
+
+{% macro photo_grid(photos=None) %}
+{% set ph_list = photos if (photos is defined and photos) else [] %}
+<table class="photo-grid-table">
+  <tr>
+    {% for idx in range(1, 3) %}
+    {% set p = ph_list[idx-1] if (ph_list and ph_list|length >= idx) else None %}
+    <td>
+      <div class="photo-cell-header">Photo {{ idx }}</div>
+      <div class="photo-box">
+        {% if p and p.url %}
+        <img src="{{ p.url }}" alt="Photo {{ idx }}">
+        {% else %}
+        <span>[Insert Photograph]</span>
+        {% endif %}
+      </div>
+      <div class="photo-caption"><strong>Caption:</strong> {{ p.caption if (p and p.caption) else '__________________________' }}</div>
+    </td>
+    {% endfor %}
+  </tr>
+  <tr>
+    {% for idx in range(3, 5) %}
+    {% set p = ph_list[idx-1] if (ph_list and ph_list|length >= idx) else None %}
+    <td>
+      <div class="photo-cell-header">Photo {{ idx }}</div>
+      <div class="photo-box">
+        {% if p and p.url %}
+        <img src="{{ p.url }}" alt="Photo {{ idx }}">
+        {% else %}
+        <span>[Insert Photograph]</span>
+        {% endif %}
+      </div>
+      <div class="photo-caption"><strong>Caption:</strong> {{ p.caption if (p and p.caption) else '__________________________' }}</div>
+    </td>
+    {% endfor %}
+  </tr>
+</table>
+{% endmacro %}

@@ -1,0 +1,205 @@
+﻿@model IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderDetailsModel
+
+@{
+    var mapping = Model.LstManufacturerLocationMappings.FirstOrDefault();
+}
+
+@if (mapping != null)
+{
+    <tr class="manufacturer-location-row mfg-row" data-mfrid="@mapping.ManufacturerId">
+        <td>
+            <input type="hidden" name="ManufacturerId" value="@Model.ManufacturerId" />
+            <button type="button"
+                    class="btn btn-sm btn-outline-primary ms-2"
+                    onclick="cloneManufacturerRow(this)">
+                <i class="fa fa-plus"></i>
+            </button>
+        </td>
+
+        <td>
+            <input type="text"
+                   class="form-control"
+                   style="width:300px;"
+                   readonly
+                   name="LstManufacturerLocationMappings[0].Manufacturer"
+                   value="@mapping.ManufacturerName" />
+
+            <input type="hidden"
+                   name="LstManufacturerLocationMappings[0].ManufacturerId"
+                   value="@mapping.ManufacturerId" />
+        </td>
+
+        <!-- ✅ LOCATION COLUMN -->
+        <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+
+                <!-- ✅ Checkbox -->
+                <label style="font-size:12px; margin:0; white-space:nowrap;">
+                    <input type="checkbox"
+                           class="sub-mfr-checkbox"
+                           name="LstManufacturerLocationMappings[0].IsSubManufacturer"
+                           value="true"
+                           @(mapping.IsSubManufacturer ? "checked=\"checked\"" : "")
+                           onchange="toggleSubManufacturerCheckbox(this)" />
+                    Sub Manufacturer
+                </label>
+
+                <!-- ✅ Normal Location -->
+                <input type="text"
+                       class="form-control redborder visit-location-input normal-location"
+                       style="width:250px; @(mapping.IsSubManufacturer ? "display:none;" : "")"
+                       name="LstManufacturerLocationMappings[0].LocationDetails"
+                       value="@mapping.LocationDetails"
+                       placeholder="Enter Inspection Location & Address" />
+
+                <!-- ✅ Sub Manufacturer -->
+                <input type="text"
+                       class="form-control redborder sub-manufacturer"
+                       style="width:250px; @(!mapping.IsSubManufacturer ? "display:none;" : "")"
+                       name="LstManufacturerLocationMappings[0].SubManufacturerDetails"
+                       value="@mapping.SubManufacturerDetails"
+                       placeholder="Enter Sub Manufacturer Details" />
+
+            </div>
+        </td>
+
+        <td>
+            <input type="text"
+                   class="form-control redborder contact-input"
+                   style="width:120px;"
+                   name="LstManufacturerLocationMappings[0].ContactNo"
+                   value="@mapping.ContactNo"
+                   placeholder="Enter Contact No" />
+        </td>
+
+        <td>
+            <input type="text"
+                   class="form-control redborder cost-input"
+                   style="width:100px;"
+                   name="LstManufacturerLocationMappings[0].Cost"
+                   value="@mapping.Cost"
+                   placeholder="Enter Cost" />
+        </td>
+
+        <td class="text-center"></td>
+    </tr>
+}
+<script>
+
+    let mfrRowIndex = 1;
+
+    function toggleSubManufacturerCheckbox(checkbox) {
+        var container = $(checkbox).closest(".mfg-row");
+        var normalBox = container.find(".normal-location");
+        var subBox = container.find(".sub-manufacturer");
+
+        if ($(checkbox).is(":checked")) {
+            normalBox.hide().val('');
+            subBox.show();
+        } else {
+            subBox.hide().val('');
+            normalBox.show();
+        }
+    }
+
+    $(document).ready(function () {
+        $(".sub-mfg-checkbox").each(function () {
+            toggleSubManufacturerCheckbox(this);
+        });
+    });
+    function cloneManufacturerRow(btn) {
+        const $row = $(btn).closest('tr');
+        const mfrId = $row.data('mfrid');
+        const mfrName = $row.find('input[readonly]').val();
+
+        const $newRow = $(`
+<tr class="manufacturer-location-row" data-mfrid="${mfrId}">
+    <td></td>
+
+    <td>
+        <input type="text" class="form-control" style="width:300px;" readonly
+               name="LstManufacturerLocationMappings[${mfrRowIndex}].Manufacturer"
+               value="${escapeHtml(mfrName)}" />
+        <input type="hidden"
+               name="LstManufacturerLocationMappings[${mfrRowIndex}].ManufacturerId"
+               value="${mfrId}" />
+    </td>
+
+    <!-- LOCATION COLUMN -->
+    <td>
+       <div style="display:flex; align-items:center; gap:10px;">
+       <label style="font-size:12px; margin:0; white-space:nowrap;">
+            <input type="checkbox"
+                   name="LstManufacturerLocationMappings[${mfrRowIndex}].IsSubManufacturer"
+                   value="true"
+                   onclick="toggleSubManufacturerCheckbox(this)" />
+            <span>Sub Manufacturer</span>
+        </div>
+
+        <input type="text" class="form-control visit-location-input redborder normal-location"
+               style="width:250px;"
+               name="LstManufacturerLocationMappings[${mfrRowIndex}].LocationDetails"
+               placeholder="Enter Inspection Location & Address" />
+
+        <input type="text" class="form-control redborder sub-manufacturer"
+               style="width:250px; display:none; margin-top:3px;"
+               name="LstManufacturerLocationMappings[${mfrRowIndex}].SubManufacturerDetails"
+               placeholder="Enter Sub Manufacturer Details" />
+       </div>
+    </td>
+
+    <td>
+        <input type="text" class="form-control redborder contact-input" style="width:120px;"
+               name="LstManufacturerLocationMappings[${mfrRowIndex}].ContactNo"
+               placeholder="Enter Contact No" />
+    </td>
+
+    <td>
+        <input type="text" class="form-control redborder cost-input" style="width:100px;"
+               name="LstManufacturerLocationMappings[${mfrRowIndex}].Cost"
+               placeholder="Enter Cost" />
+    </td>
+
+    <td class="text-center">
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeClonedManufacturerRow(this)">
+            <i class="fa fa-trash"></i>
+        </button>
+    </td>
+</tr>
+`);
+
+        $row.after($newRow);
+        mfrRowIndex++;
+    }
+
+    function removeClonedManufacturerRow(btn) {
+        $(btn).closest('tr').remove();
+        if ($('#manufacturerVisitData tr').length === 0) {
+            $('#manufacturerVisitContainer').hide();
+        }
+    }
+
+    // Toggle Sub Manufacturer UI
+    function toggleSubManufacturerCheckbox(chk) {
+        const $td = $(chk).closest('td');
+
+        if (chk.checked) {
+            $td.find('.normal-location').hide();
+            $td.find('.sub-manufacturer').show();
+        } else {
+            $td.find('.normal-location').show();
+            $td.find('.sub-manufacturer').hide();
+        }
+    }
+
+    // Escape HTML
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+</script>

@@ -1,0 +1,143 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ManufacturerModel.ManufacturerUnitsDetailsModel
+<div>
+    <section id="AddManufacturerUnitsForm">
+        @using (Ajax.BeginForm("UpdateManufacturerUnitDetails", "Manufacturer", new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnBegin = "beginProgressBar",
+            OnSuccess = "onSuccessUpdateManufacturerUnit",
+        }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ManufacturerUnitName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ManufacturerUnitName, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerUnitName) })
+                    @Html.ValidationMessageFor(m => m.ManufacturerUnitName)
+                    <span id="spnUnitDuplicateError" class="field-validation-error" style="display: none;">Unit already exists</span>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ContactPersonName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ContactPersonName, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ContactPersonName) })
+                    @Html.ValidationMessageFor(m => m.ContactPersonName)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ContactPersonDesignation, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ContactPersonDesignation, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ContactPersonDesignation) })
+                    @Html.ValidationMessageFor(m => m.ContactPersonDesignation)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ManufacturerUnitEmailId, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ManufacturerUnitEmailId, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ManufacturerUnitEmailId) })
+                    @Html.ValidationMessageFor(m => m.ManufacturerUnitEmailId)
+                </div>
+            </div>
+           @* <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.PhoneNumber, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PhoneNumber) })
+                    @Html.ValidationMessageFor(m => m.PhoneNumber)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.MFUnitCountryId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.MFUnitCountryId, new SelectList(Model.LstCountries, "CountryId", "CountryName"), "Select", new { @class = "form-control dropDownStyle", @placeholder = @Html.DisplayNameFor(model => model.MFUnitCountryId), onchange = "GetStateDetailsByCountryId(this)" })
+                    @Html.ValidationMessageFor(m => m.MFUnitCountryId)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.MFUnitStateId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.MFUnitStateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select", new { @class = "form-control dropDownStyle", @placeholder = @Html.DisplayNameFor(model => model.MFUnitStateId) })
+                    @Html.ValidationMessageFor(m => m.MFUnitStateId)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.City, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.City, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.City) })
+                    @Html.ValidationMessageFor(m => m.City)
+                </div>
+            </div>*@
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                    @Html.LabelFor(m => m.Address, new { @class = "control-label" })
+                    @Html.TextAreaFor(m => m.Address, new { @class = "form-control inputStyle",@rows=2, @placeholder = @Html.DisplayNameFor(model => model.Address) })
+                    @Html.ValidationMessageFor(m => m.Address)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.HiddenFor(m => m.ManufacturerUnitGuid)
+                    @Html.HiddenFor(m => m.MFUnitCountryId)
+                    @Html.HiddenFor(m => m.MFUnitStateId)
+                    @Html.HiddenFor(m => m.City)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row">
+                <div class="form-group ">
+                    <div class="col-sm-6 col-md-6 col-lg-8">
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-4 ">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCancelAddManufacturerUnit" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: ManufacturerUnitsList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnUpdateManufacturerUnit" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.ManufacturerId)
+            @Html.HiddenFor(m => m.ManufacturerUnitId)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+</div>
+<script>
+    $.validator.unobtrusive.parse(document);
+
+    function onSuccessUpdateManufacturerUnit(response) {
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            $("#AddManufacturerUnits").html('').hide();
+            ManufacturerUnitsList();
+        } else {
+            if (response.message === 'duplicate') {
+                $("#spnUnitDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+        }
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+    }
+
+    function GetStateDetailsByCountryId(obj) {
+        var countryId = $(obj).find('option:selected').val();
+        if (countryId == null || countryId == undefined || countryId == '') {
+            countryId = 0;
+        }
+        $.ajax({
+            url: '../Common/GetStateDetailsByCountryId',
+            type: 'POST',
+            data: {
+                countryId: countryId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (stateList) {
+                //alert(JSON.stringify(stateList));
+                //alert(JSON.stringify(stateList.length));
+                var options = '<option value="-1">Select</option>';
+                for (var i = 0; i < stateList.length; i++) {
+                    options += '<option value="' + stateList[i].StateId + '">' + stateList[i].StateName + '</option>';
+                }
+                $('#MFUnitStateId').html(options);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+</script>
+
+

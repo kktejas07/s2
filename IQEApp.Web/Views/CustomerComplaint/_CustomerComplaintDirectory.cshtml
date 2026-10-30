@@ -1,0 +1,148 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.CustomerComplaintModel.CustomerComplaintViewModel>
+
+<link href="~/Content/Site.css" rel="stylesheet" />
+
+<style>
+    table {
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        background-color: #fff;
+        align-content: center;
+        width: -webkit-fill-available;
+    }
+    body {
+        font-family: Arial;
+        font-size: 9pt;
+    }
+</style>
+
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Sales &#8667; Customer Complaints</title>
+
+</head>
+<body>
+    <div>
+        <table cellpadding="0" cellspacing="0" class="center">
+            <tr>
+                <th>@Html.Label("Complaint ID")</th>
+                <th>@Html.Label("Received Date")</th>
+                <th>@Html.Label("Customer Name")</th>
+                <th>@Html.Label("Complaint Identification No")</th>
+                <th>@Html.Label("PO No")</th>
+                <th>@Html.Label("Equipment Name")</th>
+                <th>@Html.Label("Job / Tag No")</th>
+                <th>@Html.Label("Closing Date")</th>
+                <th>@Html.Label("File")</th>
+                <th>@Html.Label("Complaint Status")</th>
+                <th>@Html.Label("Remarks")</th>
+                <th>&nbsp;</th>
+            </tr>
+            @foreach (var complaint in Model)
+            {
+                <tr>
+                    <td>@complaint.ComplaintID</td>
+                    <td>@(complaint.ComplaintReceivedDate.HasValue ? complaint.ComplaintReceivedDate.Value.ToShortDateString() : "")</td>
+                    <td>@complaint.CustomerName</td>
+                    <td>@complaint.ComplaintIdentifictionNo</td>
+                    <td>@complaint.POWO_Number</td>
+                    <td>@complaint.EquipmentNameQty_Complaint</td>
+                    <td>@complaint.EquipmentOfferedQty</td>
+
+                    @*  <td>@complaint.ComplaintTitle</td>*@
+                    <td>@(complaint.ClosingDate.HasValue ? complaint.ClosingDate.Value.ToShortDateString() : "")</td>
+                    <td>
+                        @if (complaint.FileName != null)
+                        {
+                            <a href="~/CustomerComplaint/DownloadFile?Id=@complaint.ComplaintID">
+                                <i aria-hidden="true">
+                                    @complaint.FileName
+                                </i>
+                            </a>
+                        }
+                    </td>
+
+                    <td>@complaint.ComplaintStatusName</td>
+                    <td>@complaint.Remarks</td>
+                    <td>
+                        @*@if (complaint.IsComplaintActive)
+            {*@
+                        <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                            <div class="btn-group" style="display: inline-block;" role="group">
+                                <span id="enquiryDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                </span>
+                                <ul class="dropdown-menu ellipse-menu-left">
+                                    <li>
+                                        <a href="javascript:EditComplaint('@complaint.ComplaintID');">
+                                            <i class="fa fa-pencil mr20" aria-hidden="true">
+                                            </i> Edit Complaint
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        @* }*@
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</body>
+<script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+    function EditComplaint(complaintId) {
+        $.ajax({
+            url: '../CustomerComplaint/EditComplaint',
+            type: 'POST',
+            data: {
+                complaintId: complaintId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+              //  $("#divComplaintDetails").html('').hide();
+              //  $('#divAddUpdateComplaint').html(data).show();
+               // $('#btnComplaintList').show();
+              //  $('#btnAddComplaint').hide();
+                $('#AlphaSorting').hide();
+                $('#ComplaintPager').hide();
+                $('#ComplaintDataPostDiv').show();
+               // ManufacturerUnitsList();
+
+
+                $('#divActiveInActive').hide();
+                $('#spnComplaintHeadTitle').html('');
+                $('#spnComplaintHeadTitle').html('Sales &#8667; Edit Complaint');
+                $('#divAddNewComplaint').html(data);
+                $('#btnComplaintList').show();
+                $('#divAddUpdateComplaint').show();
+                $('#btnAddComplaint').hide();
+                $("#divDirectoryList").html('').hide();
+                $('#ComplaintName').focus();
+                $("#divDirectory").hide();
+                $("#divMainSearch").hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+
+
+</script>

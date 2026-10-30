@@ -1,0 +1,156 @@
+﻿<div class="">
+    <div class="calendar"></div>
+    <div class="box"></div>
+</div>
+<script>
+    var PigNoseCalenderObj = (function () {
+
+        function onClickHandler(date, obj) {
+         //   alert(date[0].format('DD-MM-YYYY'));
+            $.ajax({
+                url: '../Home/GetSelDateScheduledVisitsList',
+                type: 'POST',
+                data: {
+                    selDate: date[0].format('DD-MM-YYYY')
+                },
+                beforeSend: function(e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                        parentElement: $('#divVisitLoading'),
+                        position: "center"
+                    });
+                },
+                success: function(data) {
+                    $('#divSchedulesList').html('');
+                    $('#divSchedulesList').html(data);
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                },
+                complete: function() {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divVisitLoading'));
+                }
+            });
+            //console.log(">> onClickHandler");
+            //var taskHtml = tasksData.getTask(date[0]._d);
+
+            //var $calendar = obj.calendar;
+            //var $box = $calendar.parent().siblings('.box').show();
+            //var text = '';
+
+            //if (taskHtml == "") {
+            //    text = '<span>No due on ';
+            //} else {
+            //    text = '<span> Due on ';
+            //}
+
+            //if (date[0] !== null) {
+            //    text += date[0].format('DD-MM-YYY');
+            //}
+
+            //if (date[1] !== null) {
+            //    text += date[1].format('DD-MM-YYY');
+            //}
+            //text += "</span>";
+
+            //if (taskHtml != "") {
+
+            //    text += '<div class="clearfix"> </div>';
+            //    text += taskHtml;
+            //}
+            //$box.html(text);
+        }
+
+        return {
+            Create: function (scheduledDeliverables) {
+                $('.calendar').pignoseCalendar('init', {
+                    scheduleOptions: {
+                        colors: {
+                            deliverable: '#2fabb7'
+                        }
+                    },
+                    schedules: scheduledDeliverables,
+                    select: onClickHandler
+                });
+            }
+        }
+    })();
+    //create pig nose calender
+    PigNoseCalenderObj.Create();
+
+    @*var tasksData = (function () {
+        var taskData = JSON.stringify(@Html.Raw(Json.Encode(Model.WorkgroupTasksForCalendar)));
+        var loginuserId = 2;
+        taskData = JSON.parse(taskData);
+        console.log('task data ', taskData);
+
+        var scheduledTasks = [];
+        $.each(taskData, function (index, data) {
+            console.log("date:" + data.DueDate);
+            console.log("date:" + data.DueDateIsoStr);
+            var dueDate = new Date(data.DueDateIsoStr);
+            console.log("date obj>> ", dueDate);
+
+            scheduledTasks.push({
+                name: "deliverable",
+                date: moment(dueDate).format("YYYY-MM-DD")
+                //date: dueDate
+            });
+
+        });
+
+
+        console.log(scheduledTasks);
+
+        if (typeof (PigNoseCalenderObj) != "undefined") {
+            //update pignose calender
+            PigNoseCalenderObj.Create(scheduledTasks);
+        }
+
+        return {
+            getTask: function (date) {
+
+                date = new Date(date);
+
+                var matchedTasks = $.grep(taskData, function (data, index) {
+
+                    var dueDate = new Date(data.DueDateIsoStr);
+                    //if (dueDate.indexOf("(") > 0) {
+                    //if (data.DueDateIsoStr.indexOf("T") > 0) {
+
+                    //dueDate = data.DueDateIsoStr.split("T")[0];
+                    //dueDate = new Date(parseInt(dueDate.substring(dueDate.indexOf("(") + 1, dueDate.indexOf(")"))));
+                    return (date.getFullYear() == dueDate.getFullYear() && date.getMonth() == dueDate.getMonth() && date.getDate() == dueDate.getDate());
+                    return false;
+                    //} else {
+                    //    return false;
+                    //}
+                });
+
+                var html = "";
+                var counter = 1;
+                $.each(matchedTasks, function (index, task) {
+                    if ((task.isWGOwner) || (task.AssignedToProfileId == loginuserId)) {
+                        html += '<div class="heading-task">' +
+                            '<span>' + (counter++) + '.</span>' +
+                            '<a href="/WorkGroups/Task/?contentGuid=' + task.contentGUID + '&DeliverableId=' + task.DeliverableId + '">' +
+                            task.DeliverableName + " (" + task.StatusName + ")" +
+                            '</a>' +
+                            '</div>';
+                    }
+                    else {
+                        html += '<div class="heading-task">' +
+                            '<span>' + (counter++) + '.</span>' +
+                            '<span' + task.DeliverableId + '">' +
+                            task.DeliverableName +
+                            '</span>' +
+                            '</div>';
+                    }
+                    // html += task.AssignedToProfileId + ' ' + loginuserId + '' + task.isWGOwner;
+
+                });
+                return html;
+            }
+        }
+
+    })();*@
+</script>
+

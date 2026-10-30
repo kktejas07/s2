@@ -1,0 +1,145 @@
+﻿@using IQEApp.Domain
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.InvoiceModel.InvoiceConsolidateDetailsModel>
+
+
+<style>
+    .directory-table-row hr {
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    body {
+        font-family: Arial;
+        font-size: 9.5pt;
+    }
+
+    .table {
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+        background-color: #B8DBFD;
+        align-content: center;
+        color: #333;
+        height: 50px;
+        width: 95%;
+    }
+</style>
+
+
+<div>
+    <div>
+        @if (Model.Any())
+        {
+            int index = 1;
+            <table style="width:97%" cellpadding="0" cellspacing="0" class="center">
+                <tr>
+                    <th style="width: 7%; align-items: center" class="font10">S.No</th>
+                    <th style="width: 12%; align-items: center" class="font10">Category</th>
+                    <th style="width: 12%; align-items: center" class="font10">Description</th>
+                    <th style="width: 12%; align-items: center" class="font10">UOM</th>
+                    <th style="width: 12%; align-items: center" class="font10">Rate</th>
+                    <th style="width: 12%; align-items: center" class="font10">Amount</th>
+                </tr>
+                <input id="hdnInvoiceId" type="hidden" value="@Model.FirstOrDefault().InvoiceId" />
+                @foreach (var consolidatedData in Model)
+                {
+
+                    <tr>
+                        <td align="center" style="width: 5%">
+                            @index
+                            <input id="hdnSNo_@index" type="hidden" value="@index" />
+                            <input id="hdnInvoiceConsolidateId_@index" type="hidden" value="@consolidatedData.InvoiceConsolidateId" />
+                        </td>
+                        <td align="center" style="width: 15%">
+                            @(consolidatedData.Category)
+                            <input id="hdnCategory_@index" type="hidden" value="@consolidatedData.Category" />
+                        </td>
+
+                        <td>
+                            @(consolidatedData.Description)
+                            <textarea name="hdnDescription_@index" cols="45" rows="2" id="hdnDescription_@index"></textarea>
+                        </td>
+                        <td align="center" style="width: 17%" class="font10">
+                            @(consolidatedData.Category != "Service Charges" ? "--" : consolidatedData.UOM.ToString("N"))
+                            <input id="hdnUOM_@index" type="hidden" value="@consolidatedData.UOM" />
+                        </td>
+                        <td align="center" style="width: 15%" class="font10">
+                            @(consolidatedData.Rate == 0 ? "--" : consolidatedData.Rate.ToString("N"))
+                            <input id="hdnRate_@index" type="hidden" value="@consolidatedData.Rate" />
+                        </td>
+
+                        <td align="center" style="width: 15%" class="font10">
+                            @(consolidatedData.Amount)
+                            <input id="hdnAmount_@index" type="hidden" value="@consolidatedData.Amount" class="js-ConsolidateDetails" />
+                        </td>
+
+                    </tr>
+                    index++;
+                }
+            </table>
+        }
+    </div>
+</div>
+
+<button type='button' class="btn btn-success pull-right" id="btnSaveInvoiceDetails" value="Cancel" title="Proceed" data-toggle="tooltip" onclick="javascript: UpdateConsolidatedInvoiceDetails(this);"><i class="fa fa-floppy-o" aria-hidden="true"></i> Proceed </button>
+
+
+
+<script>
+    function UpdateConsolidatedInvoiceDetails(obj) {
+        var invoiceType = $("input[name='InvoiceType']:checked").val();
+        $(obj).prop('disabled', true);
+        var consolidatedInvoiceDetailsArray = [];
+        var index = 1;
+        $(".js-ConsolidateDetails").each(function () {
+            var consolidatedInvoiceDetailsModel = {};
+            consolidatedInvoiceDetailsModel.InvoiceConsolidateId = $("#hdnInvoiceConsolidateId_" + index).val();
+            consolidatedInvoiceDetailsModel.InvoiceId = $("#hdnInvoiceId").val();
+            consolidatedInvoiceDetailsModel.SNo = $("#hdnSNo_" + index).val();
+            consolidatedInvoiceDetailsModel.Category = $("#hdnCategory_" + index).val();
+            consolidatedInvoiceDetailsModel.Description = $("#hdnDescription_" + index).val();
+            consolidatedInvoiceDetailsModel.UOM = $("#hdnUOM_" + index).val();
+            consolidatedInvoiceDetailsModel.Rate = $("#hdnRate_" + index).val();
+            consolidatedInvoiceDetailsModel.Amount = $("#hdnAmount_" + index).val();
+            consolidatedInvoiceDetailsArray.push(consolidatedInvoiceDetailsModel);
+            index++;
+        });
+
+        $.ajax({
+            url: '../Invoice/UpdateConsolidatedInvoiceDetails',
+            type: 'POST',
+            data: {
+                model: consolidatedInvoiceDetailsArray,
+                InvoiceType: invoiceType,
+            },
+            beforeSend: function () {
+                // BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                //$("#divInvoiceDetails").html(response);
+                if (response.status) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+                    //$("#InvoiceGuid").val(response.invoiceGuid);
+                    //$("#btnPreview").prop('disabled', false);
+
+                    var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+                    window.location.href = currentUrl + "/Invoice/Index";
+
+                    //var pathname = window.location.href.split('/');
+                    //window.location.href = window.location.protocol + '//' + window.location.hostname + '/' + pathname[3] + "/Invoice/Index";
+                    //window.location.href = "/Invoice/Index";
+                } else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+                    $(obj).prop('disabled', false);
+                }
+
+            },
+            error: function () {
+
+            },
+            complete: function () {
+                // BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+</script>

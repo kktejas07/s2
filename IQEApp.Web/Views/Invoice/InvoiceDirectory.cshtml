@@ -1,0 +1,508 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.InvoiceModel.InvoiceViewModel>
+
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" />
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+@{
+    ViewBag.Title = "InvoiceDirectory";
+}
+
+<style>
+        .ui-dialog-titlebar-close:after {
+            content: 'X' !important;
+            position: absolute;
+            top: -2px;
+            right: 3px;
+        }
+
+        /* ---------- HEADER BUTTON SPACING ---------- */
+        .gap-2 > * {
+            margin-right: 8px;
+        }
+
+        /* ---------- TOGGLE BUTTONS ---------- */
+        .btn-group-toggle .btn {
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+            .btn-group-toggle .btn.active {
+                background-color: #007bff;
+                color: #fff;
+            }
+
+        /* ---------- RESULTS BADGE ---------- */
+        .badge-pill {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+
+        /* ---------- ALPHA BAR LAYOUT ---------- */
+        .alpha-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: nowrap;
+        }
+
+        .alpha-left {
+            flex: 0 0 auto;
+        }
+
+        .alpha-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .alpha-right {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ---------- ALPHABET STYLE ---------- */
+        .alphabet-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .alphabet-wrapper a,
+            .alphabet-wrapper span {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                border: 1px solid #ddd;
+                font-weight: 500;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+                .alphabet-wrapper a:hover {
+                    background: #007bff;
+                    color: #fff;
+                    border-color: #007bff;
+                }
+
+            .alphabet-wrapper .active {
+                background: #007bff;
+                color: #fff;
+                border-color: #007bff;
+            }
+
+        /* ---------- RESPONSIVE ---------- */
+    @@media (max-width: 992px) {
+        .alpha-bar {
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .alpha-center {
+            order: 3;
+            width: 100%;
+        }
+
+        .alpha-right {
+            order: 2;
+        }
+    }
+
+</style>
+
+<div>
+    <div class="box-header with-border d-flex align-items-center justify-content-between flex-wrap">
+
+        <!-- Title -->
+        <div class="d-flex align-items-center mb-2">
+            <h3 class="box-title mb-0">
+                <span id="spnHeadTitle">Finance ➜ Sales Register</span>
+            </h3>
+        </div>
+
+        <!-- Search -->
+        <div class="mb-2">
+            @Html.Partial("_DirectoryMainSearch")
+        </div>
+
+        <!-- Right Actions -->
+        <div class="d-flex align-items-center gap-2 mb-2">
+
+            <button class="btn btn-light border" type="button" onclick="PageRefresh();">
+                <i class="fa fa-refresh"></i>
+            </button>
+
+           
+            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.InvoiceCreate, @User.RoleId.FirstOrDefault()))
+            {
+                <button type="button"
+                        class="btn btn-primary"
+                        id="btnAddInvoice"
+                        onclick="openCreateInvoice();">
+                    <i class="fa fa-plus mr-1"></i> Invoice
+                </button>
+            }
+
+        </div>
+
+    </div>
+
+    <div id="divLoadingIconId"></div>
+    <div class="clearfix"></div>
+    <div id="divDirectory">
+        <div class="p0" id="AlphaSorting">
+
+            <div class="alpha-bar mt-2">
+
+                <!-- LEFT : FINANCIAL YEAR -->
+                <div class="alpha-left">
+                    <input type="hidden" id="hdnFIYear" name="fiYear" value="" />
+                    @Html.Partial("_FinancialYear",
+                        viewData: new ViewDataDictionary {
+                            { "ShowMonthFilter", false },
+                            { "ApplyMargin", false }
+                        })
+                </div>
+
+                <!-- CENTER : ALPHABET -->
+                <div class="alpha-center">
+                    <div class="alphabet-wrapper">
+                        @Html.Partial("_AlphabetPanel")
+                    </div>
+                </div>
+
+                <div id="ResortBtn" class="sort-wrapper">
+
+                    <div class="resort-icon-selected sortIconHide"
+                         onclick="ReSortTheFilter(this,'ASC');"
+                         style="display:none;">
+                        <i class="fa fa-sort-amount-asc"></i>
+                    </div>
+
+                    <div class="resort-icon"
+                         onclick="ReSortTheFilter(this,'DESC');">
+                        <i class="fa fa-sort-amount-desc"></i>
+                    </div>
+
+                    <input type="hidden" id="hdnSortingOrder" value="DESC" />
+
+                </div>
+                <!-- RIGHT : TOGGLE + RESULTS -->
+                <div class="alpha-right">
+
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-outline-primary active" id="lblCustomer">
+                            <input type="radio"
+                                   name="InvoiceType"
+                                   value="Customer"
+                                   checked>
+                            <i class="fa fa-user mr-1"></i> Customer
+                        </label>
+
+                        <label class="btn btn-outline-primary" id="lblSupplier">
+                            <input type="radio"
+                                   name="InvoiceType"
+                                   value="Supplier">
+                            <i class="fa fa-truck mr-1"></i> Supplier
+                        </label>
+                        <input type="hidden" id="hdnInvoiceType" value="Customer" />
+
+                    </div>
+
+                    <span class="badge badge-pill badge-secondary">
+                        Results: <span id="TotalResultsEle"></span>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="divDirectoryList" class="mt10">
+            @Html.Partial("_InvoiceList", Model)
+        </div>
+
+        <p class="JsListGridPager pull-right" id="invoicePager"></p>
+    </div>
+
+</div>
+@* Start Modal Popup*@
+<div>
+    <div class="modal fade" id="ModalPopupWindow" tabindex="-1" role="dialog">
+        <div class="modal-dialog" style="width: 90%; ">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <label id="lblModalPopup"></label>
+                    <button type="button" class="close" id="ModalPopUpCloseBtn" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="divModalBody">
+                        @* Body will be appended*@
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="ShowModalPopup" style="display:none;" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#ModalPopupWindow" data-backdrop="static" data-keyboard="false">Open Modal</button>
+    <div class="clearfix"></div>
+</div>
+
+<table id="popupinvoicetable1" hidden="hidden" title="Download Invoice">
+    <tbody>
+        <tr style="height:10px;">
+            <th style="width:200px">Start Date</th>
+        </tr>
+    </tbody>
+</table>
+@* End Modal Popup*@
+<script>
+
+    $(document).on("change", "input[name='InvoiceType']", function () {
+        debugger;
+        var type = $(this).val();
+
+      //  console.log("Switched to:", type);
+
+        $("#hdnInvoiceType").val(type);
+
+        if (window.paginationObj) {
+            window.paginationObj.setCurrentPageCount("0");
+        }
+
+        if (typeof window.FilterInvoiceDirectory === "function") {
+            window.FilterInvoiceDirectory(function () { },
+                { backToFirstPage: true });
+        }
+
+    });
+
+    //function SwitchInvoiceType(type) {
+    //    debugger;
+    //    $("#hdnInvoiceType").val(type);
+
+    //    $("#lblCustomer, #lblSupplier").removeClass("active");
+
+    //    if (type === "Customer") {
+    //        $("#lblCustomer").addClass("active");
+    //    } else {
+    //        $("#lblSupplier").addClass("active");
+    //    }
+
+    //    window.paginationObj.setCurrentPageCount("0");
+
+    //    window.FilterInvoiceDirectory(function () { },
+    //        { backToFirstPage: true });
+    //}
+
+    function selectYear(fiYear) {
+      //  debugger;
+        $('#hdnFIYear').val(fiYear);
+        SearchDirectory();//  SortByEnquiryStatus($('#hdnStatus').val() || '');
+    }
+
+    function SearchDirectory() {
+        $(".selectedStartsWithChar").removeClass("selectedStartsWithChar");
+        window.FilterInvoiceDirectory(function (status) {
+
+        }, { backToFirstPage: true });
+    }
+    $(document).ready(function () {
+        DefineListPagerForInitialLoad();
+
+        AlphaSearchObj.subscribe(function (alpha) {
+            //User requested for Alpha sorting clear the main search and reset the page count for pagination
+            $('#txtDirectorySearch').val('');
+            window.paginationObj.setCurrentPageCount("0");
+
+            window.FilterInvoiceDirectory(function (status) {
+
+            }, { backToFirstPage: true });
+
+        });
+    });
+    window.FilterInvoiceDirectory = function (callback, obj) {
+        if (!obj.backToFirstPage) {
+            var pageNum = (window.paginationObj.getCurrentPageCount() - 10);
+            window.paginationObj.setCurrentPageCount(pageNum);
+        } else {
+            window.paginationObj.setCurrentPageCount("0");
+        }
+        $.ajax({
+            url: '../Invoice/GetInvoiceList',
+            type: 'POST',
+            data: {
+                pageCount: window.paginationObj.getCurrentPageCount,
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                activeStatus: $('#hdnActive').val(),
+                sortingOrder: $("#hdnSortingOrder").val(),
+                fiYear: $('#hdnFIYear').val(),
+                InvoiceType: $('#hdnInvoiceType').val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $("#divMainSearch").show();
+                $("#divDirectoryList").html(data).show();
+                window.paginationObj.CreateListGridPager(obj);
+                //if (callback)
+                //    callback();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    window.ReSortTheFilter = function (obj, sortingType) {
+        $("#hdnSortingOrder").val(sortingType);
+        //show the other sort icon
+        $(".sortIconHide").show();
+        $(".sortIconHide").removeClass("sortIconHide");
+        $(obj).addClass("sortIconHide").hide();
+        window.paginationObj.setCurrentPageCount("0");
+
+        window.FilterInvoiceDirectory(function () {
+            //call any call back function if u want to call
+        }, { backToFirstPage: true });
+    }
+    window.ShowMore = function () {
+        $.ajax({
+            url: '../Invoice/GetInvoiceList',
+            type: 'POST',
+            data: {
+                pageCount: window.paginationObj.getCurrentPageCount,
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                activeStatus: $('#hdnActive').val(),
+                sortingOrder: $("#hdnSortingOrder").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $("#divMainSearch").show();
+                $("#divDirectoryList").html(data).show();
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+    function openCreateInvoice() {
+        var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.href = currentUrl + "/Invoice/GenerateInvoice";
+
+        //window.location.href = "../Invoice/GenerateInvoice";
+    }
+
+
+    function numberWithCommas(num) {
+        var num = num.value;
+        //  alert(num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+        $("#Amount").val(num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    }
+
+    function DownloadInvoiceList() {
+
+        $("#popupinvoicetable1").show();
+        $("#popupinvoicetable1").find("th:gt(0)").remove();
+        $("#popupinvoicetable1").find("tr:gt(0)").remove();
+        $("#popupinvoicetable1").find("btnDownload").remove();
+        $("#popupinvoicetable1").find("startdate").remove();
+        $("#popupinvoicetable1").find("enddate").remove();
+
+        $("#popupinvoicetable1").show();
+        $("#popupinvoicetable1>tbody>tr").append('<th style="width:50px"></th>' + '<th style="width:200px">' + "End  Date" + '</th>');
+        $('#popupinvoicetable1').append('<tr><td><input style="width=200px" type="date" id="startdate" /></div></td>' + '<td style="width=50px"></td>' + '<td><div id="dialog" ><input type="date"  style="width=200px" id="enddate" /></div></td></tr>');
+        //< button id = "opener" > Show</button > ');
+        const row = document.createElement('tr');
+        document.getElementById('popupinvoicetable1').appendChild(row)
+        $('#popupinvoicetable1').append('<tr><td colspan = "3" align = "right"> <button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnDownload" value="Submit" title="" data-toggle="tooltip" onclick="javascript: DownloadInvoice();">Download</button></td></tr>');
+        $("#popupinvoicetable1").dialog({ modal: true, height: '100px', width: '400px' });
+        $("#btnDownload").nextAll().remove();
+        $("#startdate").nextAll().remove();
+        $("#enddate").nextAll().remove();
+        $("#startdate").val('')
+        $("#enddate").val('')
+    }
+
+    function DownloadInvoice() {
+        var startdate = $('#startdate').val();
+        var enddate = $('#enddate').val();
+        var flag = 1;
+        if (startdate == '' || enddate == '') {
+            alert("Please select Start Date and End Date");
+            flag = 0;
+        }
+
+        if (enddate < startdate) {
+            alert('End Date should be greater than Start Date')
+            flag = 0;
+        }
+
+        if (flag == 1) {
+            $.ajax({
+                type: "POST",
+                url: '../Invoice/DownloadInvoiceList',
+                dataType: "json",
+                data: {
+                    Startdate: startdate,
+                    Enddate: enddate
+                },
+                success: function (r) {
+                    var bytes = Base64ToBytes(r);
+                    var blob = new Blob([bytes], { type: "application/octetstream" });
+                    var isIE = false || !!document.documentMode;
+                    if (isIE) {
+                        window.navigator.msSaveBlob(blob, "Download.xlsx");
+                    } else {
+                        var url = window.URL || window.webkitURL;
+                        link = url.createObjectURL(blob);
+                        var a = $("<a />");
+                        a.attr("download", "Download.xlsx");
+                        a.attr("href", link);
+                        $("body").append(a);
+                        a[0].click();
+                        $("body").remove(a);
+                    }
+                }
+            });
+        }
+
+
+
+
+    }
+
+    function Base64ToBytes(base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+</script>

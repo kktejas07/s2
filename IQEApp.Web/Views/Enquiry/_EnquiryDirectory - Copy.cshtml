@@ -1,0 +1,844 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IQEApp.Web.Models.EnquiryModel.EnquiryListViewModel
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<link href="~/Content/Site.css" rel="stylesheet" />
+@{
+    var roleId = ViewBag.RoleId ?? 0;
+}
+<style>
+    #Enquirytable th {
+        font-weight: 700;
+        padding: 5px 8px; /* Reduce padding */
+        line-height: 1; /* Adjust line height */
+        /*font-size: 12px;*/ /* Adjust font size */
+        vertical-align: middle; /* Ensure content is vertically aligned */
+        font-family: Arial;
+        font-size: 9.5pt;
+        white-space: nowrap;
+    }
+
+    .tooltip-remarks, .tooltip-enquirydetails {
+        position: absolute;
+        background-color: #333;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        max-width: 300px;
+        z-index: 1000;
+        display: none;
+        word-wrap: break-word;
+    }
+
+    ul {
+        position: relative;
+        left: -14px;
+    }
+
+    body {
+        font-family: Arial;
+        font-size: 9.5pt;
+    }
+
+    .fa-folder {
+        color: #ffbb33; /* Yellow color */
+    }
+
+    .rotate {
+        transform: scale(-1);
+        writing-mode: vertical-rl;
+        overflow: visible;
+    }
+</style>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Sales &#8667; Enquiry & Proposal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <div>
+        <table cellpadding="0" cellspacing="0" class="center" id="Enquirytable">
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align:center">@Html.Label("Enquiry")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Client Name")</th>
+                    @*<th rowspan="2" style="text-align:center">@Html.Label("Enquiry Details")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Scope")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Location")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("UOM")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Quantity")</th>*@
+                    <th colspan="2" style="text-align:center">@Html.Label("Quotation")</th>
+                    @if (ViewBag.RoleId == 1 || ViewBag.RoleId == 2)
+                    {
+                        <th rowspan="2" style="text-align:center">@Html.Label("Proposals")</th>
+                    }
+                    <th rowspan="2" style="text-align:center">@Html.Label("Owner")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Status")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Remarks")</th>
+                    <th rowspan="2" style="text-align:center">&nbsp;</th>
+                </tr>
+                <tr>
+                    <th>@Html.Label("No")</th>
+                    <th>@Html.Label("Date")</th>
+                    @*<th>@Html.Label("UOM")</th>
+                        <th>@Html.Label("Quantity")</th>*@
+                    <th>@Html.Label("Number")</th>
+                    <th>@Html.Label("Date")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var enquiry in Model.Enquiries)
+                {
+                    <tr>
+                        <td>@enquiry.EnquiryID<input type="hidden" class="enquiryID" id="enquiryID" value="@enquiry.EnquiryID" /></td>
+                        <td>@(enquiry.EnquiryDate.HasValue ? enquiry.EnquiryDate.Value.ToShortDateString() : "")</td>
+                        <td>@enquiry.ClientName</td>
+                        <td>@enquiry.QuotationNo</td>
+                        <td>
+                            @if (enquiry.QuotationDate == @DateTime.MinValue)
+                            {
+                            }
+                            else
+                            {
+                                @(enquiry.QuotationDate.HasValue ? enquiry.QuotationDate.Value.ToShortDateString() : "")
+                            }
+                        </td>
+
+                        @if (ViewBag.RoleId == 1 || ViewBag.RoleId == 2)
+                        {
+                            <td style="text-align: center;">
+                                @enquiry.FileName
+                            </td>
+                        }
+                        @*<td class="semiSeparated">
+            <ul>
+                @if (@enquiry.FileName != null && (ViewBag.RoleId == 1 || ViewBag.RoleId == 2))
+                {
+                    var filelist = @enquiry.FileName.Substring(1).Split(';');
+                    <i>
+                        @foreach (string file in filelist)
+                        {
+                            @:
+                        <li><a href="../Enquiry/DownloadFile?EnquiryId=@enquiry.EnquiryID&FileName=@file">@file</a></li>
+                    }
+                        </i>
+                    }
+            </ul>
+        </td>*@
+                        @*<td>@enquiry.FileName</td>*@
+                        <td>@enquiry.ProposalOwner</td>
+                        <td>@enquiry.SubmitStatus</td>
+                        <td>
+                            <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                                @if (enquiry.IsEnquiryActive)
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="enquiryDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            @if (enquiry.SubmitStatus == "Not-Approved" || enquiry.SubmitStatus == "Declined")
+                                            {
+                                                <li>
+                                                    <a href="javascript:ActiveInActiveEnquiryStatus('@enquiry.EnquiryID',false);">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Enquiry
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (enquiry.SubmitStatus == "On-Hold")
+                                            {
+                                                <li>
+                                                    <a href="javascript:ActiveInActiveEnquiryStatus('@enquiry.EnquiryID',false);">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Enquiry
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:EditEnquiry('@enquiry.EnquiryID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Resume
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if ((!enquiry.QuotationStatusFlag || ViewBag.RoleId == 1 && !(enquiry.SubmitStatus == "On-Hold")) && (enquiry.SubmitStatus != "Deny"))
+                                            {
+                                                <li>
+                                                    <a href="javascript:EditEnquiry('@enquiry.EnquiryID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Edit Enquiry
+                                                    </a>
+                                                </li>
+                                            }
+
+                                            @if ((!enquiry.QuotationStatusFlag || @enquiry.SubmitStatus == "Re-Quote") && (enquiry.SubmitStatus != "Deny"))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UploadQuation('@enquiry.EnquiryID', '@enquiry.EID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Upload Quotation
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a href="javascript:DenyEnquiry('@enquiry.EnquiryID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Deny Enquiry
+                                                    </a>
+                                                </li>
+                                            }
+                                            else if (@enquiry.QuotationStatusFlag & (@enquiry.SubmitStatus == null | @enquiry.SubmitStatus == ""))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UpdateEnquiryStatus('@enquiry.EnquiryID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Update Enquiry Status
+                                                    </a>
+                                                </li>
+                                            }
+                                            else if (@enquiry.QuotationStatusFlag & @enquiry.SubmitStatus == "Approved")
+                                            {
+                                                <li>
+                                                    <a href="javascript:GenerateServiceOrder(@enquiry.ClientId, '@enquiry.ClientName', @enquiry.EID);">
+                                                        <i class="fa fa-plus-circle mr20" aria-hidden="true">
+                                                        </i> New Serive Order
+                                                    </a>
+                                                </li>
+                                            }
+                                            <li>
+                                                <a href="~/Enquiry/DownloadEnquiryPDF?EnquiryId=@enquiry.EnquiryID">
+                                                    @*<a href="javascript:void(0);" onclick="javascript: PrintInvoice('@invoice.InvoiceID');">*@
+                                                    <i class="fa fa-print mr20" aria-hidden="true">
+                                                    </i> Download Enquriy
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="enquiryDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            <li>
+                                                <a href="javascript:ActiveInActiveEnquiryStatus('@enquiry.EnquiryID',true);">
+                                                    <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                    </i> Activate Enquiry
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="fileModalLabel">Quotation Docs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul id="fileList"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="remarksModal" tabindex="-1" role="dialog" aria-labelledby="remarksModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="remarksModalLabel">Full Remarks</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="remarksContent"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<table id="popuptable" title="Enquiry Status">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Enquiry No</th>
+
+        </tr>
+    </tbody>
+</table>
+<table id="popuptable1" title="Deny Enquiry">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Enquiry No</th>
+        </tr>
+    </tbody>
+</table>
+
+
+<script>
+   window.viewBagRoleId = @roleId;
+    $(function () {
+        var fileIndex = -1;
+        var remarksIndex = -1;
+        var enquiryDetailsIndex = -1;
+        var maxRemarksLength = 15; // Maximum number of characters to display in the table
+
+        // Array to track the actual column indexes considering colspan and rowspan
+        var columnMap = [];
+
+        // Traverse each header row to map column positions
+        $("#Enquirytable tr").each(function (rowIndex) {
+            var currentColumn = 0; // Track the actual position of the column
+
+            $(this).find('th').each(function () {
+                var colspan = parseInt($(this).attr('colspan') || 1);
+                var rowspan = parseInt($(this).attr('rowspan') || 1);
+                var text = $(this).text().trim();
+
+                // Skip already occupied columns (due to rowspan)
+                while (columnMap[currentColumn] > 0) {
+                    currentColumn++;
+                }
+
+                // Check if this is the "Documents" column
+                if (text === "Proposals") {
+                    fileIndex = currentColumn;  // Save the column index for documents
+                }
+
+                // Check if this is the "Remarks" column
+                if (text === "Remarks") {
+                    remarksIndex = currentColumn;  // Save the column index for remarks
+                }
+               // //debugger;
+                if (text === "Enquiry Details") {
+                    enquiryDetailsIndex = currentColumn;  // Save the column index for remarks
+                }
+
+                // Mark the next columns as occupied due to colspan
+                for (var i = 0; i < colspan; i++) {
+                    columnMap[currentColumn] = rowspan;  // Mark this column as occupied
+                    currentColumn++;
+                }
+            });
+
+            // Decrement rowspan counters for all columns that span multiple rows
+            for (var j = 0; j < columnMap.length; j++) {
+                if (columnMap[j] > 0) {
+                    columnMap[j]--;
+                }
+            }
+
+            // Break loop if both indexes for "Documents" and "Remarks" are found
+            if (fileIndex >= 0 && remarksIndex >= 0) {
+                return false;
+            }
+
+            if (fileIndex >= 0 && enquiryDetailsIndex >= 0) {
+                return false;
+            }
+        });
+
+        // Ensure the column indexes were found
+        if (fileIndex >= 0 || remarksIndex >= 0 || enquiryDetailsIndex >= 0) {
+          //  //debugger;
+            // Iterate through all table rows to update the "Documents" and "Remarks" columns
+            $("#Enquirytable tr").each(function () {
+               // //debugger;
+                var tr = $(this);
+                var rows = tr.children('td');
+
+                if (rows.length > 0) {
+                    var enquiryID = tr.find('.enquiryID').val();
+
+                    // Process the "Documents" column
+                    if (fileIndex >= 0) {
+                        var cell = rows.eq(fileIndex);
+
+                        if (cell.length > 0) {
+                            var fileList = cell.text().trim().split(';').filter(function (file) {
+                                return file.trim() !== "";  // Ensure no empty or null entries
+                            });
+
+                            if (fileList.length > 0) {
+                                // Generate folder icon with data attributes
+                                cell.html(`<i class="fas fa-folder" data-enquiry-id="${enquiryID}" data-files="${fileList.join(',')}"></i>`);
+                            } else {
+                                cell.html('');  // If no files, leave the cell empty
+                            }
+                        }
+                    }
+
+                    // Process the "Remarks" column
+                    if (remarksIndex >= 0) {
+                        var remarksCell = rows.eq(remarksIndex);
+
+                        if (remarksCell.length > 0) {
+                            var fullRemarks = remarksCell.text().trim();
+
+                            if (fullRemarks === "" || fullRemarks === null) {
+                                remarksCell.html('');  // If the remarks are empty or null, clear the cell
+                            } else if (fullRemarks.length > maxRemarksLength) {
+                                var shortenedRemarks = fullRemarks.substring(0, maxRemarksLength) + '...';
+
+                                // Save full remarks in a data attribute and display shortened text
+                                remarksCell.html(`<span class="shortened-remarks" data-full-remarks="${fullRemarks}">${shortenedRemarks}</span>`);
+                            }
+                        }
+                    }
+
+                    if (enquiryDetailsIndex >= 0) {
+                      //  //debugger;
+                        var enquiryDetailsCell = rows.eq(enquiryDetailsIndex);
+
+                        if (enquiryDetailsCell.length > 0) {
+                            var fullenquiryDetails = enquiryDetailsCell.text().trim();
+
+                            if (fullenquiryDetails === "" || fullenquiryDetails === null) {
+                                enquiryDetailsCell.html('');
+                            } else if (fullenquiryDetails.length > maxRemarksLength) {
+                                var shortenedEnquiryDetails = fullenquiryDetails.substring(0, maxRemarksLength) + '...';
+
+                                enquiryDetailsCell.html(`<span class="shortened-enquiryDetails" data-full-enquirydetails="${fullenquiryDetails}">${shortenedEnquiryDetails}</span>`);
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Handle hover event for the shortened remarks to show the full remarks
+            $(document).on('mouseenter', '.shortened-remarks', function () {
+                var fullRemarks = $(this).data('full-remarks');
+
+                // Create and show a tooltip near the element
+                var tooltip = $('<div class="tooltip-remarks"></div>').text(fullRemarks);
+                $('body').append(tooltip);
+                tooltip.css({
+                    top: $(this).offset().top + $(this).height() + 5,
+                    left: $(this).offset().left
+                }).fadeIn('fast');
+            });
+
+            // Remove the tooltip when mouse leaves
+            $(document).on('mouseleave', '.shortened-remarks', function () {
+                $('.tooltip-remarks').remove();
+            });
+
+            $(document).on('mouseenter', '.shortened-enquiryDetails', function () {
+                //debugger;
+                var fullenquiryDetails = $(this).data('full-enquirydetails');
+
+                // Create and show a tooltip near the element
+                var tooltip = $('<div class="tooltip-enquirydetails"></div>').text(fullenquiryDetails);
+                $('body').append(tooltip);
+                tooltip.css({
+                    top: $(this).offset().top + $(this).height() + 5,
+                    left: $(this).offset().left
+                }).fadeIn('fast');
+            });
+
+            // Remove the tooltip when mouse leaves
+            $(document).on('mouseleave', '.shortened-enquiryDetails', function () {
+                $('.tooltip-enquirydetails').remove();
+            });
+
+            // Handle click event for the folder icon to show files in a modal
+            $(document).on('click', '.fa-folder', function () {
+                var enquiryId = $(this).data('enquiry-id');
+                var files = $(this).data('files').split(',');
+
+                // Generate the file list HTML
+                var fileListHtml = files.map(function (file) {
+                    return '<li><a href="../Enquiry/DownloadFile?EnquiryId=' + enquiryId + '&FileName=' + file.trim() + '">' + file.trim() + '</a></li>';
+                }).join('');
+
+                // Update and display the modal with the file list
+                $("#fileList").html(fileListHtml);
+                $("#fileModal").modal('show');
+            });
+        }
+
+    });
+
+
+
+
+    $(document).ready(function () {
+      //  debugger;
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+        $("#popuptable").hide();
+        $("#popuptable1").hide();
+    });
+    function EditEnquiry(enquiryId) {
+        $.ajax({
+            url: '../Enquiry/EditEnquiry',
+            type: 'POST',
+            data: {
+                enquiryId: enquiryId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Sales &#8667; Edit Enquiry');
+                $("#divMainSearch").hide();
+                $('#divActiveInActive').hide();
+                $("#divEnquiryDetails").html('').hide();
+                $('#divAddUpdateEnquiry').html(data).show();
+                $('#btnEnquiryList').show();
+                $('#btnAddEnquiry').hide();
+                $('#AlphaSorting').hide();
+                $('#EnquiryPager').hide();
+                $('#EnquiryDataPostDiv').show();
+               // ManufacturerUnitsList();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    function ActiveInActiveEnquiryStatus(enquiryID, status) {
+        if (status) {
+            var options = {};
+            options.msg = "Are you sure to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(enquiryID, true);
+            }, options);
+        } else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(enquiryID, status);
+            });
+        }
+    }
+
+    function UpdateStatus(enquiryID, status) {
+                $.ajax({
+                    url: '../Enquiry/UpdateEnquiryStatus',
+                    type: 'POST',
+                    data: {
+                        enquiryID: enquiryID,
+                        IsEnquiryActive: status
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            if (status) {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            } else {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                            }
+                            window.FilterEnquiryDirectory(function (status, newclass) {
+                                //call any call back function if u want to call
+                            }, { backToFirstPage: false });
+                        }
+                        else {
+                            if (status) {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                            } else {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                            }
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+            }
+
+    function UploadQuation(enquiryId, EId) {
+        $.ajax({
+            url: '../Enquiry/UploadQuatation',
+            type: 'POST',
+            data: {
+                enquiryId: enquiryId,
+                EID:EId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Sales &#8667; Upload Quatation');
+                $("#divMainSearch").hide();
+                $('#divActiveInActive').hide();
+                $("#divEnquiryDetails").html('').hide();
+                $('#divAddUpdateEnquiry').html(data).show();
+                //$('#btnEnquiryList').show();
+                //$('#btnAddEnquiry').hide();
+                $('#AlphaSorting').hide();
+                $('#EnquiryPager').hide();
+                $('#EnquiryDataPostDiv').show();
+              //  alert('Quotation Uploaded Successfully');
+              //  location.reload();
+               // enquiryList();
+                // ManufacturerUnitsList();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    function UpdateEnquiryStatus(enquiryID) {
+       // debugger;
+        $("#popuptable").find("th:gt(0)").remove();
+        $("#popuptable").find("btnSubmit").remove();
+
+        $("#popuptable").show();
+        $("#popuptable>tbody>tr").append("<th>" + enquiryID + "</th>");
+        $('#popuptable').append('<label for="status">Select Status:</label><select name = "status" id = "status" onchange="getstatusval(this);"><option value="Approved">Approved</option><option value="On-Hold">On-Hold</option><option value="Re-Quote">Re-Quote</option><option value="Not-Approved">Not-Approved</option><option value="Declined">Declined</option></select>');
+        $('#popuptable').append('<br/><button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnSubmit" value="Submit" title="Submit" data-toggle="tooltip" onclick="javascript: SubmitStatus();">Submit</button>');
+        $("#popuptable").dialog({ modal: true, height: 'auto', width: 'auto' });
+        $("#btnSubmit").nextAll().remove();
+    }
+
+    function DenyEnquiry(enquiryID) {
+       // debugger;
+        let eID = enquiryID;
+        // Clear the table body to avoid duplicates
+        $("#popuptable1 tbody").empty();
+
+        // Add Enquiry No row
+        $("#popuptable1 tbody").append(`
+        <tr>
+            <th>Enquiry No</th>
+            <td>${enquiryID}</td>
+        </tr>
+    `);
+
+        // Add Select Status row
+        $("#popuptable1 tbody").append(`
+        <tr>
+            <td>Select Status</td>
+            <td>
+                <select name="status" id="status" onchange="getstatusval1(this);">
+                    <option value="Deny">Deny</option>
+                </select>
+            </td>
+        </tr>
+    `);
+
+        // Add Comments row
+        $("#popuptable1 tbody").append(`
+        <tr>
+            <td>Comments</td>
+            <td><input type="text" id="txtDenyComments" name="txtDenyComments" placeholder="Enter comments"></td>
+        </tr>
+    `);
+
+        // Add Submit button row
+        $("#popuptable1 tbody").append(`
+        <tr>
+            <td colspan="2" style="text-align: right;">
+                <button type="button" class="btn btn-secondary"
+                        style="background-color:#5c9ccc"
+                        id="btnSubmit" value="Submit" title="Submit"
+                        data-toggle="tooltip" onclick="SubmitDenyStatus('${eID}');">
+                    Submit
+                </button>
+            </td>
+        </tr>
+    `);
+
+        // Show the dialog
+        $("#popuptable1").dialog({ modal: true, height: 'auto', width: 'auto' });
+        $("#popuptable1").show();
+    }
+
+
+    function getstatusval(obj) {
+        if (obj.value == 'Not-Approved' || obj.value == 'Declined') {
+            $("#popuptable").find("#btnSubmit").remove();
+            $("div").removeClass("ui-resizable-handle");
+            $('#popuptable').append('<br/><input type="text" id="txtComments" name="txtComments">');
+            $('#popuptable').append('<br/><button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnSubmit" value="Submit" title="Submit" data-toggle="tooltip" onclick="javascript: SubmitStatus();">Submit</button>');
+        }
+
+        if (obj.value == 'Approved') {
+            $("#popuptable").find("#txtComments").remove();
+           // $("#popuptable").find("div").remove();
+            $("div").removeClass("ui-resizable-handle");
+            $('#popuptable').append('<br/><button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnSubmit" value="Submit" title="Submit" data-toggle="tooltip" onclick="javascript: SubmitStatus();">Submit</button>');
+        }
+        $("#btnSubmit").nextAll().remove();
+        $("#popuptable").show();
+    }
+
+    function SubmitDenyStatus(enquiryID) {
+       // debugger;
+        var eID = '';
+        var status = $("#status").find('option:selected').val();
+            const txtDenyComments = $("#txtDenyComments");
+        //$('#popuptable1 tr').each(function () {
+        //    eID = $(this).find("td").eq(1).html();
+        //});
+
+            txtDenyComments.css("border", "");
+            $("#error-message").remove();
+
+            // Validate if the comments field is empty
+            if (txtDenyComments.val().trim() === '') {
+                // Highlight in red and show error message
+                txtDenyComments.css("border", "2px solid red");
+                txtDenyComments.after('<br/><span id="error-message" style="color: red; font-size: 12px;">Comments are required.</span>');
+                return false; // Prevent further actions
+            }
+
+                $.ajax({
+                    url: '../Enquiry/SubmitEnquiryStatus',
+                    type: 'POST',
+                    data: {
+                        enquiryID: enquiryID,
+                        submitstatus: status,
+                        remarks: txtDenyComments.val().trim()
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                      //  $("#popuptable").close();
+                        if (data.status) {
+                            window.parent.$('.ui-dialog-content:visible').dialog('close');
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            alert('Data Submitted Successfully');
+                            location.reload();
+
+                        } else {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+
+    }
+    function SubmitStatus(enquiryID) {
+        var eID = '', comments='';
+        $('#popuptable tr').each(function () {
+            eID = $(this).find("th").eq(1).html();
+        });
+
+
+        var status = $("#status").find('option:selected').val();
+        if (status == 'Not-Approved' || status =='Declined') {
+            comments = $("#txtComments").val();
+        }
+                $.ajax({
+                    url: '../Enquiry/SubmitEnquiryStatus',
+                    type: 'POST',
+                    data: {
+                        enquiryID: eID,
+                        submitstatus: status,
+                        remarks :comments
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                      //  $("#popuptable").close();
+                        if (data.status) {
+                            window.parent.$('.ui-dialog-content:visible').dialog('close');
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            alert('Data Submitted Successfully');
+                            location.reload();
+
+                        } else {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+
+    }
+
+    function DownloadEnquiry(enquiryID) {
+       // debugger;
+        $.ajax({
+            url: '@Url.Action("DownloadEnquiryPDF", "Enquiry")',
+            type: 'GET',
+            xhrFields: { responseType: 'blob' }, // Set response type as binary
+            success: function (data, status, xhr) {
+               // debugger;
+                var blob = new Blob([data], { type: 'application/pdf' });
+                var downloadUrl = window.URL.createObjectURL(blob);
+                var a = document.createElement("a");
+
+                a.href = downloadUrl;
+                a.download = "Enquiry_Report.pdf"; // Set the file name
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            },
+            error: function (xhr, status, error) {
+                alert("Error downloading PDF: " + error);
+            }
+        });
+ }
+    function base64ToArrayBuffer(base64) {
+        var binaryString = window.atob(base64);
+        var len = binaryString.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+    function GenerateServiceOrder(clientId, clientName, enquiryID) {
+
+        var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.assign( currentUrl + "ServiceOrder/CreateServiceOrder1?clientId=" + clientId + "&clientName=" + clientName + "&enquiryID=" + enquiryID);
+
+       // window.location.assign(location.origin + "/ServiceOrder/CreateServiceOrder1?clientId=" + clientId + "&clientName=" + clientName + "&enquiryID=" + enquiryID);
+        $('#spnSOHeadTitle').html('Create Service Order');
+        $('#divAddOrUpdateServiceOrder').html();
+       // $(obj).hide();
+        $('#btnSOList').show();
+        $("#divSODetails").html('');
+        $('#divServiceOrders').hide();
+        $('#divActiveInActive').hide();
+        $("#divMainSearch").hide();
+
+
+    }
+
+</script>

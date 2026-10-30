@@ -1,0 +1,432 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderDetailsModel
+
+<style>
+
+    /* General Styling */
+    /* Container Border for Outline */
+    .po-items-grid {
+        border: 1px solid #4182c0; /* Border around the entire grid */
+        border-radius: 5px; /* Slightly rounded corners */
+        margin: 10px 0; /* Adds spacing around the grid */
+        overflow: hidden; /* Ensures content stays within the border */
+    }
+
+    /* Grid Header Styling */
+    .po-grid-header, .po-grid-row {
+        display: grid;
+        grid-template-columns: 100px 1fr 80px 80px 120px 1fr 1fr; /* Adjusted widths */
+    }
+
+        /* Add Borders for Header Cells */
+        .po-grid-header div {
+            border: 1px solid #4182c0; /* Borders around header cells */
+            background-color: #B8DBFD; /* Header background color */
+            color: #4182c0; /* Header text color */
+            font-weight: bold; /* Header font weight */
+            padding: 5px 10px; /* Reduced padding to minimize height */
+            text-align: center; /* Center align text in header */
+        }
+
+        /* Add Borders for Data Cells */
+        .po-grid-row div {
+            border: 1px solid #ddd; /* Borders around data cells */
+            padding: 5px 10px; /* Reduced padding to minimize height */
+            color: #333; /* Text color */
+            font-size: 9.5pt; /* Font size */
+        }
+
+        /* Alternating Row Colors */
+        .po-grid-row:nth-child(odd) {
+            background-color: #f8f9fa; /* Light gray for odd rows */
+        }
+
+        .po-grid-row:nth-child(even) {
+            background-color: #ffffff; /* White for even rows */
+        }
+
+        /* Center Align Specific Columns */
+        .po-grid-header div:nth-child(3),
+        .po-grid-header div:nth-child(5),
+        .po-grid-row div:nth-child(3),
+        .po-grid-row div:nth-child(5) {
+            text-align: center; /* Center align for Quantity and Allowed Visits */
+        }
+
+    /* Checkbox Alignment */
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Input Styling for Inspection Activity */
+    .po-grid-row input[type="text"] {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .redborder {
+        border: 1px solid red;
+    }
+
+</style>
+
+<div>
+    @if (Model.LstPurchaseOrderItems != null && Model.LstPurchaseOrderItems.Any())
+    {
+        <div class="col-lg-12 mb-3">
+            <small class="text-muted"><i class="fa fa-list mr-2"></i> Purchase Order Items List</small>
+        </div>
+        @*<div id="POItemsvalidationError" class="text-danger" style="display: none;"></div>*@
+        <div id="divPODLBlock1" class="po-items-grid">
+            <!-- Header -->
+            <div class="po-grid-header">
+                <div class="po-grid-cell">
+                    <input id="chkPOItems" type="checkbox" onchange="toggleAllCheckboxes(this)" />
+                    <label for="chkPOItems">Item No.</label>
+                </div>
+                <div class="po-grid-cell">Description</div>
+                <div class="po-grid-cell">Quantity</div>
+                <div class="po-grid-cell">UOM</div>
+                <div class="po-grid-cell">Allowed Visits</div>
+                <div class="po-grid-cell">Remarks</div>
+                <div class="po-grid-cell">Inspection Activity</div>
+            </div>
+
+            <!-- Data Rows -->
+            @foreach (var item in Model.LstPurchaseOrderItems)
+            {
+                <div class="po-grid-row">
+                    <div class="po-grid-cell">
+                        @*<input id="hdnPOItemId_@item.POItemId" class="js-PurchaseOrderItems" type="hidden" value="@item.POItemId" />*@
+                        <input id="chkPOItemId_@item.POItemId" class="js-PurchaseOrderItems" type="checkbox" value="@item.POItemId" />
+                        <label for="chkPOItemId_@item.POItemId">@item.POItemNo</label>
+                        <input id="hdnPOItemId_@item.POItemId" class="js-PurchaseOrderItems" type="hidden" value="@item.POItemId" />
+                        <input id="hdnPOItemPONId_@item.POItemId" type="hidden" value="@item.PONId" />
+                        <input id="hdnPOItemNo_@item.POItemId" type="hidden" value="@item.POItemNo" />
+                    </div>
+                    <div class="po-grid-cell">
+                        @item.Description
+                        <input id="hdnPOItemDescription_@item.POItemId" type="hidden" value="@item.Description" />
+                    </div>
+                    <div class="po-grid-cell">
+                        @item.Quantity
+                        <input id="hdnPOItemQuantity_@item.POItemId" type="hidden" value="@item.Quantity" />
+                    </div>
+                    <div class="po-grid-cell">
+                        @(item.UOMID==4? item.UOMOthers : item.UOMName)
+                        <input id="hdnPOItemUOM_@item.POItemId"  type="hidden"   value="@(item.UOMID == 4 ? item.UOMOthers : item.UOMName)" />
+
+                    </div>
+                    <div class="po-grid-cell">@item.NumberOfVisits
+                     <input id="hdnPOItemNumberOfVisits_@item.POItemId" type="hidden" value="@item.NumberOfVisits" />
+                    </div>
+                    <div class="po-grid-cell">@item.Remarks
+                    <input id="hdnPOItemRemarks_@item.POItemId" type="hidden" value="@item.Remarks" />
+    
+                    </div>
+                    <div class="po-grid-cell">
+                        <input type="text" id="InspectionActivity_@item.POItemId"
+                               class="inspection-input"
+                               placeholder="Enter activity (e.g., @item.InspectionActivity)" />
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Purchase Order Items Not Found</div>
+    }
+</div>
+
+<br/>
+
+<!-- Location Selection -->
+@if (Model.LstCountries.Any() == true)
+{
+
+    <div class="table-container d-flex">
+        <!-- Location Selection Table -->
+        <div class="location-table" style="flex: 1;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="5">
+                            <small class="text-muted">Location Selection</small>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Country Dropdown -->
+                        <td class="col-sm-1 col-md-1 col-lg-1">
+                            <label>Country</label>
+                            <select id="CountryList" class="form-control redborder" style="width:150px;" onchange="getStatesByCountry(this)">
+                                <option value="-1">Select</option>
+                                @foreach (var country in Model.LstCountries)
+                                {
+                                    <option value="@country.CountryId">@country.CountryName</option>
+                                }
+                            </select>
+                            <span id="CountryValidation" class="error" style="display: none;">Select Country</span>
+                        </td>
+
+                        <!-- State Dropdown -->
+                        <td class="col-sm-1 col-md-1 col-lg-1">
+                            <label>State</label>
+                            @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select",
+                                new { @class = "form-control redborder", style = "width:150px;", onchange = "getUsersByState(this)" })
+                            <span id="StateValidation" class="error" style="display: none;">Select State</span>
+                        </td>
+
+                        <!-- Location Input -->
+                        <td class="col-sm-1 col-md-1 col-lg-1">
+                            <label>Location</label>
+                            <input id="VisitLocation" class="form-control redborder" type="text" />
+                            <span id="VisitLocationValidation" class="error" style="display: none;">Enter Visit Location</span>
+                        </td>
+
+                        <!-- Inspector Dropdown -->
+                        <td class="col-sm-1 col-md-1 col-lg-1" >
+                            <label>Inspector Name</label>
+                            @Html.DropDownListFor(m => m.UserId, new SelectList(Model.LstUsers, "UserId", "UserFullName"), "Select",
+                                new { @class = "form-control", style = "width:150px;", onchange = "getEmployeeDetailsByUser(this)" , @disabled="true" })
+                            <span id="UserListValidation" class="error" style="display: none;">Assign at least one user</span>
+                            <span id="DuplicateUserValidation" class="error" style="display: none;">Selected Engg assigned already</span>
+                        </td>
+
+                        <!-- EmpMappingList Section (This td will take the remaining space) -->
+                        <td>
+                            <div id="EmpMappingList" Style="display: none;">
+                                <div class="clearfix"></div>
+                                @*Header Div Starts*@
+                                <div class="directory-table-header" style="background-color: lavender; font-size:small;">
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        Inspector Name
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">
+                                        Code
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3">
+                                        Address
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2 ">
+                                        Contact No
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">
+                                        &nbsp;
+                                    </div>
+                                </div>
+                                @*Header Div Ends*@
+                                <div id="MappedEmps" style="background-color:white">
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="clearfix mt10"></div>
+                            </div>
+
+                            <div class="clearfix"></div>
+                            <div class="col-sm-10 col-md-10  form-group">
+                                <div id="divEmpDetails" style="padding: 15px 0px 0px 0px;">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+}
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+        // Handle change event for Country dropdown
+        $("#CountryList").change(function () {
+            if ($(this).val() !== "-1") {
+                $(this).removeClass("redborder");
+            } else {
+                $(this).addClass("redborder");
+            }
+        });
+
+        // Handle change event for State dropdown
+        $("select[name='StateId']").change(function () {
+            if ($(this).val() !== "Select") {
+                $(this).removeClass("redborder");
+            } else {
+                $(this).addClass("redborder");
+            }
+        });
+
+        // Handle change event for Inspector dropdown
+        $("select[name='UserId']").change(function () {
+            if ($(this).val() !== "Select") {
+                $(this).removeClass("redborder");
+            } else {
+                $(this).addClass("redborder");
+            }
+        });
+
+        // Handle input event for Location field
+        $("#VisitLocation").on("input", function () {
+            if ($(this).val().trim() !== "") {
+                $(this).removeClass("redborder");
+            } else {
+                $(this).addClass("redborder");
+            }
+        });
+    });
+
+
+    // Function to toggle all item checkboxes
+    function toggleAllCheckboxes(masterCheckbox) {
+        const isChecked = masterCheckbox.checked;
+        document.querySelectorAll('input[type="checkbox"][id^="chkPOItemId_"]').forEach(cb => cb.checked = isChecked);
+    }
+
+    // Function to get states based on selected country
+    function getStatesByCountry(countryDropdown) {
+       // debugger;
+        const countryId = countryDropdown.value;
+        if (countryId === "-1") return;
+
+        $.ajax({
+            url: '../User/GetStateListByCountryId',
+            type: 'POST',
+            data: { countryId },
+            success: function (states) {
+                const stateDropdown = document.querySelector("#StateId");
+                stateDropdown.innerHTML = '<option value="-1">Select</option>' +
+                    states.map(state => `<option value="${state.StateId}">${state.StateName}</option>`).join('');
+            },
+            error: function () {
+                alert("Failed to fetch states.");
+            }
+        });
+    }
+
+    function getUsersByState(obj) {
+       // debugger;
+        if ($("input[name='selectionType']:checked").val() !== 'Prospective') {
+
+            var stateId = $(obj).val();
+            $.ajax({
+                url: '../User/GetUsersListByStateId',
+                type: 'POST',
+                data: {
+                    stateId: stateId,
+                    stateName: $(obj).find('option:selected').text() // $("#StateList ")
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+                },
+                success: function (users) {
+                    var s = '<option value="-1">Select</option>';
+                    for (var i = 0; i < users.length; i++) {
+                        s += '<option value="' + users[i].UserId + '">' + users[i].UserFullName + '</option>';
+                    }
+                    $("#UserId").prop("disabled", false);
+                    //$("#UserId").removeAttr("disabled");
+                    $("#UserId").html(s);
+                    $("#UserListValidation").hide();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+                }
+            });
+        }
+        else if ($("input[name='selectionType']:checked").val() === 'Prospective') {
+            $("#UserId").prop("disabled", true);
+        }
+   }
+    function adjustInspectorNameColumn() {
+        // Adjust the width of the "Inspector Name" column
+        const dropdownWidth = document.querySelector("select#UserId").offsetWidth;
+        document.querySelector("td:nth-child(4)").style.width = dropdownWidth + "px";
+    }
+
+    function getEmployeeDetailsByUser(obj) {
+        $("#DuplicateUserValidation").hide();
+        var userId = $(obj).val();
+        if (userId < 1) {
+            $("#btnAddEngg").prop("disabled", true);
+            $('#divEmpDetails').html('');
+            return;
+        } else {
+            var index = jQuery.inArray(userId, usersList);
+            if (index > -1) {
+                $("#DuplicateUserValidation").show();
+                $("#UserId").val('-1');
+                return;
+            }
+        }
+        $.ajax({
+            url: '../Operations1/GetUserDetailsByUserId',
+            type: 'POST',
+            data: {
+                userId: userId
+            },
+            beforeSend: function (e) {
+                //BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                //    parentElement: $('#divSOLoadingIconId'),
+                //    position: "center"
+                //});
+            },
+            success: function (response) {
+                $('#divEmpDetails').html(response);
+                if (userId > 0) {
+                    $("#btnAddEngg").prop("disabled", false);
+                    $("#UserListValidation").hide();
+                    AddEngg(userId);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    var usersList = [];
+       function AddEngg(obj) {
+        var userId = $("#UserId").val();
+        //alert(userId);
+        if (userId < 1) {
+            $("#UserListValidation").html("Assign at least one user").show();
+            return;
+        }
+        $("#UserListValidation").hide();
+        $(".MappedEmpsTemp").appendTo("#MappedEmps");
+        $(".MappedEmpsTemp").removeClass("MappedEmpsTemp").show();
+        $("#EmpMappingList").show();
+        $('#divEmpDetails').html('');
+        usersList.push($("#UserId").val());
+        $("#UserId").val('-1');
+    }
+
+
+    // Function to validate selected user for duplication
+    function validateUserSelection() {
+        const selectedUserId = document.querySelector("#UserId").value;
+        const userList = Array.from(document.querySelectorAll("#UserId option"));
+
+        const isDuplicate = userList.some(option => option.value === selectedUserId && option.selected);
+
+        const errorSpan = document.querySelector("#DuplicateUserValidation");
+        if (isDuplicate) {
+            errorSpan.style.display = "inline";
+        } else {
+            errorSpan.style.display = "none";
+        }
+    }
+
+</script>

@@ -1,0 +1,147 @@
+﻿@model IEnumerable<IQEApp.Web.Models.ClientModel.ClientUnitsViewModel>
+@using GridMvc.Html
+@using IQEApp.Domain
+<div id="" >
+    <div class="clearfix"></div>
+    <!--Header Div Starts-->
+    <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+            Unit Name
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Address
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Contact Person Name
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Designation
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            GST No
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            &nbsp;
+        </div>
+    </div>
+    <!--Header Div Ends-->
+    @if (Model == null || Model.Count() == 0)
+    {
+        <!--No data display Div Starts-->
+        <div style="text-align:center;">
+            <span>
+                No Units found
+            </span>
+        </div>
+        <!--No data display Div ends-->
+    }
+    else
+    {
+        foreach (var cunit in Model)
+        {
+            <!-- Client data display Div Starts -->
+            <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    @cunit.ClientUnitName
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @cunit.Address
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @cunit.ContactPersonName
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @cunit.ContactPersonDesignation
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @cunit.GSTNo
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                    <div class="btn-group" style="display: inline-block;" role="group">
+                        <span id="ClientUnitsListDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                        </span>
+                        <ul class="dropdown-menu ellipse-menu-left">
+                            <li>
+                                <a href="javascript:EditClientUnit('@cunit.ClientUnitGuid');">
+                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                    </i> Edit Customer Unit
+                                </a>
+                            </li>
+                            @*<li>
+                                <a href="javascript:InactivateClientUnit('@cunit.ClientUnitGuid');">
+                                    <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                    </i> Delete Client Unit
+                                </a>
+                            </li>*@
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Client data display Div ends -->
+        }
+    }
+
+</div>
+<script>
+    $(document).ready(function() {
+        @*window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }*@
+
+    });
+    function EditClientUnit(ClientUnitGuid) {
+        $.ajax({
+            url: '../Client/EditClientUnit',
+            type: 'POST',
+            data: {
+                clientUnitGuid: ClientUnitGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnClientUnitTitle').html('Edit Client Unit');
+                $('#AddUpdateClientUnits').html(data).show();
+                $('#divAddUpdateClient').show();
+                $('#btnClientUnitsList').show();
+                $('#btnAddClientUnits').hide();
+                $('#UnitName').focus();
+                $("#divDirectoryList").html('').hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+    function InactivateClientUnit(clientUnitGuid) {
+        $.ajax({
+            url: '../Client/InactivateClientUnit',
+            type: 'POST',
+            data: {
+                clientUnitGuid: clientUnitGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                if (data.status) {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                }
+                else {
+                    window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                }
+                showClientUnits();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+</script>

@@ -1,0 +1,1001 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.Data.InspectorRateViewModel>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+
+    /*  .highlight-col {
+            background-color: #FFF8A8 !important;
+        }
+
+        .active-filter-col {
+            color: #007bff;
+        }
+    */
+    .active-filter {
+        background-color: #337ab7;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+
+    .col-other-charges {
+        white-space: wrap !important;
+    }
+
+    .rate-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+    }
+
+        .rate-table th,
+        .rate-table td {
+            text-align: center;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .rate-table th {
+            background-color: #B8DBFD;
+            font-weight: 600;
+            color: #222;
+            white-space: nowrap;
+        }
+            .rate-table td.email-cell,
+            .rate-table th.email-cell {
+                width: 350px; /* fixed width */
+                max-width: 350px; /* ensures it doesn't expand */
+                word-break: break-word; /* break long emails */
+                overflow-wrap: break-word;
+                line-height: 1.3; /* better spacing for multiple lines */
+                text-align: left; /* makes long emails readable */
+            }
+
+
+    .header-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .filter-icon {
+        cursor: pointer;
+        font-size: 12px;
+        color: #555;
+    }
+
+        .filter-icon:hover {
+            color: #0d6efd;
+            transform: scale(1.1);
+        }
+
+    .edit-row input,
+    .new-row input {
+        width: 100%;
+        padding: 5px 6px;
+        font-size: 12.5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    /* Upload icon styling */
+    .file-upload-icon {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: #f8f9fa;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        transition: all 0.3s ease;
+    }
+
+        .file-upload-icon:hover {
+            background-color: #e9ecef;
+        }
+
+        .file-upload-icon i {
+            font-size: 14px;
+            color: #0d6efd;
+        }
+
+        .file-upload-icon input {
+            display: none;
+        }
+
+    /* Action dropdown */
+    .action-menu {
+        position: relative;
+        display: inline-block;
+    }
+
+    .action-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #0d6efd;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: -50px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        min-width: 120px;
+    }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+    .dropdown-item {
+        display: block;
+        padding: 6px 10px;
+        color: #333;
+        font-size: 13px;
+        text-align: left;
+        text-decoration: none;
+    }
+
+        .dropdown-item:hover {
+            background: #f1f1f1;
+        }
+
+    /* Filter popup */
+    #filterPopup {
+        position: absolute;
+        display: none;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        width: 150px;
+    }
+
+        #filterPopup select,
+        #filterPopup input {
+            width: 90%;
+            margin-bottom: 5px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+    .file-upload-icon {
+        cursor: pointer;
+        position: relative;
+    }
+
+        .file-upload-icon i {
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        .file-upload-icon input[type="file"] {
+            display: none;
+        }
+
+    .error-border {
+        border: 1px solid red !important;
+    }
+
+    .tooltip-remarks {
+        position: absolute;
+        z-index: 9999;
+        background: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        max-width: 300px;
+        word-wrap: break-word;
+        display: none;
+        white-space: normal;
+    }
+</style>
+
+
+@{
+    bool isSuperAdmin = ViewBag.RoleId != null && ((List<int>)ViewBag.RoleId).Contains(1);
+
+
+    bool canView = isSuperAdmin || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.DataView, User.RoleId.FirstOrDefault());
+
+    bool canCreate = isSuperAdmin || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.DataCreate,User.RoleId.FirstOrDefault());
+
+    bool canEdit = isSuperAdmin || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.DataEdit,User.RoleId.FirstOrDefault());
+
+    bool canDelete = isSuperAdmin || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.DataDelete,User.RoleId.FirstOrDefault());
+}
+
+@if (canView)
+{
+    <div class="table-responsive">
+        <form id="addForm" enctype="multipart/form-data">
+            <table class="rate-table" id="inspectorTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2">@Html.Label("SNo")</th>
+                        <th rowspan="2">@Html.Label("Name") <i class="fa-solid fa-filter filter-icon" data-column="1"></i></th>
+                        <th rowspan="2">@Html.Label("Discipline")</th>
+                        <th rowspan="2">@Html.Label("City") <i class="fa-solid fa-filter filter-icon" data-column="3"></i></th>
+                        <th rowspan="2">@Html.Label("State") <i class="fa-solid fa-filter filter-icon" data-column="4"></i></th>
+                        <th rowspan="2">@Html.Label("Country") <i class="fa-solid fa-filter filter-icon" data-column="5"></i></th>
+                        <th rowspan="2">@Html.Label("Source") <i class="fa-solid fa-filter filter-icon" data-column="6"></i></th>
+                        <th rowspan="2" class="email-cell">@Html.Label("Email") <i class="fa-solid fa-filter filter-icon" data-column="7"></i></th>
+                        <th rowspan="2">@Html.Label("Contact")</th>
+                        <th rowspan="2">@Html.Label("Currency") <i class="fa-solid fa-filter filter-icon" data-column="9"></i></th>
+
+                        @if (canCreate || canEdit)
+                        {
+                            <th colspan="3">@Html.Label("Inspection Fee")</th>
+                            <th>@Html.Label("Travel Time")</th>
+                            <th>@Html.Label("Mileage")</th>
+                            <th rowspan="2" class="col-other-charges">@Html.Label("Other Charges")</th>
+                            <th rowspan="2">@Html.Label("Upload")</th>
+                        }
+
+                        <th rowspan="2">@Html.Label("Remarks")</th>
+                        <th rowspan="2">@Html.Label("Actions")</th>
+                    </tr>
+
+                    <tr>
+                        @if (canCreate || canEdit)
+                        {
+                            <th>@Html.Label("Lumsum")</th>
+                            <th>@Html.Label("Per Hr")</th>
+                            <th>@Html.Label("Per Day")</th>
+                            <th>@Html.Label("Per Hr")</th>
+                            <th>@Html.Label("Per Km")</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody id="rateTableBody">
+
+                    @if (canCreate && ViewBag.CurrentPageCount == 10 && ViewBag.ActiveStatus == true)
+                    {
+                        <tr class="new-row">
+                            <td></td>
+                            <td><input name="Name" class="form-control" /></td>
+                            <td><input name="Discipline" class="form-control" /></td>
+                            <td><input name="City" class="form-control" /></td>
+                            <td><input name="State" class="form-control" /></td>
+                            <td><input name="Country" class="form-control" /></td>
+                            <td><input name="Source" class="form-control" /></td>
+                            <td><input name="EmailId" class="form-control" /></td>
+                            <td><input name="ContactNumber" class="form-control" /></td>
+                            <td><input name="Currency" class="form-control" /></td>
+
+                            <td><input type="number" step="0.01" name="InspectionFeePerHour" class="form-control" /></td>
+                            <td><input type="number" step="0.01" name="InspectionFeePerDay" class="form-control" /></td>
+                            <td><input type="number" step="0.01" name="TravelChargesPerHour" class="form-control" /></td>
+                            <td><input type="number" step="0.01" name="TravelChargesLumsum" class="form-control" /></td>
+                            <td><input type="number" step="0.01" name="MileagePerKm" class="form-control" /></td>
+                            <td><input name="OtherCharges" class="form-control" /></td>
+
+                            <td>
+                                <label class="file-upload-icon">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                    <input type="file" id="UploadFile" name="UploadFile" class="upload-file-input" multiple />
+                                </label>
+                                <span class="fileNameDisplay text-muted" style="margin-left:8px;font-size:0.9em;">
+                                    No file selected
+                                </span>
+                            </td>
+
+                            <td><input name="Remarks" class="form-control" /></td>
+
+                            <td>
+                                <button type="submit" class="btn btn-sm btn-success rounded-circle">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var item in Model)
+                    {
+                        <tr id="@item.InspectorId">
+                            <td>@item.InspectorId</td>
+                            <td>@item.Name</td>
+                            <td>@item.Discipline</td>
+                            <td>@item.City</td>
+                            <td>@item.State</td>
+                            <td>@item.Country</td>
+                            <td>@item.Source</td>
+                            <td class="email-cell">@item.EmailId</td>
+                            <td>@item.ContactNumber</td>
+                            <td>@item.Currency</td>
+
+                            @if (canCreate || canEdit)
+                            {
+                                <td>@item.InspectionFeePerHour</td>
+                                <td>@item.InspectionFeePerDay</td>
+                                <td>@item.TravelChargesPerHour</td>
+                                <td>@item.TravelChargesLumsum</td>
+                                <td>@item.MileagePerKm</td>
+                                <td>@item.OtherCharges</td>
+                                @*<td>@item.FileName</td>*@
+                                <td class="file-col" style="min-width:50px;">
+                                    @if (!string.IsNullOrEmpty(item.FileName))
+                                    {
+                                        <i class="fas fa-folder text-primary view-files"
+                                           title="View Files"
+                                           data-inspid="@item.InspectorId"
+                                           style="cursor:pointer;"></i>
+
+                                        <a href="@Url.Action("DownloadFile","Inspector", new { InspectorId = item.InspectorId })"
+                                           title="Download Latest" style="margin-left:8px;">
+                                            @item.FileName
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    }
+                                </td>
+
+
+                            }
+
+                            <td>@item.Remarks</td>
+
+                            @if (canEdit || canDelete)
+                            {
+                                <td>
+                                    <div class="action-menu">
+                                        <button class="action-btn">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            @if (canEdit)
+                                            {
+                                                <a class="dropdown-item edit-btn"><i class="fa fa-pen"></i> Edit</a>
+                                            }
+                                            @if (canDelete)
+                                            {
+                                                <a class="dropdown-item delete-btn text-danger"><i class="fa fa-trash"></i> Delete</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
+}
+
+
+<div id="fileModal1" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:650px;">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                <h5 class="modal-title">Inspector Documents</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="fileList1"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Filter Popup -->
+<div id="filterPopup">
+    <select id="filterType">
+        <option value="contains">Contains</option>
+        <option value="equals">Equals</option>
+    </select>
+    <input type="text" id="filterValue" placeholder="Enter value" />
+    <div class="text-end">
+        <button id="applyFilter" class="btn btn-sm btn-primary">Apply</button>
+        <button id="clearFilter" class="btn btn-sm btn-secondary">Clear</button>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function ()
+    {
+        debugger;
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+        $(document).on("change", ".upload-file-input", function () {
+            debugger;
+            const files = this.files;
+
+            const $display = $(this).closest("td").find(".fileNameDisplay");
+
+            if (!files || files.length === 0) {
+                $display
+                    .text("No file selected")
+                    .removeClass("text-success text-warning")
+                    .addClass("text-muted");
+            }
+            else if (files.length === 1) {
+                $display
+                    .text(files[0].name)
+                    .removeClass("text-muted text-warning")
+                    .addClass("text-success");
+            }
+            else {
+                $display
+                    .text(files.length + " files selected")
+                    .removeClass("text-muted text-success")
+                    .addClass("text-warning");
+            }
+        });
+
+
+        $(document).on(
+            "input change",
+            "form input:not([type='file']), form select, form textarea",
+            function () {
+
+                const $field = $(this);
+                if ($.trim($field.val()) !== "") {
+                    $field.removeClass("error-border");
+                    $field.next(".validation-message").remove();
+                }
+            }
+        );
+
+    });
+
+    $(function () {
+    var maxRemarksLength = 15;
+    let editingRow = null;
+    let currentScroll = 0;
+    let currentOpenDropdown = null;
+    let currentColumn = null;
+
+     $("#inspectorTable tbody tr").each(function () {
+            debugger;
+        const $tr = $(this);
+        if ($tr.hasClass("new-row")) return;
+
+        const inspectorId = $tr.attr("id");
+        const $fileCell = $tr.find("td.file-col");
+
+        if ($fileCell.length > 0) {
+            const fileText = $fileCell.text().trim();
+            if (fileText !== "") {
+                const fileList = fileText.split(";").filter(f => f.trim() !== "");
+                const folderHtml = `
+                    <i class="fa-solid fa-folder text-primary view-files"
+                       title="View Uploaded Files"
+                       data-inspid="${inspectorId}"
+                       data-files='${JSON.stringify(fileList)}'
+                       style="cursor:pointer;"></i>`;
+                $fileCell.html(folderHtml);
+            } else {
+                $fileCell.html("");
+            }
+            }
+
+            var $remarksCell = $(this).find('.remarks-col');
+
+            if ($remarksCell.length > 0) {
+                var fullRemarks = $remarksCell.text().trim();
+
+                if (fullRemarks === "" || fullRemarks === null) {
+                    $remarksCell.html('');
+                } else if (fullRemarks.length > maxRemarksLength) {
+                    var shortenedRemarks = fullRemarks.substring(0, maxRemarksLength) + '...';
+                    $remarksCell.html(
+                        `<span class="shortened-remarks"
+    data-full-remarks="${fullRemarks}">${shortenedRemarks}</span>`
+                    );
+                }
+            }
+    });
+
+        $("#inspectorTable tbody tr.main-row").each(function () {
+            debugger;
+            var $remarksCell = $(this).find('.remarks-col');
+
+            if ($remarksCell.length > 0) {
+                var fullRemarks = $remarksCell.text().trim();
+
+                if (fullRemarks === "" || fullRemarks === null) {
+                    $remarksCell.html('');
+                } else if (fullRemarks.length > maxRemarksLength) {
+                    var shortenedRemarks = fullRemarks.substring(0, maxRemarksLength) + '...';
+                    $remarksCell.html(
+                        `<span class="shortened-remarks"
+                data-full-remarks="${fullRemarks}">${shortenedRemarks}</span>`
+                    );
+                }
+            }
+        });
+
+
+    $(document).off('click', '.view-files').on('click', '.view-files', function () {
+        const inspId = $(this).data("inspid");
+
+        if (inspId) {
+            GetDocumentRevisions(inspId);
+        }
+    });
+    function GetDocumentRevisions(inspId) {
+        $.ajax({
+            url: '../Inspector/GetInspectorRevisionsFiles',
+            type: 'GET',
+            data: { InspectorId: inspId },
+            success: function (response) {
+                if (!response || (response.activeFiles.length === 0 && response.supersededFiles.length === 0)) {
+                    $("#fileList1").html('<p class="text-danger">No revisions available.</p>');
+                    $("#fileModal1").modal('show');
+                    return;
+                }
+
+             var fileListHtml = `<table class="table table-bordered table-sm align-middle" style="width:100%;">
+                                 <thead class="table-light">
+                                     <tr>
+                                         <th style="width:35%;">File</th>
+                                         <th style="width:12%;">Date</th>
+                                         <th style="width:10%;">Status</th>
+                                     </tr>
+                                 </thead>
+                                 <tbody>`;
+
+                // Active files
+                response.activeFiles.forEach(function (file) {
+                    fileListHtml += `
+            <tr class="active-file">
+                <td>
+                    <a href="../Inspector/DownloadFile?InspectorId=${inspId}&FileID=${file.fileId}&backupFile=false">
+                        ${file.fileName}
+                    </a>
+                </td>
+                <td>${file.revisionDate ? new Date(file.revisionDate).toLocaleDateString("en-GB") : '-'}</td>
+                <td>${file.status}</td>
+            </tr>`;
+                });
+
+                // Expand icon row (merged over all columns)
+                if (response.supersededFiles.length > 0) {
+                    fileListHtml += `<tr class="expand-row">
+                                      <td colspan="4" class="text-left">
+                                          <span class="expand-icon" style="cursor:pointer; font-weight:bold;">▶ Show Superseded Files</span>
+                                      </td>
+                                  </tr>`;
+                                      }
+
+                // Superseded files (hidden by default)
+                response.supersededFiles.forEach(function (file) {
+                    var formattedDate = file.revisionDate ? new Date(file.revisionDate).toLocaleDateString("en-GB") : '-';
+                    fileListHtml += `<tr class="superseded-file" style="display:none; background:#f8f9fa;">
+                <td style="text-decoration: line-through; color:red;">
+                    <a href="../Inspector/DownloadFile?InspectorId=${inspId}&FileID=${file.fileId}&backupFile=true" style="color:red;">
+                        ${file.fileName}
+                    </a>
+                </td>
+                <td>${formattedDate}</td>
+                <td>${file.status || '-'}</td>
+            </tr>`;
+                });
+
+                fileListHtml += `</tbody></table>`;
+                $("#fileList1").html(fileListHtml);
+
+                // Expand/collapse functionality
+                $(".expand-icon").off("click").on("click", function () {
+                    var icon = $(this);
+                    var isExpanded = icon.text().startsWith("▼");
+                    $(".superseded-file").toggle(!isExpanded);
+                    icon.text(isExpanded ? "▶ Show Superseded Files" : "▼ Hide Superseded Files");
+                });
+
+                $("#fileModal1").modal('show');
+            },
+            error: function () {
+                $("#fileList1").html('<p class="text-danger">Error fetching document revisions.</p>');
+                $("#fileModal1").modal('show');
+            }
+        });
+    }
+
+    // =============================
+    // DROPDOWN MENU TOGGLE
+    // =============================
+    $(document).on("click", ".action-btn", function (e) {
+        e.stopPropagation();
+        const $menu = $(this).closest(".action-menu");
+
+        // Close others
+        if (currentOpenDropdown && currentOpenDropdown[0] !== $menu[0]) {
+            currentOpenDropdown.find(".dropdown-menu").removeClass("show");
+        }
+
+        const $dropdown = $menu.find(".dropdown-menu");
+        const isVisible = $dropdown.hasClass("show");
+
+        $(".dropdown-menu").removeClass("show");
+        if (!isVisible) {
+            $dropdown.addClass("show");
+            currentOpenDropdown = $menu;
+        } else {
+            currentOpenDropdown = null;
+        }
+    });
+
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest(".action-menu").length) {
+            $(".dropdown-menu").removeClass("show");
+            currentOpenDropdown = null;
+        }
+    });
+
+    // =============================
+    // FILTER POPUP
+    // =============================
+    $(".filter-icon").on("click", function (e) {
+        e.stopPropagation();
+        currentColumn = $(this).data("column");
+        const iconOffset = $(this).offset();
+        $("#filterPopup").css({
+            top: iconOffset.top + 20,
+            left: iconOffset.left - 80
+        }).fadeIn(150);
+    });
+
+        let activeFilterColumn = null;
+
+        // Open filter popup
+        $(".filter-icon").on("click", function () {
+
+            $(".filter-icon").removeClass("active-filter");  // remove previous highlight
+            $(this).addClass("active-filter");               // highlight only THIS icon
+
+            activeFilterColumn = parseInt($(this).data("column"));
+
+            $("#filterValue").val("");
+            $("#filterPopup").show();
+        });
+
+        // Apply filter
+        $("#applyFilter").on("click", function () {
+            const filterType = $("#filterType").val();
+            const filterVal = $("#filterValue").val().toLowerCase();
+
+            $("#rateTableBody tr").each(function () {
+                const td = $(this).find("td").eq(activeFilterColumn);
+                const cellText = (td.text() || "").toLowerCase();
+
+                let match = false;
+
+                if (filterVal === "") {
+                    match = true;
+                }
+                else if (filterType === "contains") {
+                    match = cellText.includes(filterVal);
+                }
+                else if (filterType === "equals") {
+                    match = cellText === filterVal;
+                }
+
+                $(this).toggle(match);
+            });
+
+            $("#filterPopup").hide();
+        });
+
+        // Clear filter
+        $("#clearFilter").on("click", function () {
+
+            $("#rateTableBody tr").show();
+
+            $(".filter-icon").removeClass("active-filter");
+
+            $("#filterValue").val("");
+            $("#filterPopup").hide();
+        });
+
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest("#filterPopup, .filter-icon").length) $("#filterPopup").hide();
+    });
+
+
+     $(document).on("submit", "#addForm", function (e) {
+        e.preventDefault();
+
+        let isValid = true;
+        $("#addForm input").removeClass("error-border");
+
+        const name = $.trim($("input[name='Name']").val());
+        const discipline = $.trim($("input[name='Discipline']").val());
+        const city = $.trim($("input[name='City']").val());
+        const state = $.trim($("input[name='State']").val());
+        const country = $.trim($("input[name='Country']").val());
+        const email = $.trim($("input[name='EmailId']").val());
+        const contact = $.trim($("input[name='ContactNumber']").val());
+
+        const emailPattern = new RegExp("^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$");
+
+        if (!name) { $("input[name='Name']").addClass("error-border"); isValid = false; }
+        if (!discipline) { $("input[name='Discipline']").addClass("error-border"); isValid = false; }
+        if (!city) { $("input[name='City']").addClass("error-border"); isValid = false; }
+        if (!state) { $("input[name='State']").addClass("error-border"); isValid = false; }
+        if (!country) { $("input[name='Country']").addClass("error-border"); isValid = false; }
+        if (!email || !emailPattern.test(email)) {
+            $("input[name='EmailId']").addClass("error-border");
+            isValid = false;
+        }
+        if (!contact) { $("input[name='ContactNumber']").addClass("error-border"); isValid = false; }
+
+        if (!isValid) return;
+
+        const form = $("#addForm")[0];
+        const formData = new FormData(form);
+        formData.append("flag", false);
+
+        $.ajax({
+            url: '@Url.Action("SaveUpdateInspector", "Inspector")',
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.message === "duplicate") {
+                    $("input[name='EmailId']").addClass("error-border");
+                } else if (response.message === "saved") {
+                    alert("Inspector details saved successfully!");
+                    location.reload();
+                } else {
+                    alert("Error saving record!");
+                }
+            },
+            error: function () {
+                alert("Server error occurred!");
+            }
+        });
+    });
+
+    // =============================
+    // RESTORE ROW FUNCTION
+    // =============================
+    function restoreRow($row) {
+        const originalHtml = $row.data("original-html");
+        if (originalHtml) {
+            $row.removeClass("edit-row").html(originalHtml);
+            $row.removeData("original-html");
+        }
+    }
+
+    // =============================
+    // EDIT INSPECTOR
+    // =============================
+    $(document).on("click", ".edit-btn", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        currentScroll = $(window).scrollTop();
+        $(".dropdown-menu").removeClass("show");
+
+        const $row = $(this).closest("tr");
+        const inspectorId = $row.attr("id");
+        const $cells = $row.find("td");
+
+        // Close previous edit if another open
+        if (editingRow && editingRow[0] !== $row[0]) {
+            restoreRow(editingRow);
+        }
+
+        if (!$row.data("original-html")) {
+            $row.data("original-html", $row.html());
+        }
+
+        editingRow = $row;
+
+        const $fileCell = $row.find(".file-col");
+        let existingFileName = "";
+        const $fileIcon = $fileCell.find(".view-files");
+
+        if ($fileIcon.length > 0 && $fileIcon.data("files")) {
+            try {
+                const files = JSON.parse($fileIcon.attr("data-files"));
+                if (Array.isArray(files) && files.length > 0) existingFileName = files.join(", ");
+            } catch (e) {
+                existingFileName = $fileIcon.attr("data-files");
+            }
+        }
+
+        if (!existingFileName) existingFileName = $fileCell.text().trim() || "";
+
+        const sno = $cells.eq(0).text();
+        $row.addClass("edit-row").html(`<td>${sno}</td>`);
+
+        const fieldNames = [
+            "Name", "Discipline", "City", "State", "Country", "Source", "EmailId",
+            "ContactNumber", "Currency", "InspectionFeePerHour", "InspectionFeePerDay",
+            "TravelChargesPerHour", "TravelChargesLumsum", "MileagePerKm", "OtherCharges",
+            "Upload", "Remarks"
+        ];
+
+        fieldNames.forEach((f, i) => {
+            if (f === "Upload") {
+                const displayFile = existingFileName
+                    ? `<span class="fileNameDisplayEdit text-success" style="margin-left:8px; font-size:0.9em;">${existingFileName}</span>`
+                    : `<span class="fileNameDisplayEdit text-muted" style="margin-left:8px; font-size:0.9em;">No file</span>`;
+                $row.append(`
+                    <td class="file-col">
+                        <label class="file-upload-icon" title="Upload">
+                            <i class="fa-solid fa-paperclip"></i>
+                            <input type="file" id="UploadFile" name="UploadFile" multiple />
+                        </label>
+                        <input type="hidden" name="ExistingFileName" value="${existingFileName}" />
+                        ${displayFile}
+                    </td>`);
+            } else {
+                const textVal = $cells.eq(i + 1).text().trim();
+                $row.append(`<td><input type="text" name="${f}" value="${textVal}" /></td>`);
+            }
+        });
+
+        $row.append(`
+            <td class="text-center">
+                <button type="button" class="btn-icon save-btn" title="Save"><i class="fa fa-check text-success"></i></button>
+                <button type="button" class="btn-icon cancel-btn" title="Cancel"><i class="fa fa-times text-danger"></i></button>
+            </td>`);
+
+        $(window).scrollTop(currentScroll);
+
+        $row.find("#UploadFile").on("change", function () {
+            const files = this.files;
+            const $display = $(this).closest("td").find(".fileNameDisplayEdit");
+
+            if (files.length === 0) {
+                $display.text(existingFileName || "No file").removeClass("text-success text-warning").addClass("text-muted");
+            } else if (files.length === 1) {
+                $display.text(files[0].name).removeClass("text-muted text-warning").addClass("text-success");
+            } else {
+                $display.text(`${files.length} files selected`).removeClass("text-muted text-success").addClass("text-warning");
+            }
+        });
+        // Save
+        $row.find(".save-btn").on("click", function () {
+            const formData = new FormData();
+            formData.append("InspectorId", inspectorId);
+            formData.append("flag", true);
+
+            let fileAttached = false;
+            let existingNameToSend = "";
+
+            $row.find("input").each(function () {
+                const nameAttr = $(this).attr("name");
+                if (this.type === "file" && this.files.length > 0) {
+                    fileAttached = true;
+                    for (let i = 0; i < this.files.length; i++) {
+                        formData.append("UploadFile", this.files[i]);
+                    }
+                } else if (nameAttr === "ExistingFileName") {
+                    existingNameToSend = $(this).val();
+                } else {
+                    formData.append(nameAttr, $(this).val());
+                }
+            });
+
+            if (!fileAttached && existingNameToSend) {
+                formData.append("ExistingFileName", existingNameToSend);
+            }
+
+            $.ajax({
+                url: '@Url.Action("SaveUpdateInspector", "Inspector")',
+                type: 'POST',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (response) {
+                    if (response.message === "updated") alert("Inspector updated successfully!");
+                    else if (response.message === "duplicate") alert("Duplicate inspector found!");
+                    else alert("Error updating record!");
+                    location.reload();
+                },
+                error: function () {
+                    alert("Server error occurred!");
+                }
+            });
+        });
+
+        // Cancel
+        $row.find(".cancel-btn").on("click", function () {
+            restoreRow($row);
+            editingRow = null;
+        });
+    });
+
+    // =============================
+    // DELETE INSPECTOR
+    // =============================
+        $(document).on("click", ".delete-btn", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $row = $(this).closest("tr");
+            const recordId = $row.attr("id");
+
+            // Close any open dropdown
+            $(".dropdown-menu").removeClass("show");
+            currentOpenDropdown = null;
+
+            // Ask for reason
+            const deleteReason = prompt("Please enter reason for deleting this record:");
+            if (deleteReason === null) return; // user cancelled
+            if ($.trim(deleteReason) === "") {
+                alert("Reason is required to delete the record.");
+                return;
+            }
+
+            if (confirm("Are you sure you want to delete this record?")) {
+                $.ajax({
+                    url: '../Inspector/DeleteInspector',
+                    type: 'POST',
+                    data: { inspectorId: recordId, remarks: deleteReason },
+                    success: function (response) {
+                        if (response.success) {
+                            alert("Record deleted successfully!");
+                            $row.fadeOut(300, () => $row.remove());
+                        } else {
+                            alert(response.message || "Unable to delete record.");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error deleting record: " + error);
+                    }
+                });
+            }
+        });
+
+    // =============================
+    // PAGINATION INIT
+    // =============================
+    window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+    if ($.trim("@ViewBag.Total") !== "") {
+        paginationObj.setTotalPageCount("@ViewBag.Total");
+        paginationObj.updateTotalRecords("@ViewBag.Total");
+    }
+
+    // 4️⃣ Hover tooltip for Remarks
+        $(document).on('mouseenter', '.shortened-remarks', function () {
+            debugger;
+        var fullRemarks = $(this).data('full-remarks');
+        var $tooltip = $('<div class="tooltip-remarks"></div>').text(fullRemarks).appendTo('body');
+        var offset = $(this).offset();
+        $tooltip.css({
+            top: offset.top + $(this).outerHeight() + 15,
+            left: offset.left - 100
+        }).fadeIn(200);
+    }).on('mouseleave', '.shortened-remarks', function () {
+        $('.tooltip-remarks').remove();
+    });
+
+});
+</script>
+

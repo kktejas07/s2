@@ -1,0 +1,165 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Utils
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Web Application" />
+    <meta name="author" content="IQE" />
+    <title>@ViewBag.Title -  IQE</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <link href="~/Assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <script src="~/Content/jGrowl/jquery.jgrowl.min.js"></script>
+
+    <style>
+        body, html {
+            height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .bg-img {
+            /* The image used */
+           // background-image: url("/Images/home-banner-1.jpg");
+            min-height: 580px;
+            /* Center and scale the image nicely */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* Add styles to the form container */
+        .container {
+            position: absolute;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgb(57 76 96 / 15%), 0 0 1px rgb(68 92 116 / 2%);
+            padding: 20px;
+            box-sizing: border-box;
+            width: 300px;
+            opacity:1;
+            
+        }
+
+        /* Full-width input fields 
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            border: none;
+            background: #f1f1f1;
+        }
+
+            input[type=text]:focus, input[type=password]:focus {
+                background-color: #ddd;
+                outline: none;
+            }
+
+        */
+
+        /* Set a style for the submit button */
+        .btn {
+            padding: 16px 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.9;
+        }
+
+            .btn:hover {
+                opacity: 1;
+            }
+    </style>
+
+</head>
+<body>
+    <header class="headertop sticky " style="padding: 10px">
+        <img src="~/Images/IQElogo.png" />
+    </header>
+
+<div class="container-fluid" style="margin-top:5px;">
+    @RenderBody()
+</div>
+@*<footer class="footer wi-footer">
+    <div class="container-fluid">
+        <p>Copyright &copy; @DateTime.Now.Year Web India. | All Rights Reserved</p>
+    </div>
+</footer>*@
+
+@*@Scripts.Render("~/bundles/jquery")*@
+@Scripts.Render("~/bundles/bootstrap")
+@RenderSection("scripts", required: false)
+</body>
+</html>
+<script type="text/javascript">
+    window.GrowlObj = function () {
+       return {
+            getGrowlMessage: function (grNotificationType) {
+                if (grNotificationType == "@NotificationType.UpdateFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UpdateFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UpdateSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UpdateSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.InsertFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.InsertFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.InsertSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InserSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.DeleteFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.DeleteFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.DeleteSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.DeleteSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.EmailFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.EmailFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.EmailSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.EmailSucess', { header: 'Success' });
+                }
+                @*else if (grNotificationType == "@NotificationType.PublishFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.PublishFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.PublishSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.PublishSucess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.UnPublishFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UnPublishFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UnPublishSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UnPublishSucess', { header: 'Success' });
+                }  else if (grNotificationType == "@NotificationType.FollowFailed") {
+
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.FollowFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.FollowSuccess") {
+
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.FollowSucess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.UnFollowFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UnFollowFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UnFollowSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UnFollowSucess', { header: 'Success' });
+                }
+                else if (grNotificationType == "@NotificationType.BlockFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.BlockFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.BlockSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.BlockSuccess', { header: 'Success' });
+                }
+                else if (grNotificationType == "@NotificationType.UnBlockFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UnBlockFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UnBlockSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UnBlockSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.DirectoryChangeIndexUpdateStatus") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.DirectoryChangesIndexUpdateStatus', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.InvitationSendSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InvitationSendSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.InvitationSendFailed") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InvitationSendFailed', { header: 'Success' });
+                }*@
+            }
+        };
+    }();
+</script>

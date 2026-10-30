@@ -1,0 +1,36 @@
+﻿<div id="divTextEditor">
+    <textarea name="txtEditor" id="txtEditor"></textarea>
+    <button class="btn btn-default" onclick="javascript: SaveEditorText();">Save</button>
+    <button class="btn btn-default" onclick="javascript: closeEditor();">Close</button>
+</div>
+<script>
+    $(document).ready(function () {
+
+        window.CreateBlogEditor.create({ editorElement: "txtEditor" });
+    });
+    function SaveEditorText() {
+        var txtVal = $("#txtEditor").Editor("getText");
+        $.ajax({
+            url: '../RnD/SaveDiscussion',
+            type: 'POST',
+            data: { edit: encodeURIComponent(txtVal) },
+            success: function () {
+                $("#divCreatePostHold").html("");
+                $("#btnEditorOpen").show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            beforeSend: function (e) {
+
+            },
+            complete: function (e) {
+
+            }
+        });
+    }
+
+    function closeEditor() {
+        $("#divCreatePostHold").html("");
+        $("#btnEditorOpen").show();
+    }
+</script>

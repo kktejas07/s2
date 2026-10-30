@@ -1,0 +1,16 @@
+﻿@using System.Collections
+@model IEnumerable<IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderViewModel> 
+
+<div>
+       @if (Model.Any()|| Model.Count() >0)
+       {
+           foreach (var purchaseOrder in Model)
+            {
+                <input name="LstPOIDs" type="checkbox" value="@purchaseOrder.POId" /><span>&nbsp;@purchaseOrder.PONumber</span><br />
+            }
+       }
+       else
+       {
+           <span>There is no purchase orders mapped with the requested manufacturer units</span>
+       }
+</div>

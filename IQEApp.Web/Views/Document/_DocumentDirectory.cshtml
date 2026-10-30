@@ -1,0 +1,471 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.DocumentViewModel.DocumentViewModel>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<meta name="viewport" content="width=device-width" />
+@*<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />*@
+<link href="~/Content/Site.css" rel="stylesheet" />
+
+<style type="text/css">
+    #DocumentTable th {
+        font-weight: 700;
+        padding: 5px 8px;
+        line-height: 1;
+        vertical-align: middle;
+        font-family: Arial;
+        font-size: 9.5pt;
+        white-space: nowrap;
+    }
+
+    .tooltip-documentname {
+        position: absolute;
+        background-color: #333;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        max-width: 300px;
+        z-index: 1000;
+        display: none;
+        word-wrap: break-word;
+    }
+
+    .fa-folder {
+        color: #ffbb33;
+    }
+
+    table {
+        width: -webkit-fill-available;
+    }
+
+    .expand-icon {
+        color: #007bff;
+        cursor: pointer;
+        margin-right: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+        .expand-icon:hover {
+            color: #0056b3;
+        }
+
+    .strikethrough {
+        color: red;
+        text-decoration: line-through;
+        display: inline-block;
+    }
+</style>
+
+
+<table cellpadding="0" cellspacing="0" class="center" id="DocumentTable">
+    <tr>
+        <th rowspan="2" style="text-align:center">@Html.Label("S No")</th>
+        <th rowspan="2" style="text-align:center">@Html.Label("Category")</th>
+        @*<th>@Html.Label("Title")</th>*@
+        <th rowspan="2" style="text-align:center">@Html.Label("Document Name")</th>
+        <th rowspan="2" style="text-align:center">@Html.Label("Document Number")</th>
+        <th colspan="2" style="text-align:center">@Html.Label("Issue")</th>
+        <th colspan="2" style="text-align:center">@Html.Label("Revision")</th>
+        <th rowspan="2" style="text-align:center">@Html.Label("Responsibility")</th>
+        <th rowspan="2" style="text-align:center">@Html.Label("Retention Period")</th>
+        <th rowspan="2" style="text-align:center">@Html.Label("Documents")</th>
+        <th rowspan="2" style="text-align:center">&nbsp;</th>
+    </tr>
+    <tr>
+        <th style="text-align:center">@Html.Label("Number")</th>
+        <th style="text-align:center">@Html.Label("Date")</th>
+        <th style="text-align:center">@Html.Label("Number")</th>
+        <th style="text-align:center">@Html.Label("Date")</th>
+    </tr>
+    @foreach (var doc in Model)
+    {
+        <tr>
+            <td>@doc.DocumentId<input type="hidden" class="documentId" id="documentId" value="@doc.DocumentId" /></td>
+            <td>@doc.CategoryName</td>
+            <td>@doc.DocumentName</td>
+            <td>@doc.DocumentNumber</td>
+            <td>@doc.IssueNo</td>
+            <td>@(doc.IssueDate.HasValue ? @doc.IssueDate.Value.ToShortDateString() : "")</td>
+            <td>@doc.RevisionNo</td>
+            <td>@(doc.RevisionDate.HasValue ? @doc.RevisionDate.Value.ToShortDateString():"")</td>
+            <td>@doc.Responsibility</td>
+            <td>@doc.RetentionPeriod</td>
+            <td>
+                @doc.FileName
+                @*@if (doc.DocumentFileName != null)
+                    {
+                        <a href="~/Document/DownloadFile?documentID=@doc.DocumentId">
+                            <i aria-hidden="true">
+                                @doc.DocumentFileName
+                            </i>
+                        </a>
+                    }*@
+            </td>
+            <td>
+                <div class="btn-group" style="display: inline-block;" role="group">
+                    <span id="documentDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                    </span>
+                    <ul class="dropdown-menu ellipse-menu-left">
+
+                        @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.DocumentsEdit, @User.RoleId.FirstOrDefault()))
+                        {
+                            <li>
+                                <a href="javascript:void(0);" onclick="javascript: EditDocument('@doc.DocumentId');">
+                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                    </i> Edit
+                                </a>
+                            </li>
+                        }
+                        @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.DocumentsEdit, @User.RoleId.FirstOrDefault()))
+                             {
+                              <li>
+                                  <a href="javascript:void(0);" onclick="javascript: FilePreview('@doc.DocumentGuid');">
+                                      <i class="fa fa-eye mr20" aria-hidden="true">
+                                      </i> Preview
+                                  </a>
+                              </li>
+                            }*@
+                        @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.DocumentDownload, @User.RoleId.FirstOrDefault()))
+                            {
+                                <li>
+                                    <a href="~/Document/DownloadFile?documentID=@doc.DocumentId&fileName=@doc.DocumentFileName">
+                                        <i class="fa fa-download mr20" aria-hidden="true">
+                                        </i> Download
+                                    </a>
+                                </li>
+                            }*@
+                    </ul>
+                </div>
+
+            </td>
+        </tr>
+    }
+</table>
+
+
+<div id="fileModal1" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:650px;">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                <h5 class="modal-title">Document Revisions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="fileList1"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>
+<script type="text/javascript">
+    $(function () {
+        var fileIndex = -1;
+       // var remarksIndex = -1;
+        var maxLength = 15; // Maximum number of characters to display in the table
+
+        // Array to track the actual column indexes considering colspan and rowspan
+        var columnMap = [];
+
+        // Traverse each header row to map column positions
+        $("#DocumentTable tr").each(function (rowIndex) {
+            var currentColumn = 0; // Track the actual position of the column
+
+            $(this).find('th').each(function () {
+                var colspan = parseInt($(this).attr('colspan') || 1);
+                var rowspan = parseInt($(this).attr('rowspan') || 1);
+                var text = $(this).text().trim();
+
+                // Skip already occupied columns (due to rowspan)
+                while (columnMap[currentColumn] > 0) {
+                    currentColumn++;
+                }
+
+                // Check if this is the "Documents" column
+                if (text === "Documents") {
+                    fileIndex = currentColumn;  // Save the column index for documents
+                }
+
+                // Check if this is the "Remarks" column
+                //if (text === "Remarks") {
+                //    remarksIndex = currentColumn;  // Save the column index for remarks
+                //}
+                if (text === "Document Name") {
+                    documentNameIndex = currentColumn;  // Save the column index for remarks
+                }
+
+                // Mark the next columns as occupied due to colspan
+                for (var i = 0; i < colspan; i++) {
+                    columnMap[currentColumn] = rowspan;  // Mark this column as occupied
+                    currentColumn++;
+                }
+            });
+
+            // Decrement rowspan counters for all columns that span multiple rows
+            for (var j = 0; j < columnMap.length; j++) {
+                if (columnMap[j] > 0) {
+                    columnMap[j]--;
+                }
+            }
+
+            if (fileIndex >= 0 && documentNameIndex >= 0) {
+                return false;
+            }
+        });
+
+        // Ensure the column indexes were found
+        if (fileIndex >= 0 || documentNameIndex >= 0) {
+            //debugger;
+            // Iterate through all table rows to update the "Documents" and "Remarks" columns
+            $("#DocumentTable tr").each(function () {
+                //debugger;
+                var tr = $(this);
+                var rows = tr.children('td');
+
+                if (rows.length > 0) {
+                    var documentID = tr.find('.documentId').val();
+
+                    // Process the "Documents" column
+                    if (fileIndex >= 0) {
+                        var cell = rows.eq(fileIndex);
+
+                        if (cell.length > 0) {
+                            var fileList = cell.text().trim().split(';').filter(function (file) {
+                                return file.trim() !== "";  // Ensure no empty or null entries
+                            });
+
+                            if (fileList.length > 0) {
+                                // Generate folder icon with data attributes
+                                cell.html(`<i class="fas fa-folder" data-document-id="${documentID}" data-files="${fileList.join(',')}"></i>`);
+                            } else {
+                                cell.html('');  // If no files, leave the cell empty
+                            }
+                        }
+                    }
+
+
+                    if (documentNameIndex >= 0) {
+                        //debugger;
+                        var documentNameCell = rows.eq(documentNameIndex);
+
+                        if (documentNameCell.length > 0) {
+                            var fulldocumentName = documentNameCell.text().trim();
+
+                            if (fulldocumentName === "" || fulldocumentName === null) {
+                                documentNameCell.html('');
+                            } else if (fulldocumentName.length > maxLength) {
+                                var shorteneddocumentName = fulldocumentName.substring(0, maxLength) + '...';
+
+                                documentNameCell.html(`<span class="shortened-documentname" data-full-documentname="${fulldocumentName}">${shorteneddocumentName}</span>`);
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Handle hover event for the shortened remarks to show the full remarks
+            $(document).on('mouseenter', '.shortened-documentname', function () {
+                var fulldocumentname = $(this).data('full-documentname');
+
+                // Create and show a tooltip near the element
+                var tooltip = $('<div class="tooltip-documentname"></div>').text(fullRemarks);
+                $('body').append(tooltip);
+                tooltip.css({
+                    top: $(this).offset().top + $(this).height() + 5,
+                    left: $(this).offset().left
+                }).fadeIn('fast');
+            });
+
+            // Remove the tooltip when mouse leaves
+            $(document).on('mouseleave', '.shortened-documentname', function () {
+                $('.tooltip-documentname').remove();
+            });
+
+            $(document).on('mouseenter', '.shortened-documentName', function () {
+                //debugger;
+                var fulldocumentName = $(this).data('full-documentName');
+
+                // Create and show a tooltip near the element
+                var tooltip = $('<div class="tooltip-documentName"></div>').text(fulldocumentName);
+                $('body').append(tooltip);
+                tooltip.css({
+                    top: $(this).offset().top + $(this).height() + 5,
+                    left: $(this).offset().left
+                }).fadeIn('fast');
+            });
+
+            // Remove the tooltip when mouse leaves
+            $(document).on('mouseleave', '.shortened-documentName', function () {
+                $('.tooltip-documentname').remove();
+            });
+
+        }
+
+    });
+
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+    });
+
+    function EditDocument(docId) {
+        //debugger;
+        $.ajax({
+            url: '../Document/EditDocument',
+            type: 'POST',
+            data: {
+                documentId: docId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                //debugger;
+                $("#divMainSearch").hide();
+                $('#AlphaSorting').hide();
+                $('#documentPager').hide();
+                $('#spnHeadTitle').html('');
+                $('#spnHeadTitle').html('QMS &#8667; Edit Document');
+                $('#divAddUpdateDocument').html(data).show();
+                $('#btnDocumentList').show();
+                $('#btnAddDocument').hide();
+                $("#divDocumentDetails").html('').hide();
+                //$('#DocumentName').focus();
+                $('#DocumentDetailsPostDiv').show();
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    $(document).off('click', '.fa-folder').on('click', '.fa-folder', function () {
+       debugger;
+        var documentID = $(this).closest("tr").find(".documentId").val();
+
+        if (documentID) {
+            GetDocumentRevisions(documentID);
+        }
+    });
+
+    function GetDocumentRevisions(documentId) {
+        $.ajax({
+            url: '../Document/GetDocumentRevisions',
+            type: 'GET',
+            data: { documentId: documentId },
+            success: function (response) {
+                if (response) {
+                    // debugger;
+                    var hasOldFiles = response.oldRevisions && response.oldRevisions.length > 0;
+                    var expandIcon = hasOldFiles ? `<span class="expand-icon" style="cursor:pointer;">▶</span>` : '';
+
+                    var fileListHtml = `
+                    <table class="table-bordered">
+                        <thead>
+                            <tr>
+                                <th style="width: 3%;"></th>
+                                <th style="width: 40%;">Document</th>
+                                <th style="width: 10%;">Revision</th>
+                                <th style="width: 15%;">Date</th>
+                                <th style="width: 15%;">Status</th>
+                                <th style="width: 15%;">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="latest-file">
+                                <td class="text-center">${expandIcon}</td>
+                                <td style="width: 40%;"><a href="../document/DownloadFile?documentId=${documentId}&FileName=${response.latest.fileName}&backupFile=false">${response.latest.fileName}</a></td>
+                                <td style="width: 10%;">${response.latest.revisionNumber}</td>
+                                <td style="width: 15%;">${response.latest.revisionDate ? new Date(response.latest.revisionDate).toLocaleDateString("en-GB") : '-'}</td>
+                                <td style="width: 15%;">${response.latest.status || '-'}</td>
+                                <td style="width: 15%;">${response.latest.remarks || '-'}</td>
+                            </tr>`;
+
+                    if (hasOldFiles) {
+                        fileListHtml += `
+                            <tr class="old-files" style="display:none;">
+                                <td colspan="6">
+                                    <table class="table-sm table-bordered">
+                                        <tbody>`;
+
+                        response.oldRevisions.forEach(function (doc) {
+                            var formattedDate = doc.revisionDate ? new Date(doc.revisionDate).toLocaleDateString("en-GB") : '-';
+                            fileListHtml += `
+                                            <tr>
+                                                <td></td>
+                                               <td style="width: 40%; text-decoration: line-through;">
+                                                 <a href="../document/DownloadFile?documentId=${documentId}&FileName=${encodeURIComponent(doc.fileName)}&backupFile=true" 
+                                                   style="color: red;"> ${doc.fileName} </a></td>
+                                                <td style="width: 10%; color:red; text-decoration: line-through">${doc.revisionNumber}</td>
+                                                <td style="width: 15%;">${formattedDate}</td>
+                                                <td style="width: 15%;">${doc.status || '-'}</td>
+                                                <td style="width: 15%;">${doc.remarks || '-'}</td>
+                                            </tr>`;
+                        });
+
+                        fileListHtml += `
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>`;
+                    }
+
+                    fileListHtml += `</tbody></table>`;
+                    $("#fileList1").html(fileListHtml);
+                } else {
+                    $("#fileList1").html('<p>No revisions available.</p>');
+                }
+
+                $("#fileModal1").modal('show');
+            },
+            error: function () {
+                $("#fileList1").html('<p>Error fetching document revisions.</p>');
+                $("#fileModal1").modal('show');
+            }
+        });
+    }
+
+    // Expand/Collapse Old Revisions
+    $(document).off('click', '.expand-icon').on('click', '.expand-icon', function () {
+        // debugger;
+        var $icon = $(this);
+        var $oldFilesRow = $icon.closest('tr').next('.old-files');
+
+        if ($oldFilesRow.length > 0) {
+            $oldFilesRow.toggle();
+            $icon.text($oldFilesRow.is(':visible') ? '▼' : '▶');
+        }
+    });
+
+    // Global Toggle for All Old Files (Optional)
+    $(document).on('click', '#toggleOldFiles', function () {
+        // debugger;
+        $(".old-files").toggle();
+        $("#toggleIcon").text($(".old-files").is(":visible") ? "▲" : "▼");
+    });
+
+
+    //// Toggle Old Revisions
+    //$("#toggleOldFiles").click(function () {
+    //    $("#oldRevisionsSection").slideToggle();
+    //    $("#toggleIcon").text($("#oldRevisionsSection").is(":visible") ? "▲" : "▼");
+    //});
+
+
+</script>

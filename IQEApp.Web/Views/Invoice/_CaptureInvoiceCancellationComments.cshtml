@@ -1,0 +1,48 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.InvoiceModel.InvoiceViewModel
+
+<div>
+@using (Ajax.BeginForm("CancelInvoice", "Invoice",
+    new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnBegin = "beginProgressBar",
+        OnSuccess = "onCancellationSuccess",
+    }))
+{
+        @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row mt10">
+                <div class="col-sm-10 col-md-10 col-lg-10 bg">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.CancellationComments, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.CancellationComments, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.CancellationComments) })
+                        @Html.ValidationMessageFor(m => m.CancellationComments)
+                    </div>
+                </div>
+                @Html.HiddenFor(m=>m.InvoiceGuid)
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @*<button type='button' class="btn btn-secondary pull-right" id="btnCancelCancellationComments" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript:;"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>*@
+                    <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveCancellationComments" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                </div>
+            </div>
+}
+</div>
+<script>
+    function onCancellationSuccess(response) {
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            $("#ModalPopUpCloseBtn").click();
+            // need to refresh the list
+            window.FilterInvoiceDirectory(function (status, newclass) {
+                //call any call back function if u want to call
+            }, { backToFirstPage: false });
+        }
+        else {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+        }
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+    }
+</script>

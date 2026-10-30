@@ -1,0 +1,31 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ServiceOrderModel.ServiceOrderDetailsModel
+
+@{
+    ViewBag.Title = "CreateServiceOrder";
+   }
+
+
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h3 class="box-title"> <span id="spnSOHeadTitle">Sales &#8667; Add SO Existing CNo</span></h3>
+        </div>
+      
+    </div>
+    <div id="divSOLoadingIconId"></div>
+    <div class="clearfix"></div>
+    <div id="divAddOrUpdateServiceOrder" class="">
+    </div>
+    
+    <div class="clearfix"></div>
+    <div id="divServiceOrders">
+     
+        <div id="divSODetails" class="">
+            @Html.Partial("_AddServiceOrderExistingCNo", Model)
+        </div>
+        <p class="JsListGridPager pull-right" id="ServiceOrderPager"></p>
+    </div>
+</div>
+
+

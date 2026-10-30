@@ -1,0 +1,593 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.InvoiceModel.InvoicePrintModel
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+
+    <style type="text/css">
+        .invoice-box {
+            width: 100%;
+            padding-left: 0px;
+            font-size: 14px;
+            line-height: 24px;
+            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+            color: #555;
+        }
+
+        .invoice-box table {
+            width: 95%;
+            line-height: inherit;
+            text-align: left;
+        }
+        
+        .invoice-box table td {
+            padding: 4px;
+            vertical-align: top;
+        }
+        .invoice-box table tr td:nth-child(2) {
+            text-align: right;
+        }
+
+        .invoice-box table tr.top table td {
+            padding-bottom: 15px;
+        }
+
+            .invoice-box table tr.top table td.title {
+                font-size: 45px;
+                line-height: 45px;
+                color: #333;
+            }
+
+        
+        .invoice-box table tr.heading td {
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+
+        .invoice-box table tr.details td {
+            padding-bottom: 15px;
+        }
+
+        .invoice-box table tr.item td {
+            border-bottom: 1px solid #eee;
+        }
+
+        .invoice-box table tr.item.last td {
+            border-bottom: none;
+        }
+
+        .invoice-box table tr.total td:nth-child(2) {
+            border-top: 2px solid #eee;
+            font-weight: bold;
+        }
+
+        .billing table tr td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        .individual table tr td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        .page {
+            -webkit-transform: rotate(-90deg);
+            -moz-transform: rotate(-90deg);
+            filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+        }
+
+        .font10 {
+            font-size: 10px;
+        }
+       
+        .font11 {
+            font-size: 11px;
+        }
+
+        .font12 {
+            font-size: 12px;
+        }
+
+        .font13 {
+            font-size: 13px;
+        }
+
+        .font14 {
+            font-size: 14px;
+        }
+
+        .font15 {
+            font-size: 15px;
+        }
+
+        .font20 {
+            font-size: 20px;
+        }
+
+        .p0 {
+            padding: 0px;
+        }
+
+        .p5 {
+            padding: 5px;
+        }
+
+        .invoice-box, table {
+            page-break-inside: auto
+        }
+
+        .invoice-box, tr {
+            page-break-inside: avoid;
+        }
+
+       
+        hr.class-1 {
+            margin: 2px 0 !important;
+            padding: 0;
+            height: 1px;
+            line-height: 1px;
+            border: 0;
+            border-top: 1px solid thin;
+            background: #ccc;
+        }
+
+        .invoice-ann-box,
+        .invoice-ann-box td,
+        .invoice-ann-box div,
+        .invoice-ann-box span {
+            line-height: 1px !important;
+        }
+
+    </style>
+</head>
+<body>
+    <table style="width: 100%">
+        <tr>
+            <td valign="top" style="width: 50%">
+                <div style="float: left;">
+                    <img style="float: left;height:100px;" src=@Server.MapPath("~/Images/IQElogo2.png") />
+                </div>
+            </td>
+            <td valign="top" style="width: 20%">
+                <b>  </b>
+            </td>
+            <td valign="top" style="width: 30%;">
+                <div class="font20" style="float: right; padding-right: 98px; "><b>Tax Invoice</b> </div>
+                <span><br /></span>
+                <div class="font14" style="float: right; padding-right: 40px; ">
+                    Invoice No: @Model.InvoiceDetails.InvoiceNo<br />
+                    Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: @Model.InvoiceDetails.InvoiceDate.GetConvertedShortDate()
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" style="width: 50%">
+                <span class="font12">
+                    Flat No. 302, Plot No. 410, Mathrusri Nagar, <br />
+                    Miyapur, Hyderabad - 500 049.<br />
+                    Ph: 040-48543475, Mobile:09542028555
+                </span>
+            </td>
+            <td valign="top" style="width: 50%"></td>
+        </tr>
+        <tr>
+            <td valign="top" style="width: 70%">
+                <span><br /></span>
+                <span class="font13"><b>Addressee Name :</b></span> <span class="font13"> @Model.InvoiceDetails.ClientContactName</span><br />
+                <span class="font13"><b>Supplier  :</b></span><span class="font13"> @Model.InvoiceDetails.ManufacturerName </span><br />
+                <span class="font13"><b>Address :</b></span> <span class="font13"> @Model.InvoiceDetails.ClientContactAddress </span> <br />
+                <span class="font13"><b>GSTIN :</b></span>
+                @if (Model.InvoiceDetails.ClientGSTNo == null)
+                {
+                    <span class="font13">N/A</span>
+                }
+                else
+                {
+                    <span class="font13">@Model.InvoiceDetails.ClientGSTNo</span>
+                }
+            </td>
+            <td valign="top" style="width: 60%"></td>
+        </tr>
+        <tr>
+            <td colspan="3" valign="top" style="white-space: nowrap;">
+                <br />
+                <span class="font13">Reference : SO No:&nbsp;@Model.InvoiceDetails.SONumber;&nbsp;Date:&nbsp;@Model.InvoiceDetails.SODate.GetConvertedShortDate()</span><br />
+                <span class="font13">Subject : </span> <span class="font13">@Model.InvoiceDetails.Subject</span>
+            </td>
+            <td></td>
+        </tr>
+    </table>
+
+    <br />
+    <br />
+    <div style="padding-top: 5px">
+        <div class="invoice-box p5">
+            <div class="billing p0">
+                <table style="border: 1px solid #333333; border-collapse: collapse">
+                    <tr style="align-items: center">
+                        <td style="width: 6%" class="font12"><b>SI.NO</b></td>
+                        <td style="width: 16%" class="font12"><b>Category</b></td>
+                        <td style="width: 30%" class="font12"><b>Description</b></td>
+                        <td style="width: 6%" class="font12"><b>UOM</b></td>
+                        <td style="width: 20%" class="font12">
+                            <b>
+                                @if (@Model.InvoiceDetails.Currency == "USD")
+                                {
+                                    <span>Rate in $</span>
+                                }
+                                else
+                                {
+                                    <span>Rate in Rs.</span>
+                                }
+                            </b>
+                        </td>
+                        <td style="width: 15%" class="font12">
+                            <b>
+                                @if (@Model.InvoiceDetails.Currency == "USD")
+                                {
+                                    <span>Amount in $</span>
+                                }
+                                else
+                                {
+                                    <span>Amount in Rs.</span>
+                                }
+
+                            </b>
+                        </td>
+                    </tr>
+                    @{
+                        foreach (var consolidatedDetails in Model.LstInvoiceConsolidatedDetails)
+                        {
+                            <tr>
+                                <td style="width: 6%" class="font12">@consolidatedDetails.SNo</td>
+                                <td style="width: 16%" class="font12">@consolidatedDetails.Category</td>
+                                <td style="width: 30%" class="font12">@consolidatedDetails.Description</td>
+                                <td style="width: 6%" class="font12">@(consolidatedDetails.Category != "Service Charges" ? "--" : consolidatedDetails.UOM.ToString("N"))</td>
+                                <td style="width: 20%" class="font12"><div style="float: right;">@(consolidatedDetails.Rate == 0 ? "--" : consolidatedDetails.Rate.ToString("N"))</div></td>
+                                <td style="width: 15%" class="font12"><div style="float: right;">@(consolidatedDetails.Amount == 0 ? "--" : consolidatedDetails.Amount.ToString("N")) </div></td>
+                            </tr>
+                        }
+                    }
+                    @*<tr>
+                        <td></td>
+                        <td colspan="3" style="text-align: left"><span class="font12">Encl: @Model.InvoiceDetails.LstVisitProcessings.Count Inspection Report & Annexure</span></td>
+                        <td></td>
+                        <td></td>
+                    </tr>*@
+                    <tr>
+                        <td rowspan="7" colspan="4">
+                            <span class="font12">
+                                Encl:  @Model.InvoiceDetails.Encl <br />
+                                PAN No : AABCI9396M<br />
+                                GSTIN : 36AABCI9396M1ZS<br />
+                                Taxable Services : Technical Testing And Analysis Services<br />
+                                Service Accounting Code : 998346<br />
+                            </span>
+                            <br />
+                            <span class="font13"><b>Name and Address of Bank :</b> </span> <span class="font13">State Bank of India</span><br />
+                            <span class="font12">Matrusri Nagar Branch, Hyderabad - 500049</span> <br />
+                            <span class="font13">Bank Account Number : </span><span class="font13">62084364436</span><br />
+                            <span class="font13">Bank Branch MICR Code : </span><span class="font13">500002404</span><br />
+                            <span class="font13">Bank IFSC Code : </span><span class="font13">SBIN0040950</span><br />
+                            <br />
+                            <span class="font13">In Words : </span>
+
+                            @if (@Model.InvoiceDetails.Currency == "USD")
+                            {
+                                <span class="font12"><b>USD &nbsp;@Model.InvoiceDetails.TotalInWords</b></span>
+                            }
+                            else
+                            {
+                                <span class="font12"><b>Rupees&nbsp;@Model.InvoiceDetails.AmountInWords</b></span>
+                            }
+                            <br />
+                            <span class="font13">Make all cheques payable to "Ideal Quality Engineers (I) Pvt.Ltd."</span>
+                        </td>
+                        <td><span class="font12"><b>SUBTOTAL</b></span></td>
+                        <td><div class="font12" style="float: right;">@(Model.InvoiceDetails.TotalAmount ==0 ? "--" : Model.InvoiceDetails.TotalAmount.ToString("N")) </div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="font12"><b>CGST&nbsp;@Model.InvoiceDetails.CGSTPercentage%</b></span></td>
+                        <td><div class="font12" style="float: right;">@Model.InvoiceDetails.CGST</div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="font12"><b>SGST&nbsp;@Model.InvoiceDetails.SGSTPercentage%</b></span></td>
+                        <td><div class="font12" style="float: right;">@Model.InvoiceDetails.SGST</div></td>
+                    </tr>
+                    <tr>
+                        <td><span class="font12"><b>IGST&nbsp;    @Model.InvoiceDetails.IGSTPercentage% </b></span></td>
+                        <td><div class="font12" style="float: right;">@(Model.InvoiceDetails.IGST ==0 ? "--" : Model.InvoiceDetails.IGST.ToString("N"))</div></td>
+                    </tr>
+                    @if (@Model.InvoiceDetails.Currency == "USD")
+                    {
+                        <tr>
+                            <td><span class="font12"><b>TOTAL in $. </b></span></td>
+                            <td><div class="font12" style="float: right;">@Model.InvoiceDetails.TotalAmount</div></td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td><span class="font12"><b>TOTAL in Rs. </b></span></td>
+                            <td><div class="font12" style="float: right;">@(Model.InvoiceDetails.GrandTotalAmount ==0 ? "--" : Model.InvoiceDetails.GrandTotalAmount.ToString("N"))</div></td>
+                        </tr>
+                    }
+
+                    @if (@Model.InvoiceDetails.Currency == "USD")
+                    {
+                        <tr>
+                            <td><span class="font12"><b>Round Off Total in $ </b></span></td>
+                            <td><div class="font12" style="float: right;">@Model.InvoiceDetails.TotalAmount</div></td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td><span class="font12"><b>Round Off Total in Rs. </b></span></td>
+                            <td><div class="font12" style="float: right;">@(Model.InvoiceDetails.GrandTotalAmount ==0 ? "--" : Model.InvoiceDetails.GrandTotalAmount.ToString("N"))</div></td>
+                        </tr>
+                    }
+                    <tr>
+                        <td colspan="2" rowspan="10" style="height: 300px; vertical-align:bottom; text-align: center" ;>
+                            <span> <b class="font15">Authorized Signatory</b> </span>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+        <div style="page-break-before:always">&nbsp;</div>
+
+
+        <div>
+            <table style="width: 98%; border: none; repeat-header: yes; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <td valign="top" style="width: 30%;">
+                            <img src="@Server.MapPath("~/Images/IQElogo2.png")" style="float:left; height:45px;" />
+                        </td>
+
+                        <td valign="top" style="width: 40%; text-align: center;">
+                            <label class="font16" style="padding-left:50px;">
+                                <b>Annexure</b>
+                            </label>
+                        </td>
+
+                        <td valign="top" style="width: 30%; padding: 4px;">
+                            <table style="width:100%;  border-collapse:collapse; table-layout:fixed;">
+                                <tr>
+                                    <td class="font12"
+                                        style="width:34%; font-weight:bold; text-align:left; white-space:nowrap; padding-left:6px;">
+                                        Supplier Name
+                                    </td>
+
+                                    <td class="font12"
+                                        style="width:2%; text-align:center;">
+                                        :
+                                    </td>
+
+                                    <td class="font12"
+                                        style=" width:63%; text-align:left; padding-left:4px;">
+                                        @Model.InvoiceDetails.ManufacturerName
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="font12"
+                                        style="font-weight:bold; text-align:left; white-space:nowrap; padding-left:6px;">
+                                        Reference
+                                    </td>
+
+                                    <td class="font12"
+                                        style=" text-align:center;">
+                                        :
+                                    </td>
+
+                                    <td class="font12"
+                                        style=" text-align:left; padding-left:4px;">
+                                        Invoice No: @Model.InvoiceDetails.InvoiceNo
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="font12"
+                                        style=" font-weight:bold; text-align:left; white-space:nowrap; padding-left:6px;">
+                                        Date
+                                    </td>
+
+                                    <td class="font12"
+                                        style=" text-align:center;">
+                                        :
+                                    </td>
+
+                                    <td class="font12"
+                                        style=" text-align:left; padding-left:4px;">
+                                        @Model.InvoiceDetails.InvoiceDate.GetConvertedShortDate()
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </thead>
+                <tr>
+                    <td colspan="3">
+                        <div class="invoice-box p0">
+                            <div class="billing p0">
+                                <table class="invoice-ann-box" cellspacing="0" style="border: 1px solid #333333; border-spacing:0; border-collapse: collapse; repeat-header: yes">
+                                    <thead>
+                                        <tr>
+                                            <td style="width:5%; text-align: center; padding: 2px 2px; line-height: 14px;" class="font12"><b>S.No</b></td>
+
+                                            <td style="width:10%; text-align: center; padding: 2px 2px; line-height: 14px;" class="font12"><b>Visit Date</b></td>
+                                            <td style="width:19%; padding:2px 3px; line-height:14px; vertical-align:top;" class="font12">
+                                                <b>Supplier Name</b>
+                                                <hr style="margin-bottom: 3px; height: 1px; border: 0; border-top: 1px solid #666;" />
+                                                <b>Location</b>
+                                            </td>
+
+                                            <td style="width:12%; padding:2px 3px; line-height:14px;" class="font12">
+                                                <b>PO No</b>
+                                                <hr style="margin-bottom: 3px; height: 1px; border: 0; border-top: 1px solid #666;" />
+                                                <b>Date</b>
+                                            </td>
+
+                                            <td style="width:12%; padding:2px 3px; line-height:14px;" class="font12">
+                                                <b>Report No</b>
+                                                <hr style="margin-bottom: 2px; height: 1px; border: 0; border-top: 1px solid #666;" />
+                                                <b>Insp Name</b>
+                                            </td>
+
+                                            <td style="width:12%; padding:2px 3px; line-height:14px;" class="font12">
+                                                <b>Time In / Out</b>
+                                                <hr style="margin-bottom: 2px; height: 1px; border: 0; border-top: 1px solid #666;" />
+                                                <b>Total Hrs</b>
+                                            </td>
+
+                                            <td style="width:10%; padding:2px 3px; line-height:14px;" class="font12">
+                                                <b>Mileage</b>
+                                                <hr style="margin-bottom: 2px; height: 1px; border: 0; border-top: 1px solid #666;" />
+                                                <b>Expenses</b>
+                                            </td>
+
+                                            <td style="width:12%; padding:2px 3px; line-height:14px;" class="font12">
+                                                <b>Boarding</b>
+                                                <hr style="margin-bottom: 2px; height: 1px; border: 0; border-top: 1px solid #666;" />
+                                                <b>Travel Expenses</b>
+                                            </td>
+
+                                            <td style="width: 9%; text-align: center; padding: 2px 3px; line-height: 14px;" class="font12">
+                                                <b>Others</b>
+                                            </td>
+
+                                            <td style="width: 9%; text-align: center; padding: 2px 3px; line-height: 14px;" class="font12">
+                                                <b>Service Charge</b>
+                                            </td>
+
+                                            <td style="width: 12%; padding: 2px 2px; text-align: center; line-height: 14px;" class="font12"><b>Total</b></td>
+
+                                            <td style="width: 19%; padding: 2px 2px; text-align: center; line-height: 14px;" class="font12"><b>Remarks</b></td>
+                                        </tr>
+                                    </thead>
+
+                                    @{
+                                        int index = 1;
+                                        decimal GrandTotal = 0;
+
+                                        foreach (var visitDetails in Model.InvoiceDetails.LstVisitProcessings)
+                                        {
+                                            <tr id="@index">
+                                                <td style="width: 5%; text-align: center; font-size: 11px; vertical-align: middle;">@index</td>
+
+                                                <td style="width: 10%; text-align: center; padding: 2px 2px; line-height: 12px; font-size: 11px; vertical-align: middle;">
+                                                    @visitDetails.VisitDate.GetConvertedShortDate()
+                                                </td>
+
+                                                <td style="width: 19%; padding: 2px 3px; text-align: left; line-height:14px; vertical-align: top; font-size: 11px; min-height:36px;">
+                                                    @visitDetails.ManufacturerName
+                                                    @if (!string.IsNullOrEmpty(visitDetails.ManufacturerName) && visitDetails.ManufacturerName.Replace(" ", "").Length < 25)
+                                                    {
+                                                        <span><br />&nbsp;</span>
+                                                    }
+                                                    <hr style="margin-top: 2px; height: 1px; border: 0; border-top: 1px solid #666;" />
+                                                    @visitDetails.VisitLocation
+                                                </td>
+
+                                                <td style="width: 12%; padding: 2px 3px; line-height: 14px; text-align: left; vertical-align:top; font-size: 11px;">
+                                                    @visitDetails.PONumber
+                                                    @if (!string.IsNullOrEmpty(visitDetails.PONumber) && visitDetails.PONumber.Length < 15)
+                                                    {
+                                                        <span><br />&nbsp;</span>
+                                                    }
+                                                    <hr style="margin-top: 2px; height: 1px; border: 0; border-top: 1px solid #666; " />
+                                                    @visitDetails.PODate.GetConvertedShortDate()
+                                                </td>
+
+                                                <td style="width: 12%; padding: 2px 3px; line-height: 14px; font-size: 11px; text-align: left">
+                                                    @visitDetails.InspReportNo
+                                                    <hr style="margin-top: 2px; height: 1px; border: 0; border-top: 1px solid #666; " />
+                                                    @visitDetails.InspectorName
+                                                </td>
+
+                                                <td style="width: 8%; padding: 2px 3px; line-height: 14px; font-size: 11px; text-align: center">
+                                                    @visitDetails.TimeIn.ToShortTimeString() &nbsp;/ @visitDetails.TimeOut.ToShortTimeString()
+                                                    <span><br />&nbsp;</span>
+                                                    <hr style="margin-top: 3px; height: 1px; border: 0; border-top: 1px solid #666; " />
+                                                    @visitDetails.TotalHrs
+                                                </td>
+
+                                                <td style="width: 10%; padding: 2px 3px; line-height: 14px; font-size: 11px; text-align: right">
+                                                    @(visitDetails.Distance == 0 ? "--" : visitDetails.Distance.ToString("N"))
+                                                    <span><br />&nbsp;</span>
+                                                    <hr style="margin-top: 2px; height: 1px; border: 0; border-top: 1px solid #666; " />
+                                                    @(visitDetails.MileageCost == 0 ? "--" : visitDetails.MileageCost.ToString("N"))
+                                                </td>
+                                                <td style="width: 9%; padding: 2px 3px; line-height: 14px; font-size: 11px; text-align: right">
+                                                    @(visitDetails.FoodAllowance == 0 ? "--" : visitDetails.FoodAllowance.ToString("N"))
+                                                    <span><br />&nbsp;</span>
+                                                    <hr style="margin-top: 2px; height: 1px; border: 0; border-top: 1px solid #666; " />
+                                                    @(visitDetails.TravelFare == 0 ? "--" : visitDetails.TravelFare.ToString("N"))
+                                                </td>
+
+                                                <td style="width: 9%; padding: 2px 3px; line-height: 14px; font-size: 11px; vertical-align: middle; text-align: right">
+                                                    @(visitDetails.OtherExpenses == 0 ? "--" : visitDetails.OtherExpenses.ToString("N"))
+                                                </td>
+
+                                                <td style="width: 9%; padding: 2px 3px; line-height: 14px; font-size: 11px; vertical-align: middle; text-align: right">
+                                                    @(visitDetails.ServiceCharge == 0 ? "--" : visitDetails.ServiceCharge.ToString("N"))
+                                                </td>
+
+                                                <td style="width: 12%; padding: 2px 3px; line-height: 14px; font-size: 11px; vertical-align: middle; text-align: right;">
+                                                    @(visitDetails.Total == 0 ? "--" : visitDetails.Total.ToString("N"))
+                                                </td>
+
+                                                <td style="width:19%; padding:2px 2px; line-height:12px;font-size: 11px; vertical-align: middle; text-align: left;">
+                                                    @visitDetails.Remarks
+                                                </td>
+                                            </tr>
+
+                                            index++;
+                                            GrandTotal += visitDetails.Total;
+                                        }
+                                    }
+
+                                    <tr>
+                                        <td colspan="10" align="right" class="font13">
+                                            <div style="float: left;">
+                                                <b>Grand Total&nbsp;</b>
+                                                <b>
+                                                    @if (@Model.InvoiceDetails.Currency == "USD")
+                                                    {
+                                                        <span>($) </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span> (INR) </span>
+                                                    }
+                                                </b>
+                                             </div>
+                                        </td>
+                                        <td class="font13">
+                                            <div style="float: right;">
+                                                <b>
+                                                    @(GrandTotal.ToString("N") == "0" ? "--" : GrandTotal.ToString("N"))
+                                                </b>
+                                            </div>
+                                        </td>
+                                        <td></td>
+
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+    </div>
+</body>
+</html>

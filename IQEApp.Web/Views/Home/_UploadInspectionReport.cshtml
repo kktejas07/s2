@@ -1,0 +1,276 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.HomeModel.InspectionReportViewModel
+
+@*<script src="~/Content/plugins/Calendar/js/moment.min.js"></script>
+    <script src="~/Content/plugins/Calendar/pg-calendar/dist/js/pignose.calendar.min.js"></script>*@
+<!-- Moment.js (required by bootstrap-datetimepicker) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+<!-- Bootstrap 3 DateTimePicker -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+<style>
+    .insp-required {
+        border: 1px solid #dc3545;
+        background-color: #fff5f5;
+    }
+
+</style>
+<div>
+    <section id="UploadInspectionReport">
+        @using (Ajax.BeginForm("SubmitUploadInspectionReport", "Home", FormMethod.Post,
+        new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnBegin = "beginProgressBar",
+            OnSuccess = "onSuccessUploadQuation",
+        }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+                @*<div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        @Html.LabelFor(m => , new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.EnquiryID, new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.EnquiryID) })
+                        <span id="spnClientIdValidation" class="error" style="display: none;"></span>
+                    </div>*@
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.VisitSeqID, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.VisitId, new { @style = "display:none;" })
+                    @Html.TextBoxFor(m => m.VisitSeqID, new { @class = "form-control dropDownStyle width:50px;", @readonly = "readonly", @placeholder = @Html.DisplayNameFor(model => model.VisitSeqID) })
+                    <span id="spnClientUnitIdValidation" class="error" style="display: none;"></span>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.InspReportDate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.InspReportDate, new{ @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat),
+                                     @Value = Model.InspReportDate.HasValue ? Model.InspReportDate.Value.ToShortDateString() : "" })
+
+                    <span id="spnServiceOrderValidation" class="error" style="display: none;"></span>
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-12">
+                    <table class="table table-bordered table-sm table-fixed-header" id="poItemDetailsTable">
+                        <thead class="thead-dark" style="position: sticky; top: 0; background-color: #fff; z-index: 1;">
+                            <tr>
+                                <th>PO Number</th>
+                                <th>InspReport No</th>
+                                <th>Upload File(s)</th>
+                                <th>Visit From</th>
+                                <th>Visit To</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poDetailBody">
+                            @for (int i = 0; i < Model.LstPONumbers.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.HiddenFor(m => m.LstPONumbers[i].POItemId)
+                                        @Html.HiddenFor(m => m.LstPONumbers[i].PONId)
+                                        @Html.TextBoxFor(m => m.LstPONumbers[i].PONumber,
+                                            new { @class = "form-control", @readonly = "readonly" })
+                                    </td>
+
+                                    <td>
+                                        @Html.HiddenFor(m => m.LstPONumbers[i].BaseInspReportNo,
+                                            new { @class = "base-insp-no" })
+
+                                        @Html.TextBoxFor(m => m.LstPONumbers[i].InspReportNo,
+                                            new
+                                            {
+                                                @class = "form-control insp-suffix-input insp-required",
+                                                @placeholder = "Append (eg: 01)",
+                                                @Value = Model.LstPONumbers[i].BaseInspReportNo
+                                            })
+
+                                        <small class="text-danger insp-hint">
+                                            Please append suffix
+                                        </small>
+                                    </td>
+
+                                    <td>
+                                        <!-- Upload New Files -->
+                                        <input type="file"
+                                               name="LstPONumbers[@i].UploadFiles"
+                                               multiple
+                                               class="form-control"
+                                               style="max-width:200px;" />
+
+                                        @if (!string.IsNullOrEmpty(Model.LstPONumbers[i].FileName))
+                                        {
+                                            var files = Model.LstPONumbers[i].FileName
+                                                            .Split(';')
+                                                            .Select(f => f.Trim())
+                                                            .Where(f => !string.IsNullOrEmpty(f))
+                                                            .ToList();
+
+                                            foreach (var file in files)
+                                            {
+                                                <div class="input-group mb-2 file-container"
+                                                     data-file-name="@file">
+
+                                                    <input type="text"
+                                                           value="@file"
+                                                           class="form-control add-existing-sofile"
+                                                           style="max-width:220px;"
+                                                           readonly />
+
+                                                    <input type="hidden"
+                                                           name="LstPONumbers[@i].ExistingFiles"
+                                                           value="@file" />
+
+                                                    <input type="hidden"
+                                                           name="LstPONumbers[@i].RemovedFiles"
+                                                           id="RemovedFiles_@i"
+                                                           value="" />
+
+                                                    <div class="input-group-append">
+                                                        <button type="button"
+                                                                class="btn btn-outline-danger btn-sm"
+                                                                title="Remove file"
+                                                                onclick="removeFile('@file', '@i')">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @Html.TextBoxFor(m => m.LstPONumbers[i].VisitedFrom,
+                                            new { @class = "form-control datetimepicker", @placeholder = "dd/mm/yyyy hh:mm" })
+                                    </td>
+
+                                    <td>
+                                        @Html.TextBoxFor(m => m.LstPONumbers[i].VisitedTo,
+                                            new { @class = "form-control datetimepicker", @placeholder = "dd/mm/yyyy hh:mm" })
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                    <div class="row mb-9">
+                    </div>
+                    <div class="row mb-3">
+                        <input type="submit" id="btnUpload" value="Upload" class="btn btn-success pull-right mr5" disabled />
+                        <span id="spnFromDateValidation" class="error" style="display: none;"></span>
+                    </div>
+                </div>
+            </div>
+            @*<div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCloseAddEnquiry" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: enquiryList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnUpdateEnquiry" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+                </div>*@
+        }
+    </section>
+</div>
+<script type="text/javascript">
+    $.validator.unobtrusive.parse(document);
+
+</script>
+
+<script>
+
+    $(document).on('keyup change', '.insp-suffix-input', function () {
+
+        let allValid = true;
+
+        $('.insp-suffix-input').each(function () {
+
+            let $input = $(this);
+            let base = $input.closest('td').find('.base-insp-no').val() || '';
+            let fullVal = ($input.val() || '').trim();
+
+            // Remove base part if user pasted full value
+            let suffix = fullVal.replace(base, '').trim();
+
+            if (suffix.length === 0) {
+                allValid = false;
+                $input.addClass('is-invalid');
+                $input.closest('td').find('.insp-hint').show();
+            } else {
+                $input.removeClass('is-invalid');
+                $input.closest('td').find('.insp-hint').hide();
+            }
+        });
+
+        $('#btnUpload').prop('disabled', !allValid);
+    });
+
+
+    $(document).on("click", "#Upload", function (event) {
+        event.preventDefault();
+        var fileOptions = {
+            success: res,
+            dataType: "json"
+        }
+        $("#formid").ajaxSubmit(fileOptions);
+    });
+
+    $(function () {
+        $("#InspReportDate").datepicker({ dateFormat: "dd/mm/yy" });
+
+        $(".datepicker").datepicker({ dateFormat: "dd/mm/yy" });
+        $('.datetimepicker').datetimepicker({
+            format: 'DD/MM/YYYY HH:mm'  // <-- this is correct
+        });
+    });
+
+    function getFormattedDate(date) {
+        var day = date.getDate();
+        var month = date.getMonth() + 1;
+        var year = date.getFullYear().toString().slice(2);
+        return day + '-' + month + '-' + year;
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnUpdateEnquiry").prop('disabled', true);
+    }
+    function onSuccessUploadQuation(data) {
+        if (data.status) {
+            alert('Inspection Report Uploaded Successfully');
+            //  location.reload();
+            location.reload();
+        }
+        else {
+           // alert('There is an error while Uploading the quoation');
+            alert(data.message);
+        }
+        @*var selectedWorkScopeIds = [];
+        $('.jsWorkScopeId').each(function (index, element) {
+            if ($(element).is(":checked")) {
+                selectedWorkScopeIds.push($(element).val());
+            }
+        });
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UploadedSuccess");
+        } else {
+            if (data.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UploadedFailed");
+            }
+            $("#btnUpdateEnquiry").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+        }*@
+    }
+
+    function removeFile(fileName, index) {
+        // mark this file as removed
+        var removed = document.getElementById("RemovedFiles_" + index);
+        removed.value = fileName;
+
+        // remove UI
+        document.querySelector("[data-file-name='" + fileName + "']").remove();
+    }
+
+</script>

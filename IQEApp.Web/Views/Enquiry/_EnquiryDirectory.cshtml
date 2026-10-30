@@ -1,0 +1,1413 @@
+﻿@using GridMvc.Html
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IQEApp.Web.Models.EnquiryModel.EnquiryListViewModel
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<link href="~/Content/Site.css" rel="stylesheet" />
+@{
+    var roleId = ViewBag.RoleId ?? 0;
+}
+<style>
+    #Enquirytable th {
+        font-weight: 700;
+        padding: 5px 8px; /* Reduce padding */
+        line-height: 1; /* Adjust line height */
+        /*font-size: 12px;*/ /* Adjust font size */
+        vertical-align: middle; /* Ensure content is vertically aligned */
+        font-family: Arial;
+        font-size: 9.5pt;
+        white-space: nowrap;
+    }
+
+    .table-categories {
+        margin-bottom: 0 !important; /* already mb-0, reinforce it */
+        border-collapse: collapse; /* remove space between borders */
+        table-layout: fixed; /* columns fixed */
+        width: 100%;
+    }
+
+        /* remove default Bootstrap cell padding */
+        .table-categories td,
+        .table-categories th {
+            padding: 2px 4px !important; /* reduce padding dramatically */
+            line-height: 1.2; /* tighten vertical spacing */
+            vertical-align: middle; /* keep content centered */
+        }
+
+    .tooltip-remarks, .tooltip-enquirydetails, .tooltip-location, .tooltip-scope {
+        position: absolute;
+        z-index: 9999;
+        background: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        max-width: 300px;
+        word-wrap: break-word;
+        display: none;
+        white-space: normal;
+    }
+
+    ul {
+        position: relative;
+        left: -14px;
+    }
+
+    body {
+        font-family: Arial;
+        font-size: 9.5pt;
+    }
+
+    .fa-folder {
+        color: #ffbb33; /* Yellow color */
+    }
+
+    .rotate {
+        transform: scale(-1);
+        writing-mode: vertical-rl;
+        overflow: visible;
+    }
+
+    #Enquirytable,
+    #Enquirytable .table-categories {
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        /* Define widths for each column to align with header */
+        #Enquirytable th:nth-child(1),
+        #Enquirytable td:nth-child(1) {
+            width: 13%;
+        }
+        /* Enquiry No */
+        #Enquirytable th:nth-child(2),
+        #Enquirytable td:nth-child(3) {
+            width: 10%;
+        }
+        #Enquirytable th:nth-child(3),
+        #Enquirytable td:nth-child(4) {
+            width: 8%;
+        }
+       
+        #Enquirytable th:nth-child(4),
+        #Enquirytable td.details-col {
+            width: 10%;
+        }
+
+        #Enquirytable th:nth-child(5),
+        #Enquirytable td.scope-col {
+            width: 9%;
+            /*white-space: nowrap;
+            overflow:hidden;
+            text-overflow: ellipsis;*/
+        }
+
+        #Enquirytable th:nth-child(6),
+        #Enquirytable td.location-col
+        {
+            width: 9%;
+        }
+
+        #Enquirytable th:nth-child(7),
+        #Enquirytable td.uom-col {
+            width: 6%;
+        }
+
+        #Enquirytable th:nth-child(8),
+        #Enquirytable td.qty-col {
+            width: 4%;
+        }
+
+        #Enquirytable th:nth-child(9),
+        #Enquirytable td.remarks-col {
+            width: 9%;
+        }
+
+        #Enquirytable th:nth-child(10),
+        #Enquirytable td.quotation-col {
+            width: 18%;
+        }
+
+        /* Quotation number/date */
+        #Enquirytable th:nth-child(11),
+        #Enquirytable td.file-col
+        {
+            width: 3%;
+        }
+        #Enquirytable th:nth-child(12),
+        #Enquirytable td.owner-col {
+            width: 8%;
+        }
+        #Enquirytable th:nth-child(13),
+        #Enquirytable td.status-col {
+            width: 7%;
+        }
+
+        /* Proposals */
+        #Enquirytable th:nth-child(14),
+        #Enquirytable td:nth-child(14) {
+            width: 3%;
+        }
+    .rotate {
+        transform: scale(-1);
+        writing-mode: vertical-rl;
+        overflow: visible;
+        /*white-space: nowrap;*/
+    }
+  
+    /* Actions */
+    /* Nested category table styling */
+    /*.table-categories td {
+        border: none;
+        padding: 4px;
+        font-size: 0.9em;
+    }
+
+    .category-details {
+        background-color: #f9f9f9;
+    }*/
+
+    .table-sm th,
+    .table-sm td {
+        vertical-align: middle;
+        text-align: left;
+    }
+
+    .latest-file td,
+    .old-file-row td {
+        padding: 6px 8px !important;
+    }
+
+    .old-file-row {
+        font-size: 0.95em;
+    }
+
+</style>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Sales &#8667; Enquiry & Proposal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <div>
+        <table cellpadding="0" cellspacing="0" class="center" id="Enquirytable">
+            <thead>
+                <tr>
+                    <th colspan="2" style="text-align:center">@Html.Label("Enquiry")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Customer Name")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Category")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Item Description")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Scope")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Location")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("UOM")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Qty")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Remarks")</th>
+                    <th colspan="2" style="text-align:center">@Html.Label("Quotation")</th>
+                    @if (ViewBag.RoleId == 1 || ViewBag.RoleId == 2)
+                    {
+                        <th rowspan="2" style="text-align:center" class="rotate">@Html.Label("Proposals")</th>
+                    }
+                    <th rowspan="2" style="text-align:center">@Html.Label("Owner")</th>
+                    <th rowspan="2" style="text-align:center">@Html.Label("Status")</th>
+                    <th rowspan="2" style="text-align:center">&nbsp;</th>
+                </tr>
+                <tr>
+                    <th>@Html.Label("No")</th>
+                    <th>@Html.Label("Date")</th>
+                    <th>@Html.Label("Number")</th>
+                    <th>@Html.Label("Date")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var enquiry in Model.Enquiries)
+                {
+                    var categories = enquiry.LstEnquiryCategoryModel.ToList();
+                    var firstCat = categories.Count > 0 ? categories[0] : null;
+                    var extraCats = categories.Count > 1 ? categories.Skip(1).ToList() : null;
+
+
+                    <tr class="main-row">
+                        <td>@enquiry.EnquiryID
+                          <input type="hidden" class="enquiryID" id="enquiryID" value="@enquiry.EnquiryID" />
+                          <input type="hidden" class="eID" id="eID" value="@enquiry.EID" /></td>
+                        <td>@(enquiry.EnquiryDate.HasValue ? enquiry.EnquiryDate.Value.ToShortDateString() : "")</td>
+                        <td>@enquiry.ClientName</td>
+                        <td>@enquiry.EnquiryCategoryName</td>
+                        <td colspan="6" class="p-0">
+                            <div class="category-details d-none mt-2" id="cat-@enquiry.EnquiryID">
+                                <table class="table table-categories table-bordered mb-0">
+                                    <tbody>
+                                        @if (firstCat != null)
+                                        {
+                                            <tr>
+                                                <td class="details-col">@(firstCat != null ? firstCat.Details : "")</td>
+                                                <td class="scope-col">@(firstCat != null ? firstCat.Scope : "")</td>
+                                                <td class="location-col">@(firstCat != null ? firstCat.Location : "")</td>
+                                                <td class="uom-col">@(firstCat != null ? firstCat.UOMName : "")</td>
+                                                <td class="qty-col">@(firstCat != null ? firstCat.Qty.ToString() : "")</td>
+                                                <td class="remarks-col">@(firstCat != null ? firstCat.Remarks : "")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                @if (extraCats != null)
+                                {
+                                    <div class="category-wrapper">
+                                        <a href="#" class="view-categories" data-id="@enquiry.EnquiryID" data-state="collapsed"
+                                           data-cats='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(extraCats).Replace("'", "&#39;"))'>
+                                            <i class="fa fa-plus-square"></i> View @extraCats.Count Categories
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+
+
+                        <td class="quotation-col">@enquiry.QuotationNo</td>
+                        <td class="quotation-date">
+                            @if (enquiry.QuotationDate == @DateTime.MinValue)
+                            {
+                            }
+                            else
+                            {
+                                @(enquiry.QuotationDate.HasValue ? enquiry.QuotationDate.Value.ToShortDateString() : "")
+                            }
+                        </td>
+
+                        @if (ViewBag.RoleId == 1 || ViewBag.RoleId == 2)
+                        {
+                            <td class="file-col" style="text-align: center;">
+                                @enquiry.FileName
+                            </td>
+                        }
+                        <td class="owner-col">@enquiry.ProposalOwner</td>
+                        <td class="status-col">@enquiry.SubmitStatus</td>
+                        <td>
+                            <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                                @if (enquiry.IsEnquiryActive)
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="enquiryDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            @if (enquiry.SubmitStatus == "Not-Approved" || enquiry.SubmitStatus == "Declined")
+                                            {
+                                                <li>
+                                                    <a href="javascript:ActiveInActiveEnquiryStatus('@enquiry.EnquiryID',false);">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Enquiry
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (enquiry.SubmitStatus == "On-Hold")
+                                            {
+                                                <li>
+                                                    <a href="javascript:ActiveInActiveEnquiryStatus('@enquiry.EnquiryID',false);">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Enquiry
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:EditEnquiry('@enquiry.EID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Resume
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if ((!enquiry.QuotationStatusFlag || ViewBag.RoleId == 1 && !(enquiry.SubmitStatus == "On-Hold")) && (enquiry.SubmitStatus != "Deny"))
+                                            {
+                                                <li>
+                                                    <a href="javascript:EditEnquiry('@enquiry.EID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Edit Enquiry
+                                                    </a>
+                                                </li>
+                                            }
+
+                                            @if ((!enquiry.QuotationStatusFlag || @enquiry.SubmitStatus == "Re-Quote") && (enquiry.SubmitStatus != "Deny"))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UploadQuation('@enquiry.EnquiryID', '@enquiry.EID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Upload Quotation
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a href="javascript:DenyEnquiry('@enquiry.EnquiryID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Deny Enquiry
+                                                    </a>
+                                                </li>
+                                            }
+                                            else if (@enquiry.QuotationStatusFlag & (@enquiry.SubmitStatus == null | @enquiry.SubmitStatus == ""))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UpdateEnquiryStatus('@enquiry.EnquiryID');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Update Enquiry Status
+                                                    </a>
+                                                </li>
+                                            }
+                                            else if (@enquiry.QuotationStatusFlag & @enquiry.SubmitStatus == "Approved")
+                                            {
+                                                <li>
+                                                    <a href="javascript:GenerateServiceOrder(@enquiry.ClientId, '@enquiry.ClientName', @enquiry.EID);">
+                                                        <i class="fa fa-plus-circle mr20" aria-hidden="true">
+                                                        </i> New Serive Order
+                                                    </a>
+                                                </li>
+                                            }
+                                            <li>
+                                                <a href="~/Enquiry/DownloadEnquiryPDF?EnquiryId=@enquiry.EID">
+                                                    @*<a href="javascript:void(0);" onclick="javascript: PrintInvoice('@invoice.InvoiceID');">*@
+                                                    <i class="fa fa-print mr20" aria-hidden="true">
+                                                    </i> Download Enquriy
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="enquiryDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            <li>
+                                                <a href="javascript:ActiveInActiveEnquiryStatus('@enquiry.EnquiryID',true);">
+                                                    <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                    </i> Activate Enquiry
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div id="fileModal1" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="width:650px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title">Quotation Docs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="fileList1"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="fileModalLabel">Quotation Docs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul id="fileList"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="scopeModal" tabindex="-1" role="dialog" aria-labelledby="scopeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="scopeModalLabel">Full Scope</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="scopeContent"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="remarksModal" tabindex="-1" role="dialog" aria-labelledby="remarksModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="remarksModalLabel">Full Remarks</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="remarksContent"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="locationModal" tabindex="-1" role="dialog" aria-labelledby="locationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="locationModalLabel">Location</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="locationContent"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<table id="popuptable" title="Enquiry Status">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Enquiry No</th>
+
+        </tr>
+    </tbody>
+</table>
+<table id="popupenquirytable1" title="Deny Enquiry">
+    <tbody>
+        <tr style="height: 10px;">
+            <th>Enquiry No</th>
+        </tr>
+    </tbody>
+</table>
+
+
+<script type="text/javascript">
+    $(function () {
+        $(document).on('click', '.view-categories', function (e) {
+            debugger;
+            e.preventDefault();
+
+            var $link = $(this);
+            var $catDiv = $link.closest('.category-details');
+            var $tbody = $catDiv.find('table.table-categories tbody');
+
+            var dataCats = $link.attr('data-cats');
+            var cats = [];
+            try { cats = JSON.parse(dataCats); } catch (err) { cats = []; }
+
+            // If rows already appended → remove them
+            if ($tbody.find('tr.cat-extra').length > 0) {
+                $tbody.find('tr.cat-extra').remove();
+                $link.html('<i class="fa fa-plus-square"></i> View ' + cats.length + ' Categories');
+                return;
+            }
+
+            // Build the extra rows
+            var rowsHtml = "";
+            for (var i = 0; i < cats.length; i++) {
+                rowsHtml += "<tr class='cat-extra'>" +
+                    "<td class='details-col'>" + (cats[i].Details || '') + "</td>" +
+                    "<td class='scope-col'>" + (cats[i].Scope || '') + "</td>" +
+                    "<td class='location-col'>" + (cats[i].Location || '') + "</td>" +
+                    "<td class='uom-col'>" + (cats[i].UOMName || '') + "</td>" +
+                    "<td class='qty-col'>" + (cats[i].Qty || '') + "</td>" +
+                    "<td class='remarks-col'>" + (cats[i].Remarks || '') + "</td>" +
+                    "</tr>";
+            }
+
+            // Append to the existing tbody
+            $tbody.append(rowsHtml);
+            $link.html('<i class="fa fa-minus-square"></i> Hide Categories');
+        });
+    });
+
+    window.viewBagRoleId = @roleId;
+    $(document).off('click', '.expand-icon').on('click', '.expand-icon', function () {
+        // debugger;
+        var $icon = $(this);
+        var $oldFilesRow = $icon.closest('tr').next('.old-files');
+
+        if ($oldFilesRow.length > 0) {
+            $oldFilesRow.toggle();
+            $icon.text($oldFilesRow.is(':visible') ? '▼' : '▶');
+        }
+    });
+
+    // Global Toggle for All Old Files (Optional)
+    $(document).on('click', '#toggleOldFiles', function () {
+        // debugger;
+        $(".old-files").toggle();
+        $("#toggleIcon").text($(".old-files").is(":visible") ? "▲" : "▼");
+    });
+
+    function prepareEnquiryTable() {
+        const maxRemarksLength = 15;
+        const maxLocationLength = 12;
+        const maxScopeLength = 12;
+
+        $("#Enquirytable tbody tr.main-row").each(function () {
+            const $tr = $(this);
+
+            truncateCell($tr, '.remarks-col', maxRemarksLength, 'shortened-remarks', 'data-full-remarks');
+            truncateCell($tr, '.scope-col', maxScopeLength, 'shortened-scope', 'data-full-scope');
+            truncateCell($tr, '.location-col', maxLocationLength, 'shortened-location', 'data-full-location');
+            truncateCell($tr, '.details-col', maxRemarksLength, 'shortened-enquiryDetails', 'data-full-enquirydetails');
+        });
+    }
+    function prepareEnquiryTable11() {
+
+        var maxRemarksLength = 15;
+        var maxLocationLength = 12;
+        var maxScopeLength = 12;
+
+        $("#Enquirytable tbody tr.main-row").each(function () {
+            var $tr = $(this);
+            debugger;
+            // 🔹 FILE COLUMN
+            var enquiryID = $tr.find('.enquiryID').val();
+            var eID = $tr.find('.eID').val();
+            var $fileCell = $tr.find('td.file-col');
+
+            if ($fileCell.length) {
+                var fileList = $fileCell.text().trim().split(';').filter(f => f.trim() !== "");
+                if (fileList.length) {
+                    $fileCell.html(`
+                    <i class="fas fa-folder"
+                       data-enquiry-id="${enquiryID}"
+                       data-eid="${eID}"
+                       data-files="${fileList.join(',')}"></i>
+                `);
+                } else {
+                    $fileCell.html('');
+                }
+            }
+
+            // 🔹 REMARKS
+            truncateCell($tr, '.remarks-col', maxRemarksLength, 'shortened-remarks', 'data-full-remarks');
+
+            // 🔹 SCOPE
+            truncateCell($tr, '.scope-col', maxScopeLength, 'shortened-scope', 'data-full-scope');
+
+            // 🔹 LOCATION
+            truncateCell($tr, '.location-col', maxLocationLength, 'shortened-location', 'data-full-location');
+
+            // 🔹 DETAILS
+            truncateCell($tr, '.details-col', maxRemarksLength, 'shortened-enquiryDetails', 'data-full-enquirydetails');
+        });
+    }
+
+    function truncateCell($tr, selector, maxLength, cls, dataAttr) {
+        var $cell = $tr.find(selector);
+        if (!$cell.length) return;
+
+        var fullText = $cell.text().trim();
+        if (!fullText) {
+            $cell.html('');
+            return;
+        }
+
+        if (fullText.length > maxLength) {
+            $cell.html(`
+            <span class="${cls}" ${dataAttr}="${fullText}">
+                ${fullText.substring(0, maxLength)}...
+            </span>
+        `);
+        }
+    }
+
+
+
+    $(function () {
+        var maxRemarksLength = 15;
+        var maxLocationLength = 12;
+        var maxScopeLength = 12;
+
+        // 1️⃣ Handle file column (Proposals)
+        $("#Enquirytable tbody tr.main-row").each(function () {
+            var $tr = $(this);
+            var enquiryID = $tr.find('.enquiryID').val();
+            var eID = $tr.find('.eID').val();
+            var $fileCell = $tr.find('td.file-col');
+
+            if ($fileCell.length > 0) {
+                var fileList = $fileCell.text().trim().split(';').filter(function (file) {
+                    return file.trim() !== "";
+                });
+
+                if (fileList.length > 0) {
+                    $fileCell.html(
+                        `<i class="fas fa-folder" 
+                        data-enquiry-id="${enquiryID}" 
+                        data-eid="${eID}" 
+                        data-files="${fileList.join(',')}"></i>`
+                    );
+                } else {
+                    $fileCell.html('');
+                }
+            }
+        });
+
+
+        $("#Enquirytable tbody tr.main-row").each(function () {
+            var $remarksCell = $(this).find('.remarks-col');
+
+            if ($remarksCell.length > 0) {
+                var fullRemarks = $remarksCell.text().trim();
+
+                if (fullRemarks === "" || fullRemarks === null) {
+                    $remarksCell.html('');
+                } else if (fullRemarks.length > maxRemarksLength) {
+                    var shortenedRemarks = fullRemarks.substring(0, maxRemarksLength) + '...';
+                    $remarksCell.html(
+                        `<span class="shortened-remarks" 
+                        data-full-remarks="${fullRemarks}">${shortenedRemarks}</span>`
+                    );
+                }
+            }
+        });
+
+        $("#Enquirytable tbody tr.main-row").each(function () {
+            var $scopeCell = $(this).find('.scope-col');
+
+            if ($scopeCell.length > 0) {
+                var fullScope = $scopeCell.text().trim();
+
+                if (fullScope === "" || fullScope === null) {
+                    $scopeCell.html('');
+                } else if (fullScope.length > maxScopeLength) {
+                    var shortenedScope = fullScope.substring(0, maxScopeLength) + '...';
+                    $scopeCell.html(
+                        `<span class="shortened-scope" 
+                        data-full-scope="${fullScope}">${shortenedScope}</span>`
+                    );
+                }
+            }
+        });
+
+        $("#Enquirytable tbody tr.main-row").each(function () {
+            var $locationCell = $(this).find('.location-col');
+
+            if ($locationCell.length > 0) {
+                var fullLocation = $locationCell.text().trim();
+
+                if (fullLocation === "" || fullLocation === null) {
+                    $locationCell.html('');
+                } else if (fullLocation.length > maxLocationLength) {
+                    var shortenedLocation = fullLocation.substring(0, maxLocationLength) + '...';
+                    $locationCell.html(
+                        `<span class="shortened-location" 
+                        data-full-location="${fullLocation}">${shortenedLocation}</span>`
+                    );
+                }
+            }
+        });
+        // 3️⃣ (Optional) Handle Details, Scope, etc. similarly if you want truncation
+        $("#Enquirytable tbody tr.main-row").each(function () {
+            var $detailsCell = $(this).find('.details-col');
+            if ($detailsCell.length > 0) {
+                var fullDetails = $detailsCell.text().trim();
+                if (fullDetails.length > maxRemarksLength) {
+                    var shortenedDetails = fullDetails.substring(0, maxRemarksLength) + '...';
+                    $detailsCell.html(
+                        `<span class="shortened-enquiryDetails" 
+                        data-full-enquirydetails="${fullDetails}">${shortenedDetails}</span>`
+                    );
+                }
+            }
+        });
+
+        // 4️⃣ Hover tooltip for Remarks
+        $(document).on('mouseenter', '.shortened-remarks', function () {
+            var fullRemarks = $(this).data('full-remarks');
+            var $tooltip = $('<div class="tooltip-remarks"></div>').text(fullRemarks).appendTo('body');
+            var offset = $(this).offset();
+            $tooltip.css({
+                top: offset.top + $(this).outerHeight() + 5,
+                left: offset.left
+            }).fadeIn(200);
+        }).on('mouseleave', '.shortened-remarks', function () {
+            $('.tooltip-remarks').remove();
+        });
+
+        $(document).on('mouseenter', '.shortened-scope', function () {
+            var fullScope = $(this).data('full-scope');
+            var $tooltip = $('<div class="tooltip-scope"></div>').text(fullScope).appendTo('body');
+            var offset = $(this).offset();
+            $tooltip.css({
+                top: offset.top + $(this).outerHeight() + 5,
+                left: offset.left
+            }).fadeIn(200);
+        }).on('mouseleave', '.shortened-scope', function () {
+            $('.tooltip-scope').remove();
+        });
+
+
+        $(document).on('mouseenter', '.shortened-location', function () {
+            var fullLocation = $(this).data('full-location');
+            var $tooltip = $('<div class="tooltip-location"></div>').text(fullLocation).appendTo('body');
+            var offset = $(this).offset();
+            $tooltip.css({
+                top: offset.top + $(this).outerHeight() + 5,
+                left: offset.left
+            }).fadeIn(200);
+        }).on('mouseleave', '.shortened-location', function () {
+            $('.tooltip-location').remove();
+        });
+
+
+        // 5️⃣ Hover tooltip for Enquiry Details
+        $(document).on('mouseenter', '.shortened-enquiryDetails', function () {
+            var fullDetails = $(this).data('full-enquirydetails');
+            var tooltip = $('<div class="tooltip-enquirydetails"></div>').text(fullDetails);
+            $('body').append(tooltip);
+            tooltip.css({
+                top: $(this).offset().top + $(this).height() + 5,
+                left: $(this).offset().left
+            }).fadeIn('fast');
+        }).on('mouseleave', '.shortened-enquiryDetails', function () {
+            $('.tooltip-enquirydetails').remove();
+        });
+
+        // 6️⃣ Click folder icon to show files in modal
+        //$(document).on('click', '.fa-folder', function () {
+        //    var enquiryId = $(this).data('enquiry-id');
+        //    var files = $(this).data('files').split(',');
+
+        //    var fileListHtml = files.map(function (file) {
+        //        return '<li><a href="../Enquiry/DownloadFile?EnquiryId=' +
+        //            enquiryId + '&FileName=' + file.trim() + '">' + file.trim() + '</a></li>';
+        //    }).join('');
+
+        //    $("#fileList1").html(fileListHtml);
+        //    $("#fileModal1").modal('show');
+        //});
+    });
+
+    $(document).off('click', '.fa-folder').on('click', '.fa-folder', function () {
+         debugger;
+        var enquiryId = $(this).data('enquiryId'); // $(this).closest("tr").find(".enquiryId").val();
+        var eId = $(this).data('eid');
+
+        if (enquiryId) {
+            GetDocumentRevisions(eId,enquiryId);
+        }
+    });
+    function GetDocumentRevisions(eId, enquiryId) {
+        $.ajax({
+            url: '../Enquiry/GetEnquiryQuotationsRevisionsFiles',
+            type: 'GET',
+            data: { EnquiryId: eId },
+            success: function (response) {
+                if (!response || (response.activeFiles.length === 0 && response.supersededFiles.length === 0)) {
+                    $("#fileList1").html('<p class="text-danger">No revisions available.</p>');
+                    $("#fileModal1").modal('show');
+                    return;
+                }
+
+                var fileListHtml = `
+        <table class="table table-bordered table-sm align-middle" style="width:100%;">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:35%;">File</th>
+                    <th style="width:10%;">Quotation No</th>
+                    <th style="width:12%;">Date</th>
+                    <th style="width:10%;">Status</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+                // Active files
+                response.activeFiles.forEach(function (file) {
+                    fileListHtml += `
+                <tr class="active-file">
+                    <td>
+                        <a href="../Enquiry/DownloadFile?FileID=${file.fileId}&backupFile=false">
+                            ${file.fileName}
+                        </a>
+                    </td>
+                    <td>${file.quotationNo}</td>
+                    <td>${file.revisionDate ? new Date(file.revisionDate).toLocaleDateString("en-GB") : '-'}</td>
+                    <td>${file.status}</td>
+                </tr>`;
+                });
+
+                // Expand icon row (merged over all columns)
+                if (response.supersededFiles.length > 0) {
+                    fileListHtml += `
+                <tr class="expand-row">
+                    <td colspan="4" class="text-center">
+                        <span class="expand-icon" style="cursor:pointer; font-weight:bold;">▶ Show Superseded Files</span>
+                    </td>
+                </tr>`;
+                }
+
+                // Superseded files (hidden by default)
+                response.supersededFiles.forEach(function (file) {
+                    var formattedDate = file.revisionDate ? new Date(file.revisionDate).toLocaleDateString("en-GB") : '-';
+                    fileListHtml += `
+                <tr class="superseded-file" style="display:none; background:#f8f9fa;">
+                    <td style="text-decoration: line-through; color:red;">
+                        <a href="../Enquiry/DownloadFile?FileID=${file.fileId}&backupFile=true" style="color:red;">
+                            ${file.fileName}
+                        </a>
+                    </td>
+                    <td style="color:red; text-decoration: line-through;">${file.quotationNo || '-'}</td>
+                    <td>${formattedDate}</td>
+                    <td>${file.status || '-'}</td>
+                </tr>`;
+                });
+
+                fileListHtml += `</tbody></table>`;
+                $("#fileList1").html(fileListHtml);
+
+                // Expand/collapse functionality
+                $(".expand-icon").off("click").on("click", function () {
+                    var icon = $(this);
+                    var isExpanded = icon.text().startsWith("▼");
+                    $(".superseded-file").toggle(!isExpanded);
+                    icon.text(isExpanded ? "▶ Show Superseded Files" : "▼ Hide Superseded Files");
+                });
+
+                $("#fileModal1").modal('show');
+            },
+            error: function () {
+                $("#fileList1").html('<p class="text-danger">Error fetching document revisions.</p>');
+                $("#fileModal1").modal('show');
+            }
+        });
+    }
+
+    function GetDocumentRevisions12(eId, enquiryId) {
+        $.ajax({
+            url: '../Enquiry/GetEnquiryQuotationsRevisionsFiles',
+            type: 'GET',
+            data: { EnquiryId: eId },
+            success: function (response) {
+                if (!response) {
+                    $("#fileList1").html('<p class="text-danger">No revisions available.</p>');
+                    $("#fileModal1").modal('show');
+                    return;
+                }
+
+                var hasOldFiles = response.oldRevisions && response.oldRevisions.length > 0;
+                var expandIcon = hasOldFiles ? `<span class="expand-icon" style="cursor:pointer;">▶</span>` : '';
+
+                var fileListHtml = `
+            <table class="table table-bordered table-sm align-middle" style="width:100%;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:3%; text-align:center;"></th>
+                        <th style="width:35%;">File</th>
+                        <th style="width:10%;">Quotation No</th>
+                        <th style="width:12%;">Date</th>
+                        <th style="width:10%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="latest-file">
+                        <td class="text-center align-middle">${expandIcon}</td>
+                        <td>
+                            <a href="../Enquiry/DownloadFile?FileID=${response.latest.fileId}&backupFile=false">
+                                ${response.latest.fileName}
+                            </a>
+                        </td>
+                        <td>${response.latest.quotationNo}</td>
+                        <td>${response.latest.revisionDate ? new Date(response.latest.revisionDate).toLocaleDateString("en-GB") : '-'}</td>
+                        <td>${response.latest.status || '-'}</td>
+                    </tr>`;
+
+                if (hasOldFiles) {
+                    response.oldRevisions.forEach(function (doc) {
+                        var formattedDate = doc.revisionDate ? new Date(doc.revisionDate).toLocaleDateString("en-GB") : '-';
+                        fileListHtml += `
+                    <tr class="old-file-row" style="display:none; background:#f8f9fa;">
+                        <td></td>
+                        <td style="text-decoration: line-through;">
+                            <a href="../Enquiry/DownloadFile?FileID=${doc.fileId}&backupFile=true" style="color:red;">
+                                ${doc.originalFileName || doc.fileName}
+                            </a>
+                        </td>
+                        <td style="color:red; text-decoration: line-through;">${doc.quotationNo || '-'}</td>
+                        <td>${formattedDate}</td>
+                        <td>${doc.status || '-'}</td>
+                    </tr>`;
+                    });
+                }
+
+                fileListHtml += `</tbody></table>`;
+                $("#fileList1").html(fileListHtml);
+
+                $(".expand-icon").on("click", function () {
+                    var icon = $(this);
+                    var isExpanded = icon.text() === "▼";
+                    $(".old-file-row").toggle(!isExpanded);
+                    icon.text(isExpanded ? "▶" : "▼");
+                });
+
+                $("#fileModal1").modal('show');
+            },
+            error: function () {
+                $("#fileList1").html('<p class="text-danger">Error fetching document revisions.</p>');
+                $("#fileModal1").modal('show');
+            }
+        });
+    }
+
+    function GetDocumentRevisions11(eId, enquiryId) {
+
+        $.ajax({
+            url: '../Enquiry/GetEnquiryQuotationsRevisionsFiles',
+            type: 'GET',
+            data: { EnquiryId: eId, },
+            success: function (response) {
+                if (!response) {
+                    $("#fileList1").html('<p class="text-danger">No revisions available.</p>');
+                    $("#fileModal1").modal('show');
+                    return;
+                }
+
+                var hasOldFiles = response.oldRevisions && response.oldRevisions.length > 0;
+                var expandIcon = hasOldFiles
+                    ? `<span class="expand-icon" style="cursor:pointer;">▶</span>`
+                    : '';
+
+                var fileListHtml = `
+                <table class="table table-bordered table-sm align-middle" style="width:100%;">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:3%; text-align:center;"></th>
+                            <th style="width:35%;">File</th>
+                            <th style="width:10%;">Quotation No</th>
+                            <th style="width:12%;">Date</th>
+                            <th style="width:10%;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="latest-file">
+                            <td class="text-center align-middle">${expandIcon}</td>
+                            <td><a href="../Enquiry/DownloadFile?EnquiryId=${enquiryId}&FileName=${encodeURIComponent(response.latest.fileName)}&backupFile=false">${response.latest.fileName}</a></td>
+                            <td>${response.latest.quotationNo}</td>
+                            <td>${response.latest.revisionDate ? new Date(response.latest.revisionDate).toLocaleDateString("en-GB") : '-'}</td>
+                            <td>${response.latest.status || '-'}</td>
+                        </tr>`;
+
+                // --- Old Revisions Section ---
+                if (hasOldFiles) {
+                    response.oldRevisions.forEach(function (doc, index) {
+                        var formattedDate = doc.revisionDate ? new Date(doc.revisionDate).toLocaleDateString("en-GB") : '-';
+                        fileListHtml += `
+                        <tr class="old-file-row" style="display:none; background:#f8f9fa;">
+                            <td></td>
+                            <td style="text-decoration: line-through;">
+                                <a href="../Enquiry/DownloadFile?EnquiryId=${enquiryId}&FileName=${encodeURIComponent(doc.fileName)}&backupFile=true"
+                                   style="color:red;">${doc.fileName}</a>
+                            </td>
+                            <td style="color:red; text-decoration: line-through;">${doc.quotationNo || '-'}</td>
+                            <td>${formattedDate}</td>
+                            <td>${doc.status || '-'}</td>
+                        </tr>`;
+                    });
+                }
+
+                fileListHtml += `
+                    </tbody>
+                </table>`;
+
+                $("#fileList1").html(fileListHtml);
+
+                // --- Expand/Collapse Functionality ---
+                $(".expand-icon").on("click", function () {
+                    var icon = $(this);
+                    var isExpanded = icon.text() === "▼";
+                    $(".old-file-row").toggle(!isExpanded);
+                    icon.text(isExpanded ? "▶" : "▼");
+                });
+
+                $("#fileModal1").modal('show');
+            },
+            error: function () {
+                $("#fileList1").html('<p class="text-danger">Error fetching document revisions.</p>');
+                $("#fileModal1").modal('show');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+       debugger;
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+        $("#popuptable").hide();
+        $("#popupenquirytable1").hide();
+    });
+    function EditEnquiry(enquiryId) {
+        debugger;
+        $.ajax({
+            url: '../Enquiry/EditEnquiry',
+            type: 'POST',
+            data: {
+                eId: enquiryId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Sales &#8667; Edit Enquiry');
+                $("#divMainSearch").hide();
+                $('#divActiveInActive').hide();
+                $("#divEnquiryDetails").html('').hide();
+                $('#divAddUpdateEnquiry').html(data).show();
+                $('#btnEnquiryList').show();
+                $('#btnAddEnquiry').hide();
+                $('#AlphaSorting').hide();
+                $('#EnquiryPager').hide();
+                $('#EnquiryDataPostDiv').show();
+               // ManufacturerUnitsList();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    function ActiveInActiveEnquiryStatus(enquiryID, status) {
+        if (status) {
+            var options = {};
+            options.msg = "Are you sure to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(enquiryID, true);
+            }, options);
+        } else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(enquiryID, status);
+            });
+        }
+    }
+
+    function UpdateStatus(enquiryID, status) {
+        debugger;
+                $.ajax({
+                    url: '../Enquiry/UpdateEnquiryStatus',
+                    type: 'POST',
+                    data: {
+                        enquiryID: enquiryID,
+                        IsEnquiryActive: status
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            if (status) {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            } else {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                            }
+                            window.FilterEnquiryDirectory(function (status, newclass) {
+                                //call any call back function if u want to call
+                            }, { backToFirstPage: false });
+                        }
+                        else {
+                            if (status) {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                            } else {
+                                window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                            }
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+            }
+
+    function UploadQuation(enquiryId, EId) {
+        $.ajax({
+            url: '../Enquiry/UploadQuatation',
+            type: 'POST',
+            data: {
+                enquiryId: enquiryId,
+                EID:EId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Sales &#8667; Upload Quatation');
+                $("#divMainSearch").hide();
+                $('#divActiveInActive').hide();
+                $("#divEnquiryDetails").html('').hide();
+                $('#divAddUpdateEnquiry').html(data).show();
+                //$('#btnEnquiryList').show();
+                //$('#btnAddEnquiry').hide();
+                $('#AlphaSorting').hide();
+                $('#EnquiryPager').hide();
+                $('#EnquiryDataPostDiv').show();
+              //  alert('Quotation Uploaded Successfully');
+              //  location.reload();
+               // enquiryList();
+                // ManufacturerUnitsList();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    function UpdateEnquiryStatus(enquiryID) {
+       // debugger;
+        $("#popuptable").find("th:gt(0)").remove();
+        $("#popuptable").find("btnSubmit").remove();
+
+        $("#popuptable").show();
+        $("#popuptable>tbody>tr").append("<th>" + enquiryID + "</th>");
+        $('#popuptable').append('<label for="status">Select Status:</label><select name = "status" id = "status" onchange="getstatusval(this);"><option value="Approved">Approved</option><option value="On-Hold">On-Hold</option><option value="Re-Quote">Re-Quote</option><option value="Not-Approved">Not-Approved</option><option value="Declined">Declined</option></select>');
+        $('#popuptable').append('<br/><button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnSubmit" value="Submit" title="Submit" data-toggle="tooltip" onclick="javascript: SubmitStatus();">Submit</button>');
+        $("#popuptable").dialog({ modal: true, height: 'auto', width: 'auto' });
+        $("#btnSubmit").nextAll().remove();
+    }
+
+    function DenyEnquiry(enquiryID) {
+       // debugger;
+        let eID = enquiryID;
+        // Clear the table body to avoid duplicates
+        $("#popupenquirytable1 tbody").empty();
+
+        // Add Enquiry No row
+        $("#popupenquirytable1 tbody").append(`
+        <tr>
+            <th>Enquiry No</th>
+            <td>${enquiryID}</td>
+        </tr>
+    `);
+
+        // Add Select Status row
+        $("#popupenquirytable1 tbody").append(`
+        <tr>
+            <td>Select Status</td>
+            <td>
+                <select name="status" id="status" onchange="getstatusval1(this);">
+                    <option value="Deny">Deny</option>
+                </select>
+            </td>
+        </tr>
+    `);
+
+        // Add Comments row
+        $("#popupenquirytable1 tbody").append(`
+        <tr>
+            <td>Comments</td>
+            <td><input type="text" id="txtDenyComments" name="txtDenyComments" placeholder="Enter comments"></td>
+        </tr>
+    `);
+
+        // Add Submit button row
+        $("#popupenquirytable1 tbody").append(`
+        <tr>
+            <td colspan="2" style="text-align: right;">
+                <button type="button" class="btn btn-secondary"
+                        style="background-color:#5c9ccc"
+                        id="btnSubmit" value="Submit" title="Submit"
+                        data-toggle="tooltip" onclick="SubmitDenyStatus('${eID}');">
+                    Submit
+                </button>
+            </td>
+        </tr>
+    `);
+
+        // Show the dialog
+        $("#popupenquirytable1").dialog({ modal: true, height: 'auto', width: 'auto' });
+        $("#popupenquirytable1").show();
+    }
+
+
+    function getstatusval(obj) {
+        debugger;
+        if (obj.value == 'Not-Approved' || obj.value == 'Declined') {
+            $("#popuptable").find("#btnSubmit").remove();
+            $("div").removeClass("ui-resizable-handle");
+            $('#popuptable').append('<br/><input type="text" id="txtComments" name="txtComments">');
+            $('#popuptable').append('<br/><button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnSubmit" value="Submit" title="Submit" data-toggle="tooltip" onclick="javascript: SubmitStatus();">Submit</button>');
+        }
+
+        if (obj.value == 'Approved') {
+            $("#popuptable").find("#txtComments").remove();
+           // $("#popuptable").find("div").remove();
+            $("div").removeClass("ui-resizable-handle");
+            $('#popuptable').append('<br/><button type="button" class="btn btn-secondary pull-right" style="background-color:#5c9ccc" id="btnSubmit" value="Submit" title="Submit" data-toggle="tooltip" onclick="javascript: SubmitStatus();">Submit</button>');
+        }
+        $("#btnSubmit").nextAll().remove();
+        $("#popuptable").show();
+    }
+
+    function SubmitDenyStatus(enquiryID) {
+        debugger;
+        var eID = '';
+        var status = $("#status").find('option:selected').val();
+            const txtDenyComments = $("#txtDenyComments");
+        //$('#popupenquirytable1 tr').each(function () {
+        //    eID = $(this).find("td").eq(1).html();
+        //});
+
+            txtDenyComments.css("border", "");
+            $("#error-message").remove();
+
+            // Validate if the comments field is empty
+            if (txtDenyComments.val().trim() === '') {
+                // Highlight in red and show error message
+                txtDenyComments.css("border", "2px solid red");
+                txtDenyComments.after('<br/><span id="error-message" style="color: red; font-size: 12px;">Comments are required.</span>');
+                return false; // Prevent further actions
+            }
+
+                $.ajax({
+                    url: '../Enquiry/SubmitEnquiryStatus',
+                    type: 'POST',
+                    data: {
+                        enquiryID: enquiryID,
+                        submitstatus: status,
+                        remarks: txtDenyComments.val().trim()
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                      //  $("#popuptable").close();
+                        if (data.status) {
+                            window.parent.$('.ui-dialog-content:visible').dialog('close');
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            alert('Data Submitted Successfully');
+                            location.reload();
+
+                        } else {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+
+    }
+    function SubmitStatus(enquiryID) {
+        var eID = '', comments='';
+        $('#popuptable tr').each(function () {
+            eID = $(this).find("th").eq(1).html();
+        });
+
+
+        var status = $("#status").find('option:selected').val();
+        if (status == 'Not-Approved' || status =='Declined') {
+            comments = $("#txtComments").val();
+        }
+                $.ajax({
+                    url: '../Enquiry/SubmitEnquiryStatus',
+                    type: 'POST',
+                    data: {
+                        enquiryID: eID,
+                        submitstatus: status,
+                        remarks :comments
+                    },
+                    beforeSend: function (e) {
+                        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                    },
+                    success: function (data) {
+                      //  $("#popuptable").close();
+                        if (data.status) {
+                            window.parent.$('.ui-dialog-content:visible').dialog('close');
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                            alert('Data Submitted Successfully');
+                            location.reload();
+
+                        } else {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                    }
+                });
+
+    }
+
+    function DownloadEnquiry(enquiryID) {
+       // debugger;
+        $.ajax({
+            url: '@Url.Action("DownloadEnquiryPDF", "Enquiry")',
+            type: 'GET',
+            xhrFields: { responseType: 'blob' }, // Set response type as binary
+            success: function (data, status, xhr) {
+               // debugger;
+                var blob = new Blob([data], { type: 'application/pdf' });
+                var downloadUrl = window.URL.createObjectURL(blob);
+                var a = document.createElement("a");
+
+                a.href = downloadUrl;
+                a.download = "Enquiry_Report.pdf"; // Set the file name
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            },
+            error: function (xhr, status, error) {
+                alert("Error downloading PDF: " + error);
+            }
+        });
+ }
+    function base64ToArrayBuffer(base64) {
+        var binaryString = window.atob(base64);
+        var len = binaryString.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+    function GenerateServiceOrder(clientId, clientName, enquiryID) {
+
+        var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()';
+        window.location.assign( currentUrl + "ServiceOrder/CreateServiceOrder1?clientId=" + clientId + "&clientName=" + clientName + "&enquiryID=" + enquiryID);
+
+       // window.location.assign(location.origin + "/ServiceOrder/CreateServiceOrder1?clientId=" + clientId + "&clientName=" + clientName + "&enquiryID=" + enquiryID);
+        $('#spnSOHeadTitle').html('Create Service Order');
+        $('#divAddOrUpdateServiceOrder').html();
+       // $(obj).hide();
+        $('#btnSOList').show();
+        $("#divSODetails").html('');
+        $('#divServiceOrders').hide();
+        $('#divActiveInActive').hide();
+        $("#divMainSearch").hide();
+
+
+    }
+
+</script>

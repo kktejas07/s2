@@ -1,0 +1,103 @@
+﻿@model IEnumerable<IQEApp.Web.Models.CreditorModel.CreditorViewModel>
+@using GridMvc.Html
+@using iTextSharp.text.pdf.qrcode
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@using System.Globalization
+
+
+<style type="text/css">
+</style>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Creditors</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 10.6pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+            width: -webkit-fill-available;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <table cellpadding="0" cellspacing="0" class="center">
+        <tr>
+            <th>@Html.Label("Customer Name")</th>
+            <th>@Html.Label("UnitName")</th>
+            @*<th>@Html.Label("Total Due")</th>*@
+            <th>@Html.Label("Total Credit")</th>
+            <th>@Html.Label("Upto 30 days")</th>
+            <th>@Html.Label("31-60 days")</th>
+            <th>@Html.Label("61-90 days")</th>
+            <th>@Html.Label("91-180 days")</th>
+            <th>@Html.Label("181-365 days")</th>
+            <th>@Html.Label("Above 1 Year")</th>
+            <th>&nbsp;</th>
+        </tr>
+        @if (Model == null || Model.Count() == 0)
+        {
+            <tr>
+                No Credits
+            </tr>
+        }
+        else
+        {
+            foreach (var client in Model)
+            {
+                <tr>
+                    <td>@client.ClientName</td>
+                    <td>@client.ClientUnitName</td>
+                    @*<td>@string.Format(CultureInfo.InvariantCulture, "{0:N0}", client.TotalDue)</td>*@
+                    <td>@client.TotalCredit.ToString("#,##0")</td>
+                    <td>@client.Upto30.ToString("#,##0")</td>
+                    <td>@client.Upto60.ToString("#,##0")</td>
+                    <td>@client.Upto90.ToString("#,##0")</td>
+                    <td>@client.Upto180.ToString("#,##0")</td>
+                    <td>@client.Upto365.ToString("#,##0")</td>
+                    <td>@client.Above1Year.ToString("#,##0")</td>
+                    <td></td>
+                    @*<td style="background-color: lawngreen">@client.Upto30.ToString("#,##0")</td>
+                        <td style="background-color: yellowgreen">@client.Upto60.ToString("#,##0")</td>
+                        <td style="background-color: yellow">@client.Upto90.ToString("#,##0")</td>
+                        <td style="background-color: orangered">@client.Upto180.ToString("#,##0")</td>
+                        <td style="background-color: orangered">@client.Upto365.ToString("#,##0")</td>
+                        <td style="background-color: orangered">@client.Above1Year.ToString("#,##0")</td>*@
+                </tr>
+            }
+        }
+    </table>
+</body>
+

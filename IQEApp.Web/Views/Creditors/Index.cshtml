@@ -1,0 +1,298 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.CreditorModel.CreditorViewModel>
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<style>
+    .ui-dialog-titlebar-close:after {
+        content: 'X' !important;
+        position: absolute;
+        top: -2px;
+        right: 3px;
+    }
+
+    /* ---------- HEADER BUTTON SPACING ---------- */
+    .gap-2 > * {
+        margin-right: 8px;
+    }
+
+    /* ---------- TOGGLE BUTTONS ---------- */
+    .btn-group-toggle .btn {
+        min-width: 120px;
+        font-weight: 500;
+    }
+
+        .btn-group-toggle .btn.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+    /* ---------- RESULTS BADGE ---------- */
+    .badge-pill {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    /* ---------- ALPHA BAR LAYOUT ---------- */
+    .alpha-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: nowrap;
+    }
+
+    .alpha-left {
+        flex: 0 0 auto;
+    }
+
+    .alpha-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .alpha-right {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* ---------- ALPHABET STYLE ---------- */
+    .alphabet-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .alphabet-wrapper a,
+        .alphabet-wrapper span {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .alphabet-wrapper a:hover {
+                background: #007bff;
+                color: #fff;
+                border-color: #007bff;
+            }
+
+        .alphabet-wrapper .active {
+            background: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+
+    /* ---------- RESPONSIVE ---------- */
+    @@media (max-width: 992px) {
+        .alpha-bar {
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .alpha-center {
+            order: 3;
+            width: 100%;
+        }
+
+        .alpha-right {
+            order: 2;
+        }
+    }
+</style>
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h3 class="box-title"> <span id="spnClientHeadTitle"> Finance &#8667; Creditors</span></h3>
+        </div>
+        <div class="col-sm-5 col-md-5 col-lg-5 ">
+            @Html.Partial("_DirectoryMainSearch")
+        </div>
+        <div class="col-sm-1 col-md-1 col-lg-1 ">
+            <div class="input-group-append pull-right">
+                <button class="btn-round-icon mr5 border1 " type="button" onclick="PageRefresh();"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+
+    </div>
+    <div id="divClientLoadingIconId"></div>
+    <div class="clearfix"></div>
+    <div id="divAddUpdateClient" class="mt20 bg p20" style="display: none">
+        <div id="divAddNewClient" class="">
+
+        </div>
+        <div id="AddUpdateClientUnits" style="display: none">
+        </div>
+        @* <div id="ClientUnitsList" style="display: none">
+            </div>
+            <p class="JsClientGridPager pull-right" id="clientUnitPager"></p>*@
+    </div>
+    <div class="vtabs mt10" id="divActiveInActive">
+        <ul class="nav nav-tabs tabs-vertical" role="tablist">
+            <li class="nav-item pull-right " id="liInActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="SortByClientStatus('InActive')">InActive</a> </li>
+            <li class="nav-item pull-right active" id="liActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="SortByClientStatus('Active')"><span>Active</span></a> </li>
+        </ul>
+        <input type="hidden" id="hdnActive" />
+        <div class="tab-content">
+            <div class="tab-pane   active" id="divActive" role="tabpanel">
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div id="divDirectory">
+        <div class="p0" id="AlphaSorting">
+            <div>
+                <div class="col-lg-9 col-md-9 col-sm-9 p0 alpha-center">
+                    <div class="alphabet-wrapper">
+                        @Html.Partial("_AlphabetPanel")
+                    </div>
+                </div>
+
+                <div class="col-lg-1 col-md-1 col-sm-1 mt10">
+                    <div class=" " id="ResortBtn" style="cursor:pointer;">
+                        <div class="resort-icon-selected  sortIconHide" onclick="javascript: ReSortTheFilter(this,'ASC');" style="display:none;">
+                            <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                        </div>
+                        <div class="resort-icon" onclick="javascript: ReSortTheFilter(this,'DESC');">
+                            <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <input type="hidden" id="hdnSortingOrder" value="ASC" />
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <div class="highliter  mt10">
+                        <span> <span class="hidden-sm">Results :  </span> <span id="TotalResultsEle"></span> </span>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div id="divDirectoryList" class="mt10">
+            @{ Html.RenderAction("GetCreditorsDetails", "Creditors", new { pageCount = 0 }); }
+        </div>
+        <p class="JsListGridPager pull-right" id="clientPager"></p>
+    </div>
+</div>
+
+
+<script>
+    function SearchDirectory() {
+        $(".selectedStartsWithChar").removeClass("selectedStartsWithChar");
+        window.FilterClientDirectory(function (status) {
+
+        }, { backToFirstPage: true });
+    }
+    $(document).ready(function () {
+        DefineListPagerForInitialLoad();
+
+        AlphaSearchObj.subscribe(function (alpha) {
+            //User requested for Alpha sorting clear the main search and reset the page count for pagination
+            $('#txtDirectorySearch').val('');
+            window.paginationObj.setCurrentPageCount("0");
+
+            window.FilterClientDirectory(function (status) {
+
+            }, { backToFirstPage: true });
+
+        });
+    });
+    window.ShowMore = function () {
+        $.ajax({
+            url: '../Creditors/GetCreditorsDetails',
+            type: 'POST',
+            data: {
+                pageCount: window.paginationObj.getCurrentPageCount,
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                activeStatus: $('#hdnActive').val(),
+                sortingOrder: $("#hdnSortingOrder").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnClientHeadTitle').html('Customer Details');
+                $('#divAddNewClient').html('');
+                $('#btnClientList').hide();
+                $('#btnAddClient').show();
+                $("#divMainSearch").show();
+                $("#divDirectoryList").html(data).show();
+                $("#divDirectory").show();
+                $('#divAddUpdateClient').hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+
+    window.FilterClientDirectory = function (callback, obj) {
+        if (!obj.backToFirstPage) {
+            var pageNum = (window.paginationObj.getCurrentPageCount() - 10);
+            window.paginationObj.setCurrentPageCount(pageNum);
+        } else {
+            window.paginationObj.setCurrentPageCount("0");
+        }
+        $.ajax({
+            url: '../Creditors/GetCreditorsDetails',
+            type: 'POST',
+            data: {
+                pageCount: window.paginationObj.getCurrentPageCount,
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                activeStatus: $('#hdnActive').val(),
+                sortingOrder: $("#hdnSortingOrder").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnClientHeadTitle').html('Customer Details');
+                $('#divAddNewClient').html('');
+                $('#btnClientList').hide();
+                $('#btnAddClient').show();
+                $("#divMainSearch").show();
+                $("#divDirectoryList").html(data).show();
+                window.paginationObj.CreateListGridPager(obj);
+                //if (callback)
+                //    callback();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+
+    window.ReSortTheFilter = function (obj, sortingType) {
+        $("#hdnSortingOrder").val(sortingType);
+        //show the other sort icon
+        $(".sortIconHide").show();
+        $(".sortIconHide").removeClass("sortIconHide");
+        $(obj).addClass("sortIconHide").hide();
+        window.paginationObj.setCurrentPageCount("0");
+
+        window.FilterClientDirectory(function () {
+            //call any call back function if u want to call
+        }, { backToFirstPage: true });
+    }
+</script>

@@ -1,0 +1,886 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.EnquiryModel.EnquiryDetailsModel
+
+<link href="~/Content/multiselectcheckbox/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/Content/multiselectcheckbox/js/bootstrap-multiselect.js"></script>
+
+<style>
+
+    .row-item.collapsed {
+        background: #f8f9fa;
+        border: 1px dashed #ccc;
+        padding: 6px;
+    }
+
+        /* hide the large form area when collapsed, keep S.No and action buttons visible */
+        .row-item.collapsed .content-container {
+            display: none;
+        }
+
+    /* smaller visual tweak for sno */
+    .row-item .sno {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* spacing for action buttons */
+    .container3 .btn {
+        margin-left: 6px;
+    }
+
+    .hidden-category {
+        display: none !important;
+    }
+    .redborder {
+    border: 1px solid red !important;
+}
+
+.row-error {
+    background: #ffe5e5; /* optional row-level highlight */
+}
+    /* Grid-based layout for perfect column alignment */
+    .design-wrapper {
+        /*display: flex;*/
+        /*gap: 12px;*/
+        /*align-items: flex-start;*/
+    }
+
+    .hidden-row {
+        display: none !important;
+    }
+
+
+    .container1 {
+        width: 30px;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    .container2 {
+        width: 1140px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 16px;
+    }
+
+    .container3 {
+        width: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+    }
+
+    /*  .sno {
+        border-radius: 50%;
+        text-align: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 1px solid #236883;
+        font-weight: bold;
+    }*/
+    /* Default 6-column grid (Design/Training) */
+    .design-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .inspection-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .training-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .secondement-grid {
+        display: grid;
+        grid-template-columns: 10px 1fr 1fr 90px 90px 260px;
+        column-gap: 10px;
+        row-gap: 10px;
+        align-items: start;
+    }
+
+    .c1 {
+        grid-column: 1;
+    }
+
+    .c2 {
+        grid-column: 2;
+    }
+
+    .c3 {
+        grid-column: 3;
+    }
+
+    .c4 {
+        grid-column: 4;
+    }
+
+    .c5 {
+        grid-column: 5;
+    }
+
+    .c6 {
+        grid-column: 6;
+    }
+
+    .c7 {
+        grid-column: 7;
+    }
+
+    .span45 {
+        grid-column: 4 / 6;
+    }
+
+    .span67 {
+        grid-column: 6 / 8;
+    }
+
+    .full {
+        grid-column: 1 / -1;
+    }
+
+    .design-grid .inspection-grid .training-grid .secondement-grid .form-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #236883;
+        font-weight: 600;
+    }
+
+    .design-grid .inspection-grid .training-grid .secondement-grid .form-control {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Custom form styles */
+    .form-control {
+        max-width: 200px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 6px;
+    }
+
+    label {
+        color: #236883;
+        font-weight: bold;
+    }
+
+    .dropDownStyle {
+        background-color: #f8f9fa;
+        color: #236883;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .redborder {
+        border: 1px solid #dc3545;
+    }
+
+    .container {
+        width: 1300px;
+    }
+</style>
+
+<div class="container mt1 bg p20">
+    <section id="AddEnquiryForm">
+        @using (Ajax.BeginForm("CreateEnquiry", "Enquiry",
+            new AjaxOptions { HttpMethod = "POST", OnBegin = "beginProgressBar", OnSuccess = "onSuccessAddEnquiry" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.ClientName)
+                            @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients.OrderBy(x => x.ClientName), "ClientId", "ClientName"), "Select", new { style = "width: 200px;", @class = "form-control dropDownStyle redborder" })
+                            @Html.ValidationMessageFor(m => m.ClientId)
+                        </div>
+
+                        <div class="col-md-2">
+                            @Html.LabelFor(m => m.EnquiryDate, new { @class = "control-label" })
+                            @Html.TextBoxFor(m => m.EnquiryDate, "{0:dd/MM/yyyy}", new { @class = "form-control inputStyle redboder" })
+                            @Html.ValidationMessageFor(m => m.EnquiryDate)
+                        </div>
+                    </div>
+
+                    <div class="form-group d-flex align-items-center">
+                        @Html.Label("Select Enquiry Category : ")
+                        <div>
+                            @foreach (var category in Model.LstEnquiryCategories)
+                            {
+                                <label class="ms-2">
+                                    @Html.RadioButtonFor(m => m.EnquiryCategoryId, category.ID,
+                                    new { @class = "form-check-input me-1 enquiry-type", data_type = category.ID })
+                                    @*new { onchange = "toggleSections('" + category.ID + "')" })*@
+                                    <b>@category.Name </b>
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper hidden-category row-item" id="design">
+                        <div class="container1 sno-container">
+                            <div class="design-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="design-grid">
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Details, new { @class = "form-control" })
+                                </div>
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Scope)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Scope, new { @class = "form-control" })
+                                </div>
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].UOM)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].UOM, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Qty)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Qty, new { @class = "form-control", type = "number", style = "max-width:90px;" })
+                                </div>
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].ApplicableCodeStandards)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].ApplicableCodeStandards, new { @class = "form-control", style = "max-width:200px;" })
+                                </div>
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].ResponseTime, new { @class = "form-control" })
+                                </div>
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Location, new { @class = "form-control" })
+                                </div>
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Remarks, new { @class = "form-control" })
+                                </div>
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Budget, new { @class = "form-control", type = "number", style = "max-width:90px;" })
+                                </div>
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Food, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+                                <div class="d-flex gap-2 mt-1" style="max-width:200px;">
+                                    <div style="flex: 0 0 100px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance)
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                    <div style="flex: 0 0 90px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].MobDeMob)
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].MobDeMob, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                </div>
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            <button type="button" class="btn btn-success btn-sm addRow" title="+ Add Row">
+                                <i class="fa fa-plus"></i>
+                            </button>
+
+                            <!-- hideRow toggles between hide/unhide icons -->
+                            <button type="button" class="btn btn-warning btn-sm hideRow" title="Hide Row">
+                                <i class="fa fa-eye-slash"></i>
+                            </button>
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper hidden-category row-item" id="inspection">
+                        <div class="container1 sno-container">
+                            <div class="inspection-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="inspection-grid">
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Details, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Scope)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Scope, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].UOM)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].UOM, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Qty)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Qty, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Qualification)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Qualification, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Competance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Competance, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Experience)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Experience, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Duration)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Duration, new { @class = "form-control" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].ResponseTime, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Location, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Remarks, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Budget, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Food, new { @class = "form-control" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].MobDeMob)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].MobDeMob, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges, new { @class = "form-control" })
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            <button type="button" class="btn btn-success btn-sm addRow" title="+ Add Row">
+                                <i class="fa fa-plus"></i>
+                            </button>
+
+                            <!-- hideRow toggles between hide/unhide icons -->
+                            <button type="button" class="btn btn-warning btn-sm hideRow" title="Hide Row">
+                                <i class="fa fa-eye-slash"></i>
+                            </button>
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper hidden-category row-item" id="training">
+                        <div class="container1 sno-container">
+                            <div class="training-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="training-grid">
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Details, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Scope)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Scope, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].UOM)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].UOM, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Attendees, "No. of Attendees")
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Attendees, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Duration)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Duration, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].ResponseTime, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Location, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Remarks, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Budget, new { @class = "form-control", type = "number", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Food, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="d-flex gap-2 mt-1" style="max-width:200px;">
+                                    <div style="flex: 0 0 100px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance, "Conveyance")
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                    <div style="flex: 0 0 90px">
+                                        @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].MobDeMob, "Mob/De_Mob")
+                                        @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].MobDeMob, new { @class = "form-control", style = "max-width:90px;" })
+                                    </div>
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges, new { @class = "form-control" })
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            <button type="button" class="btn btn-success btn-sm addRow" title="+ Add Row">
+                                <i class="fa fa-plus"></i>
+                            </button>
+
+                            <!-- hideRow toggles between hide/unhide icons -->
+                            <button type="button" class="btn btn-warning btn-sm hideRow" title="Hide Row">
+                                <i class="fa fa-eye-slash"></i>
+                            </button>
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-stretch mt-3 design-wrapper hidden-category row-item" id="secondement">
+                        <div class="container1 sno-container">
+                            <div class="secondement-grid">
+                                <div class="c1">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].SNo)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].SNo, new { @class = "form-control sno", @readonly = "readonly", style = "width:36px;height:36px;" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container2 content-container">
+                            <div class="secondement-grid">
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Details)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Details, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Position)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Position, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c4">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].UOM)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].UOM, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c5">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Qty)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Qty, new { @class = "form-control", style = "max-width:90px;" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Qualification)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Qualification, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Competance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Competance, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Experience)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Experience, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Duration)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Duration, new { @class = "form-control" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].ResponseTime)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].ResponseTime, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Location)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Location, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Remarks)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Remarks, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c2">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Budget)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Budget, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c3">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].Food)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].Food, new { @class = "form-control" })
+                                </div>
+
+                                <div class="span45">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].LocalConveyance, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c6">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].MobDeMob)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].MobDeMob, new { @class = "form-control" })
+                                </div>
+
+                                <div class="c7">
+                                    @Html.LabelFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges)
+                                    @Html.TextBoxFor(m => m.LstEnquiryCategoryModel[0].OvertimeCharges, new { @class = "form-control" })
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="container3">
+                            <button type="button" class="btn btn-success btn-sm addRow" title="+ Add Row">
+                                <i class="fa fa-plus"></i>
+                            </button>
+
+                            <!-- hideRow toggles between hide/unhide icons -->
+                            <button type="button" class="btn btn-warning btn-sm hideRow" title="Hide Row">
+                                <i class="fa fa-eye-slash"></i>
+                            </button>
+
+                            <button type="button" class="btn btn-danger btn-sm removeRow" title="Delete Row">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCloseAddEnquriy" onclick="enquiryList();"><i class="fa fa-ban"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveEnquiry"><i class="fa fa-floppy-o"></i> Save </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </section>
+</div>
+
+<script type="text/javascript">
+    $.validator.unobtrusive.parse(document);
+
+    function beginProgressBar() {
+        debugger;
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnSaveEnquiry").prop('disabled', true);
+    }
+
+    function onSuccessAddEnquiry(data) {
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            alert('Enquiry Id:' + data.enquiryId + ' has been created successfully');
+            $("#btnSaveEnquiry").prop('disabled', true);
+            location.reload();
+        }
+    }
+
+    // --- Bootstrap: tag the base template rows with their category ---
+    $(function () {
+        $('#design, #inspection, #training, #secondement').each(function () {
+            var id = this.id;
+            if (id) $(this).attr('data-category', id);
+        });
+
+        var initCat = getSelectedCategory();
+        if (initCat) {
+            renumber(initCat);
+            reindexInputs(initCat);
+            updateRowButtons(initCat);
+        }
+
+        $("#EnquiryDate").datepicker({ dateFormat: "dd/mm/yy" });
+    });
+
+    // ===== Helpers =====
+    function getSelectedCategory() {
+        var v = $('.enquiry-type:checked').val() || $('.enquiry-type').val();
+        if (v === "1") return "design";
+        if (v === "2") return "inspection";
+        if (v === "3") return "training";
+        if (v === "4") return "secondement";
+        return null;
+    }
+
+    function rowsFor(category) {
+        return $('.row-item').filter(function () {
+            var $r = $(this);
+            var cat = $r.attr('data-category') || this.id;
+            return cat === category;
+        });
+    }
+
+    function renumber(category) {
+        rowsFor(category).each(function (i) {
+            $(this).find('.sno').val(i + 1);
+        });
+    }
+
+    // Reindex form field names so model binder gets LstEnquiryCategoryModel[0], [1], ...
+    function reindexInputs(category) {
+        debugger;
+        rowsFor(category).each(function (i) {
+            $(this).find('input, select, textarea').each(function () {
+                var $el = $(this);
+                var name = $el.attr('name');
+                if (!name) return;
+
+                // replace only the first [...index...] occurrence
+                var newName = name.replace(/\[\d+\]/, "[" + i + "]");
+                $el.attr('name', newName);
+            });
+        });
+    }
+
+    // Show/hide correct buttons for each row depending on count and position.
+    function updateRowButtons(category) {
+        debugger;
+        var $rows = rowsFor(category);
+        var total = $rows.length;
+
+        $rows.each(function (i) {
+            var $row = $(this);
+            var $addBtn = $row.find('.addRow').first();
+            var $removeBtn = $row.find('.removeRow').first();
+            var $hideBtn = $row.find('.hideRow').first();
+
+            // Default: show all, then we'll hide selectively
+            $addBtn.hide(); $removeBtn.hide(); $hideBtn.hide();
+
+            if (total === 1) {
+                // Only 1 row total: show only Add (+)
+                $addBtn.show();
+                $removeBtn.hide();
+                $hideBtn.hide();
+            } else {
+                // Multiple rows:
+                if (i === total - 1) {
+                    // Last row -> show Add and Hide (not delete)
+                    $addBtn.show();
+                    $hideBtn.show();
+                    $removeBtn.hide();
+                } else {
+                    // Middle rows -> show Delete and Hide (no add)
+                    $removeBtn.show();
+                    $hideBtn.show();
+                    $addBtn.hide();
+                }
+            }
+
+            // If the row is collapsed, ensure hide button shows Unhide icon
+            if ($row.hasClass('collapsed')) {
+                $hideBtn.html('<i class="fa fa-eye"></i>').attr('title', 'Unhide Item');
+            } else {
+                $hideBtn.html('<i class="fa fa-eye-slash"></i>').attr('title', 'Hide Item');
+            }
+        });
+    }
+
+    // ===== ADD ROW =====
+    $(document).on('click', '.addRow', function () {
+        var $currentRow = $(this).closest('.row-item');
+        var category = $currentRow.attr('data-category') || $currentRow.attr('id');
+
+        // clone without copying events/data (false) to avoid duplicate handlers
+        var $newRow = $currentRow.clone(false);
+
+        // Remove id on clone and any child ids to avoid duplicates
+        $newRow.removeAttr('id');
+        $newRow.find('[id]').removeAttr('id');
+
+        // Make sure the clone has same data-category
+        $newRow.attr('data-category', category);
+
+        // clear values except S.No
+        $newRow.find('input, select, textarea').not('.sno').each(function () {
+            var $el = $(this);
+            if ($el.is(':checkbox') || $el.is(':radio')) {
+                $el.prop('checked', false);
+            } else {
+                $el.val('');
+            }
+            // ensure not disabled
+            $el.prop('disabled', false);
+        });
+
+        // Insert after current row
+        $currentRow.after($newRow);
+
+        // Reindex, renumber and fix buttons
+        renumber(category);
+        reindexInputs(category);
+        updateRowButtons(category);
+
+        // Re-parse unobtrusive validation for only the newRow so validation works
+        try {
+            $.validator.unobtrusive.parse($newRow);
+        } catch (e) { /* ignore if not available */ }
+    });
+
+    // ===== REMOVE ROW =====
+    $(document).on('click', '.removeRow', function () {
+        var $row = $(this).closest('.row-item');
+        var category = $row.attr('data-category') || $row.attr('id');
+
+        $row.remove();
+
+        renumber(category);
+        reindexInputs(category);
+        updateRowButtons(category);
+    });
+
+    // ===== HIDE / UNHIDE (collapse/expand) ROW =====
+    $(document).on('click', '.hideRow', function () {
+        var $row = $(this).closest('.row-item');
+        var category = $row.attr('data-category') || $row.attr('id');
+        var $btn = $(this);
+
+        if (!$row.hasClass('collapsed')) {
+            // Collapse: keep row bar visible, hide the big content, disable inputs so they don't post
+            $row.addClass('collapsed');
+            $row.find('input, select, textarea').not('.sno').prop('readonly', true);
+            $btn.html('<i class="fa fa-eye"></i>').attr('title', 'Unhide Item');
+        } else {
+            // Uncollapse
+            $row.removeClass('collapsed');
+            $row.find('input, select, textarea').not('.sno').prop('readonly', false);
+            $btn.html('<i class="fa fa-eye-slash"></i>').attr('title', 'Hide Item');
+        }
+
+        renumber(category);
+        reindexInputs(category);
+        updateRowButtons(category);
+    });
+
+    // ===== HANDLE CATEGORY CHANGE =====
+    $(".enquiry-type").on("change", function () {
+        debugger;
+        var toShow = getSelectedCategory();
+        var cats = ['design', 'inspection', 'training', 'secondement'];
+
+        // hide everything
+        cats.forEach(function (cat) {
+            $('#' + cat).addClass('hidden-category');
+            $('.row-item[data-category="' + cat + '"]').addClass('hidden-category');
+        });
+
+        if (toShow) {
+            $('#' + toShow).removeClass('hidden-category');
+            $('.row-item[data-category="' + toShow + '"]').removeClass('hidden-category');
+
+            // keep only the first (base) row, remove other clones
+            var $allRows = rowsFor(toShow);
+            $allRows.not(':first').remove();
+
+            // clear inputs in first row except S.No and ensure uncollapsed
+            var $first = rowsFor(toShow).first();
+            $first.removeClass('collapsed');
+            $first.find('input, select, textarea').not('.sno').val('').prop('disabled', false);
+
+            renumber(toShow);
+            reindexInputs(toShow);
+            updateRowButtons(toShow);
+        }
+    });
+</script>

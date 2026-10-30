@@ -1,0 +1,138 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitDetailsModel
+
+<input type="hidden" id="hdnControlNumberGuid" value="@Model.ControlNumberDetails.ControlNumberGuid" />
+
+@*<div id="CommonDetailsDiv">
+
+    </div>*@
+
+<input id="hdnControlId" type="hidden" value="@Model.ControlNumberDetails.ControlId" />
+<div class=" bg">
+    <div class="row mt20">
+        <div class="col-sm-4 col-md-4 col-lg-4 ">
+            <label class="control-label">State</label>
+            <select id="StateList" class="form-control dropDownStyle" style="width:250px;" onchange="getUsersByStateId(this);">
+                <option value="-1">Select</option>
+                @foreach (var state in @Model.LstStates)
+                {
+                    <option value="@state.StateId">@state.StateName</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-2 col-md-2 col-lg-2 ">
+            @Html.LabelFor(m => m.UserId, new { @class = "control-label" })
+            @Html.DropDownListFor(m => m.UserId, new SelectList(Model.LstUsers, "UserId", "UserFullName"), "Select", new { @class = "form-control dropDownStyle redborder", @style = "width:200px;" , @placeholder = @Html.DisplayNameFor(model => model.UserId), onchange = "getEmployeeDetailsByUserId(this)" })
+            @Html.ValidationMessageFor(m => m.UserId)
+            <span id="UserListValidation" class="error" style="display: none;">Assign at least one user</span>
+            <span id="DuplicateUserValidation" class="error" style="display: none;">Selected Engg assigned already</span>
+            <div class="clearfix mt10"></div>
+        </div>
+        <div class="col-sm-7 col-md-7 col-lg-7">
+            <div id="divEmpDetails" style="padding: 15px 0px 0px 0px;">
+
+            </div>
+        </div>
+        <div class="col-sm-1 col-md-1 col-lg-1 " style="padding: 15px 20px 0px 0px;">
+            <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddEngg" onclick="javascript: AddEngg(this);"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add Engg</button>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btnAddEngg").prop("disabled", true);
+        // LoadCommonDetails();
+    });
+    function getEmployeeDetailsByUserId(obj) {
+        $("#DuplicateUserValidation").hide();
+        var userId = $(obj).val();
+        if (userId < 1) {
+            $("#btnAddEngg").prop("disabled", true);
+            $('#divEmpDetails').html('');
+            return;
+        } else {
+            var index = jQuery.inArray(userId, usersList);
+            if (index > -1) {
+                $("#DuplicateUserValidation").show();
+                $("#UserId").val('-1');
+                return;
+            }
+        }
+        $.ajax({
+            url: '../User/GetUserDetailsByUserId',
+            type: 'POST',
+            data: {
+                userId: userId
+            },
+            beforeSend: function (e) {
+                //BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                //    parentElement: $('#divSOLoadingIconId'),
+                //    position: "center"
+                //});
+            },
+            success: function (response) {
+                $('#divEmpDetails').html(response);
+                if (userId > 0) {
+                    $("#btnAddEngg").prop("disabled", false);
+                    $("#UserListValidation").hide();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    function getUsersByStateId(obj) {
+        var stateId = $(obj).val();
+        $.ajax({
+            url: '../User/GetUsersListByStateId',
+            type: 'POST',
+            data: {
+                stateId: stateId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+            },
+            success: function (users) {
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < users.length; i++) {
+                    s += '<option value="' + users[i].UserId + '">' + users[i].UserFullName + '</option>';
+                }
+                $("#UserId").html(s);
+                $("#UserListValidation").hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+
+    //function LoadCommonDetails() {
+    //  //  alert($("#hdnControlNumberGuid").val());
+    //    $.ajax({
+    //        url: '../Common/LoadCommonDetails',
+    //        type: 'POST',
+    //        data: {
+    //            visitGuid: $("#VisitGuid").val(),
+    //            controlNumberGuid: $("#hdnControlNumberGuid").val(),
+    //            ServiceOrderId: 0,
+    //        },
+    //        beforeSend: function (e) {
+    //            BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+    //        },
+    //        success: function (response) {
+    //            $("#CommonDetailsDiv").html(response);
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+    //        }
+    //    });
+    //}
+</script>

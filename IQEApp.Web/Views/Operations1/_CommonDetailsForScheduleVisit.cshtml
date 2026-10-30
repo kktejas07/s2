@@ -1,0 +1,75 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.CommonModels.CommonDetailsViewModel
+
+
+@if (Model.ServiceOrderDetails != null)
+{
+<input id="hdnServiceOrderId" type="hidden" value="@Model.ServiceOrderDetails.SOId" />
+}
+
+<script>
+    $(document).ready(function () {
+        //debugger;
+        //   @*alert('@ViewBag.IsBlockEquipmentItem');*@
+        $("#EquipmentName").val('');
+        if ('@ViewBag.IsBlockEquipmentItem' == 'True') {
+            //$("#EquipmentName").prop('readonly', true);
+            $("#EquipmentName").prop('readonly', true);
+            // $("#EquipmentName").val('test');
+        } else {
+            $("#EquipmentName").prop('readonly', false);
+        }
+    });
+
+    function SelectPurchaseOrderForScheduleVisit(obj) {
+        $("#hdnSelectedPOID").val($(obj).val());
+      //  alert($("#hdnSelectedPOID").val());
+        $(".jsSelectPurchaseOrder").each(function(index, element) {
+            $(".jsSelectPurchaseOrder").prop('checked', false);
+        });
+        $(obj).prop("checked", true);
+    }
+
+    //function fnGetPODetailsByManufacturerUnitCumSOID1() {
+    //    var controlNumber = $("#ControlNumberGuid").children("option").filter(":selected").text()
+    //    $.ajax({
+    //        url: '../Operations1/GetPODetailsForScheduleVisit1',
+    //        type: 'POST',
+    //        data: {
+    //            ControlNo: controlNumber
+    //        },
+    //        beforeSend: function (e) {
+
+    //        },
+    //        success: function (responseHtml) {
+    //            $("#divPoList").html(responseHtml);
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+    //        }
+    //    });
+    //}
+    function fnGetPODetailsByManufacturerUnitCumSOID() {
+        $.ajax({
+            url: '../Operations1/GetPODetailsForScheduleVisit',
+            type: 'POST',
+            data: {
+                manufacturerUnitId:$("#drpManufacturerUnit").val(),
+                ServiceOrderId: $("#hdnServiceOrderId").val()
+               },
+            beforeSend: function (e) {
+
+            },
+            success: function (responseHtml) {
+                $("#divPoList").html(responseHtml);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+</script>

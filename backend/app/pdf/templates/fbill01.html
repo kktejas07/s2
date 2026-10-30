@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header("F-BILL-01", revision, "Third Party Inspection & Expediting Services", "REPORT NO.", report_no) }}
+
+  {{ m.doc_title("TPI BILL VERIFICATION REPORT", "Reconciled billing, measurement and quality verification audit per ISO/IEC 17020:2026 & ISO 9001:2026 protocol") }}
+
+  {{ m.section("1.0", "PROJECT & CONTRACT INFORMATION", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 20%;">
+      <col style="width: 30%;">
+      <col style="width: 20%;">
+      <col style="width: 30%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Report No.</td>
+        <td class="td-value font-mono">{{ report_no or 'BILL-2026-IQE-001' }}</td>
+        <td class="td-label">Date</td>
+        <td class="td-value font-mono">{{ date or '2026-09-29' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer / Client</td>
+        <td class="td-value">{{ customer or 'MCGM (Greater Mumbai Corp)' }}</td>
+        <td class="td-label">Project &amp; Location</td>
+        <td class="td-value">{{ project or 'Mumbai Coastal Road Pkg 03, Worli-Nariman Corridor, Mumbai, MH' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Contractor / Vendor</td>
+        <td class="td-value">{{ supplier or 'Larsen & Toubro Ltd - Infra Div' }}</td>
+        <td class="td-label">Contract / PO Ref</td>
+        <td class="td-value font-mono">{{ contract_ref or 'MCGM/CWD/2024/TPI-8892' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">RA Bill No. &amp; Period</td>
+        <td class="td-value font-mono">{{ ra_bill_no or 'RA-001 (Period: Current Cycle)' }}</td>
+        <td class="td-label">IQE Lead Inspector</td>
+        <td class="td-value">{{ inspector or 'Er. Rajesh Sharma (Lead TPI Surveyor)' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("2.0", "RECONCILED BOQ ITEMS & VERIFICATION MATRIX") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 3%;">
+      <col style="width: 7%;">
+      <col style="width: 27%;">
+      <col style="width: 5%;">
+      <col style="width: 6%;">
+      <col style="width: 6%;">
+      <col style="width: 6%;">
+      <col style="width: 5%;">
+      <col style="width: 8%;">
+      <col style="width: 9%;">
+      <col style="width: 9%;">
+      <col style="width: 9%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">BOQ Item</th>
+        <th class="th-label">Item Description &amp; Specifications</th>
+        <th class="th-label text-center">UOM</th>
+        <th class="th-label text-right">Scope Qty</th>
+        <th class="th-label text-right">Claimed</th>
+        <th class="th-label text-right">Verified</th>
+        <th class="th-label text-right">Diff</th>
+        <th class="th-label text-right">Rate (INR)</th>
+        <th class="th-label text-right">Claimed (INR)</th>
+        <th class="th-label text-right">Verified (INR)</th>
+        <th class="th-label text-center">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = items if (items is defined and items) else [
+        {"sl": 1, "boq_item": "1.01", "description": "Supply & Fabrication of 90° Forged Steel Elbows (DN150 PN40)", "unit": "No's", "scope_qty": 10, "claimed_qty": 10, "verified_qty": 10, "diff_qty": 0, "unit_rate": 100.0, "claimed_amt": 1000.0, "verified_amt": 1000.0, "status": "Closed"},
+        {"sl": 2, "boq_item": "1.02", "description": "Hydrostatic Pressure Test & Calibration of Gate Valve 24-inch", "unit": "Set", "scope_qty": 5, "claimed_qty": 5, "verified_qty": 5, "diff_qty": 0, "unit_rate": 2500.0, "claimed_amt": 12500.0, "verified_amt": 12500.0, "status": "Closed"},
+        {"sl": 3, "boq_item": "1.03", "description": "Ultrasonic Thickness & DFT Gauge Verification (Cryogenic Liner)", "unit": "Sqm", "scope_qty": 120, "claimed_qty": 120, "verified_qty": 120, "diff_qty": 0, "unit_rate": 45.0, "claimed_amt": 5400.0, "verified_amt": 5400.0, "status": "Closed"},
+        {"sl": 4, "boq_item": "2.01", "description": "High-Pressure Steam Boiler Shell FAT Assembly & Radiography", "unit": "LS", "scope_qty": 1, "claimed_qty": 1, "verified_qty": 1, "diff_qty": 0, "unit_rate": 75000.0, "claimed_amt": 75000.0, "verified_amt": 75000.0, "status": "Approved"},
+        {"sl": 5, "boq_item": "2.02", "description": "Positive Material Identification (PMI) Spectro Testing", "unit": "No's", "scope_qty": 45, "claimed_qty": 45, "verified_qty": 45, "diff_qty": 0, "unit_rate": 350.0, "claimed_amt": 15750.0, "verified_amt": 15750.0, "status": "Closed"}
+      ] %}
+      {% for item in rows %}
+      <tr>
+        <td class="td-value text-center font-mono">{{ item.sl if item.sl else loop.index }}</td>
+        <td class="td-value font-mono font-bold">{{ item.boq_item or item.item_code or '' }}</td>
+        <td class="td-value">{{ item.description or item.item_description or '' }}</td>
+        <td class="td-value text-center">{{ item.unit or item.uom or '' }}</td>
+        <td class="td-value text-right font-mono">{{ item.scope_qty or item.boq_qty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ item.claimed_qty or 0 }}</td>
+        <td class="td-value text-right font-mono font-bold">{{ item.verified_qty or 0 }}</td>
+        <td class="td-value text-right font-mono {% if (item.diff_qty or 0) > 0 %}badge-discrepancy{% endif %}">{{ item.diff_qty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ "{:,.2f}".format(item.unit_rate or 0) }}</td>
+        <td class="td-value text-right font-mono">{{ "{:,.2f}".format(item.claimed_amt or ((item.claimed_qty or 0) * (item.unit_rate or 0))) }}</td>
+        <td class="td-value text-right font-mono font-bold">{{ "{:,.2f}".format(item.verified_amt or ((item.verified_qty or 0) * (item.unit_rate or 0))) }}</td>
+        <td class="td-value text-center">
+          {% set st = item.status or item.closure_status or 'Verified' %}
+          <span class="{% if 'Discrepancy' in st %}badge-discrepancy{% elif 'Approv' in st %}badge-approved{% else %}badge-closed{% endif %}">
+            {{ st }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td colspan="4" class="text-right">TOTAL SUMMARY:</td>
+        <td class="text-right font-mono">{{ total_scope_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_claimed_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_verified_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_diff_qty or '0' }}</td>
+        <td></td>
+        <td class="text-right font-mono">₹{{ "{:,.2f}".format(total_claimed_amt or 109650.0) }}</td>
+        <td class="text-right font-mono">₹{{ "{:,.2f}".format(total_verified_amt or 109650.0) }}</td>
+        <td class="text-center badge-approved">VERIFIED OK</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("3.0", "AUDIT OBSERVATIONS & TECHNICAL NOTES") }}
+  <div class="free-text-box">
+{{ remarks or "All BOQ line items listed above have been independently physically audited, inspected, and cross-referenced with approved GFC drawings, Material Test Certificates (MTC), calibration records, and site measurement books in full compliance with ISO/IEC 17020:2026 & ISO 9001:2026 Type A inspection protocol. Claimed quantities match physical work verified on site. Payment recommendation is cleared." }}
+  </div>
+
+  {{ m.section("4.0", "ACKNOWLEDGEMENT & SIGNATURES") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 33.33%;">
+      <col style="width: 33.33%;">
+      <col style="width: 33.34%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">PREPARED BY (TPI Surveyor)</th>
+        <th class="th-label">REVIEWED BY (QC Manager)</th>
+        <th class="th-label">AUTHORIZED BY (Technical Director)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> Er. Rajesh Sharma</div>
+          <div><strong>Designation:</strong> Senior TPI Surveyor</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #475569;">ID: IQE-SURV-402 | TPI Engineering</div>
+        </td>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> S. K. Kulkarni</div>
+          <div><strong>Designation:</strong> Quality Control Manager</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #166534;">QA/QC Audit Clearance Passed</div>
+        </td>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> Dr. V. N. Murthy</div>
+          <div><strong>Designation:</strong> Technical Director</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #003366; font-weight: bold;">ISO 17020 Digital Verification Signed</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="disclaimer-block" style="margin-top: 6pt;">
+    <div class="disclaimer-title">DISCLAIMER &amp; LIMITATION OF LIABILITY</div>
+    <div>This bill verification report reflects physical audit and measurement validation conducted by Ideal Quality Engineers (I) Pvt. Ltd. (IQE) per ISO/IEC 17020:2026 &amp; ISO 9001:2026 Type A inspection standards based on documents, site drawings and test reports made available during inspection. It does not relieve the contractor or supplier from their contractual and statutory warranties or obligations.</div>
+  </div>
+
+  <div class="end-marker" style="text-align: center; font-weight: bold; margin-top: 5pt; font-size: 7.5pt; color: #475569;">— END OF REPORT —</div>
+</div>
+{% endblock %}

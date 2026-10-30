@@ -1,0 +1,185 @@
+﻿@{
+    Layout = "~/Views/Shared/BaseLayout.cshtml";
+    ViewBag.Title = "Home Page";
+}
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model  IQEApp.Web.Models.HomeModel.HomeBusinessModel
+<link href="~/Content/plugins/Calendar/css/pignose.calendar.css" rel="stylesheet" media="none" onload="if (media != 'all') media = 'all'" />
+<script src="~/Content/plugins/Calendar/js/moment.min.js"></script>
+<script src="~/Content/plugins/Calendar/pg-calendar/dist/js/pignose.calendar.min.js"></script>
+
+@*<div class="box-header with-border">
+    <h3 class="box-title">Choose Date</h3>
+    <input type="datetime-local" />
+</div>*@
+
+<div id="divVisitLoading"></div>
+<div class="clearfix mt20"></div>
+@*@if (@User.RoleId.FirstOrDefault() == (int)UserRoles.EmployeeRole) 
+{*@
+    <div class="">
+        <div class="">
+            @*<div class="col-sm-3 col-md-3 col-lg-3">
+                @Html.Partial("_ViewVisitSchedules", @Model.LstVisitsSummaryViewModel)
+            </div>
+            <div class="col-sm-9 col-md-9 col-lg-9">*@
+            <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                    Visit No.
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                    Visit Date
+                    <button id="btnSchDtAsc" onclick="SortHomePageGrid('Asc', 'Date');" style="background: transparent; border: none;"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i></button>
+                    <button id="btnSchDtDesc" onclick="SortHomePageGrid('Desc', 'Date');" style="background: transparent; display: none; border: none;"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i></button>
+                </div>
+
+                @*
+                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                    S.O. No.
+                </div>*@
+                <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                    Control No.
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                    Manufacturer Details
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                    Schedule Comments
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                    Status
+                    <button id="btnSchStAsc" onclick="SortHomePageGrid('Asc', 'Status');" style="background: transparent; border: none;"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i></button>
+                    <button id="btnSchStDesc" onclick="SortHomePageGrid('Desc', 'Status');" style="background: transparent; display: none; border: none;"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i></button>
+                </div>
+
+                <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+
+                </div>
+            </div>
+                <div id="divMySchedules">
+                    @if (Model.LstHomeDetailViewModel.Any())
+                    {
+                        @Html.Partial("_ViewMySchedules", @Model.LstHomeDetailViewModel)
+                    }
+                    else
+                    {
+                        <span> No Records available</span>
+                    }
+                </div>
+            @*</div>*@
+        </div>
+        <input type="hidden" id="selStatusId" value="1" />
+    </div>
+@*}
+else
+{
+<div class="">
+    <div class="col-sm-12 col-md-12 col-lg-12 ">
+        <div class="col-sm-3 col-md-3 col-lg-3">
+            @Html.Partial("_calender")
+        </div>
+        <div class="col-sm-9 col-md-9 col-lg-9">
+
+        </div>
+    </div>
+    <input type="hidden" id="selStatusId" value="1" />
+</div>
+}*@
+
+<script type="text/javascript">
+    //function FetchMyScheduledVisits(statusId) {
+    //    $('#selStatusId').val(statusId);
+    //    $.ajax({
+    //        url: '../Home/FetchMyScheduledVisits',
+    //        type: 'POST',
+    //        data: {
+    //            statusId: statusId
+    //        },
+    //        beforeSend: function (e) {
+    //            BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divVisitLoading'), position: "center" });
+    //        },
+    //        success: function (data) {
+    //            $('#divMySchedules').html('');
+    //            $('#divMySchedules').html(data);
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divVisitLoading'));
+    //        }
+    //    });
+    //}
+    function SortHomePageGrid(OrderBy, Name) {
+
+        $.ajax({
+            url: '../Home/SortMyScheduleVisits',
+            type: 'POST',
+            data: {
+                statusId: $('#selStatusId').val(),
+                secName: Name,
+                OrderBy: OrderBy
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divVisitLoading'), position: "center" });
+            },
+            success: function (data) {
+                $('#divMySchedules').html('');
+                $('#divMySchedules').html(data);
+                $('#btnSchDtAsc').show();
+                $('#btnSchDtDesc').hide();
+                $('#btnSchStAsc').show();
+                $('#btnSchStDesc').hide();
+                if ((Name == 'Date') &&  (OrderBy == 'Asc')) {
+                    $('#btnSchDtAsc').hide();
+                    $('#btnSchDtDesc').show();
+                } else if ((Name == 'Date') && (OrderBy == 'Desc')) {
+                    $('#btnSchDtAsc').show();
+                    $('#btnSchDtDesc').hide();
+                } else if ((Name == 'Status') && (OrderBy == 'Asc')) {
+                    $('#btnSchStAsc').hide();
+                    $('#btnSchStDesc').show();
+                } else if ((Name == 'Status') && (OrderBy == 'Desc')) {
+                    $('#btnSchStAsc').show();
+                    $('#btnSchStDesc').hide();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divVisitLoading'));
+            }
+        });
+    }
+
+    function InitiateVisitScheduleByEngg(visitId) {
+        var options = {};
+        options.msg = "Your accepting the visit.. Do you want to continue ? (Accepted visits will be marked as visit initiated)";
+        ShowConfirmationPrompt(function() {
+            $.ajax({
+                url: '../VisitProcessing/AcceptVisitSchedule',
+                data: {visitId:visitId},
+                type: 'POST',
+                beforeSend:function() {
+
+                },
+                success: function (response) {
+                    if (response.status == false) {
+                            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                        $("#divMySchedules").html(response);
+                        setTimeOut(function(){ }, 10000);
+                    }
+                },
+                error:function() {
+
+                },
+                complete:function() {
+
+                }
+            });
+        }, options);
+    }
+</script>

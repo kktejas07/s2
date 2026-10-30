@@ -1,0 +1,739 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ControlNumberModel.ControlNumberDetailsModel
+
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+<link href="~/Content/multiselectcheckbox/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/Content/multiselectcheckbox/js/bootstrap-multiselect.js"></script>
+
+<style>
+    /* Force custom style override */
+    /* ===== Compact Modern PO Dropdown Table ===== */
+    .table.po-group-table {
+        background-color: #f9fbfe !important; /* Soft blue-white background */
+        border: 1px solid #d4dbe8 !important;
+        border-radius: 6px;
+        overflow: hidden;
+        font-size: 11px !important;
+        color: #1b1f27 !important;
+    }
+
+        /* Header Row (PO Info) */
+        .table.po-group-table thead tr.po-header-row {
+            background: linear-gradient(90deg, #007bff 0%, #c9dcff 100%) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            font-size: 11px !important;
+            letter-spacing: 0.2px;
+        }
+
+        /* Subheader Row (Column Titles) */
+        .table.po-group-table thead tr.po-subheader-row {
+            background-color: #edf2fb !important;
+            color: #2d3b52 !important;
+            font-weight: 500 !important;
+            font-size: 11.5px !important;
+        }
+
+        /* Table Cells */
+        .table.po-group-table th,
+        .table.po-group-table td {
+            border-color: #d4dbe8 !important;
+            padding: 3px 5px !important;
+            vertical-align: middle !important;
+            line-height: 1.1em !important;
+        }
+
+        /* Hover Highlight */
+        .table.po-group-table tbody tr:hover {
+            background-color: #eaf2ff !important;
+            transition: background 0.15s ease-in-out;
+        }
+
+        /* Checkbox scaling */
+        .table.po-group-table input[type="checkbox"] {
+            transform: scale(1.0);
+        }
+
+    /* Subtle container shadow */
+    .table-responsive {
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        border-radius: 6px;
+    }
+
+    /* Visual separator between groups */
+    .table.po-group-table + .table.po-group-table {
+        margin-top: 8px;
+        border-top: 1px solid #b3c8f7 !important;
+    }
+
+    .form-control {
+        font-size: 12px;
+    }
+
+    /* Styles for centering and aligning checkboxes */
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .alert-warning {
+        color: #e60000 !important;
+        background-color: #ffffff;
+        font-size: 12px; /* Adjust font size if necessary */
+        font-weight: bold; /* Make the text bold for better readability */
+        padding: 10px; /* Ensure proper padding for aesthetics */
+        border: 1px solid #e60000; /* Add a border for better distinction */
+        border-radius: 8px; /* Rounded corners for a clean look */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    }
+    /* For the dropdown box itself */
+    .multiselect-container {
+        width: 200px !important; /* fixed width */
+        white-space: normal; /* allow wrapping */
+        word-break: break-word; /* wrap long words if needed */
+    }
+
+        /* For individual options inside the dropdown */
+        .multiselect-container li a {
+            white-space: normal !important;
+            overflow-wrap: break-word;
+            display: block;
+        }
+
+
+
+    /* Padding for checkboxes to align with the column text */
+    .checkbox-container input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+    /* Style to make each column header visually centered */
+    .directory-table-header > div,
+    .directory-table-row > div {
+        display: flex;
+        align-items: center;
+    }
+    /* Style for the dropdown list container */
+    #poSection {
+        position: relative; /* Ensure the dropdown is positioned relative to this container */
+    }
+
+    #poItems {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        position: absolute;
+        background-color: white;
+        width: 100%; /* Make sure it matches the width of the input */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for better visibility */
+        z-index: 9999; /* Ensure the list stays on top of other elements */
+    }
+
+        #poItems ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #poItems li {
+            padding: 8px;
+            cursor: pointer;
+            font-size: 14px; /* Adjust font size for better readability */
+        }
+
+            #poItems li:hover {
+                background-color: #f1f1f1;
+            }
+
+            #poItems li.selected {
+                background-color: #d3e0e0; /* Highlight background */
+                font-weight: bold; /* Bold text for the selected item */
+            }
+
+    .dropdown-checkbox {
+        position: absolute;
+        width: 200px;
+        border: 1px solid #ccc;
+        background: #fff;
+        z-index: 1000;
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+        .dropdown-checkbox label {
+            display: block;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .dropdown-checkbox input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+    .po-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 800px;
+        max-height: 220px;
+        border: 1px solid #ccc;
+        background: #fff;
+        z-index: 999;
+        overflow-y: auto;
+        padding: 8px;
+        border-radius: 4px;
+    }
+
+        .po-dropdown label {
+            display: block;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+    .selected-tag {
+        word-break: break-word;
+        white-space: normal;
+        max-width: 100%;
+    }
+</style>
+
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h2 class="box-title"> <span id="spnHeadTitle">Operations &#8667; Visit Schedule </span></h2>
+        </div>
+    </div>
+</div>
+
+<!-- Radio Buttons -->
+<div class="form-group d-flex align-items-center">
+    <label class="control-label me-2" style="background-color: #B8DBFD; line-height:2.5">Select Type:</label>&nbsp;&nbsp;
+    <div>
+        <input type="radio" name="selectionType" id="clientRadio" value="Client" onchange="toggleSections()" /> <b> Customer </b>
+        <input type="radio" name="selectionType" id="poProspective" value="Prospective" class="ms-2" onchange="toggleSections()" /> <b> Prospective</b>
+    </div>
+</div>
+
+<!-- Client Section -->
+<div id="clientSection" style="display:none">
+    <table class="table">
+        <tr>
+            <th style="width:25%;">
+                @Html.LabelFor(m => m.ClientId, "Customer")
+                @Html.DropDownListFor(m => m.ClientId,
+                    new SelectList(Model.LstClients, "ClientId", "ClientName"),
+                    "Select",
+                    new { @class = "form-control", id = "ClientId", onchange = "onClientChanged(this)" })
+            </th>
+
+            <th style="width: 25%; position: relative;">
+                @Html.Label("PO Number")
+                <input id="poTextBox" class="form-control" placeholder="Search PO Number/Control No/Manufacturer Name/" style="width:300px;" disabled="disabled" />
+                <div id="poDropdown" class="po-dropdown border p-2 bg-white shadow" style="display:none; position:absolute; z-index:999;"></div>
+                <div id="poCount" class="text-info mt-1"></div>
+            </th>
+            <th id="selectedPOTh" style="width: 50%;">
+                @Html.Label("Selected PO Numbers")
+                <div id="selectedPOTags" style="width: 600px; max-height: 100px; overflow-y: auto; overflow-x: hidden;
+                 display: none; flex-wrap: wrap; gap: 6px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff;">
+                </div>
+            </th>
+
+        </tr>
+    </table>
+</div>
+
+<div id="selectedPODetails" class="mt-3" style="display:none">
+    <h5>PO Item Details</h5>
+
+    <div style="max-height: 300px; overflow-y: auto;">
+        <table class="table table-bordered table-sm table-fixed-header" id="poItemDetailsTable">
+            <thead class="thead-dark" style="position: sticky; top: 0; background-color: #fff; z-index: 1;">
+                <tr>
+                    <th>PO Number</th>
+                    <th>File No</th>
+                    <th>Item No</th>
+                    <th>Control No</th>
+                    <th>Client Unit</th>
+                    @*<th>SO No</th>*@
+                    <th>Manufacturer</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>UOM</th>
+                    @*<th>Allowed Visits</th>*@
+                    <th>Remarks</th>
+                    <th>Insp Activity</th>
+                </tr>
+            </thead>
+            <tbody id="poDetailBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="locationSectionWrapper" class="mt-3">
+</div>
+
+<div id="manufacturerVisitContainer" class="mt-3" style="display:none">
+    <h5>Assigned Manufacturer Visit Location(s)</h5>
+    <table class="table table-bordered manufacturer-location-table mb-2">
+        <thead>
+            <tr style="background-color: #f5f5f5;">
+                <th style="width:10px"></th>
+                <th style="width:250px">Manufacturer</th>
+                <th style="width:400px">Insp Location & Address</th>
+                <th style="width:150px">Contact No</th>
+                <th style="width:100px">Cost</th>
+                <th style="width:10px">Action</th>
+            </tr>
+        </thead>
+        <tbody id="manufacturerVisitData">
+            <!-- Rows appended here -->
+        </tbody>
+    </table>
+</div> <!-- manufacturer-location table -->
+
+
+<div id="visitdatesWrapper" class="mt-3">
+</div>
+
+<script>
+    function toggleSections() {
+        $("#clientSection").show();
+    }
+
+    let clientPOList = [];
+    let selectedPONumbers = [];
+
+    function onClientChanged(sel) {
+        const clientId = sel.value;
+        $('#poTextBox').val('').prop('disabled', !clientId);
+        $('#poDropdown, #poCount, #selectedPOTags').hide().empty();
+        $('#poDetailBody').empty();
+        selectedPONumbers = [];
+
+        if (!clientId) return;
+
+        $.getJSON('../VisitSchedule/GetAllPONumbersByClient', { clientId })
+            .done(data => {
+                clientPOList = data;
+            })
+            .fail(() => alert('Error loading PO numbers.'));
+    }
+
+    $('#poTextBox').on('focus click', function () {
+        debugger;
+        if (clientPOList.length)
+            buildPODropdown(clientPOList);
+        if (clientPOList.length == 0) {
+            $('#poDropdown').html(`<div class="alert alert-warning text-center" style="margin-top:10px;">
+             <strong>No Data found for the selected customer.</strong>
+             </div>`).show();
+        }
+    });
+
+    $('#poTextBox').on('keyup', function () {
+        debugger;
+        const query = this.value.trim().toLowerCase();
+        if (query.length === 0) {
+            $('#poDropdown').html(`<div class="alert alert-warning text-center" style="margin-top:10px;">
+                <strong>No Data found for the selected customer.</strong>
+            </div>`).show();
+            // $('#poDropdown').hide();
+            return;
+        }
+
+        const filtered = clientPOList.filter(p => p.ManufacturerName.toLowerCase().includes(query) || p.PONumber.toLowerCase().includes(query)
+            || p.ControlNo.toLowerCase().includes(query) || p.PurchaseID.toLowerCase().includes(query));
+        buildPODropdown(filtered, true);
+    });
+
+    function buildPODropdown(list, showSelectAll = false) {
+        debugger;
+        const $dropdown = $('#poDropdown');
+        if (!list.length) return $dropdown.hide();
+
+        // Group items by PO Number
+        const grouped = list.reduce((acc, item) => {
+            const groupKey = item.PONumber || "Unknown PO";
+            if (!acc[groupKey]) acc[groupKey] = [];
+            acc[groupKey].push(item);
+            return acc;
+        }, {});
+
+        let html = '';
+        html += `<div class="table-responsive" style="max-height: 500px; overflow-y: auto;">`;
+
+        // === Iterate Each PO Group ===
+        Object.keys(grouped).forEach(poNumber => {
+            const items = grouped[poNumber];
+            const header = items[0];
+            const groupId = `grp_${poNumber.replace(/\W+/g, '_')}`;
+
+            html += `
+            <table class="table table-bordered table-sm mb-2 align-middle po-group-table">
+            <thead>
+                <tr class="po-header-row">
+                    <th style="width:80px; text-align:center;">
+                        <input type="checkbox" class="groupSelectAll" data-group="${groupId}" /> All
+                    </th>
+                    <th colspan="2" >
+                        PO: ${header.PONumber || ''} &nbsp;&nbsp;
+                    </th>
+                    <th>CO.No: ${header.ControlNo || ''}</th>
+                    <th colspan="3">Mfr: ${header.ManufacturerName || ''}</th>
+                    <th style="width:150px;">File #: ${header.PurchaseID || ''}</th>
+                </tr>
+                <tr>
+                    <th style="width:60px;"></th>
+                    <th style="width:40px;">Item</th>
+                    <th colspan="4">Description</th>
+                    <th style="width:80px;">QTY</th>
+                    <th style="width:80px;">UOM</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+            // === Item Rows ===
+            items.forEach((item, index) => {
+                const key = `${item.PONumber}_${item.PurchaseID}_${item.POItemNo}`;
+                const isChecked = selectedPONumbers.some(x =>
+                    `${x.PONumber}_${x.PurchaseID}_${x.POItemNo}` === key
+                );
+
+                html += `
+            <tr data-group="${groupId}">
+                <td style="text-align:center;">
+                    <input type="checkbox" class="poChk"
+                        ${isChecked ? 'checked' : ''}
+                        data-poid="${item.POID}"
+                        data-purchaseid="${item.PurchaseID}"
+                        data-ponid="${item.PONID}"
+                        data-ponumber="${item.PONumber}"
+                        data-unitid="${item.ClientUnitId}"
+                        data-unit="${item.ClientUnitName}"
+                        data-ctrlid="${item.ControlID}"
+                        data-ctrl="${item.ControlNo}"
+                        data-soid="${item.SOId}"
+                        data-mfrid="${item.ManufacturerId}"
+                        data-mfr="${item.ManufacturerName}"
+                        data-poitemid="${item.POItemId}"
+                        data-poitemno="${item.POItemNo}"
+                        data-descr="${item.Description}"
+                        data-qty="${item.Quantity}"
+                        data-uomid="${item.UOMId}"
+                        data-uomname="${item.UOMName}"
+                        data-remarks="${item.Remarks}"
+                        data-insact="${item.InspectionActivity}">
+                </td>
+                <td>${index + 1}</td>
+                <td colspan="4">${item.Description || ''}</td>
+                <td>${item.Quantity || ''}</td>
+                <td>${item.UOMName || ''}</td>
+            </tr>`;
+            });
+
+            html += `</tbody></table>`;
+        });
+
+        html += `</div>`;
+        $dropdown.html(html).show();
+
+        // === Checkbox Logic ===
+        $(document).off('change', '.groupSelectAll').on('change', '.groupSelectAll', function () {
+            const group = $(this).data('group');
+            const checked = this.checked;
+            $(`tr[data-group="${group}"] .poChk`).prop('checked', checked).trigger('change');
+        });
+
+        $(document).off('change', '.poChk').on('change', '.poChk', handlePOCheckboxChange);
+
+        updateCount();
+    }
+    function handlePOCheckboxChange() {
+         debugger;
+        const $chk = $(this);
+        const item = {
+            ManufacturerName: $chk.data('mfr'),
+            ManufacturerId: $chk.data('mfrid'),
+            PONumber: $chk.data('ponumber'),
+            PurchaseID: $chk.data('purchaseid'),
+            POItemNo: $chk.data('poitemno')
+        };
+        const key = `${item.PONumber}_${item.PurchaseID}_${item.POItemNo}`;
+        const displayText = `${item.PONumber}-${item.PurchaseID}-${item.POItemNo}`;
+        window.processedManufacturers = window.processedManufacturers || new Set();
+        if (this.checked) {
+            // Add to selected list
+            selectedPONumbers.push(item);
+
+            if ($(`#poDetailBody tr[data-key="${key}"]`).length === 0) {
+                $("#selectedPODetails").show();
+                $('#poDetailBody').append(`<tr data-key="${key}">
+                <td>${item.PONumber}<input type="hidden" class="ponid-hidden" value="${$chk.data('ponid')}" /></td>
+                <td>${item.PurchaseID}<input type="hidden" class="poid-hidden" value="${$chk.data('poid')}" /></td>
+                <td>${item.POItemNo}<input type="hidden" class="poitemid-hidden" value="${$chk.data('poitemid')}" /></td>
+                <td>${$chk.data('ctrl')}<input type="hidden" class="ctrl-id-hidden" value="${$chk.data('ctrlid')}" /></td>
+                <td>${$chk.data('unit')}<input type="hidden" class="unit-id-hidden" value="${$chk.data('unitid')}" /></td>
+                <td>${$chk.data('mfr')}<input type="hidden" class="mfr-id-hidden" value="${$chk.data('mfrid')}" /></td>
+                <td>${$chk.data('descr') || ''}</td>
+                <td>${$chk.data('qty')}</td>
+                <td>${$chk.data('uomname') || ''}<input type="hidden" class="uom-id-hidden" value="${$chk.data('uomid')}" /></td>
+                <td>${$chk.data('remarks') || ''}</td>
+                <td><input type="text" class="form-control insact-input" value="${$chk.data('insact') || ''}" /></td>
+            </tr>`);
+            }
+
+            if ($(`#selectedPOTags .selected-tag[data-key="${key}"]`).length === 0) {
+                $('#selectedPOTags').append(`
+                <span class="badge badge-primary selected-tag" data-key="${key}" style="margin: 4px; padding: 8px; background-color: #007bff; color: white; border-radius: 12px; cursor: pointer;">
+                    ${displayText}
+                    <span class="ms-1" onclick="removeTag('${key}')" style="cursor:pointer;">&times;</span>
+                </span>`).show();
+            }
+
+            if (!locationSelectionLoaded) {
+                locationSelectionLoaded = true;
+                loadStaticLocationSection();
+            }
+            debugger;
+            const manufacturerKey = `${item.ManufacturerId}_${item.ManufacturerName}`;
+            if (!window.processedManufacturers.has(manufacturerKey)) {
+                updateManufacturerMappingSection(item.ManufacturerName, item.ManufacturerId);
+                window.processedManufacturers.add(manufacturerKey);
+            }
+            //updateManufacturerMappingSection(item.ManufacturerName, item.ManufacturerId);
+        }
+        else {
+            // Remove from selection
+            selectedPONumbers = selectedPONumbers.filter(x =>
+                !(x.ManufacturerName === item.ManufacturerName &&
+                    x.PONumber === item.PONumber &&
+                    x.PurchaseID === item.PurchaseID &&
+                    x.POItemNo === item.POItemNo));
+
+            removePOEntry(key);
+
+            const remainingPOsForMfr = $(`.poChk[data-mfrid="${item.ManufacturerId}"]:checked`).length;
+            if (remainingPOsForMfr === 0) {
+                $(`#manufacturerVisitData tr[data-mfrid="${item.ManufacturerId}"]`).remove();
+                if ($('#manufacturerVisitData tr').length === 0) $('#manufacturerVisitContainer').hide();
+            }
+
+            if ($('.poChk:checked').length === 0) {
+                locationSelectionLoaded = false;
+                $('#locationSectionWrapper').empty();
+            }
+        }
+
+        // Sync group header state
+        const group = $chk.closest('tr').data('group');
+        if (group) {
+            const all = $(`tr[data-group="${group}"] .poChk`).length;
+            const checked = $(`tr[data-group="${group}"] .poChk:checked`).length;
+            $(`.groupSelectAll[data-group="${group}"]`).prop('checked', all === checked);
+        }
+
+        updateCount();
+    }
+
+    $(document).on("change", "#selectAllPOChk", function () {
+        const isChecked = $(this).is(":checked");
+        $("#poDropdown .poChk").each(function () {
+            const $this = $(this);
+            if ($this.prop("checked") !== isChecked) {
+                $this.prop("checked", isChecked).trigger("change");
+            }
+        });
+    });
+
+    let locationSelectionLoaded = false;
+
+    $(document).on('change', '.poChk', function () {
+        debugger;
+        const $chk = $(this);
+        const item = {
+            ManufacturerName: $chk.data('mfr'),
+            ManufacturerId: $chk.data('mfrid'),
+            PONumber: $chk.data('ponumber'),
+            PurchaseID: $chk.data('purchaseid'),
+            POItemNo: $chk.data('poitemno')
+        };
+        const key = `${item.PONumber}_${item.PurchaseID}_${item.POItemNo}`;
+        const displayText = `${item.PONumber}-${item.PurchaseID}-${item.POItemNo}`;
+
+        if (this.checked) {
+            selectedPONumbers.push(item);
+            if ($(`#poDetailBody tr[data-key="${key}"]`).length === 0) {
+                debugger;
+                $("#selectedPODetails").show();
+                $('#poDetailBody').append(`<tr data-key="${key}">
+                    <td>${item.PONumber}<input type="hidden" class="ponid-hidden" value="${$chk.data('ponid')}" /></td>
+                    <td>${item.PurchaseID}<input type="hidden" class="poid-hidden" value="${$chk.data('poid')}" /></td>
+                    <td>${item.POItemNo}<input type="hidden" class="poitemid-hidden" value="${$chk.data('poitemid')}" /></td>
+                    <td>${$chk.data('ctrl')}<input type="hidden" class="ctrl-id-hidden" value="${$chk.data('ctrlid')}" /></td>
+                    <td>${$chk.data('unit')}<input type="hidden" class="unit-id-hidden" value="${$chk.data('unitid')}" /></td>
+                    <td>${$chk.data('mfr')}<input type="hidden" class="mfr-id-hidden" value="${$chk.data('mfrid')}" /></td>
+                    <td>${$chk.data('descr') || ''}</td>
+                    <td>${$chk.data('qty')}</td>
+                    <td>${$chk.data('uomname') || ''}<input type="hidden" class="uom-id-hidden" value="${$chk.data('uomid')}" /></td>
+                    <td>${$chk.data('remarks') || ''}</td>
+                    <td><input type="text" class="form-control insact-input" value="${$chk.data('insact') || ''}" /></td>
+                </tr>`);
+            }
+
+            if ($(`#selectedPOTags .selected-tag[data-key="${key}"]`).length === 0) {
+                $('#selectedPOTags').append(`
+                    <span class="badge badge-primary selected-tag" data-key="${key}" style="margin: 4px; padding: 8px; background-color: #007bff; color: white; border-radius: 12px; cursor: pointer;">
+                        ${displayText}
+                        <span class="ms-1" onclick="removeTag('${key}')" style="cursor:pointer;">&times;</span>
+                    </span>`).show();
+            }
+
+            if (!locationSelectionLoaded) {
+                locationSelectionLoaded = true;
+                loadStaticLocationSection();
+            }
+
+            updateManufacturerMappingSection(item.ManufacturerName, item.ManufacturerId);
+        }
+        else {
+            // debugger;
+
+            selectedPONumbers = selectedPONumbers.filter(x =>
+                !(x.ManufacturerName === item.ManufacturerName && x.PONumber === item.PONumber && x.PurchaseID === item.PurchaseID && x.POItemNo === item.POItemNo));
+            removePOEntry(key);
+
+            //const $mfrRow = $(`#manufacturerVisitData tr[data-mfrid="${item.ManufacturerId}"]`);
+            //$mfrRow.remove();
+
+            const remainingPOsForMfr = $(`.poChk[data-mfrid="${item.ManufacturerId}"]:checked`).length;
+            if (remainingPOsForMfr === 0) {
+                $(`#manufacturerVisitData tr[data-mfrid="${item.ManufacturerId}"]`).remove();
+
+                if ($('#manufacturerVisitData tr').length === 0) {
+                    $('#manufacturerVisitContainer').hide();
+                }
+            }
+
+
+            if ($('.poChk:checked').length === 0) {
+                locationSelectionLoaded = false;
+                $('#locationSectionWrapper').empty();
+            }
+        }
+
+        updateCount();
+    });
+
+
+    function removeTag(compoundKey) {
+        debugger;
+        removePOEntry(compoundKey);
+        const [ponumber, pid, poitem] = compoundKey.split('_');
+        selectedPONumbers = selectedPONumbers.filter(x => !(x.PONumber === ponumber && x.PurchaseID === pid && x.POItemNo === poitem));
+
+        const $chk = $(`.poChk[data-ponumber="${ponumber}"][data-purchaseid="${pid}"][data-poitemno="${poitem}"]`);
+        $chk.prop('checked', false);
+
+        const mfrId = $chk.data('mfrid');
+
+        // Manually remove manufacturer row only if NO other checkboxes are checked for same mfr
+        const stillChecked = $(`.poChk[data-mfrid="${mfrId}"]:checked`).length;
+
+        if (stillChecked === 0) {
+            $(`#manufacturerVisitData tr[data-mfrid="${mfrId}"]`).remove();
+
+            if ($('#manufacturerVisitData tr').length === 0) {
+                $('#manufacturerVisitContainer').hide();
+            }
+        }
+
+        $(`.poChk[data-ponumber="${ponumber}"][data-purchaseid="${pid}"][data-poitemno="${poitem}"]`)
+            .prop('checked', false)
+            .trigger('change');
+
+        //  $(`.poChk[data-ponumber="${ponumber}"][data-purchaseid="${pid}"][data-poitemno="${poitem}"]`).prop('checked', false);
+        updateCount();
+    }
+
+    function removePOEntry(compoundKey) {
+        $(`#poDetailBody tr[data-key="${compoundKey}"]`).remove();
+        $(`.selected-tag[data-key="${compoundKey}"]`).remove();
+    }
+
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('#poTextBox, #poDropdown').length) {
+            $('#poDropdown').hide();
+        }
+    });
+
+    function updateCount() {
+        const n = $('.poChk:checked').length;
+        $('#poCount').text(n ? `${n} item(s) selected` : '').toggle(!!n);
+        $('#locationSectionWrapper').toggle(n > 0);
+        $('#visitdatesWrapper').toggle(n > 0);
+    }
+
+    function loadStaticLocationSection() {
+        debugger;
+        $.ajax({
+            url: '../VisitSchedule/GetCountryStateUserDetails',
+            type: 'GET',
+            success: function (html) {
+                $('#locationSectionWrapper').html(html).show();
+            },
+            error: function () {
+                alert('Failed to load location section.');
+            }
+        });
+
+        VisitDatesConfirmation();
+    }
+
+    function updateManufacturerMappingSection(mfrName, mfrId) {
+        debugger;
+        const $container = $('#manufacturerVisitData');
+        const exists = $container.find(`tr[data-mfrid="${mfrId}"]`).length > 0;
+
+        if (!exists) {
+            $.ajax({
+                url: '../VisitSchedule/GetManufacturerLocationSection',
+                type: 'GET',
+                data: {
+                    manufacturerId: mfrId,
+                    manufacturerName: mfrName,
+                },
+                success: function (html) {
+                    $("#manufacturerVisitContainer").show();
+                    $container.append(html);
+                },
+                error: function () {
+                    alert('Failed to load manufacturer visit(s) row.');
+                }
+            });
+        }
+    }
+
+
+
+    function VisitDatesConfirmation() {
+        $.ajax({
+            url: '../VisitSchedule/VisitDatesConfirmation',
+            type: 'GET',
+            data: { editFlag: false },
+            success: function (html) {
+                $('#visitdatesWrapper').html(html).show();
+            },
+            error: function () {
+                alert('Failed to load visit dates section.');
+            }
+        });
+    }
+
+</script>

@@ -1,0 +1,43 @@
+@import "base.css";
+
+@page {
+  size: 8.5in 11in;
+  margin: 0.55in 0.5in 0.6in 0.5in;
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font-family: 'Arial', sans-serif;
+    font-size: 7pt;
+    color: #555;
+  }
+}
+
+/* The generic renderer has no bespoke column widths to lean on, so rows have
+   to stay readable whatever the section turns out to contain. */
+.report-table td.td-value {
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.report-table td.td-value.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.plain-list {
+  margin: 2pt 0 6pt 16pt;
+  padding: 0;
+  font-size: 8.5pt;
+}
+
+.plain-list li {
+  margin-bottom: 2pt;
+}
+
+.generic-footer {
+  margin-top: 10pt;
+  padding-top: 4pt;
+  border-top: 0.5pt solid #999;
+  font-size: 7pt;
+  color: #555;
+  text-align: center;
+}

@@ -1,0 +1,62 @@
+﻿@model IQEApp.Web.Models.UserModel.UserViewModel
+
+<div>
+    <div>
+        <span>Employee Name: &nbsp;</span>
+        <b>@Model.UserFullName &nbsp;&nbsp;&nbsp;</b>
+        <p></p>
+        <span>Employee Code: </span>
+        <b>@Model.EmployeeCode &nbsp;&nbsp;&nbsp;</b>
+        <p></p>
+        <span>Inspector Code: &nbsp;</span>
+        <span>
+            <b>@Model.InspectorCode &nbsp;&nbsp;&nbsp;</b>
+        </span>
+        @*<span>Skill Sets: &nbsp;</span>
+            <span>
+                <b>@Model.SkillSets&nbsp; &nbsp; &nbsp;</b>
+            </span>*@
+        <p></p>
+        <span>Qualification: &nbsp;</span>
+        <span>
+            <b>@Model.Qualification&nbsp; &nbsp; &nbsp;</b>
+        </span>
+        <p></p>
+        <span>Experience: &nbsp;</span>
+        <b>@Model.Experience &nbsp; &nbsp; &nbsp;</b>
+        <p></p>
+        <span>Contact Number:: &nbsp;</span>
+        <p></p>
+        <span><b>@Model.EmpContactNumber</b>&nbsp; &nbsp; &nbsp;</span>
+        <p></p>
+        <span>Address: &nbsp;</span>
+        <span>
+            <b>
+                @Model.Address, &nbsp;
+                @Model.CityName, &nbsp;
+                @Model.StateName. &nbsp; &nbsp; &nbsp;
+            </b>
+        </span>
+    </div>
+</div>
+<div class="col-lg-12 col-md-12 col-sm-12 directory-table-row MappedEmpsTemp" style="display: none" id="divEmpMap_@Model.UserId">
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        @Model.UserFullName
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        @Model.InspectorCode
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4">
+        @Model.Address, @Model.CityName, @Model.StateName.
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        @Model.EmpContactNumber
+    </div>
+    <div class="col-lg-1 col-md-1 col-sm-1">
+        <a href="javascript:UnMapEmp('@Model.UserId',this);">
+            <i class="fa fa-trash-o mr20" aria-hidden="true">
+                &nbsp;Delete
+            </i>
+        </a>
+    </div>
+</div>

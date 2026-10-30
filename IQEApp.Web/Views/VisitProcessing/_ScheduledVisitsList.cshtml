@@ -1,0 +1,143 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.VisitProcessing.ScheduleVisitModel>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Schedule Visit</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 10pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+            width: -webkit-fill-available;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:900px;">
+        <table cellpadding="0" cellspacing="0" class="center" id="Emptable">
+            <tr>
+                <th>@Html.Label("SNo")</th>
+                <th>@Html.Label("Control No")</th>
+                <th>@Html.Label("Inspection Date")</th>
+                <th>@Html.Label("Customer Name")</th>
+                <th>@Html.Label("Unit/Project")</th>
+                <th>@Html.Label("Supplier Details")</th>
+                @*<th>@Html.Label("Location")</th>*@
+                <th>@Html.Label("PO No")</th>
+                <th>@Html.Label("PO Date")</th>
+                <th>@Html.Label("Equipment")</th>
+                <th>@Html.Label("Quantity")</th>
+                <th>@Html.Label("Inspection Activity")</th>
+                <th>@Html.Label("Inspector Name")</th>
+                <th>@Html.Label("IR NO")</th>
+                @if (ViewBag.RoleId == 1)
+                {
+                    @*<th>@Html.Label("RFI Date")</th>
+                        <th>@Html.Label("Planned Date")</th>
+                        <th>@Html.Label("Rep Rec Date")</th>
+                        <th>@Html.Label("Rep Sub Date")</th>
+                        <th>@Html.Label("Category")</th>
+
+                        <th>@Html.Label("Employment")</th>
+                        <th>@Html.Label("Days Worked")</th>*@
+
+                    <th>@Html.Label("Invoice No")</th>
+                    <th>@Html.Label("Invoice Date")</th>
+                    <th>@Html.Label("Sale Value")</th>
+                    <th>@Html.Label("Cost Value")</th>
+                    <th>@Html.Label("GP")</th>
+                }
+                @*<th>&nbsp;</th>*@
+            </tr>
+            @if (Model == null || Model.Count() == 0)
+            {
+                <tr>
+                    No Employees Found
+                </tr>
+            }
+            else
+            {
+                foreach (var obj in Model)
+                {
+        <tr>
+            @*<td>@obj.VisitId</td>*@
+            <td>@obj.VisitSeqId</td>
+            <td>@obj.ControlNo</td>
+            <td>@obj.ScheduleDate.HasValue?@obj.ScheduleDate.Value.ToString("dd-MM-yyyy"):""</td>
+            <td>@obj.ClientName</td>
+            <td>@obj.ClientUnitName</td>
+            <td>@obj.ManufacturerName/@obj.ManufacturerUnitName</td> @*@obj.ManufacturerState, @obj.ManufacturerCountry </td>*@
+            @*<td>@obj.ManufacturerUnitName</td>*@
+            <td>@obj.PONumber</td>
+            <td>
+                @string.Join(";", obj.PODate.Split(';').Select(d => DateTime.Parse(d).ToString("dd/MM/yyyy")))
+            </td>
+            <td>@obj.Equipment</td>
+            <td>@obj.Quantity</td>
+            <td>@obj.InspectionActivity</td>
+            <td>@obj.InspectorName</td>
+            <td>@obj.InspReportNo</td>
+            @if (ViewBag.RoleId == 1)
+            {
+                @*<td>@obj.RFIScheduleDate.ToShortDateString()</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>@obj.Employment</td>
+            <td></td>*@
+                <td>@obj.InvoiceNo</td>
+                <td>@obj.InvoiceDate</td>
+                <td>@obj.SaleValue</td>
+                <td>@obj.CostValue</td>
+                <td></td>
+            }
+            @*<td></td>*@
+        </tr>
+                }
+            }
+        </table>
+    </div>
+</body>
+<script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+</script>

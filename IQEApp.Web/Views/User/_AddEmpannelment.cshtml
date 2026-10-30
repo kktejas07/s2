@@ -1,0 +1,103 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.UserModel.UserDetailsModel
+<div>
+    <section id="AddCompetanceForm">
+        @using (Ajax.BeginForm("CreateEmpannelment", "User",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessCreateEmpannelment",
+                OnFailure = "onFailureCreateEmpannelment"
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+                <div class="box-header with-border row">
+                    <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+                        @Html.LabelFor(m => m.EmployeeCode, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.EmployeeCode, new { @Value = ViewBag.EmployeeCode.ToString(), @readonly = "readonly", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.EmployeeCode) })
+                        @Html.ValidationMessageFor(m => m.EmployeeCode)
+                        <div class="clearfix mt10"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.CurrencyId, new { @class = "control-label", style = "color:#236883" })
+                        @Html.DropDownListFor(m => m.CurrencyId, new SelectList(Model.LstCurrencyType, "CurrencyId", "CurrencyName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:125px;", placeholder = @Html.DisplayNameFor(model => model.CurrencyId) })
+                        @Html.ValidationMessageFor(m => m.CurrencyId)
+                        <div class="clearfix mt10"></div>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.Label("Cost (Per Hour) ", new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.CostPerHour, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.CostPerHour) })
+                        @Html.ValidationMessageFor(m => m.CostPerHour)
+                        <div class="clearfix mt10"></div>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.Label("Milage In Km (Round Trip)", new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.MilageInKm, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.MilageInKm) })
+                        @Html.ValidationMessageFor(m => m.MilageInKm)
+                        <div class="clearfix mt10"></div>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.Label("All Inclusive", new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.AllInclusive, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.AllInclusive) })
+                        @Html.ValidationMessageFor(m => m.AllInclusive)
+                        <div class="clearfix mt10"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                            <button type='button' class="btn btn-secondary pull-right" id="btnCloseAddCompetance" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: competanceList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                            <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveCompetance" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                        </div>
+                    </div>
+                    <div class="row">
+                        @Html.HiddenFor(u => u.UserId)
+                        @Html.HiddenFor(m => m.UserGuid)
+                        @Html.HiddenFor(m => m.SiteId);
+                    </div>
+            </div>
+        }
+    </section>
+</div>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>
+
+<script>
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnSaveCompetance").prop('disabled', true);
+        $("#UserPager").hide();
+    }
+
+    function onSuccessCreateEmpannelment(data) {
+        //  alert('Edit');
+        @*openEmployeeList('true');
+        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");*@
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            var oldImageGUid = $("#hdnOldImageGUId").val();
+            var newImageGUid = $("#UserImageGUID").val();
+            if (newImageGUid != oldImageGUid) {
+                DeleteFileFromAzure(oldImageGUid);
+            }
+            openEmployeeList('true');
+        } else {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            openEmployeeList('true');
+        }
+    }
+
+    function onFailureCreateEmpannelment() {
+        window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+    }
+</script>

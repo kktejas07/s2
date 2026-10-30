@@ -1,0 +1,448 @@
+﻿@model IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderDetailsModel
+
+<style>
+    /* Trim long text columns with ellipsis */
+    #inspectorTable td,
+    #inspectorTable th {
+        font-size: 13px;
+        padding: 6px 8px;
+        vertical-align: middle;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+        #inspectorTable td:nth-child(4) { /* Address column */
+            max-width: 250px;
+        }
+
+    .modal-content {
+        border-radius: 6px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+        padding: 10px 15px;
+    }
+
+    .modal-title {
+        font-size: 16px;
+    }
+
+    .btn-close {
+        background: none;
+        border: none;
+    }
+
+        .btn-close::before {
+            content: "\00d7"; /* Proper X icon */
+            font-size: 1.2rem;
+            color: #333;
+        }
+</style>
+
+
+
+@if (Model.LstCountries.Any() == true)
+{
+    <div class="table-container d-flex">
+        <!-- Location Selection Table -->
+        <div class="location-table" style="flex: 1;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="5">
+                            <small class="text-muted">Location Selection</small>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Country Dropdown -->
+                        <td class="col-sm-1 col-md-1 col-lg-1">
+                            <label>Country</label>
+                            <select id="CountryList" class="form-control redborder" style="width:150px;" onchange="getStatesByCountry(this)">
+                                <option value="-1">Select</option>
+                                @foreach (var country in Model.LstCountries)
+                                {
+                                    <option value="@country.CountryId" @(country.CountryId == Convert.ToInt32(ViewBag.SelectedCountryId) ? "selected" : "")>
+                                        @country.CountryName
+                                    </option>
+                                }
+                            </select>
+                            <span id="CountryValidation" class="error" style="display: none;">Select Country</span>
+                        </td>
+
+                        <!-- State Dropdown -->
+                        <td class="col-sm-1 col-md-1 col-lg-1">
+                            <label>State</label>
+                            @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName", Model.StateId), "Select",
+                            new { @class = "form-control redborder", style = "width:150px;" })
+                            <span id="StateValidation" class="error" style="display: none;">Select State</span>
+                        </td>
+
+                        <!-- Inspector Dropdown -->
+                        <td class="col-sm-1 col-md-1 col-lg-1">
+                            <label>Inspector Name</label>
+                            @Html.HiddenFor(m => m.UserId, new { id = "UserId" })
+
+                            <!-- Readonly textbox to show selected name -->
+                            <div class="input-group" style="width: 150px;">
+                                <input type="text" class="form-control" id="InspectorName" placeholder="🔍 Select Inspector" onclick="openInspectorLookup()" />
+                            </div>
+                            <span id="UserListValidation" class="error" style="display: none;">Assign at least one user</span>
+                            <span id="DuplicateUserValidation" class="error" style="display: none;">Selected Engg assigned already</span>
+                        </td>
+
+
+                        <!-- Employee Mapping -->
+                        <td>
+                            <div id="EmpMappingList" style="display: none;">
+                                <div class="directory-table-header" style="background-color: lavender; font-size:small;">
+                                    <div class="col-lg-3 col-md-3 col-sm-3">Inspector Name</div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">Code</div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3">Address</div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">Contact No</div>
+                                    <div class="col-lg-2 col-md-2 col-sm-2">&nbsp;</div>
+                                </div>
+                                <div id="MappedEmps" style="background-color:white"></div>
+                            </div>
+                            <div class="col-sm-10 col-md-10  form-group">
+                                <div id="divEmpDetails" style="padding: 15px 0px 0px 0px;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+}
+
+<div class="modal fade" id="inspectorLookupModal" tabindex="-1" role="dialog" aria-labelledby="inspectorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="width:650px;">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title fw-bold text-white" id="inspectorModalLabel">
+                    <b>👷 Select Inspectors</b>
+                </h5>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Filter -->
+                <div class="row mb-3">
+                    <div class="col-md-9">
+                        <input type="text" id="globalFilter" class="form-control" placeholder="🔍 Search by name, code, city..." />
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <button class="btn btn-outline-secondary" onclick="clearGlobalFilter()">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Table Container -->
+                <div style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-sm table-bordered table-hover align-middle text-nowrap w-100" id="inspectorTable">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th style="width: 5%;"><input type="checkbox" id="selectAllInspectors" /></th>
+                                <th style="width: 20%;">Inspector Name</th>
+                                <th style="width: 10%;">Code</th>
+                                <th style="width: 30%;">Address</th>
+                                <th style="width: 15%;">City</th>
+                                <th style="width: 20%;">Contact No</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inspectorTableBody">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="confirmSelectedInspectors()">✔ Confirm</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">✖ Cancel</button>
+            </div>
+
+        </div>
+            </div>
+        </div>
+
+        <script>
+            function getStatesByCountry(countryDropdown) {
+                // debugger;
+                const countryId = countryDropdown.value;
+                if (countryId === "-1") return;
+
+                $.ajax({
+                    url: '../User/GetStateListByCountryId',
+                    type: 'POST',
+                    data: { countryId },
+                    success: function (states) {
+                        const stateDropdown = document.querySelector("#StateId");
+                        stateDropdown.innerHTML = '<option value="-1">Select</option>' +
+                            states.map(state => `<option value="${state.StateId}">${state.StateName}</option>`).join('');
+                    },
+                    error: function () {
+                        alert("Failed to fetch states.");
+                    }
+                });
+            }
+
+
+            function getEmployeeDetailsByUser(obj) {
+                $("#DuplicateUserValidation").hide();
+                var userId = $(obj).val();
+                if (userId < 1) {
+                    $("#btnAddEngg").prop("disabled", true);
+                    $('#divEmpDetails').html('');
+                    return;
+                } else {
+                    var index = jQuery.inArray(userId, usersList);
+                    if (index > -1) {
+                        $("#DuplicateUserValidation").show();
+                        $("#UserId").val('-1');
+                        return;
+                    }
+                }
+                $.ajax({
+                    url: '../Operations1/GetUserDetailsByUserId',
+                    type: 'POST',
+                    data: {
+                        userId: userId
+                    },
+                    beforeSend: function (e) {
+                        //BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                        //    parentElement: $('#divSOLoadingIconId'),
+                        //    position: "center"
+                        //});
+                    },
+                    success: function (response) {
+                        $('#divEmpDetails').html(response);
+                        if (userId > 0) {
+                            $("#btnAddEngg").prop("disabled", false);
+                            $("#UserListValidation").hide();
+                            AddEngg(userId);
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                    },
+                    complete: function () {
+                        //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+                    }
+                });
+            }
+            var usersList = [];
+            function AddEngg(obj) {
+                debugger;
+                var userId = obj;// $("#UserId").val();
+                //alert(userId);
+                if (userId < 1) {
+                    $("#UserListValidation").html("Assign at least one user").show();
+                    return;
+                }
+                $("#UserListValidation").hide();
+                $(".MappedEmpsTemp").appendTo("#MappedEmps");
+                $(".MappedEmpsTemp").removeClass("MappedEmpsTemp").show();
+                $("#EmpMappingList").show();
+                $('#divEmpDetails').html('');
+                usersList.push(obj);
+                $("#UserId").val('-1');
+            }
+            function UnMapEmp(userId, obj) {
+                $('#divEmpMap_' + userId).remove();
+                var indexNum = usersList.indexOf(userId);
+                if (indexNum > -1) {
+                    usersList.splice(indexNum, 1);
+                }
+                if (usersList.length < 1) {
+                    $("#EmpMappingList").hide();
+                }
+            }
+
+            // Function to validate selected user for duplication
+            function validateUserSelection() {
+                const selectedUserId = document.querySelector("#UserId").value;
+                const userList = Array.from(document.querySelectorAll("#UserId option"));
+
+                const isDuplicate = userList.some(option => option.value === selectedUserId && option.selected);
+
+                const errorSpan = document.querySelector("#DuplicateUserValidation");
+                if (isDuplicate) {
+                    errorSpan.style.display = "inline";
+                } else {
+                    errorSpan.style.display = "none";
+                }
+            }
+
+
+            $(document).ready(function () {
+                debugger;
+                const $userDropdown = $("#UserId");
+                const selectedUserId = $userDropdown.val();
+
+                if (selectedUserId && selectedUserId !== "-1") {
+                    getEmployeeDetailsByUser($userDropdown[0]);
+                }
+            });
+
+            function addVisitLocation(btn) {
+                const wrapper = $('#visitLocationWrapper');
+                const index = wrapper.find('.visit-location-group').length;
+
+                const newGroup = $(`
+                <div class="visit-location-group mb-1 d-flex">
+                    <input name="LstVisitLocations[${index}]" class="form-control redborder visit-location-input" type="text" style="width: 140px;" />
+                    <button type="button" class="btn btn-outline-danger btn-sm btn-circle ms-1" onclick="removeVisitLocation(this)">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            `);
+
+                wrapper.append(newGroup);
+                reindexVisitLocations();
+            }
+
+            function reindexVisitLocations() {
+                $('#visitLocationWrapper .visit-location-group').each(function (index) {
+                    $(this).find('.visit-location-input').attr('name', `LstVisitLocations[${index}]`);
+                });
+            }
+            function removeVisitLocation(btn) {
+                $(btn).closest('.visit-location-group').remove();
+
+                // Re-index input names to avoid binding issues
+                $('#visitLocationWrapper .visit-location-group').each(function (i, el) {
+                    $(el).find('input').attr('name', `LstVisitLocations[${i}]`);
+                });
+            }
+
+            function openInspectorLookup() {
+                const countryId = $('#CountryList').val();
+                if (!countryId || countryId === '-1') {
+                    alert("Please select a country first.");
+                    return;
+                }
+
+                $.ajax({
+                    url: '../User/GetInspectorsByCountry',
+                    type: 'GET',
+                    data: { countryId },
+                    success: function (data) {
+                        let tbody = '';
+                        data.forEach(emp => {
+                            tbody += `
+                        <tr>
+                           <td><input type="checkbox" class="inspector-check"
+                             data-id="${emp.UserId}"
+                             data-name="${emp.UserFullName}"
+                             data-code="${formatValue(emp.InspectorCode)}"
+                             data-address="${formatValue(emp.Address)}"
+                             data-city="${formatValue(emp.CityName)}"
+                             data-contact="${formatValue(emp.EmpContactNumber)}" /></td>
+                           <td>${emp.UserFullName}</td>
+                           <td>${formatValue(emp.InspectorCode)}</td>
+                           <td>${formatValue(emp.Address)}</td>
+                           <td>${formatValue(emp.CityName)}</td>
+                           <td>${formatValue(emp.EmpContactNumber)}</td>
+                        </tr>`;
+                        });
+
+                        $('#inspectorTableBody').html(tbody);
+                        $('#globalFilter').val('');
+                        $('#inspectorLookupModal').modal('show');
+                    },
+                    error: () => alert("Failed to load inspectors.")
+                });
+            }
+
+            function applyInspectorFilters() {
+                const filter = $('#globalFilter').val().toLowerCase();
+                $('#inspectorTableBody tr').each(function () {
+                    const rowText = $(this).text().toLowerCase();
+                    $(this).toggle(rowText.includes(filter));
+                });
+            }
+
+            function clearGlobalFilter() {
+                $('#globalFilter').val('');
+                applyInspectorFilters();
+            }
+
+            function confirmSelectedInspectors() {
+                // debugger;
+                let selectedHtml = '';
+                usersList = []; // Reset before re-adding
+
+                $('.inspector-check:checked').each(function () {
+                    const userId = $(this).data('id');
+                    const name = $(this).data('name');
+                    const code = $(this).data('code');
+                    const address = $(this).data('address') || '';
+                    const city = $(this).data('city') || '';
+                    const state = $(this).data('state') || '';
+                    const contact = $(this).data('contact') || '';
+
+                    // Prevent duplicate rendering
+                    if (!usersList.includes(userId)) {
+                        selectedHtml += `
+                        <div class="directory-table-row MappedEmpsTemp" id="divEmpMap_${userId}">
+                            <div class="col-lg-3 col-md-3 col-sm-3" style="font-size:smaller;">
+                                ${name}
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2" style="font-size:smaller;">
+                                ${code}
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-3" style="font-size:smaller;">
+                                ${address}<br/>
+                                ${city}${city && state ? ',' : ''} ${state}.
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2" style="font-size:smaller;">
+                                ${contact}
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2" style="font-size:smaller;">
+                                <a href="javascript:UnMapEmp('${userId}', this);">
+                                    <i class="fa fa-trash-o mr20" aria-hidden="true">&nbsp;Delete</i>
+                                </a>
+                            </div>
+                        </div>`;
+
+                        usersList.push(userId);
+                    }
+                });
+
+                if (!selectedHtml) {
+                    alert("Please select at least one inspector.");
+                    return;
+                }
+
+                $('#MappedEmps').html(selectedHtml);
+                $('#EmpMappingList').show();
+                $('#inspectorLookupModal').modal('hide');
+            }
+
+
+
+            function removeInspector(btn) {
+                $(btn).closest('.row').remove();
+                if ($('#MappedEmps').children().length === 0) {
+                    $('#EmpMappingList').hide();
+                    $('#InspectorName').val('');
+                }
+            }
+
+            $(document).ready(function () {
+                $('#globalFilter').on('keyup', applyInspectorFilters);
+                $('#selectAllInspectors').on('change', function () {
+                    $('.inspector-check').prop('checked', this.checked);
+                });
+            });
+            function formatValue(val) {
+                return (val === null || val === "null") ? '' : val;
+            }
+        </script>

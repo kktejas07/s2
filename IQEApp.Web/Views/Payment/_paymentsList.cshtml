@@ -1,0 +1,58 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.PaymentModel.PaymentViewModel>
+
+<div id="">
+    <!--Header Div Starts-->
+    <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Date
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Amount
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Receipt Number
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Challan Number
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+           Type
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+            Comments
+        </div>
+
+    </div>
+    <!--Header Div Ends-->
+   
+        @foreach (var payment in Model)
+        {
+            <!-- Client data display Div Starts -->
+            <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @payment.PaymentDate.GetConvertedShortDate()
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @payment.Amount
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @payment.ReceiptNumber
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @payment.ChallanNumber
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    @payment.PaymentModeName
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    @payment.PaymentComments
+                </div>
+            </div>
+           
+            <!-- Data display Div ends -->
+        }
+
+
+</div>

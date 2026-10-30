@@ -1,0 +1,74 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderItemsViewModel
+<div class="mt20 bg p20">
+    <section id="AddPurchaseOrderForm">
+        @using (Ajax.BeginForm("AddPurchaseOrderItem", "PurchaseOrder",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onAddPurchaseOrderItemSuccess",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row mt10">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.POItemNo, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.POItemNo, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.POItemNo) })
+                    @Html.ValidationMessageFor(m => m.POItemNo)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.Description, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.Description, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.Description) })
+                    @Html.ValidationMessageFor(m => m.Description)
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group">
+                    @Html.LabelFor(m => m.Quantity, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.Quantity, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.Quantity) })
+                    @Html.ValidationMessageFor(m => m.Quantity)
+                </div>
+            </div>
+            <div class="row mt10">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.NumberOfVisits, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.NumberOfVisits, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.NumberOfVisits) })
+                    @Html.ValidationMessageFor(m => m.NumberOfVisits)
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                    @Html.LabelFor(m => m.Remarks, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.Remarks, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.Remarks) })
+                    @Html.ValidationMessageFor(m => m.Remarks)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCancelPurchaseOrderItem" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: showPurchaseOrderItems();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                    <button type="submit" class="btn btn-success pull-right mr5" id="btnSavePurchaseOrderItem" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.POId)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+</div>
+<script>
+    $.validator.unobtrusive.parse(document);
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+        $("#btnSavePurchaseOrderItem").prop('disabled', true);
+    }
+    function onAddPurchaseOrderItemSuccess(response) {
+        if (response.status) {
+            //$("#btnAddClientUnits").show();
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            showPurchaseOrderItems();
+        } else {
+            if (response.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            }
+            $("#btnSavePurchaseOrderItem").prop('disabled', false);
+        }
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+    }
+</script>

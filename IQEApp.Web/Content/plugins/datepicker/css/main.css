@@ -1,0 +1,52 @@
+/* Basic */
+
+
+
+/* Footer */
+
+.docs-footer {
+  overflow: hidden;
+}
+
+.links {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.heart {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 30px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: #ddd;
+  font-size: 18px;
+  line-height: 30px;
+  text-align: center;
+}
+
+.heart:hover {
+  color: #ff4136;
+}
+
+.heart:before {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  display: block;
+  height: 0;
+  border-top: 1px solid #eee;
+  content: " ";
+}
+
+.heart:after {
+  position: relative;
+  z-index: 1;
+  padding-left: 8px;
+  padding-right: 8px;
+  background-color: #fff;
+  content: "♥";
+}
+

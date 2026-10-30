@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{#
+  Section-driven renderer for any report format that has no bespoke template.
+
+  The registry already declares each format's sections, signatories and
+  annexures. This turns that declaration into a document, which is what gives
+  LOGSHEET, MEASUREMENT_SHEET, GMP_COMPLIANCE, SAT_CERT and VENDOR_AUDIT a PDF
+  at all instead of a null template_path.
+
+  A section renders from whatever the payload provides under its own key:
+    - a list of dicts  -> a table, columns taken from the first row
+    - a dict           -> a label/value table
+    - a string         -> a free-text box
+    - missing          -> ruled blank space, so the form is usable on paper
+  Authoring a bespoke template later is a drop-in replacement: set
+  template_path on the format and this stops being used for it.
+#}
+
+{# Title-casing mangles the acronyms that fill inspection paperwork, and these
+   documents go to clients. Keep the known ones upper. #}
+{% set ACRONYMS = ['NCR', 'BOQ', 'RA', 'QC', 'QA', 'SAT', 'FAT', 'GMP', 'URS',
+                   'ITP', 'UOM', 'ID', 'PO', 'NDT', 'UT', 'RT', 'MT', 'PT',
+                   'HVAC', 'IQE', 'TPI', 'WHO', 'PMI', 'MTC'] %}
+{% macro humanise(key) %}
+{%- set words = key.replace('_', ' ').split() -%}
+{%- for w in words -%}
+{{ w.upper() if w.upper() in ACRONYMS else w.capitalize() }}{{ ' ' if not loop.last }}
+{%- endfor -%}
+{% endmacro %}
+
+{#
+  Colour is applied by meaning, not by column position: a cell is tinted only
+  when its column is a status/result column AND its value is a word we
+  recognise. An unrecognised value renders as plain text rather than guessing a
+  colour, because a wrong colour on an inspection result is worse than none.
+#}
+{% set OK_WORDS   = ['pass', 'passed', 'conforming', 'compliant', 'accepted',
+                     'satisfactory', 'approved', 'closed', 'complete',
+                     'completed', 'certified', 'verified', 'ok', 'yes', 'c'] %}
+{% set BAD_WORDS  = ['fail', 'failed', 'non-conforming', 'nonconforming', 'nc',
+                     'rejected', 'non-compliant', 'critical', 'unsatisfactory',
+                     'overdue', 'disputed', 'no'] %}
+{% set WARN_WORDS = ['partial', 'pending', 'pnd', 'observation', 'obs', 'open',
+                     'major', 'minor', 'in progress', 'in_progress', 'hold',
+                     'on hold', 'under qc', 'under_qc', 'submitted', 'deviation'] %}
+{% set IDLE_WORDS = ['na', 'n/a', 'not applicable', 'planned', 'draft',
+                     'cancelled', 'superseded'] %}
+
+{% set STATUS_COLUMNS = ['status', 'result', 'result_code', 'outcome',
+                         'compliance_status', 'verification_status', 'severity',
+                         'risk', 'finding', 'accepted', 'conformity'] %}
+
+{% macro tone_for(value) %}
+{%- set v = (value|string|lower|trim) -%}
+{%- if v in OK_WORDS -%}ok
+{%- elif v in BAD_WORDS -%}bad
+{%- elif v in WARN_WORDS -%}warn
+{%- elif v in IDLE_WORDS -%}idle
+{%- endif -%}
+{% endmacro %}
+
+{% macro render_rows(rows) %}
+  {% set cols = rows[0].keys() | list %}
+  <table class="report-table{% if rows|length > 6 %} striped{% endif %}">
+    <thead>
+      <tr>
+        {% for c in cols %}<th class="th-label">{{ humanise(c) }}</th>{% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        {% for c in cols %}
+        {% set is_status = c|lower in STATUS_COLUMNS %}
+        {% set tone = tone_for(row[c])|trim if is_status else '' %}
+        <td class="td-value{% if row[c] is number %} num{% endif %}">
+          {% if tone %}
+            <span class="pill pill-{{ tone }}">{{ row[c] }}</span>
+          {% else %}
+            {{ row[c] if row[c] is not none else '' }}
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
+{% macro render_mapping(data) %}
+  <table class="report-table">
+    <colgroup><col style="width: 32%;"><col style="width: 68%;"></colgroup>
+    <tbody>
+      {% for k, v in data.items() %}
+      {% set tone = tone_for(v)|trim if k|lower in STATUS_COLUMNS else '' %}
+      <tr>
+        <td class="td-label">{{ humanise(k) }}</td>
+        <td class="td-value">
+          {% if tone %}<span class="pill pill-{{ tone }}">{{ v }}</span>
+          {% else %}{{ v if v is not none else '' }}{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endmacro %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header(form_code, revision, header_subline, "REPORT NO.", report_no) }}
+
+  {{ m.doc_title(title, format_description or display_title) }}
+
+  {# Identification block, common to every format. #}
+  {{ m.section("1.0", "DOCUMENT INFORMATION", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 25%;"><col style="width: 25%;">
+      <col style="width: 25%;"><col style="width: 25%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Report No.</td>
+        <td class="td-value">{{ report_no or '________________' }}</td>
+        <td class="td-label">Date</td>
+        <td class="td-value">{{ date or report_date or '____ / ____ / ______' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Client</td>
+        <td class="td-value">{{ client or client_name or '________________' }}</td>
+        <td class="td-label">Project / Job</td>
+        <td class="td-value">{{ job_id or project or '________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Location</td>
+        <td class="td-value">{{ location or '________________' }}</td>
+        <td class="td-label">Work Package</td>
+        <td class="td-value">{{ work_package_id or '________________' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {# Then one numbered section per entry the format declares. A running
+     counter is used rather than loop.index, which would count the skipped
+     'header' entry and collide with the trailing sections below. #}
+  {% set ns = namespace(n=1) %}
+  {% for key in sections %}
+    {% if key not in ('header',) %}
+      {% set ns.n = ns.n + 1 %}
+      {% set value = context_data.get(key) if context_data is defined else None %}
+      {{ m.section("%.1f"|format(ns.n|float), humanise(key)) }}
+
+      {% if key in ('photographs', 'photos') %}
+        {{ m.photo_grid(photos) }}
+
+      {% elif value is mapping and value %}
+        {{ render_mapping(value) }}
+
+      {% elif value is sequence and value is not string and value and value[0] is mapping %}
+        {{ render_rows(value) }}
+
+      {% elif value is sequence and value is not string and value %}
+        <ul class="plain-list">
+          {% for item in value %}<li>{{ item }}</li>{% endfor %}
+        </ul>
+
+      {% elif value %}
+        {{ m.free_text(value|string, 3) }}
+
+      {% else %}
+        {{ m.free_text('', 4) }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {# Annexures the format expects to travel with it. #}
+  {% if annexures %}
+    {% set ns.n = ns.n + 1 %}
+    {{ m.section("%.1f"|format(ns.n|float), "ANNEXURES") }}
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th class="th-label" style="width: 10%;">Sl.</th>
+          <th class="th-label" style="width: 60%;">Annexure</th>
+          <th class="th-label" style="width: 30%;">Attached</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in annexures %}
+        <tr>
+          <td class="td-value num">{{ loop.index }}</td>
+          <td class="td-value">{{ humanise(a) }}</td>
+          <td class="td-value">{{ m.checkbox(false, "Yes") }} &nbsp; {{ m.checkbox(false, "N/A") }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  {# Signatories, exactly those the format requires - the registry is the
+     authority on how many signatures a document needs. #}
+  {% set ns.n = ns.n + 1 %}
+  {{ m.section("%.1f"|format(ns.n|float), "AUTHORISATION") }}
+  {% if requires_signatures|length >= 2 %}
+    {{ m.signature_block(
+         humanise(requires_signatures[0]),
+         humanise(requires_signatures[1]),
+         'IQE Reviewer:',
+         signatures) }}
+  {% else %}
+    {{ m.signature_block(
+         humanise(requires_signatures[0]) if requires_signatures else 'Prepared By',
+         'For Ideal Quality Engineers (I) Pvt. Ltd.',
+         'IQE Inspector:',
+         signatures) }}
+  {% endif %}
+
+  <div class="generic-footer">
+    Form {{ form_code }} &middot; Rev {{ revision }} &middot;
+    {% if is_blank %}Blank pro forma{% else %}Issued document{% endif %}
+    {% if spec is defined and spec.client_id %}
+      &middot; Client-specific layout ({{ spec.client_id }})
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

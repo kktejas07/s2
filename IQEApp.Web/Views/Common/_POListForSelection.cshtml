@@ -1,0 +1,50 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.CommonModels.CommonDetailsViewModel
+<div>
+    <label class="control-label">Purchase Order</label>
+    <select id="drpPurchaseOrder" onchange="javascript: fnGetPurchaseOrderDetails();" class="form-control dropDownStyle redborder">
+        <option value="0">Select</option>
+        @foreach (var purchaseOrder in Model.LstPurchaseOrderDetails)
+        {
+            if (Model.PurchaseOrderDetails.POId == purchaseOrder.POId)
+            {
+                <option value="@purchaseOrder.POId" selected="selected">@purchaseOrder.PONumber</option>
+            }
+            else
+            {
+                <option value="@purchaseOrder.POId">@purchaseOrder.PONumber</option>
+            }
+           
+        }
+    </select>
+    <div><span id="PurchaseOrderValidation" class="error" style="display: none;"></span></div>
+</div>
+<script>
+    function fnGetPurchaseOrderDetails() {
+        $.ajax({
+            url: '../PurchaseOrder/GetPurchaseOrderDetailsById',
+            type: 'POST',
+            data: {
+                PoId: $("#drpPurchaseOrder").val(),
+                IsVisitScheduleScreen: true
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divScheduleVisitLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function (data) {
+
+                $('#divPODLBlock').html(data).show();
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+   
+</script>

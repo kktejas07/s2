@@ -1,0 +1,88 @@
+﻿@model  IQEApp.Web.Models.Security.SecurityDetails
+@{
+    ViewBag.Title = "Security";
+}
+<div>
+    <div class="box-header with-border">
+        <h3 class="box-title"> <span id="spnClientHeadTitle">Admin &#8667; Authorizations </span></h3>
+    </div>
+</div>
+<div class="row mt20">
+    @*<div class="col-sm-3 col-md-3 col-lg-3">
+        </div>*@
+    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+        @Html.LabelFor(m => m.RoleId, new { @class = "control-label" })
+        @Html.DropDownListFor(m => m.RoleId, new SelectList(Model.LstRoleList, "MasterId", "MasterName"), "Select", new { @class = "form-control dropDownStyle redborder", onchange = "javascript : FetchSecFetDetails();", placeholder = @Html.DisplayNameFor(model => model.RoleId) })
+        @Html.ValidationMessageFor(m => m.RoleId)
+        <div class="clearfix mt10"></div>
+        <div id="divLoadingSecurity"></div>
+        <div id="overlay">
+            <div class="cv-spinner">
+                <span class="spinner"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-6 col-lg-6" id="divSecFetView">
+    </div>
+
+</div>
+
+<style>
+#overlay{
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height:100%;
+  display: none;
+  background: rgba(0,0,0,0.6);
+}
+.cv-spinner {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px #ddd solid;
+  border-top: 4px #2e93e6 solid;
+  border-radius: 50%;
+  animation: sp-anime 0.8s infinite linear;
+}
+@@keyframes sp-anime {
+ 100%
+  {
+        transform: rotate(360deg);
+   }
+}
+.is-hide{
+  display:none;
+}
+</style>
+<script type="text/javascript">
+    $('#loadingImg').hide();
+    function FetchSecFetDetails() {
+        //  //debugger;
+        //  alert($('#RoleId').val());
+        $.ajax({
+            url: '../Security/FetchRoleBasedScreenFeatureMapping',
+            type: 'POST',
+            data: {
+                RoleId: $('#RoleId').val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+            success: function (data) {
+                $('#divSecFetView').html(data);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });
+    }
+</script>

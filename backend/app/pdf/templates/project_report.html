@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{#
+  The end-to-end project report.
+
+  Unlike every other format here this is a composition, not a form: nothing in
+  it is typed in. Each block reads the structure ReportingService.project_report
+  returns, which is itself assembled from work packages, certifications,
+  assignments and invoices. Nothing is recomputed in the template - a number
+  that disagreed with the API would be the worst possible defect in a document
+  a client uses to settle a bill.
+#}
+
+{% macro money(v) %}{{ "{:,.2f}".format(v or 0) }}{% endmacro %}
+
+{# Lifecycle state -> tone. Colour marks where a package has got to, so a
+   reader scanning the table finds the stalled and the finished work without
+   reading every row. The label is always printed too, so nothing depends on
+   colour alone. #}
+{% set STATUS_TONE = {
+  'planned': 'idle', 'assigned': 'info', 'in_progress': 'warn',
+  'submitted': 'warn', 'under_qc': 'warn', 'certified': 'ok',
+  'billed': 'ok', 'closed': 'ok', 'on_hold': 'bad', 'cancelled': 'bad',
+} %}
+{% macro status_pill(status) %}
+{%- set key = (status or '')|lower -%}
+<span class="pill pill-{{ STATUS_TONE.get(key, 'idle') }}">{{ key|replace('_', ' ')|title }}</span>
+{%- endmacro %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header(form_code, revision, header_subline, "PROJECT REPORT NO.",
+                      project_header.job_id if project_header else report_no) }}
+
+  {{ m.doc_title(title, format_description or "Composed position across scope, certification and billing") }}
+
+  {{ m.section("1.0", "PROJECT", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 22%;"><col style="width: 28%;">
+      <col style="width: 22%;"><col style="width: 28%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Job No.</td>
+        <td class="td-value">{{ project_header.job_id }}</td>
+        <td class="td-label">Status</td>
+        <td class="td-value">{{ (project_header.status or '')|replace('_', ' ')|title }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Title</td>
+        <td class="td-value" colspan="3">{{ project_header.title }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Client</td>
+        <td class="td-value">{{ project_header.client_name or '-' }}</td>
+        <td class="td-label">Contractor / Manufacturer</td>
+        <td class="td-value">{{ project_header.manufacturer_name or '-' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Location</td>
+        <td class="td-value">{{ project_header.location or '-' }}</td>
+        <td class="td-label">Composed</td>
+        <td class="td-value">{{ generated_at }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("2.0", "SCOPE POSITION") }}
+
+  {# A proportional bar beats a column of counts for "how far along is this".
+     Widths are computed from the totals the API already returned. #}
+  {% if work_packages.total %}
+  <table class="scope-bar"><tr>
+    {% for status, count in (work_packages.by_status or {}).items() %}
+    <td class="seg seg-{{ STATUS_TONE.get(status|lower, 'idle') }}"
+        style="width: {{ (count / work_packages.total * 100)|round(2) }}%;">
+      {{ count }}
+    </td>
+    {% endfor %}
+  </tr></table>
+  <div class="scope-legend">
+    {% for status, count in (work_packages.by_status or {}).items() %}
+      <span class="legend-item">
+        <span class="swatch swatch-{{ STATUS_TONE.get(status|lower, 'idle') }}"></span>
+        {{ status|replace('_', ' ')|title }} ({{ count }})
+      </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <table class="report-table">
+    <thead>
+      <tr>
+        <th class="th-label" style="width: 55%;">Status</th>
+        <th class="th-label" style="width: 45%;">Work packages</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for status, count in (work_packages.by_status or {}).items() %}
+      <tr>
+        <td class="td-value">{{ status_pill(status) }}</td>
+        <td class="td-value num">{{ count }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td class="td-label">Total</td>
+        <td class="td-value num"><strong>{{ work_packages.total }}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% for discipline, packages in (work_packages.by_discipline or {}).items() %}
+  <div class="group-band">{{ discipline }} &mdash; {{ packages|length }} package{{ '' if packages|length == 1 else 's' }}</div>
+  <table class="report-table compact striped">
+    <thead>
+      <tr>
+        <th class="th-label" style="width: 16%;">Package</th>
+        <th class="th-label" style="width: 44%;">Title</th>
+        <th class="th-label" style="width: 16%;">Type</th>
+        <th class="th-label" style="width: 24%;">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in packages %}
+      <tr>
+        <td class="td-value mono">{{ p.work_package_id }}</td>
+        <td class="td-value">{{ p.title }}</td>
+        <td class="td-value mono">{{ p.work_type_code }}</td>
+        <td class="td-value">{{ status_pill(p.status) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+
+  {{ m.section("3.0", "CERTIFIED POSITION") }}
+  <table class="report-table">
+    <colgroup><col style="width: 60%;"><col style="width: 40%;"></colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Certifications issued</td>
+        <td class="td-value num">{{ certified_position.certifications_issued }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Value claimed</td>
+        <td class="td-value num">{{ money(certified_position.claimed_value) }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Less deductions
+          {% if certified_position.deduction_pct %}
+            <span class="muted">({{ certified_position.deduction_pct }}% of claim)</span>
+          {% endif %}
+        </td>
+        <td class="td-value num v-bad">({{ money(certified_position.deduction_value) }})</td>
+      </tr>
+      <tr class="total-row">
+        <td class="td-label"><strong>Value certified</strong></td>
+        <td class="td-value num v-ok">{{ money(certified_position.certified_value) }}</td>
+      </tr>
+      {% if certified_position.retention_held %}
+      <tr>
+        <td class="td-label">Retention held</td>
+        <td class="td-value num v-warn">({{ money(certified_position.retention_held) }})</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  {% if deductions_by_reason %}
+  {{ m.section("4.0", "BASIS OF DEDUCTION") }}
+  <p class="note">Every deduction below is traceable to the certification that recorded it.</p>
+  <table class="report-table">
+    <thead>
+      <tr>
+        <th class="th-label" style="width: 70%;">Reason</th>
+        <th class="th-label" style="width: 30%;">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reason, value in deductions_by_reason.items() %}
+      <tr>
+        <td class="td-value">{{ reason|replace('_', ' ')|title }}</td>
+        <td class="td-value num v-bad">{{ money(value) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {{ m.section("5.0", "PERSONNEL DEPLOYED") }}
+  {% if people_deployed and people_deployed.detail %}
+  <table class="report-table striped">
+    <thead>
+      <tr>
+        <th class="th-label" style="width: 20%;">Person ID</th>
+        <th class="th-label" style="width: 40%;">Name</th>
+        <th class="th-label" style="width: 25%;">Role(s)</th>
+        <th class="th-label" style="width: 15%;">Days</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in people_deployed.detail %}
+      <tr>
+        <td class="td-value mono">{{ p.person_id }}</td>
+        <td class="td-value">{{ p.person_name or '-' }}</td>
+        <td class="td-value">{{ (p.roles or [])|join(', ')|replace('_', ' ')|title }}</td>
+        <td class="td-value num">{{ p.days }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td class="td-label" colspan="3"><strong>Total man-days</strong></td>
+        <td class="td-value num"><strong>{{ people_deployed.total_days }}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  {% else %}
+  <p class="note">No personnel assigned on this job yet.</p>
+  {% endif %}
+
+  {{ m.section("6.0", "BILLING POSITION") }}
+  <table class="report-table">
+    <colgroup><col style="width: 60%;"><col style="width: 40%;"></colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Invoices raised</td>
+        <td class="td-value num">{{ billing_position.invoices_raised }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Value invoiced</td>
+        <td class="td-value num">{{ money(billing_position.invoiced_value) }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Received</td>
+        <td class="td-value num">{{ money(billing_position.paid_value) }}</td>
+      </tr>
+      <tr class="total-row">
+        <td class="td-label"><strong>Outstanding</strong></td>
+        <td class="td-value num"><strong>{{ money(billing_position.outstanding_value) }}</strong></td>
+      </tr>
+      {% if billing_position.certified_not_billed_value %}
+      <tr>
+        <td class="td-label">Certified and not yet invoiced</td>
+        <td class="td-value num v-warn">{{ money(billing_position.certified_not_billed_value) }}</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  {% if billing_position.certified_not_billed_value %}
+  <div class="callout">
+    <strong>{{ money(billing_position.certified_not_billed_value) }}</strong> has been
+    certified on this job and not yet invoiced.
+  </div>
+  {% endif %}
+
+  {% if photos %}
+  {{ m.section("7.0", "PHOTOGRAPHIC ANNEXURE") }}
+  <p class="note">
+    {{ photos|length }} photograph{{ '' if photos|length == 1 else 's' }} captured on site
+    and held against this job.
+  </p>
+  {{ m.photo_grid(photos) }}
+  {% endif %}
+
+  {{ m.section("8.0" if photos else "7.0", "AUTHORISATION") }}
+  {{ m.signature_block("Reviewed By", "For Ideal Quality Engineers (I) Pvt. Ltd.",
+                       "QC Reviewer:", signatures) }}
+
+  <div class="generic-footer">
+    Form {{ form_code }} &middot; Rev {{ revision }} &middot;
+    Composed from live records on {{ generated_at }}
+    {% if spec is defined and spec.client_id %}
+      &middot; Client-specific layout ({{ spec.client_id }})
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

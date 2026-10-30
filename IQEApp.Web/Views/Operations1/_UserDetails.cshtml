@@ -1,0 +1,70 @@
+﻿@model IQEApp.Web.Models.UserModel.UserViewModel
+
+<div id="divEmp1">
+    <div class="clearfix"></div>
+    @*<div class="directory-table-header ">
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-blue ">
+            Employee Name
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-blue ">
+            Employee Code
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-blue ">
+            Inspector Code
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-blue ">
+            Contact Number
+        </div>
+    </div>*@
+    @*<div id="divheadergreen" style="visibility:hidden" class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-green ">
+            Employee Name
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-green ">
+            Employee Code
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-green ">
+            Inspector Code
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header-green ">
+            Contact Number
+        </div>
+    </div>*@
+    <div class="directory-table-row-blue">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @Model.UserFullName
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @Model.EmployeeCode
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @Model.InspectorCode
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @Model.EmpContactNumber
+        </div>
+    </div>
+</div>
+    <div class="directory-table-row MappedEmpsTemp" style="display: none" id="divEmpMap_@Model.UserId">
+        <div class="col-lg-3 col-md-3 col-sm-3" style="font-size:smaller;">
+            @Model.UserFullName
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2" style="font-size:smaller;">
+            @Model.InspectorCode
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3"style="font-size:smaller;">
+           @Model.Address
+           <br/>
+            @Model.CityName, @Model.StateName.
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2" style="font-size:smaller">
+            @Model.EmpContactNumber
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2" style="font-size:smaller;">
+            <a href="javascript:UnMapEmp('@Model.UserId',this);">
+                <i class="fa fa-trash-o mr20" aria-hidden="true">
+                    &nbsp;Delete
+                </i>
+            </a>
+        </div>
+    </div>

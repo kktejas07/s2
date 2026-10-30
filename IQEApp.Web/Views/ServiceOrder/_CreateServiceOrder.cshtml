@@ -1,0 +1,367 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ServiceOrderModel.ServiceOrderDetailsModel
+<div class="mt20 bg p20">
+    <section id="FormAddServiceOrder">
+        @using (Ajax.BeginForm("SaveServiceOrder", "ServiceOrder",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onAddServiceOrderSuccess",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row mt10">
+                <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 200px">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ClientDetails.ClientName, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients, "ClientId", "ClientName"), "Select", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ClientId), onchange = "getClientUnitsByClientId(this)" })
+                        @Html.ValidationMessageFor(m => m.ClientId)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ClientDetails.ClientUnit.ClientUnitName, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.ClientUnitId, new SelectList(Model.LstClientUnits, "ClientUnitId", "ClientUnitName"), "Select", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ClientUnitId), onchange = "getClientUnitDetailsByUnitId(this)" })
+                        @Html.ValidationMessageFor(m => m.ClientUnitId)
+                    </div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 bg" style="height: 200px" id="divClientDetails">
+                    <small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Client Unit Details</small>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 bg" style="height: 200px;">
+                    <div class="form-group" style="overflow-y: auto;height: 140px; ">
+                        @Html.LabelFor(m => m.ManufacturerDetails.ManufacturerName, new { @class = "control-label" })<br />
+                        @foreach (var mfcUnit in Model.LstManufacturers)
+                        {
+                            <input name="LstManufacturerIds" type="checkbox" value="@mfcUnit.ManufacturerId" class="jsManufacturerId" /><span>&nbsp;<b>@mfcUnit.ManufacturerName</b> </span><br />
+                        }
+                        @Html.ValidationMessageFor(m => m.LstManufacturerIds)
+                        <span id="spnManufacturerId" class="error" style="display: none;"></span>
+                    </div>
+                    <div>
+                        <button onclick="javascript: getManufacturerUnitsByManufacturerIds();" class="btn btn-secondary pull-right" type='button'>Fetch</button>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-md-4 col-lg-4 bg " style="height: 200px;">
+                    <div class="form-group" style="overflow-y: auto;height: 140px; ">
+                        <small class="text-muted"><i class="fa fa-futbol-o mr5"></i> Manufacturer Unit Details</small>
+                        <div id="divManufacturerUnitDetails"></div>
+                        @Html.ValidationMessageFor(m => m.LstManufacturerUnitIds)
+                        <span id="spnMUnitReq" class="field-validation-error" style="display: none;">Please select at least one manufacturer unit</span>
+                    </div>
+                    <div>
+                        <button onclick="javascript:getPurchaseOrdersByClientUnit();" class="btn btn-secondary pull-right" type='button'>Get Pos</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row bg ">
+                <div class="clearfix"></div>
+                <div class="row mt10">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.ProjectNumber, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ProjectNumber) })
+                        @Html.ValidationMessageFor(m => m.ProjectNumber)
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.ProjectName, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.ProjectName, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ProjectName) })
+                        @Html.ValidationMessageFor(m => m.ProjectName)
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-6 form-group mt15" id="divClientDetails">
+                    </div>
+                </div>
+                <div class=" row mt10">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.SONumber, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.SONumber, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.SONumber) })
+                        @Html.ValidationMessageFor(m => m.SONumber)
+                        <span id="spnDuplicateError" class="field-validation-error" style="display: none;">Already exists</span>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.SOType, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.SOType, new SelectList(Model.LstServiceOrderTypes, "ServiceOrderTypeId", "ServiceOrderTypeName"), "Select", new { @class = "form-control dropDownStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.SOType) })
+                        @Html.ValidationMessageFor(m => m.SOType)
+                    </div>
+                    <div class="col-md-3" id="otherSOTypetextboxDiv" style="display: none;">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.OtherSOType, new { @class = "control-label" })
+                            @Html.TextBoxFor(m => m.OtherSOType, new { @class = "form-control inputStyle redboder", placeholder = "Enter Other SO Type" })
+                            @Html.ValidationMessageFor(m => m.OtherSOType)
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.SODate, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.SODate, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                        @Html.ValidationMessageFor(m => m.SODate)
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.SODueDate, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.SODueDate, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                        @Html.ValidationMessageFor(m => m.SODueDate)
+                    </div>
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="row mt10">
+                    <div id="divPODetails" class="p15"></div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="row mt10">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @Html.LabelFor(m => m.Amount, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.Amount, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.Amount) })
+                        @Html.ValidationMessageFor(m => m.Amount)
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+                        @Html.LabelFor(m => m.SOComments, new { @class = "control-label" })
+                        @Html.TextBoxFor(m => m.SOComments, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.SOComments) })
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                        @*@Html.LabelFor(m => m.PONumber, new { @class = "control-label" })
+                            @Html.DropDownListFor(m => m.PONumber, new SelectList(Model.LstPONumbers, "POId", "PONumber"), "Select", new { @class = "form-control dropDownStyle", @placeholder = @Html.DisplayNameFor(model => model.PONumber), onchange = "getPurchaseOrderDetailsById(this)" })
+                            @Html.ValidationMessageFor(m => m.PONumber)*@
+
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCancelServiceOrder" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: GetServiceOrders();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                        <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveServiceOrder" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.SOId)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+    <div class="">
+        <div id="divPurchaseOrderDetails"></div>
+    </div>
+</div>
+<script>
+    //$(document).ready(function () {
+    // $("#SODate").datepicker({ dateFormat: "dd/mm/yy" });
+    // $("#SODueDate").datepicker({ dateFormat: "dd/mm/yy" });
+    //});
+    $.validator.unobtrusive.parse(document);
+    $(function () {
+        $("#SODate").datepicker({ dateFormat: "dd/mm/yy" });
+        $("#SODueDate").datepicker({ dateFormat: "dd/mm/yy" });
+    });
+    function ddlOtherSOType(obj1) {
+        var obj1 = $("#SOType").find('option:selected').val();
+
+        if (obj1 == "3") {
+            $("#otherSOTypetextboxDiv").show();
+        }
+        else {
+            $("#otherSOTypetextboxDiv").hide();
+        }
+    }
+    function getClientUnitsByClientId(obj) {
+        $('#divClientDetails').html('');
+        var clientId = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../PurchaseOrder/GetClientUnitsByClientId',
+            type: 'POST',
+            data: {
+                clientId: clientId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (clientUnits) {
+                //alert(JSON.parse(clientUnits));
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < clientUnits.length; i++) {
+                    s += '<option value="' + clientUnits[i].ClientUnitId + '">' + clientUnits[i].ClientUnitName + '</option>';
+                }
+                $("#ClientUnitId").html(s);
+                $('#divClientDetails').html('');
+                $('#divClientDetails').html('<small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Client Unit Details</small>');
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    function getClientUnitDetailsByUnitId(obj) {
+        var clientUnitId = $(obj).find('option:selected').val();
+        var manufacturerUnitId = $("#ManufacturerUnitId").find('option:selected').val();
+        $.ajax({
+            url: '../Client/GetClientUnitDetailsByUnitId',
+            type: 'POST',
+            data: {
+                unitId: clientUnitId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                //alert(JSON.stringify(clientUnitDetails));
+                //var unit = JSON.stringify(clientUnitDetails);
+                $('#divClientDetails').html(data);
+                //alert(unit.ContactPersonName);
+                //$("#ContactPersonName").html('ContactPersonName');
+                //$("#ContactPersonDesignation").html(unit.ContactPersonDesignation);
+                if (manufacturerUnitId > 0) {
+                    getPurchaseOrdersByClientUnit();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    function getManufacturerUnitsByManufacturerId(obj) {
+        var manufacturerId = $(obj).find('option:selected').val();
+
+        $.ajax({
+            url: '../PurchaseOrder/GetManufacturerUnitsByManufacturerId',
+            type: 'POST',
+            data: {
+                manufacturerId: manufacturerId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (manufacturerUnits) {
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < manufacturerUnits.length; i++) {
+                    s += '<option value="' + manufacturerUnits[i].ManufacturerUnitId + '">' + manufacturerUnits[i].ManufacturerUnitName + '</option>';
+                }
+                $("#ManufacturerUnitId").html(s);
+                $("#divManfDetails").html('');
+                $("#divManfDetails").html('<small class="text-muted"><i class="fa fa-futbol-o mr5"></i> Manufacturer Unit Details</small>');
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+        $("#btnSaveServiceOrder").prop('disabled', true);
+    }
+    function onAddServiceOrderSuccess(response) {
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            GetServiceOrders();
+        } else {
+            if (response.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+            }
+            $("#btnSaveServiceOrder").prop('disabled', false);
+        }
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+    }
+    function getPurchaseOrdersByClientUnit() {
+        var clientUnitId = $("#ClientUnitId").find('option:selected').val();
+        //var manufacturerUnitId = $("#ManufacturerUnitId").find('option:selected').val();
+        var selectedManufacturerUnitIds = [];
+        $('.jsManufacturerUnitId').each(function (index, element) {
+            if ($(element).is(":checked")) {
+                selectedManufacturerUnitIds.push($(element).val());
+            }
+        });
+        $.ajax({
+            url: '../ServiceOrder/GetPODetailsByClientUnitIdAndMU',
+            type: 'POST',
+            data: {
+                clientUnitId: clientUnitId,
+                manufacturerUnitIds: selectedManufacturerUnitIds.join(",")
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $("#divPODetails").html(data);
+            },
+
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    function getPurchaseOrderDetailsById(obj) {
+        $('#divPurchaseOrderDetails').html('');
+        var purchaseOrderId = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../PurchaseOrder/GetPurchaseOrderDetailsById',
+            type: 'POST',
+            data: {
+                PoId: purchaseOrderId
+            },
+            beforeSend: function (e) {
+
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#divPurchaseOrderDetails').html(data);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    function getManufacturerUnitDetailsByUnitId(obj) {
+        var manufacturerUnitId = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../Manufacturer/GetManufacturerUnitDetailsByUnitId',
+            type: 'POST',
+            data: {
+                unitId: manufacturerUnitId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#divManfDetails').html(data);
+                getPurchaseOrdersByClientUnit();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+
+    function getManufacturerUnitsByManufacturerIds() {
+        var selectedManufacturerIds = [];
+        $('.jsManufacturerId').each(function (index, element) {
+            if ($(element).is(":checked")) {
+                selectedManufacturerIds.push($(element).val());
+            }
+        });
+
+        $.ajax({
+            url: '../PurchaseOrder/GetManufacturerUnitsByForPO',
+            type: 'POST',
+            data: {
+                manufacturerIds: selectedManufacturerIds.join(",")
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divPOLoadingIconId'), position: "center" });
+            },
+            success: function (responseHtml) {
+                $("#divManufacturerUnitDetails").html(responseHtml);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divPOLoadingIconId'));
+            }
+        });
+    }
+</script>

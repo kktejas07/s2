@@ -1,0 +1,65 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.MasteModel.MasterViewModel
+
+<div class="">
+    <section id="updaeMasterForm">
+@using (Ajax.BeginForm("UpdateMaster", "Masters",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessUpdateMaster",
+            }))
+        {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+            <div class="row">
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    @{ var val = Model.DisplayText;}
+                    @Html.TextBoxFor(m => m.MasterName, new {@class = "form-control inputStyle redboder", @placeholder = @val})
+                    @Html.ValidationMessageFor(m => m.MasterName)
+                    <span id="spnDuplicateMasterError" class="field-validation-error" style="display: none;">Already exists</span>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6">
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCancelEditMaster" onclick="javascript: cancelUpdateMaster('@Model.SectionId');"> <i class="fa fa-ban" aria-hidden="true"></i> Cancel</button>
+                    <button type="submit" id="btnUpdateMaster pull-right" value="Submit" title="Submit" data-toggle="tooltip" class="btn btn-success pull-right mr5"><i class="fa fa-floppy-o" aria-hidden="true"></i> Update</button>
+                </div>
+            </div>
+            <div class="row">
+           @Html.HiddenFor(m => m.MasterId)
+                @Html.HiddenFor(m=>m.SectionId)
+           @Html.HiddenFor(m => m.SiteId)
+           @Html.HiddenFor(m => m.DisplayText)
+            </div>
+    <span>@ViewBag.Message </span>
+        }
+</section>
+
+    </div>
+
+<script type="text/javascript">
+    function onSuccessUpdateMaster(response) {
+
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            var secId = $('#SectionId').val();
+            displayDetails(secId, true, $('#DisplayText').val());
+        } else {
+            if (response.message == 'DuplicateRecord') {
+                $("#spnDuplicateMasterError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+            //$("#btnUpdateMaster").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divMastersLoading'));
+        }
+    }
+    function cancelUpdateMaster(secId) {
+        displayDetails(secId, true, $('#DisplayText').val());
+    }
+
+</script>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

@@ -1,0 +1,223 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.ServiceOrderModel.ServiceOrderViewModel>
+
+<div id="">
+    <div class="clearfix"></div>
+    <!--Header Div Starts-->
+    <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+            SO Number
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+            Enquiry Id Reference
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Customer Details
+        </div>
+        @*<div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Manufacturer Details
+        </div>*@
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Service Order Type
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Amount
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+            Comments
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+            &nbsp;
+        </div>
+    </div>
+    <!--Header Div Ends-->
+    @if (Model == null || Model.Count() == 0)
+    {
+        <!--No data display Div Starts-->
+        <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row text-center">
+            No records found
+        </div>
+        <!--No data display Div ends-->
+    }
+    else
+    {
+        foreach (var serviceOrder in Model)
+        {
+            <!-- Client data display Div Starts -->
+<div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        @serviceOrder.SONumber
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        @serviceOrder.EnquiryIdRefernce
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        @serviceOrder.ClientName / @serviceOrder.ClientUnitName
+    </div>
+    @*<div class="col-lg-2 col-md-2 col-sm-2" style="text-align: center;">
+            @serviceOrder.ManufacturerName / @serviceOrder.ManufacturerUnitName
+        </div>*@
+    <div class="col-lg-2 col-md-2 col-sm-2" style="text-align: center;">
+        @serviceOrder.ServiceOrderTypeName
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2" style="text-align: center;">
+        @serviceOrder.Amount
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        @serviceOrder.SOComments
+    </div>
+    <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+        @if (serviceOrder.IsSOActive)
+        {
+            //if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ServiceOrderEdit, @User.RoleId.FirstOrDefault()) || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ServiceOrderDelete, @User.RoleId.FirstOrDefault()))
+            {
+                <div class="btn-group" style="display: inline-block;" role="group">
+                    <span id="ServiceOrderGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                    </span>
+                    <ul class="dropdown-menu ellipse-menu-left">
+                        @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ServiceOrderEdit, @User.RoleId.FirstOrDefault()))*@
+                        {
+                            <li>
+                                <a href="javascript:EditServiceOrder('@serviceOrder.ServiceOrderGuid');">
+                                    <i class="fa fa-pencil mr20" aria-hidden="true">
+                                    </i> Edit Service Order
+                                </a>
+                            </li>
+                        }
+                        @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ServiceOrderDelete, @User.RoleId.FirstOrDefault()))*@
+                        {
+                            <li>
+                                <a href="javascript:UpdateServiceOrderStatus('@serviceOrder.ServiceOrderGuid',false);">
+                                    <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                    </i> Inactivate Service Order
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+        else
+        {
+            //if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ServiceOrderUndo, @User.RoleId.FirstOrDefault()))
+            {
+                <div class="btn-group" style="display: inline-block;" role="group">
+                    <span id="PurchaseOrderGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                    </span>
+                    <ul class="dropdown-menu ellipse-menu-left">
+                       @* @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ServiceOrderUndo, @User.RoleId.FirstOrDefault()))*@
+                        {
+                            <li>
+                                <a href="javascript:UpdateServiceOrderStatus('@serviceOrder.ServiceOrderGuid',true);">
+                                    <i class="fa fa-undo mr20" aria-hidden="true">
+                                    </i> Activate Service Order
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    </div>
+</div>
+            <!-- Client data display Div ends -->
+        }
+    }
+
+</div>
+<script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+    });
+    function EditServiceOrder(serviceOrderGuid) {
+        $.ajax({
+            url: '../ServiceOrder/EditServiceOrder',
+            type: 'POST',
+            data: {
+                serviceOrderGuid: serviceOrderGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({parentElement: $('#divSOLoadingIconId'),position: "center"
+                });
+            },
+            success: function (data) {
+                $('#spnSOHeadTitle').html('Edit Service Order');
+                $('#divAddOrUpdateServiceOrder').html(data).show();
+                $('#btnSOList').show();
+                $('#btnNewSO').hide();
+                $("#divSODetails").html('');
+                $('#divActiveInActive').hide();
+                $('#divServiceOrders').hide();
+                $("#divMainSearch").hide();
+                //$('#divPurchaseItemsToggle').show();
+                //$('#btnAddPurchaseOrderItems').show();
+                //showPurchaseOrderItems();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    function UpdateServiceOrderStatus(serviceOrderGuid, status) {
+        if (status) {
+            var options = {};
+            options.msg = "Your undoing inactive client.. Do you want to continue ?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(serviceOrderGuid, status);
+            }, options);
+        } else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(serviceOrderGuid, status);
+            });
+        }
+    }
+    function UpdateStatus(serviceOrderGuid, status) {
+        $.ajax({
+            url: '../ServiceOrder/UpdateServiceOrderStatus',
+            type: 'POST',
+            data: {
+                serviceOrderGuid: serviceOrderGuid,
+                status: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divSOLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    }
+                    window.FilterServiceOrderDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+</script>

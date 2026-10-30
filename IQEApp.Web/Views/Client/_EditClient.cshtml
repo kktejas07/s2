@@ -1,0 +1,93 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ClientModel.ClientDetailsModel
+
+<div>
+    <section id="AddClientForm">
+        @using (Ajax.BeginForm("UpdateClient", "Client",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onUpdateClientSuccess",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.ClientName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ClientName, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.ClientName) })
+                    @Html.ValidationMessageFor(m => m.ClientName)
+                    <span id="spnDuplicateError" class="field-validation-error" style="display: none;">Customer already exists</span>
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.IndustryTypeName, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.IndustryTypeId, new SelectList(Model.LstIndustryTypes, "IndustryTypeId", "IndustryTypeName"), "Select", new { @class = "form-control dropDownStyle redborder", placeholder = @Html.DisplayNameFor(model => model.IndustryTypeId) })
+                    @Html.ValidationMessageFor(m => m.IndustryTypeId)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.AnnualRevenue, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.AnnualRevenue, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.AnnualRevenue) })
+                    @Html.ValidationMessageFor(m => m.AnnualRevenue)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCloseCreateClient" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: openClientList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                    <button type="submit" class="btn btn-success pull-right mr5" id="btnUpdateClient" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group ">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"> <span id="spnClientUnitTitle"> Add Customer Unit </span></h3>
+                        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddClientUnits" style="display: none" value="Add Client Units" title="Add Customer Units" data-toggle="tooltip" onclick="javascript: addClientUnits();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Client Units</button>
+                        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnClientUnitsList" style="display: none" onclick="javascript: showClientUnits();"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Customer Units</button>
+                    </div>
+                </div>
+            </div>
+            @*<div class="row">
+                    <div class="form-group ">
+                        <div class="col-sm-6 col-md-6 col-lg-8 box-header with-border">
+                                <h3 class="box-title"> <span id="spnClientUnitTitle"> Add Client Unit </span></h3>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-4 box-header with-border ">
+                            <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddClientUnits" style="display: none" value="Add Client Units" title="Add Client Units" data-toggle="tooltip" onclick="javascript: addClientUnits();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add Client Units </button>
+                            <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnClientUnitsList" style="display: none" onclick="javascript: showClientUnits();"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Units List</button>
+                        </div>
+                    </div>
+                </div>*@
+            @Html.HiddenFor(m => m.ClientId)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+    @*<div id="AddClientUnits" class="mt20 bg p20" style="display: none">
+    </div>
+    <div id="ClientUnitsList" class="" style="display: none">
+    </div>*@
+</div>
+<script>
+    $.validator.unobtrusive.parse(document);
+
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+        $("#btnUpdateClient").prop('disabled', true);
+    }
+    function onUpdateClientSuccess(data) {
+        //alert(data);
+        if (data.status) {
+            $("#btnAddClientUnits").show();
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+        } else {
+            if (data.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            }
+            $("#btnUpdateClient").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+        }
+    }
+</script>

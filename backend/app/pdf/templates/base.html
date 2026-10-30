@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ form_code }} - {{ title }}</title>
+  <link rel="stylesheet" href="{{ stylesheet_url }}">
+  {% if is_draft %}
+  <style>
+    .draft-watermark {
+      position: fixed;
+      top: 35%;
+      left: 15%;
+      width: 70%;
+      text-align: center;
+      font-size: 110pt;
+      font-weight: bold;
+      color: rgba(220, 38, 38, 0.12);
+      transform: rotate(-35deg);
+      z-index: 9999;
+      pointer-events: none;
+      letter-spacing: 12px;
+      font-family: 'Arial', sans-serif;
+    }
+  </style>
+  {% endif %}
+</head>
+<body>
+  {# Brand watermark on every page. position:fixed makes WeasyPrint repeat it
+     per page, and it sits behind the content so nothing becomes unreadable. #}
+  {% if not suppress_brand_watermark %}
+  <div class="brand-watermark">
+    <img src="../images/iqe-mark.png" alt="">
+  </div>
+  {% endif %}
+
+  {% if is_draft %}
+  <div class="draft-watermark">DRAFT</div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</body>
+</html>

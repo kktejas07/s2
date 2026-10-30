@@ -1,0 +1,92 @@
+﻿@using IQEApp.Domain
+@model  IQEApp.Web.Models.Security.SecurityDetails
+
+@foreach (var itm1 in Model.LstSecurityViewModels)
+{
+    //if (@lstSec == @itm1.ParentName)
+    {
+        <div style="display: inline-block;"  class="checkbox">
+            @if (itm1.IsSelected)
+            {
+                <label>
+                    <input type="checkbox" name="subchild" value=@itm1.FeatureId checked="checked" class="jsCheckBoxSelect" onchange="javascript: getSubsubChildNodes(this);">
+                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                    @itm1.FeatureName
+                </label>
+               
+            }
+            else
+            {
+                <label>
+                    <input type="checkbox" name="subchild" value=@itm1.FeatureId class="jsCheckBoxSelect" onchange="javascript: getSubsubChildNodes(this);">
+                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                    @itm1.FeatureName
+                </label>
+                
+            }
+
+        </div>
+    }
+
+}
+
+
+<script type="text/javascript">
+
+    function getSubsubChildNodes(obj) {
+
+         @*$.ajax({
+            url: '../Security/GetSubChildNodes',
+            type: 'POST',
+            data: {
+                RoleId: $(obj).val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+            success: function (data) {
+                $('#divSecFetView').html(data);
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });*@
+
+
+    }
+   function checkBoxSelect() {
+        var checkBoxSelectedValues = [];
+        $(".jsCheckBoxSelect").each(function (index, element) {
+            if ($(element).is(":checked")) {
+                checkBoxSelectedValues.push($(element).val());
+            }
+        });
+        console.log(checkBoxSelectedValues);
+        $('#lblSelectedValues').html("Selected Values are: " + checkBoxSelectedValues);
+       // alert(checkBoxSelectedValues);
+        $.ajax({
+            url: '../Security/SaveRoleFeatureMapping',
+            type: 'POST',
+            data: {
+                RoleId: $('#RoleId').val(),
+               ScnFeatId: checkBoxSelectedValues
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+            success: function (data) {
+                $('#divSecFetView').html(data);
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                window.location.href = "../Security/Index";
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });
+    }
+</script>

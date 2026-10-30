@@ -1,0 +1,263 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@model IEnumerable<IQEApp.Web.Models.CompetanceModel.CompetanceViewModel>
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+@{
+    ViewBag.Title = "Competance";
+}
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h4 class="box-title"> <span id="spnHeadTitle">Competance Matrix</span></h4>
+        </div>
+        <div class="col-sm-5 col-md-5 col-lg-5 ">
+            @Html.Partial("_DirectoryMainSearch")
+        </div>
+        <div class="col-sm-1 col-md-1 col-lg-1 ">
+            <div class="input-group-append pull-right">
+                <button class="btn-round-icon mr5 border1 " type="button" onclick="PageRefresh();"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.EnquiryCreate, @User.RoleId.FirstOrDefault()))*@
+            <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnAddCompetance" onclick="javascript:AddCompetance();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Competance</button>
+            <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnCompetanceList" style="display: none" onclick="javascript: CompetanceList();"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Competance</button>
+        </div>
+
+    </div>
+    <div id="divLoadingIconId"></div>
+    <div class="clearfix"></div>
+    <div class="mt20 bg p20" style="display: none" id="CompetanceDataPostDiv">
+        <div id="divAddUpdateCompetance">
+        </div>
+    </div>
+    
+    @*<div class="vtabs mt10" id="divActiveInActive">
+        <ul class="nav nav-tabs tabs-vertical" role="tablist">
+            <li class="nav-item pull-right " id="liInActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="SortByManufacturerStatus('InActive')">InActive</a> </li>
+            <li class="nav-item pull-right active" id="liActive"> <a class="nav-link" data-toggle="tab" role="tab" onclick="SortByManufacturerStatus('Active')"><span>Active</span></a> </li>
+        </ul>
+        <input type="hidden" id="hdnActive" />
+        <div class="tab-content">
+            <div class="tab-pane   active" id="divActive" role="tabpanel">
+            </div>
+        </div>
+    </div>*@
+    <div class="clearfix"></div>
+    @*<div class="p0" id="AlphaSorting">
+        <div>
+            <div class="col-lg-9 col-md-9 col-sm-9 p0">
+                @Html.Partial("_AlphabetPanel")
+            </div>
+
+            <div class="col-lg-1 col-md-1 col-sm-1 mt10">
+                <div class=" " id="ResortBtn" style="cursor:pointer;">
+                    <div class="resort-icon " onclick="javascript: ReSortTheFilter(this,'ASC');">
+                        <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                    </div>
+                    <div class="resort-icon-selected  sortIconHide" style="display:none;" onclick="javascript: ReSortTheFilter(this,'DESC');">
+                        <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <input type="hidden" id="hdnSortingOrder" />
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                <div class="highliter mt10 ">
+                    <span> <span class="hidden-sm">Results :  </span> <span id="TotalResultsEle"></span> </span>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>*@
+    <div id="divCompetanceDetails" class="">
+        @Html.Partial("_CompetanceDirectory", Model)
+    </div>
+    <p class="JsListGridPager pull-right" id="CompetancePager"></p>
+</div>
+<script>
+    $(document).ready(function () {
+        DefineListPagerForInitialLoad();
+
+        AlphaSearchObj.subscribe(function (alpha) {
+
+            window.paginationObj.setCurrentPageCount("0");
+            $('#txtDirectorySearch').val('');
+            window.FilterCompetanceDirectory(function (status) {
+
+            }, { backToFirstPage: true });
+
+        });
+    });
+    function SearchDirectory() {
+        $(".selectedStartsWithChar").removeClass("selectedStartsWithChar");
+        window.FilterCompetanceDirectory(function (status) {
+
+        }, { backToFirstPage: true });
+    }
+    window.ReSortTheFilter = function (obj, sortingType) {
+        $("#hdnSortingOrder").val(sortingType);
+        //show the other sort icon
+        $(".sortIconHide").show();
+        $(".sortIconHide").removeClass("sortIconHide");
+        $(obj).addClass("sortIconHide").hide();
+        window.paginationObj.setCurrentPageCount("0");
+
+        window.FilterCompetanceDirectory(function (status, newclass) {
+            //call any call back function if u want to call
+        }, { backToFirstPage: true });
+    }
+    function AddCompetance() {
+        $.ajax({
+            url: '../Competance/AddCompetance',
+            type: 'POST',
+            data: {
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#divActiveInActive').hide();
+                $("#divMainSearch").hide();
+                $('#AlphaSorting').hide();
+                $('#CompetancePager').hide();
+                $('#spnHeadTitle').html('');
+                $('#spnHeadTitle').html('Competance');
+                $('#divAddUpdateCompetance').html(data).show();
+                $('#btnCompetanceList').show();
+                $('#btnAddCompetance').hide();
+                $("#divCompetanceDetails").html('').hide();
+                //$('#ManufacturerName').focus();
+                //$('#ManUnitsToggleBtsDiv').hide();
+                $('#CompetanceDataPostDiv').show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    function competanceList() {
+        $.ajax({
+            url: '../Competance/GetCompetanceListBySiteId',
+            type: 'POST',
+            data: {
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Competance Matrix');
+                $('#CompetanceDataPostDiv').hide();
+                $("#divMainSearch").show();
+                $('#divActiveInActive').show();
+                $('#divCompetanceDetails').html(data).show();
+                $('#btnCompetanceList').hide();
+                $('#btnAddCompetance').show();
+                $("#divAddUpdateCompetance").html('').hide();
+                $('#AlphaSorting').show();
+                $('#CompetancePager').show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+    window.FilterCompetanceDirectory = function (callback, obj) {
+        if (!obj.backToFirstPage) {
+            var pageNum = (window.paginationObj.getCurrentPageCount() - 10);
+            window.paginationObj.setCurrentPageCount(pageNum);
+        }
+        else {
+            window.paginationObj.setCurrentPageCount("0");
+        }
+        $.ajax({
+            url: '../Competance/GetCompetanceListBySiteId',
+            type: 'POST',
+            data: {
+                pageCount: window.paginationObj.getCurrentPageCount,
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                activeStatus: $('#hdnActive').val(),
+                sortingOrder: $("#hdnSortingOrder").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Competance Matrix');
+                $('#CompetanceDataPostDiv').hide();
+                $("#divMainSearch").show();
+                $('#divActiveInActive').show();
+                $('#divCompetanceDetails').html(data).show();
+                $('#btnCompetanceList').hide();
+                $('#btnAddCompetance').show();
+                window.paginationObj.CreateListGridPager(obj);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    window.ShowMore = function () {
+        $.ajax({
+            url: '../Competance/GetCompetanceListBySiteId',
+            type: 'POST',
+            data: {
+                pageCount: window.paginationObj.getCurrentPageCount,
+                strSearch: $('#txtDirectorySearch').val(),
+                alphaSearch: $(".selectedStartsWithChar").html(),
+                activeStatus: $('#hdnActive').val(),
+                sortingOrder: $("#hdnSortingOrder").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnHeadTitle').html('Competance Matrix');
+                $('#CompetanceDataPostDiv').hide();
+                $("#divMainSearch").show();
+                $('#divCompetanceDetails').html(data).show();
+                $('#btnCompetanceList').hide();
+                $('#btnAddCompetance').show();
+                $("#divAddNewCompetance").html('').hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    window.SearchDirectory = function () {
+        $(".selectedStartsWithChar").removeClass("selectedStartsWithChar");
+        window.FilterCompetanceDirectory(function (status) {
+
+        }, { backToFirstPage: true });
+    }
+    function SortByCompetanceStatus(status) {
+        window.paginationObj.setCurrentPageCount("0");
+        if (status == "Active") {
+            $('#hdnActive').val('true');
+            window.FilterCompetanceDirectory(function (status) {
+                $("#liActive").addClass("active");
+                $("#liInActive").removeClass("active");
+            }, { backToFirstPage: true });
+
+        }
+        else if (status == "InActive") {
+            $('#hdnActive').val('false');
+            window.FilterCompetanceDirectory(function (status) {
+                $("#liActive").removeClass("active");
+                $("#liInActive").addClass("active");
+                $('#txtClientSearch').val('');
+            }, { backToFirstPage: true });
+        }
+    }
+</script>

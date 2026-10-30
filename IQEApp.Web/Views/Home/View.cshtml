@@ -1,0 +1,49 @@
+﻿
+@{
+    ViewBag.Title = "View";
+}
+
+<div>
+    <input type="text" id="datepicker" />
+    <div>
+        <input type="button" id="btnGet" value="Submit" />
+    </div>
+</div>
+
+<script>
+
+    var today = new Date();
+    var currentYear = today.getFullYear();
+    var currentMonth = today.getMonth();
+    var currentDay = today.getDate();
+
+    //DatePicker creation
+    var datepicker = new ej.calendars.DatePicker({
+        min: new Date(currentYear, currentMonth, 7),
+        max: new Date(currentYear, currentMonth, 27),
+        value: new Date(currentYear, currentMonth, 14),
+        width: "250px"
+    });
+    datepicker.appendTo('#datepicker');
+
+    // Ajax method to set the min and max value
+    $(function () {
+        $("#btnGet").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "/Home/AjaxMethod",
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    // Create the instance for the DatePicker
+                    var dateObj = document.getElementById('datepicker').ej2_instances[0];
+                    // Assign the min and max value to DatePicker
+                    dateObj.min = new Date(parseInt(response.min.substr(6)));
+                    dateObj.max = new Date(parseInt(response.max.substr(6)));
+                }
+            });
+        });
+    });
+</script>
+

@@ -1,0 +1,698 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Utils
+@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.UserModel.UserDetailsModel
+
+<link href="~/Content/multiselectcheckbox/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/Content/multiselectcheckbox/js/bootstrap-multiselect.js"></script>
+<script defer src="~/Scripts/bootstrap-tagsinput.min.js"></script>
+<link href="~/Content/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css" rel="stylesheet" />
+<style>
+    /* Custom styles for form inputs */
+    .form-control {
+        width: 100%;
+        max-width: 200px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        color: #236883;
+        font-weight: bold;
+    }
+
+    .inputStyle {
+        background-color: #f8f9fa;
+    }
+
+    .redborder {
+        border: 1px solid #dc3545;
+    }
+
+    .dropDownStyle {
+        /*max-width: 120px !important;*/
+        background-color: #f8f9fa;
+        color: #236883;
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .width {
+        width: 19%;
+    }
+</style>
+
+
+<div class="container mt20 bg p20">
+    <section id="updateUserForm">
+        @using (Ajax.BeginForm("UpdateUser", "User",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onSuccessUpdateUser",
+                OnFailure = "onFailureEditUser"
+            }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            <div class="row">
+                <div class="col-sm-9 col-md-9 col-lg-9 form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.UserTypeId, new { @class = "control-label", style = "color:#236883" })
+                            @Html.DropDownListFor(m => m.UserTypeId, new SelectList(Model.LstEmployeeType, "EmployeeTypeId", "EmployeeTypeName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.UserTypeId) })
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.EmployeeCode, new { @class = "control-label", style = "color:#236883" })
+                            @Html.TextBoxFor(m => m.EmployeeCode, new { @class = "form-control inputStyle redboder", style = "width:175px;color:#236883", @placeholder = @Html.DisplayNameFor(model => model.EmployeeCode) })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-9 col-md-9 col-lg-9 form-group">
+                    <div class="row">
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.TitleId, new { @class = "control-label", style = "color:#236883" })
+                            @Html.DropDownListFor(m => m.TitleId, new SelectList(Model.LstUserTitles, "TitleId", "TitleName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.TitleId) })
+                            @Html.ValidationMessageFor(m => m.TitleId)
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.FirstName, new { @class = "control-label", style = "color:#236883" })
+                            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control inputStyle redboder", style = "width:175px;color:#236883", @placeholder = @Html.DisplayNameFor(model => model.FirstName) })
+                            @Html.ValidationMessageFor(m => m.FirstName)
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.LastName, new { @class = "control-label", style = "color:#236883" })
+                            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control inputStyle redboder", style = "width:175px;color:#236883", @placeholder = @Html.DisplayNameFor(model => model.LastName) })
+                            @Html.ValidationMessageFor(m => m.LastName)
+                        </div>
+                        <div class="col-md-3">
+                            @Html.LabelFor(m => m.DOB, new { @class = "control-label", style = "color:#236883" })
+                            @Html.TextBoxFor(m => m.DOB, "{0:dd/MM/yyyy}", new { @class = "form-control inputStyle redboder", @style = "width:175px;", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                            @Html.ValidationMessageFor(m => m.DOB)
+                        </div>
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.LoginName)
+                                @Html.TextBoxFor(m => m.LoginName, new { @class = "form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.LoginName), @readonly = true })
+                                @Html.ValidationMessageFor(m => m.LoginName)
+                            </div>
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.EmailId)
+                                @Html.TextBoxFor(m => m.EmailId, new { @readonly = "readonly", @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.EmailId) })
+                                @*@Html.TextBoxFor(m => m.EmailId, new { @class = "form-control inputStyle redborder", @placeholder = "Email ID" })*@
+                                @Html.ValidationMessageFor(m => m.EmailId)
+                            </div>
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.InspectorCode)
+                                @Html.TextBoxFor(m => m.InspectorCode, new { @class = "form-control inputStyle redborder", @placeholder = "Inspector Code" })
+                                @Html.ValidationMessageFor(m => m.InspectorCode)
+                            </div>
+                            <div class="col-md-3">
+                                @Html.LabelFor(m => m.Qualification)
+                                @Html.TextBoxFor(m => m.Qualification, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.Qualification) })
+                                @Html.ValidationMessageFor(m => m.Qualification)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-3 col-md-3 col-lg-3 form-group" id="divProfilePicture">
+                <div>
+                    @Html.HiddenFor(m => m.UserImageFileSize)
+                    <input type="hidden" id="hdnOldImageGUId" value="@Model.UserImageGUID" />
+                    @Html.HiddenFor(m => m.UserImageGUID)
+                    <div class="row" id="divShowProfileImage">
+                        <div class="col-md-3 p0 image-container-center">
+                            <div class="avatar avatar-xxl">
+                                <img src="@Url.Action("GetUserImage", "User", new { userId = Model.UserId })" alt="User Image" width="100" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 p0">
+                            <button type="button" id="btnEditProfileImage" class="btn-round-icon" title="Edit Image" data-toggle="tooltip" onclick="EditProfileImage() ">
+                                <i class=" fa fa-pencil" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" id="divShowUploadImage" style="display: none">
+                        <div class="image-container-center">
+                            <div class="uploadBg">
+                                <div class="dropzone" id="userProfileUploadForm">
+                                    <div class="fallback">
+                                        <input name="files" type="file" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <span id="userProfileSubmit" class="btn btn-success mt5" style="display: none; width: 100%;">
+                                        <span>
+                                            <i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Upload
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-md-2 col-lg-2 p0">
+                            <button type="button" id="btnCloseProfileImage" class="btn-round-icon" title="Close Uploader" data-toggle="tooltip" onclick="CloseProfileImage() ">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div>&nbsp;</div>
+
+
+            <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                <div class="row">
+                    <div class="col-md-2 width">
+                        @Html.LabelFor(m => m.Experience)
+                        @Html.TextBoxFor(m => m.Experience, new { @class = "form-control inputStyle", @style = "width:180px;", @placeholder = @Html.DisplayNameFor(model => model.Experience) })
+                        @Html.ValidationMessageFor(m => m.Experience)
+                    </div>
+                    <div class="col-md-2 width">
+                        @Html.LabelFor(m => m.CountryId)
+                        @Html.DropDownListFor(m => m.CountryId, new SelectList(Model.LstCountry, "CountryId", "CountryName"), "Select", new { @class = "form-control dropDownStyle redboder", @style = "width:180px;", @placeholder = @Html.DisplayNameFor(model => model.CountryId), onchange = "GetStateDetailsByCountryId(this)" })
+                        @Html.ValidationMessageFor(m => m.CountryId)
+                    </div>
+                    <div class="col-md-2 width">
+                        @Html.LabelFor(m => m.StateId, new { @class = "control-label", style = "color:#236883" })
+                        @if (Model.StateId > 0)
+                        {
+                            @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select", new { @class = "ddlState form-control dropDownStyle redborder", @style = "width:200px;", @placeholder = @Html.DisplayNameFor(model => model.StateId) })
+                            @Html.TextBoxFor(m => m.StateName, new { @class = "txtState form-control inputStyle redborder", @style = "visibility:hidden", @placeholder = @Html.DisplayNameFor(model => model.StateName) })
+                        }
+                        @if (Model.StateId == 0)
+                        {
+                            @Html.DropDownListFor(m => m.StateId, new SelectList(Model.LstStates, "StateId", "StateName"), "Select", new { @class = "ddlState form-control dropDownStyle redborder", @style = "width:200px;visibility:hidden", @placeholder = @Html.DisplayNameFor(model => model.StateId) })
+                            @Html.TextBoxFor(m => m.StateName, new { @class = "txtState form-control inputStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.StateName) })
+                        }
+                        @Html.ValidationMessageFor(m => m.StateId)
+
+                    </div>
+                    <div class="col-md-2 width">
+                        @Html.LabelFor(m => m.CityName)
+                        @Html.TextBoxFor(m => m.CityName, new { @class = "form-control inputStyle redboder", @style = "width:180px", @placeholder = @Html.DisplayNameFor(model => model.CityName) })
+                        @Html.ValidationMessageFor(m => m.CityName)
+                    </div>
+                    <div class="col-md-2 width">
+                        @Html.LabelFor(m => m.Address)
+                        @Html.TextAreaFor(m => m.Address, new { @class = "form-control inputStyle", @placeholder = "Address", @rows = 1 })
+                        @Html.ValidationMessageFor(m => m.Address)
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                <div class="row" id="divBank">
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group" style="width:240px;">
+                        @Html.LabelFor(m => m.BankAcc, new { @class = "control-label", style = "width:100px;color:#236883" })
+                        @Html.TextBoxFor(m => m.BankAcc, "{0:0}", new { @type = "number", @min = "0", @maxlength = 15, @class = "form-control inputStyle redboder", style = "width:125px;", @placeholder = @Html.DisplayNameFor(model => model.BankAcc) })
+                        @Html.ValidationMessageFor(m => m.BankAcc)
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group" style="width:240px;">
+                        @Html.LabelFor(m => m.IFSCCode, new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control dropDownStyle redboder", style = "width:175px;", @placeholder = @Html.DisplayNameFor(model => model.IFSCCode) })
+                        @Html.ValidationMessageFor(m => m.IFSCCode)
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group" style="width:240px;">
+                        @Html.LabelFor(m => m.Branch, new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.Branch, new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.Branch) })
+                        @Html.ValidationMessageFor(m => m.Branch)
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group" style="width:240px;">
+                        @Html.LabelFor(m => m.PAN, new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.PAN, new { @class = "form-control inputStyle redboder", style = "width:175px", @placeholder = @Html.DisplayNameFor(model => model.PAN) })
+                        @Html.ValidationMessageFor(m => m.PAN)
+                    </div>
+                    <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                        @Html.LabelFor(m => m.Aadhar, new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.Aadhar, "{0:0}", new { @type = "number", @min = "0", @maxlength = 12, @class = "form-control inputStyle", style = "width:175px;height:35px;", @placeholder = @Html.DisplayNameFor(model => model.Aadhar) })
+                        @Html.ValidationMessageFor(m => m.Aadhar)
+                    </div>
+
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-sm-12 col-md-12 col-lg-12 form-group">
+                <div class="row">
+                    <div class="col-md-3 width">
+                        @Html.LabelFor(m => m.SkillSets)
+                        @Html.ListBoxFor(m => m.SkillSetIds, new SelectList(Model.LstSkillSet, "SkillSetId", "SkillSetName"), new { @class = "form-control dropDownStyle" })
+                    </div>
+                    <div class="col-md-3 width">
+                        @Html.LabelFor(m => m.ProfQualification, new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.ProfQualification, new { @class = "form-control inputStyle redborder", style = "width:175px;", @placeholder = @Html.DisplayNameFor(model => model.ProfQualification) })
+                        @Html.ValidationMessageFor(m => m.ProfQualification)
+                    </div>
+                    <div class="col-md-3 width">
+                        @Html.LabelFor(m => m.EmpContactNumber)
+                        @Html.TextBoxFor(m => m.EmpContactNumber, new { @class = "form-control inputStyle redboder", style = "width:175px", @placeholder = @Html.DisplayNameFor(model => model.EmpContactNumber) })
+                        @Html.ValidationMessageFor(m => m.EmpContactNumber)
+                    </div>
+
+                    <div class="col-md-4">
+                        @Html.LabelFor(m => m.UploadResume)
+                        @*<input type="file" name="Resume" class="form-control-file" />
+                            @Html.ValidationMessageFor(m => m.UploadResume)*@
+                        <div id="resumeUploadContainer" class="form-row align-items-center">
+                            <input type="file" name="UploadResume" class="form-control-file" style="display: inline-block; width:220px;" multiple />
+                            <button type="button" class="btn btn-outline-primary add-more-resume" style="display: inline-block;">
+                                <i class="fa fa-plus"></i> Add
+                            </button>
+                        </div>
+                        @Html.ValidationMessageFor(m => m.UploadResume)
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div id="divRoleDesig">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" id="divRole" style="width:250px;">
+                    @Html.LabelFor(m => m.RoleId)
+                    @Html.DropDownListFor(m => m.RoleId, new SelectList(Model.LstEmployeeRoles, "RoleId", "RoleName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.RoleId) })
+                    @Html.ValidationMessageFor(m => m.RoleId)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group" id="divDesig" style="width:250px;">
+                    @Html.LabelFor(m => m.DesignationId)
+                    @Html.DropDownListFor(m => m.DesignationId, new SelectList(Model.LstDesignations, "DesignationId", "DesignationName"), "Select", new { @class = "form-control dropDownStyle redboder", placeholder = @Html.DisplayNameFor(model => model.DesignationId) })
+                    @Html.ValidationMessageFor(m => m.DesignationId)
+                </div>
+
+            </div>
+
+            <div class="clearfix"></div>
+            <div class="row" id="divESIPF">
+
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.Label("ESI")
+                    @Html.TextBoxFor(m => m.ESI, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ESI) })
+                    @Html.ValidationMessageFor(m => m.ESI)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.Label("PF")
+                    @Html.TextBoxFor(m => m.PF, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PF) })
+                    @Html.ValidationMessageFor(m => m.PF)
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                    @Html.Label("PA")
+                    @Html.TextBoxFor(m => m.PA, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PA) })
+                    @Html.ValidationMessageFor(m => m.PA)
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="row" id="divshowhide">
+                <div id="divRoleDesig">
+                    <div class="col-md-2 width">
+                        @Html.LabelFor(m => m.RoleId, new { @class = "control-label", style = "color:#236883" })
+                        @Html.DropDownListFor(m => m.RoleId, new SelectList(Model.LstEmployeeRoles, "RoleId", "RoleName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.RoleId) })
+                        @Html.ValidationMessageFor(m => m.RoleId)
+                    </div>
+                    <div class="col-md-2 width">
+                        @Html.LabelFor(m => m.DesignationId, new { @class = "control-label", style = "color:#236883" })
+                        @Html.DropDownListFor(m => m.DesignationId, new SelectList(Model.LstDesignations, "DesignationId", "DesignationName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.DesignationId) })
+                        @Html.ValidationMessageFor(m => m.DesignationId)
+                    </div>
+                </div>
+                <div class="row" id="divESIPF">
+                    <div class="col-md-2 width">
+                        @Html.Label("ESI", new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.ESI, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.ESI) })
+                        @Html.ValidationMessageFor(m => m.ESI)
+                    </div>
+                    <div class="col-md-2 width">
+                        @Html.Label("PF", new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.PF, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.PF) })
+                        @Html.ValidationMessageFor(m => m.PF)
+                    </div>
+                    <div class="col-md-2 width">
+                        @Html.Label("PA", new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.PA, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.PA) })
+                        @Html.ValidationMessageFor(m => m.PA)
+                    </div>
+                </div>
+                <div class="row" id="divPAMedical">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group" style="width:240px;">
+                        @Html.LabelFor(m => m.Medical, new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.Medical, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.Medical) })
+                        @Html.ValidationMessageFor(m => m.Medical)
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group" style="width:240px;">
+                        @Html.Label("PA", new { @class = "control-label", style = "color:#236883" })
+                        @Html.TextBoxFor(m => m.PA, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.PA) })
+                        @Html.ValidationMessageFor(m => m.PA)
+                    </div>
+                </div>
+                <div class="row" id="divAssociate">
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group" style="width:240px;">
+                        @Html.LabelFor(m => m.AssociateId)
+                        @Html.DropDownListFor(m => m.AssociateName, new SelectList(Model.LstAssociates, "AssociateName", "AssociateName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.AssociateName), onchange = "GetAssociateContactPersonDetails(this)" })
+                        @Html.ValidationMessageFor(m => m.AssociateName)
+                    </div>
+                    <div class="col-sm-3 col-md-3 col-lg-3 form-group" style="width:240px;">
+                        @Html.LabelFor(m => m.ContactPerson)
+                        @Html.DropDownListFor(m => m.ContactPerson, new SelectList(Model.LstAssociateContactPerson, "ContactPerson", "ContactPerson"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:175px;", placeholder = @Html.DisplayNameFor(model => model.ContactPerson) })
+                        @Html.ValidationMessageFor(m => m.ContactPerson)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                @*<div class="form-group">*@
+                <div class="col-md-2 width">
+                    @Html.LabelFor(m => m.Certifications)
+                    @Html.TextBoxFor(m => m.Certifications, new { @class = "", @data_role = "tagsinput", @placeholder = "Add Certificates separated by commas" })
+                    @Html.ValidationMessageFor(m => m.Certifications)
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                </div>
+            </div>
+            <div class="row" id="divEmpannelment">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.CurrencyId, new { @class = "control-label", style = "color:#236883" })
+                    @Html.DropDownListFor(m => m.CurrencyId, new SelectList(Model.LstCurrencyType, "CurrencyId", "CurrencyName"), "Select", new { @class = "form-control dropDownStyle redboder", style = "width:125px;", placeholder = @Html.DisplayNameFor(model => model.CurrencyId) })
+                    @Html.ValidationMessageFor(m => m.CurrencyId)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.Label("Cost (Per Hour) ", new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.CostPerHour, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.CostPerHour) })
+                    @Html.ValidationMessageFor(m => m.CostPerHour)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.Label("Milage In Km (Round Trip)", new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.MilageInKm, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.MilageInKm) })
+                    @Html.ValidationMessageFor(m => m.MilageInKm)
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.Label("All Inclusive", new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.AllInclusive, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.AllInclusive) })
+                    @Html.ValidationMessageFor(m => m.AllInclusive)
+                    <div class="clearfix mt10"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group ">
+                    <div class="col-sm-6 col-md-6 col-lg-8">
+                    </div>
+                    <div class="col-sm-6 col-md-6 col-lg-4 ">
+                        <button type='button' class="btn btn-secondary pull-right" id="btnCloseEmp" onclick="javascript: openEmployeeList('true');"><i class="fa fa-ban" aria-hidden="true"></i> Cancel</button>
+                        <button type="submit" id="btnUserSave" value="Submit" title="Submit" data-toggle="tooltip" class="btn btn-success pull-right mr5"><i class="fa fa-floppy-o" aria-hidden="true"></i> Update </button>
+
+                    </div>
+                </div>
+                @Html.HiddenFor(m => m.UserId)
+                @Html.HiddenFor(m => m.UserGuid)
+                @Html.HiddenFor(m => m.SiteId)
+                @Html.HiddenFor(m => m.IsEmpannlementflag)
+
+            </div>
+
+            <span id="spnEditError" class="error">@ViewBag.Message </span>
+        }
+    </section>
+
+</div>
+
+
+<script type="text/javascript">
+    var Empannlementflag = '@ViewBag.Empannlementflag';
+
+
+
+    $(function () {
+        $("#SkillSetIds").multiselect({
+            includeSelectAllOption: true
+        });
+
+    });
+
+    if (Empannlementflag == 'True')
+        $("#divEmpannelment").show();
+    else if (Empannlementflag == 'False')
+        $("#divEmpannelment").hide();
+
+    function onSuccessUpdateUser(data) {
+        //  alert('Edit');
+        @*openEmployeeList('true');
+        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");*@
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            var oldImageGUid = $("#hdnOldImageGUId").val();
+            var newImageGUid = $("#UserImageGUID").val();
+            if (newImageGUid != oldImageGUid) {
+                DeleteFileFromAzure(oldImageGUid);
+            }
+            openEmployeeList('true');
+        } else {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            openEmployeeList('true');
+        }
+
+    }
+    function GetAssociateContactPersonDetails(obj) {
+        //   document.getElementById('divAssociateContact').style.visibility = 'visible';
+        // debugger;
+        var associateName = $(obj).find('option:selected').val();
+
+        $.ajax({
+            url: '../User/AssociateContactPersonDeatails',
+            type: 'POST',
+            data: {
+                AssociateName: associateName
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (associateContactPerson) {
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < associateContactPerson.LstAssociateContactPerson.length; i++) {
+                    s += '<option value="' + associateContactPerson.LstAssociateContactPerson[i].ContactPerson + '">' + associateContactPerson.LstAssociateContactPerson[i].ContactPerson + '</option>';
+                }
+                $('#ContactPerson').html(s);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+
+
+    function onFailureEditUser() {
+        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+    }
+
+    function GetAssociateDetails(obj) {
+        var usertypeId = $(obj).find('option:selected').val();
+        if (usertypeId == '3') {
+            $("#divRoleDesig").hide();
+            $("#divESIPF").hide();
+            $("#divPAMedical").hide();
+            $("#divbank").hide();
+           // $("#divlogin").hide();
+
+            document.getElementById('divAssociate').style.visibility = 'visible';
+            $.ajax({
+                url: '../User/AssociateDeatails',
+                type: 'POST',
+                data: '',
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (AssociateList) {
+
+                    var s = '<option value="-1">Select</option>';
+                    for (var i = 0; i < AssociateList.LstAssociates.length; i++) {
+                        s += '<option value="' + AssociateList.LstAssociates[i].AssociateId + '">' + AssociateList.LstAssociates[i].AssociateName + '</option>';
+                    }
+                    $('#AssociateId').html(s);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+
+        if (usertypeId == '2') {
+            $("#divRoleDesig").show();
+            $("#divESIPF").hide();
+            $("#divPAMedical").show();
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+        }
+
+        if (usertypeId == '1') {
+            $("#divRoleDesig").show();
+            $("#divESIPF").show();
+            $("#divPAMedical").hide();
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+        }
+    }
+    $(function () {
+        $("#DOB").datepicker({
+            //format: 'MM-dd-yyyy',
+            endDate: '+0d',
+            autoclose: true
+        });
+
+        $('#BankAccount').on('input', function () {
+            if (this.value.length > 15) {
+                this.value = this.value.slice(0, 15);
+            }
+        });
+
+        $('#Aadhar').on('input', function () {
+            if (this.value.length > 12) {
+                this.value = this.value.slice(0, 12);
+            }
+        });
+    });
+    $(document).ready(function () {
+
+        if ($("#UserTypeId  :selected").val() == '3') {
+            document.getElementById('divAssociate').style.visibility = 'visible';
+            $("#divESIPF").hide();
+            $("#divRoleDesig").hide();
+            $("#divPAMedical").hide();
+            $("#divBank").hide();
+           // $("#divlogin").hide();
+        }
+
+        if ($("#UserTypeId  :selected").val() == '2') {
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+            $("#divESIPF").hide();
+            $("#divRoleDesig").show();
+            $("#divPAMedical").show();
+            $("#divBank").show();
+           // $("#divlogin").show();
+        }
+
+        if ($("#UserTypeId  :selected").val() == '1') {
+            document.getElementById('divAssociate').style.visibility = 'hidden';
+            $("#divESIPF").show();
+            $("#divRoleDesig").show();
+            $("#divPAMedical").hide();
+            $("#divBank").show();
+           // $("#divlogin").show();
+        }
+
+        Dropzone.autoDiscover = false;
+
+        try {
+            window.uploader.create({
+                elementId: "userProfileUploadForm",   //dropzone will be created to this element
+                submitButtonId: "userProfileSubmit", //dropzone uploader submit button Id
+                hiddenFilePathId: "UserImageGUID",  //unique id  after uploading the file the path which is return value would be binded to this element
+                hiddenFilePathId3: "UserImageTitle",
+                hiddenFileSize: "UserImageFileSize", //Id after uploading the file the uploaded file size which is return value would be binded to this element
+                siteId: $('#SiteId').val(),   //site id the uploaded file to be stored
+                canValidateImgExtension: true, //for validating file types (if it sets  true it only takes image files)
+                canValidateContactExtensions: false,//for validating file types (if it sets  true it only takes files specified as contact extensions in baselayout)
+                url: '../FileUpload/JsonUpload', //any specified Url to upload or else it will take default url
+                clearUploaderAfterUploading: false, //boolean, it will clear the uploader if it sets true
+                uploadMultiple: false, //boolean, can upload multiple files at once if it sets true
+                //onCompleteCallback: function (data) {
+
+                //}  //we can define any call back function, to done something upon file successful upload, if not we can remover this parameter
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        let fileInputCounter = 1;
+
+        $('.add-more-resume').click(function () {
+            fileInputCounter++;
+
+            let newFileInput = `
+        <div class="input-group mb-2">
+            <input type="file" name="UploadResume" class="form-control" style="max-width: 220px;" />
+            <div class="input-group-append">
+                <button type="button" class="btn btn-outline-danger remove-resume">
+                    <i class="fa fa-minus"></i> Remove
+                </button>
+            </div>
+        </div>
+    `;
+
+
+            $('#resumeUploadContainer').append(newFileInput);
+        });
+
+
+        // Function to remove a file input field
+        $(document).on('click', '.remove-resume', function () {
+            $(this).closest('.input-group').remove();
+        });
+    });
+    function EditProfileImage() {
+        $('#divShowProfileImage').hide();
+        $('#divShowUploadImage').show();
+    }
+    function CloseProfileImage() {
+        $('#divShowProfileImage').show();
+        $('#divShowUploadImage').hide();
+    }
+
+    function GetStateDetailsByCountryId(obj) {
+        var countryId = $(obj).find('option:selected').val();
+        if (countryId == null || countryId == undefined || countryId == '') {
+            countryId = 0;
+        }
+        $.ajax({
+            url: '../Common/GetStateDetailsByCountryId',
+            type: 'POST',
+            data: {
+                countryId: countryId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (stateList) {
+                //alert(JSON.stringify(stateList));
+                if (countryId == 1) {
+                    $('.ddlState').show();
+                    $('.ddlState').css("visibility", "visible");
+                    $('.txtState').hide();
+                    var options = '<option value="-1">Select</option>';
+                    for (var i = 0; i < stateList.length; i++) {
+                        options += '<option value="' + stateList[i].StateId + '">' + stateList[i].StateName + '</option>';
+                    }
+                    $('#StateId').html(options);
+                }
+                else {
+                    $('.ddlState').hide();
+                    $('.txtState').show();
+                    $('.txtState').css("visibility", "visible");
+
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+</script>
+<script type="text/javascript" language=javascript>
+    $.validator.unobtrusive.parse(document);
+</script>

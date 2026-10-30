@@ -1,0 +1,539 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.InvoiceModel.InvoiceDetailsModel
+@{
+    ViewBag.Title = "Edit Invoice";
+}
+<style>
+    body { font-family: Arial; font-size: 9.5pt; }
+</style>
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3">
+            <h3 class="box-title"> <span id="spnHeadTitle">Finance &#8667; Edit Invoice </span></h3>
+        </div>
+        <div class="col-sm-6 form-group">
+            <label class="control-label">Invoice For : </label>
+            <label>
+                <input type="radio" name="InvoiceType" value="Customer" @(Model.InvoiceType == "Customer" || string.IsNullOrEmpty(Model.InvoiceType) ? "checked" : "") onclick="toggleInvoiceType()" /> Customer
+            </label>
+            <label style="margin-left:15px;">
+                <input type="radio" name="InvoiceType" value="Supplier" @(Model.InvoiceType == "Supplier" ? "checked" : "") onclick="toggleInvoiceType()" /> Supplier
+            </label>
+        </div>
+        <div class="col-sm-1">
+            <div id="divLoadingIconId"></div>
+        </div>
+        <div class="col-sm-2">
+            <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnInvoiceList" onclick="openInvoiceList();"><i class="fa fa-list"></i>&nbsp;Invoice</button>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row" id="InvoiceVisitSearch" style="display:flex; flex-wrap:nowrap;">
+        <div class="col-sm-2 form-group">
+            @Html.LabelFor(m => m.LstClients.FirstOrDefault().ClientName, new { @class = "control-label" })
+            @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients.OrderBy(x=>x.ClientName), "ClientId", "ClientName"), "Select", new { @style = "width:150px", @class = "form-control dropDownStyle redborder", onchange = "getClientUnitsByClientId(this)" })
+            @Html.ValidationMessageFor(m => m.ClientId)
+            <span id="spnClientIdValidation" class="error" style="display:none"></span>
+        </div>
+
+        <div class="col-sm-2 form-group">
+            @Html.LabelFor(m => m.LstClientUnits.FirstOrDefault().ClientUnitName, new { @class = "control-label" })
+            @Html.DropDownListFor(m => m.ClientUnitId, new SelectList(Model.LstClientUnits, "ClientUnitId", "ClientUnitName"), "Select", new { @style = "width:150px", @class = "form-control dropDownStyle redborder", onchange = "getConrtolNumbersByClientUnitId(this)" })
+            @Html.ValidationMessageFor(m => m.ClientUnitId)
+            <span id="spnClientUnitIdValidation" class="error" style="display:none"></span>
+        </div>
+
+        <div class="col-sm-2 form-group" id="manufacturerSection" style="display:none;">
+            @Html.Label("Supplier")
+            @Html.DropDownListFor(m => m.ManufacturerId, new SelectList(Model.LstManufacturer, "ManufacturerId", "ManufacturerName"), "Select", new { @style = "width:200px", @class = "form-control dropDownStyle redborder", onchange = "getConrtolNumbersByManufacturerId(this)" })
+            <span id="spnManufacturerValidation" class="error" style="display:none"></span>
+        </div>
+
+        <div class="col-sm-2 form-group">
+            @Html.LabelFor(m => m.LstControlNumbers, new { @class = "control-label" })
+            @Html.DropDownListFor(m => m.LstControlNumbers, new SelectList(Model.LstControlNumbers, "ControlId", "ControlNo"), "Select", new { @style = "width:150px", @class = "form-control dropDownStyle redborder", onchange = "bindSONumbers(this)" })
+            @Html.ValidationMessageFor(m => m.LstControlNumbers)
+            <span id="spnControlNumber" class="error" style="display:none"></span>
+        </div>
+
+        @* Service Order dropdown moved into the visits partial (below Currency/GST) to match GenerateInvoice layout *@
+
+        <div class="col-sm-2 form-group">
+            @Html.LabelFor(m => m.FromDate, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.FromDate, new { @style = "width:150px", @class = "form-control inputStyle redborder" })
+            @Html.ValidationMessageFor(m => m.FromDate)
+            <span id="spnFromDateValidation" class="error" style="display:none"></span>
+        </div>
+
+        <div class="col-sm-2 form-group">
+            @Html.LabelFor(m => m.ToDate, new { @class = "control-label" })
+            @Html.TextBoxFor(m => m.ToDate, new { @style = "width:150px", @class = "form-control inputStyle redborder" })
+            @Html.ValidationMessageFor(m => m.ToDate)
+            <span id="spnToDateValidation" class="error" style="display:none"></span>
+        </div>
+
+        @*<div class="col-sm-2 form-group" style="align-self:flex-end;">
+            <button onclick="GetVisitsListForInvoice();" class="btn btn-success form-control" id="btnSearchVisits">Search</button>
+        </div>*@
+    </div>
+
+    <div id="divInvoiceDetails" class="mb10"></div>
+    <div id="divInvoiceConsolidatedDetails" class="mb10"></div>
+
+    @Html.HiddenFor(m => m.InvoiceGuid)
+    @Html.HiddenFor(m => m.InvoiceID)
+</div>
+
+<script>
+    function toggleInvoiceType() {
+        var type = $("input[name='InvoiceType']:checked").val();
+        if (type === "Customer") {
+            $("#ClientId, #ClientUnitId").closest('.form-group').show();
+            $("#manufacturerSection").hide();
+        } else {
+            $("#ClientId, #ClientUnitId").closest('.form-group').hide();
+            $("#manufacturerSection").show();
+        }
+    }
+
+    $(document).ready(function () {
+        // initialize dates
+        $('#FromDate').val('@(Model.FromDate == DateTime.MinValue ? string.Empty : Model.FromDate.ToString("dd-MMM-yyyy"))');
+        $('#ToDate').val('@(Model.ToDate == DateTime.MinValue ? string.Empty : Model.ToDate.ToString("dd-MMM-yyyy"))');
+        toggleInvoiceType();
+        $.validator.unobtrusive.parse(document);
+        $("#FromDate, #ToDate").datepicker({ endDate: '+0d', autoclose: true });
+
+        var invoiceId = '@Model.InvoiceID';
+        var invoiceGuid = '@Model.InvoiceGuid';
+
+        // Pre-populate dependent dropdowns when editing
+        var selClientId = '@(Model.ClientId.ToString())';
+        var selClientUnitId = '@(Model.ClientUnitId.ToString())';
+        var selControlId = '@(Model.ControlId.ToString())';
+        var selSOId = '@(Model.SOID.ToString())';
+        // fallback to SONumber text when SOId is not present (escape single quotes)
+        var selSONumber = '@(Model.SONumber != null ? Model.SONumber.Replace("'", "\\'") : "")';
+        debugger;
+        // define final callback to load visits & consolidated after dropdowns populated
+        var afterPopulate = function() {
+
+            if (invoiceId && invoiceId !== '0') {
+                $.get('../Invoice/GetVisitsListForInvoiceEdit', { invoiceId: invoiceId }, function (resp) { $('#divInvoiceDetails').html(resp); });
+            }
+        };
+        if (selClientId && selClientId !== '0') {
+            // this will populate client units, control numbers and SO dropdowns in sequence
+            getClientUnitsByClientId(selClientId, selClientUnitId, selControlId, selSOId, afterPopulate);
+        }
+        else {
+            var selSupplierId = '@(Model.ManufacturerId.ToString())';
+            // if no client to prepopulate, still load visits/consolidated immediately
+           // afterPopulate();
+            getConrtolNumbersByManufacturerId(selSupplierId, selControlId, selSOId, afterPopulate);
+        }
+
+    });
+    function bindSONumbers(arg1, arg2, callback) {
+        debugger;
+        // Accept either bindSONumbers(this) or bindSONumbers(selectedSOId, selectedSONumberText)
+        var selected = null; // may be id or text
+        var controlNumber = '';
+
+        // If first arg is a DOM element (called from onchange), pick its selected option text
+        if (arg1 && (typeof arg1 === 'object') && $(arg1).length) {
+            controlNumber = $(arg1).children('option:selected').text().trim();
+            selected = arg2 || null;
+        } else {
+            // called as bindSONumbers(selectedSOId, selectedSONumberText) or with control id/text
+            selected = (arg1 !== undefined && arg1 !== null) ? String(arg1).trim() : (arg2 !== undefined ? String(arg2).trim() : null);
+            if (arg2 && (arg1 === undefined || arg1 === null || arg1 === '')) {
+                selected = String(arg2).trim();
+            }
+
+            // try find option by value and use its text; otherwise treat arg1 as controlNumber text
+            if (selected && $('#LstControlNumbers').find('option[value="' + selected + '"]').length) {
+                controlNumber = $('#LstControlNumbers').find('option[value="' + selected + '"]').text().trim();
+            } else {
+                controlNumber = $('#LstControlNumbers option:selected').text().trim();
+            }
+        }
+
+        // fallback to selected option text
+        if (!controlNumber) controlNumber = $('#LstControlNumbers option:selected').text().trim();
+
+        if (!controlNumber || controlNumber === '-1' || controlNumber.toLowerCase() === 'select') {
+            // nothing to populate from control number; fallback to service-order-by-client if available
+            if (typeof getServiceOrderDetailsByClientDetails === 'function') {
+                getServiceOrderDetailsByClientDetails();
+            }
+            if (typeof callback === 'function') callback();
+            return;
+        }
+
+        $.post('../Common/GetSONumbersByControlId', { controlNumber: controlNumber }, function (res) {
+            try {
+                var soList = [];
+
+                if (res &&
+                    res.LstServiceOrdersList &&
+                    Array.isArray(res.LstServiceOrdersList.LstServiceOrdersList)) {
+
+                    soList = res.LstServiceOrdersList.LstServiceOrdersList;
+                }
+                debugger;
+                var options = '<option value="-1">Select</option>';
+                var seen = {};
+                for (var i = 0; i < soList.length; i++) {
+                    var item = soList[i];
+                    var key = String(item.SOId) + '|' + String(item.SONumber);
+                    if (seen[key]) continue; // dedupe
+                    seen[key] = true;
+                    options += '<option value="' + item.SOId + '">' + item.SONumber + '</option>';
+                }
+
+                $('#SOID').html(options);
+
+                if (selected) {
+                    var selVal = String(selected || '').trim();
+                    // prefer selecting by value (SOId)
+                    if (selVal && $('#SOID').find('option[value="' + selVal + '"]').length) {
+                        $('#SOID').val(selVal);
+                    } else {
+                        // try match by text
+                        var optByText = $('#SOID').find('option').filter(function () { return $.trim($(this).text()) === selVal; }).first();
+                        if (optByText.length) {
+                            $('#SOID').val(optByText.val());
+                        } else if (arg2) {
+                            var optFromSecond = $('#SOID').find('option').filter(function () { return $.trim($(this).text()) === String(arg2).trim(); }).first();
+                            if (optFromSecond.length) $('#SOID').val(optFromSecond.val());
+                        }
+                    }
+                }
+
+                // invoke callback after population/selection
+                if (typeof callback === 'function') callback();
+            } catch (e) {
+                console.log('bindSONumbers parse error', e);
+                if (typeof callback === 'function') callback();
+            }
+        }).fail(function (err) { console.log('bindSONumbers ajax error', err); if (typeof callback === 'function') callback(); });
+    }
+
+    // Compatibility wrapper used by partials: expose getSONumbersByControlId globally
+    function getSONumbersByControlId(obj, selectedSOIdOrText, callback) {
+        // When partial calls with (controlNumber, selected) we forward to bindSONumbers
+        return bindSONumbers(obj, selectedSOIdOrText, callback);
+    }
+
+    function openInvoiceList() { var currentUrl = '@System.Configuration.ConfigurationManager.AppSettings["HostUrl"].ToString()'; window.location.href = currentUrl + '/Invoice/Index'; }
+</script>
+
+<script>
+    // client helpers
+    // helper: robustly set select value by value or by option text
+    function setSelectValue($sel, desired) {
+        debugger;
+        if (!$sel || $sel.length === 0) return false;
+        var val = (desired === null || desired === undefined) ? '' : String(desired).trim();
+        if (!val) return false;
+
+        $sel.val(val);
+        if ($sel.val() && String($sel.val()).trim() === val) return true;
+
+        var byValue = $sel.find('option').filter(function () { return String($(this).val()).trim() === val; });
+        if (byValue.length) { $sel.val(byValue.first().val()); return true; }
+
+        var byText = $sel.find('option').filter(function () { return String($(this).text()).trim() === val; });
+        if (byText.length) { $sel.val(byText.first().val()); return true; }
+
+        return false;
+    }
+
+    function getClientUnitsByClientId(obj, selectedClientUnitId, selectedControlId, selectedSOId, callback) {
+        var clientId = (typeof obj === 'object') ? $(obj).val() : obj;
+        $.post('../PurchaseOrder/GetClientUnitsByClientId', { clientId: clientId }, function (clientUnits) {
+            var s = '<option value="-1">Select</option>';
+            for (var i = 0; i < clientUnits.length; i++) s += '<option value="' + clientUnits[i].ClientUnitId + '">' + clientUnits[i].ClientUnitName + '</option>';
+            $('#ClientUnitId').html(s);
+
+            var selCU = String(selectedClientUnitId || '').trim();
+            if (selCU && selCU !== '0' && selCU !== '-1') {
+                setSelectValue($('#ClientUnitId'), selCU);
+                // load control numbers for this client unit
+                getConrtolNumbersByClientUnitId(selCU, selectedControlId, selectedSOId, callback);
+            } else {
+                if (typeof callback === 'function') callback();
+            }
+        });
+    }
+
+    function getConrtolNumbersByClientUnitId(obj, selectedControlId, selectedSOId, callback) {
+
+        var clientUnitId = (typeof obj === 'object')
+            ? $(obj).val()
+            : obj;
+
+        $.post('../Common/GetControlNumbersByClientUnitId',
+            { clientUnitId: clientUnitId },
+            function (data) {
+
+                var s = '<option value="-1">Select</option>';
+
+                for (var i = 0; i < data.length; i++) {
+
+                    s += '<option value="' +
+                        data[i].ControlId +
+                        '">' +
+                        data[i].ControlNo +
+                        '</option>';
+                }
+
+                $('#LstControlNumbers').html(s);
+
+                var selCtrl = String(selectedControlId || '').trim();
+
+                if (selCtrl &&
+                    selCtrl !== '0' &&
+                    selCtrl !== '-1') {
+
+                    setSelectValue($('#LstControlNumbers'), selCtrl);
+                    // populate SONumbers from server for this selected control and select the SO
+                    bindSONumbers(selCtrl, selectedSOId, callback);
+                } else {
+                    // no control preselected - just invoke callback
+                    if (typeof callback === 'function') callback();
+                }
+
+                // IMPORTANT
+                // LOAD PARTIAL FIRST
+                
+            });
+    }
+    function getConrtolNumbersByManufacturerId(obj, selectedControlId, selectedSOId, callback) {
+        debugger;
+        var manufId = (typeof obj === 'object')
+            ? $(obj).val()
+            : obj;
+
+        $.post('../Common/GetControlNumbersByManufacturerId',
+            { manufacturerId: manufId },
+            function (data) {
+
+                var s = '<option value="-1">Select</option>';
+
+                for (var i = 0; i < data.length; i++) {
+
+                    s += '<option value="' +
+                        data[i].ControlId +
+                        '">' +
+                        data[i].ControlNo +
+                        '</option>';
+                }
+
+                $('#LstControlNumbers').html(s);
+
+                var selCtrl = String(selectedControlId || '').trim();
+
+                if (selCtrl &&
+                    selCtrl !== '0' &&
+                    selCtrl !== '-1') {
+
+                    setSelectValue($('#LstControlNumbers'), selCtrl);
+                    // populate SONumbers from server for this selected control and select the SO
+                    bindSONumbers(selCtrl, selectedSOId, callback);
+                } else {
+                    if (typeof callback === 'function') callback();
+                }
+
+                // IMPORTANT
+                // PARTIAL LOAD FIRST
+                
+            });
+    }
+    function GetVisitsListForInvoice() {
+        debugger;
+        var invoiceType = $("input[name='InvoiceType']:checked").val();
+        var data = {
+            InvoiceType: invoiceType,
+            ClientId: $('#ClientId').val(),
+            ClientUnitId: $('#ClientUnitId').val(),
+            ManufacturerId: $('#ManufacturerId').val(),
+            SOID: $('#SOID').val(),
+            FromDate: $('#FromDate').val(),
+            ToDate: $('#ToDate').val()
+        };
+        $.post('../Invoice/GetVisitListForInvoice', data, function (resp) { $('#divInvoiceDetails').html(resp); });
+    }
+
+   function SaveInvoiceDetails() {
+       debugger;
+        visitPriceDetailsArray = [];
+        $(".js-VisitPrice").each(function () {
+            var visitPriceData = {};
+            var dataId = $(this).val();
+            if ($(this).is(":checked")) {
+                //var visitPrice = $("#txtVisitPrice_"+dataId).val();
+                visitPriceData.VEMId = dataId.split('_')[0];;
+                visitPriceData.VisitId = $("#hdnVisitId_" + dataId).val();
+                visitPriceData.PONumber = $("#hdnPONumber_" + dataId).val();
+                visitPriceData.PODate = $("#hdnPODate_" + dataId).val();
+                visitPriceData.VisitDate = $("#hdnVisitDate_" + dataId).val();
+                visitPriceData.VisitContactName = $("#hdnVisitContactName_" + dataId).val();
+                visitPriceData.ManufacturerName = $("#hdnManufacturerName_" + dataId).val();
+                visitPriceData.VisitLocation = $("#hdnVisitLocation_" + dataId).val();
+                visitPriceData.InspectorName = $("#hdnInspectorName_" + dataId).val();
+               // visitPriceData.InspReportNumber = $("#hdnReportNo_" + dataId).val();
+                visitPriceData.InspReportNo = $("#hdnReportNo_" + dataId).val();
+                visitPriceData.Distance = $("#hdnDistance_" + dataId).val();
+                visitPriceData.TimeIn = $("#hdnTimeIn_" + dataId).val();
+                visitPriceData.TimeOut = $("#hdnTimeOut_" + dataId).val();
+                visitPriceData.TotalHrs = $("#hdnTotalHrs_" + dataId).val();
+                visitPriceData.MileageCost = $("#txtMileageCost_" + dataId).val();
+                visitPriceData.FoodAllowance = $("#txtFoodAllowance_" + dataId).val();
+                //visitPriceData.ModeOfTransport = $("#txtModeOfTransport_" + dataId).val();
+                visitPriceData.TravelFare = $("#txtTravelFare_" + dataId).val();
+                visitPriceData.Hotel = $("#txtHotel_" + dataId).val();
+                visitPriceData.OtherExpenses = $("#txtOtherExpenses_" + dataId).val();
+                visitPriceData.ServiceCharge = $("#txtServiceCharge_" + dataId).val();
+                visitPriceData.Remarks = $("#txtRemarks_" + dataId).val();
+                visitPriceData.Total = $("#txtIndividualTotal_" + dataId).val();
+                visitPriceDetailsArray.push(visitPriceData);
+            }
+        });
+
+        var invoiceType = $("input[name='InvoiceType']:checked").val();
+
+        var validationRules = [];
+
+        // ===== COMMON FIELDS =====
+        validationRules.push(
+            { elementVal: $("#SOID").val(), isRequired: true, errorElement: "spnServiceOrderValidation", errorString: "Service Number Required" },
+            { elementVal: $("#FromDate").val(), isRequired: true, errorElement: "spnFromDateValidation", errorString: "From Date Required" },
+            { elementVal: $("#ToDate").val(), isRequired: true, errorElement: "spnToDateValidation", errorString: "To Date Required" },
+            { elementVal: $("#Subject").val(), isRequired: true, errorElement: "spnSubjectValidation", errorString: "Subject Required" },
+            { elementVal: $("#InvoiceTemplateId").val(), isRequired: true, errorElement: "spnInvoiceTemplateIdValidation", errorString: "Select Template Type" }
+        );
+
+        // ===== CUSTOMER VALIDATION =====
+        if (invoiceType === "Customer") {
+
+            validationRules.push(
+                { elementVal: $("#ClientId").val(), isRequired: true, errorElement: "spnClientIdValidation", errorString: "Customer Required" },
+                { elementVal: $("#ClientUnitId").val(), isRequired: true, errorElement: "spnClientUnitIdValidation", errorString: "Customer Unit Required" },
+                { elementVal: $("#ClientContactName").val(), isRequired: true, errorElement: "spnClientContactNameValidation", errorString: "Customer Contact Required" },
+                { elementVal: $("#ClientContactAddress").val(), isRequired: true, errorElement: "spnClientContactAddressValidation", errorString: "Customer Address Required" }
+            );
+        }
+
+        // ===== MANUFACTURER VALIDATION =====
+        if (invoiceType === "Supplier") {
+
+            validationRules.push(
+                { elementVal: $("#ManufacturerId").val(), isRequired: true, errorElement: "spnManufacturerValidation", errorString: "Manufacturer Required" },
+            );
+        }
+
+        var isValidationRaised = window.validator.validate(validationRules);
+
+        if (isValidationRaised) {
+            return false;
+        }
+
+
+        $.ajax({
+            url: '../Invoice/SaveInvoiceDetails',
+            type: 'POST',
+            data: {
+                InvoiceID: $("#InvoiceID").val(),
+                InvoiceType: invoiceType,
+                clientId: $("#ClientId").val(),
+                ClientUnitId: $("#ClientUnitId").val(),
+                ManufacturerId: $("#ManufacturerId").val(),
+                FromDate: $("#FromDate").val(),
+                ToDate: $("#ToDate").val(),
+                SOID: $("#SOID").val(),
+                ControlId: $("#LstControlNumbers").val(),
+                //InvoiceNo: $("#InvoiceNo").val(),
+                //InvoicePrice: $("#InvoicePrice").val(),
+                //EmailId: $("#EmailId").val(),
+                //CourierSendDate: $("#CourierSendDate").val(),
+                //CourierReceiveDate: $("#CourierReceiveDate").val(),
+                Encl:$("#Encl").val(),
+                InvoiceTemplateId: $("#InvoiceTemplateId").val(),
+                LstVisitProcessings: visitPriceDetailsArray,
+                ClientContactName: $("#ClientContactName").val(),
+                ClientContactAddress: $("#ClientContactAddress").val(),
+                PONumber: $("#PONumber").val(),
+                Currency: $("#ddlCurrency option:selected").text(), //as we are saving the text in the database.
+                Subject: $("#Subject").val(),
+                ExchangeRate: $("#ExchangeRate").val(),
+                GrandTotalAmount: $("#GrandTotalAmount").val(),
+                TotalAmount: $("#TotalAmount").val(),
+                CGST: $("#CGST").val(),
+                CGSTPercentage: $("#CGSTPercentage").val(),
+                SGST: $("#SGST").val(),
+                SGSTPercentage: $("#SGSTPercentage").val(),
+                IGST: $("#IGST").val(),
+                IGSTPercentage: $("#IGSTPercentage").val(),
+                ClientGSTNo: $("#ClientGSTNo").val(),
+                IsSez: $("#chkIsSez").val(),
+                IsOverseas: $("#chkIsOverseas").val(),
+                MileageCost: $("#MileageCost").val(),
+            },
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                if (response.status == 'false') {
+                   window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+                   //$("#InvoiceGuid").val(response.invoiceGuid);
+                   $("#btnPreview").prop('disabled', false);
+               }
+                else {
+                    makeInputReadOnly();
+                    $("#divInvoiceConsolidatedDetails").html(response);
+                    $("#divProceedButtons").hide();
+                    //$('#InvoiceVisitSearch input').attr('readonly', 'readonly');
+                    //$('#divInvoiceConsolidatedDetails input').attr('readonly', 'readonly');
+                    //$("#InvoiceVisitSearch").hide();
+                }
+
+            },
+            error: function () {
+
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+    function makeInputReadOnly() {
+        $("#ClientId").prop("disabled", true);
+        $("#ClientUnitId").prop("disabled", true);
+        $("#LstControlNumbers").prop("disabled", true);
+        $("#FromDate").prop("disabled", true);
+        $("#ToDate").prop("disabled", true);
+        $("#SOID").prop("disabled", true);
+        $("#InvoicePrice").prop("disabled", true);
+        $("#InvoiceTemplateId").prop("disabled", true);
+        $("#ClientContactName").prop("disabled", true);
+        $("#ClientContactAddress").prop("disabled", true);
+        $("#ToDate").prop("disabled", true);
+        $("#PONumber").prop("disabled", true);
+        $("#ddlCurrency").prop("disabled", true);
+        $("#Subject").prop("disabled", true);
+        $("#ExchangeRate").prop("disabled", true);
+        $("#GrandTotalAmount").prop("disabled", true);
+        $("#TotalAmount").prop("disabled", true);
+        $("#CGST").prop("disabled", true);
+        $("#CGSTPercentage").prop("disabled", true);
+        $("#SGST").prop("disabled", true);
+        $("#SGSTPercentage").prop("disabled", true);
+        $("#IGST").prop("disabled", true);
+        $("#IGSTPercentage").prop("disabled", true);
+        $("#ClientGSTNo").prop("disabled", true);
+    }
+</script>

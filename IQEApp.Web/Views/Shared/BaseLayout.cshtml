@@ -1,0 +1,1090 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Utils
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Web Application" />
+    <meta name="author" content="IQE" />
+    <title>@ViewBag.Title -  IQE</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+
+    @*<link href="@Url.Content("~/Content/Gridmvc.css")" rel="stylesheet" />*@
+    <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.date.js")" type="text/javascript"></script>
+    @*<script src="@Url.Content("~/Scripts/gridmvc.min.js")"></script>*@
+
+    <link href="~/Assets/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/Editor/editor.css" rel="stylesheet" />
+    <script src="~/Content/Editor/editor.js"></script>
+    <link href="~/Content/plugins/ion-rangeslider/ion.rangeSlider.css" rel="stylesheet" />
+    <script src="~/Content/plugins/ion-rangeslider/ion.rangeSlider.min.js"></script>
+    <link href="~/Content/plugins/ion-rangeslider/ion.rangeSlider.skinModern.css" rel="stylesheet" />
+    <script src="~/Content/plugins/ion-rangeslider/ion-rangeslider-int.js"></script>
+    <link href="~/Content/plugins/datepicker/css/datepicker.min.css" rel="stylesheet" />
+    <script src="~/Content/plugins/datepicker/js/datepicker.js"></script>
+    @*<script src="~/Content/plugins/datepicker/js/datepicker.min.js"></script>*@
+    <link href="~/Content/plugins/DateTimePicker/bootstrap-datetimepicker.css" rel="stylesheet" />
+    <script src="~/Scripts/moment.js"></script>
+    <script src="~/Content/plugins/DateTimePicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="~/Scripts/jquery.sticky.js"></script>
+    <script src="~/Content/jGrowl/jquery.jgrowl.min.js"></script>
+    @*<link href="~/Content/cropper/cropper.css" rel="stylesheet" />*@
+    <script src="~/Content/cropper/cropper.min.js"></script>
+    <script src="~/Content/jquery-cropper/jquery-cropper.min.js"></script>
+    <link href="~/Content/dropzone/basic.css" rel="stylesheet" />
+    <link href="~/Content/dropzone/dropzone.css" rel="stylesheet" />
+    <script src="~/Content/dropzone/dropzone.js"></script>
+    <style>
+        /* Limit image width to avoid overflow the container */
+        img.cropperimg {
+            /*max-width: 100%;*/ /* This rule is very important, please do not ignore this! */
+        }
+    </style>
+</head>
+<body>
+    <header class="headertop sticky">
+        @Html.Action("LoadSubMenu", "Common")
+    </header>
+    <div>
+        <div class="container-fluid body-style">
+            @RenderBody()
+        </div>
+
+        @*delete confirmation prompt*@
+        <div class="container">
+            <div id="DeleteConfirmationDiv" class="cd-popup" role="alert" style=" display: inline-block;
+                                      position: fixed;
+                                      z-index: 9999;">
+                <div class="cd-popup-container">
+                    <p id="deleteConfirmMessage">Are you sure you want to InActivate ?</p>
+                    <ul class="cd-buttons">
+                        <li id="deleteConfrimYesBtn"><a href="javascript:;">Yes</a></li>
+                        <li id="deleteConfrimNoBtn"><a href="javascript:;">No</a></li>
+                    </ul>
+                    <a href="#0" class="cd-popup-close img-replace">Close</a>
+                </div> <!-- cd-popup-container -->
+            </div> <!-- cd-popup -->
+        </div>
+        @* Cropper Div Starts *@
+        <div class="modal fade" id="UploadImgCropperDiv" role="dialog" style="z-index:1001">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Crop and Upload</h4>
+                    </div>
+                    <div id="" style=" width: 500px; height: 400px; margin:40px auto; display: flex; align-items: center;">
+                        <img id="cropperimage" class="cropperimg" src="" style="display:inline;">
+                    </div>
+                    <div class="modal-footer" style="padding:15px 50px;">
+                        <button type="button" id="UploadPopUpLandScapeBtn" onclick="javascript: uploadCropper.LandScape(this);" class=" pull-left btn btn-outline-secondary uploadCropperWindowBtnsLandscape">LandScape</button>
+                        <button type="button" id="UploadPopUpPotraitBtn" onclick="javascript: uploadCropper.Portrait(this);" class="pull-left btn btn-outline-secondary uploadCropperWindowBtnsPotrait">Portrait</button>
+                        <button type="button" id="UploadPopUpCropAndUploadBtn" onclick="javascript: uploadCropper.cropAndUpload();" class="btn btn-success"> <i class="fa fa-upload" aria-hidden="true"></i> &nbsp; Upload</button>
+                        <button type="button" id="UploadPopUpCloseBtn" style="display:none;" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <button id="ShowUploadCropperBtn" style="display:none;" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#UploadImgCropperDiv">Open Modal</button>
+        <div class="clearfix"></div>
+        @* Cropper Div Ends *@
+        @*div used to upload image or video*@
+        <div class="modal fade" id="UploadDiv" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Upload</h4>
+                    </div>
+                    <div id="" style="width:500px; height:400px;margin:auto;">
+                        <div class="uploadsideBg ">
+                            <div class="dropzone" id="dropzoneUploadElem">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="UploadDivCloseBtn" style="display:none;" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="ShowUploadDivBtn" style="display:none;" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#UploadDiv">Open Modal</button>
+        <div class="clearfix"></div>
+        @*div used to upload image or video ends*@
+        @* Start File Preview modal Popup*@
+        <div>
+            <div class="modal fade" id="FilesPreviewWindow" tabindex="-1" role="dialog">
+                <div class="modal-dialog" style="width: 90%; ">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <label id="lblFolderFileName"></label>
+                            <button type="button" class="close" id="FilePreviewPopUpCloseBtn" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="divFilePreviewPopup" style="display:none">
+                                @* Body will be appended*@
+                            </div>
+                            <div id="divMSFilePreviewPopup" style="display:none">
+                                @* Body will be appended*@
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="ShowFilesPreview" style="display:none;" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#FilesPreviewWindow" data-backdrop="static" data-keyboard="false">Open Modal</button>
+            <div class="clearfix"></div>
+        </div>
+        @* End File Preview modal Popup*@
+        @*page loading icon*@
+        <div class="container-fluid">
+            <div class="sk-circle" id="LoadingIcon" style="display:none">
+                <div id="fountainG_1" class="fountainG"></div><div id="fountainG_2" class="fountainG"></div><div id="fountainG_5" class="fountainG"></div><div id="fountainG_6" class="fountainG"></div>
+            </div>
+        </div>
+        @*page loading icon ends*@
+        @*<footer class="footer wi-footer">
+            <div class="container-fluid">
+                <p>Copyright &copy; @DateTime.Now.Year Web India. | All Rights Reserved</p>
+            </div>
+        </footer>*@
+    </div>
+    @*@Scripts.Render("~/bundles/jquery")*@
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+<script defer type="text/javascript">
+
+    $(document).ready(function () {
+        Dropzone.autoDiscover = false;
+
+        //close popup
+        $('.cd-popup').on('click', function (event) {
+            if ($(event.target).is('.cd-popup-close') || $(event.target).is('.cd-popup')) {
+                event.preventDefault();
+                $(this).removeClass('is-visible');
+            }
+        });
+        //close popup when clicking the esc keyboard button
+        $(document).keyup(function (event) {
+            if (event.which == '27') {
+                $('.cd-popup').removeClass('is-visible');
+            }
+        });
+
+        $("#deleteConfrimNoBtn").unbind("click").bind("click", function (e) {
+            $('.cd-popup').removeClass('is-visible');
+        });
+
+
+        $('[data-toggle="tooltip"]').tooltip({
+            placement: 'bottom'
+        });
+        // let's Hide Items
+        $(".cc-contactpop form").hide();
+        $(".cc-contactpop i").hide();
+        $(".cc-contactpop p").hide();
+
+        // Show on elements ".slideDown"
+        $(".cc-contactpop").click(function () {
+            $(".cc-contactpop form").slideDown(500)
+            $(".cc-contactpop p").slideDown(500)
+            $(".cc-contactpop i").slideDown(500)
+        });
+
+        // Close Hidden Part
+        $(".cc-contactpop i").click(function () {
+            $(this).slideUp(500)
+            $(".cc-contactpop p").slideUp(500)
+            $(".cc-contactpop form").slideUp(500)
+            return false
+        });
+
+        $("#header").sticky({ topSpacing: 0 });
+
+    });
+    function PageRefresh() {
+        location.reload();
+    }
+    window.Spinner = (function () {
+        return {
+            StartSpinner: function (ele) {
+                $(ele).parent().find(".fa-spinner").first().addClass("fa-pulse");
+            },
+            StopSpinner: function (ele) {
+                $(ele).parent().find(".fa-spinner").first().removeClass("fa-pulse");
+            }
+        }
+    })();
+
+    window.BaseLayout_InlineLoadingIcon = function () {
+
+        var rightLoadingImage = '<div class="InlineLoadingIcon_right" style="display:none;"><div id="fountainG"><div id="fountainG_1" class="fountainG"></div><div id="fountainG_2" class="fountainG"></div><div id="fountainG_5" class="fountainG"></div><div id="fountainG_6" class="fountainG"></div></div></div>';
+        var centerLoadingImage = '<div class="InlineLoadingIcon_center" style="display:none;"><div id="fountainG"><div id="fountainG_1" class="fountainG"></div><div id="fountainG_2" class="fountainG"></div><div id="fountainG_5" class="fountainG"></div><div id="fountainG_6" class="fountainG"></div></div></div>';
+        var rightWhiteLoadingImage = '<div class="InlineLoadingIcon_right" style="display:none;"><div id="whiteLoading"><div id="whiteLoading_1" class="whiteLoading"></div><div id="whiteLoading_2" class="whiteLoading"></div><div id="whiteLoading_5" class="whiteLoading"></div><div id="whiteLoading_6" class="whiteLoading"></div></div></div>';
+        var centerWhiteLoadingImage = '<div class="InlineLoadingIcon_center" style="display:none;"><div id="whiteLoading"><div id="whiteLoading_1" class="whiteLoading"></div><div id="whiteLoading_2" class="whiteLoading"></div><div id="whiteLoading_5" class="whiteLoading"></div><div id="whiteLoading_6" class="whiteLoading"></div></div></div>';
+
+        return {
+            showLoadingIcon: function (obj) {
+                if (obj.position == "right") {
+
+                    if (obj.color == "white") {
+                        $(obj.parentElement).html(rightWhiteLoadingImage);
+                        $(obj.parentElement).find(".InlineLoadingIcon_right").first().fadeIn();
+                    }
+                    else {
+                        $(obj.parentElement).html(rightLoadingImage);
+                        $(obj.parentElement).find(".InlineLoadingIcon_right").first().fadeIn();
+                    }
+                }
+                else if (obj.position == "center") {
+
+                    if (obj.color == "white") {
+                        $(obj.parentElement).html(centerWhiteLoadingImage);
+                        $(obj.parentElement).find(".InlineLoadingIcon_center").first().fadeIn();
+                    }
+                    else {
+                        $(obj.parentElement).html(centerLoadingImage);
+                        $(obj.parentElement).find(".InlineLoadingIcon_center").first().fadeIn();
+                    }
+                }
+            },
+            hideLoadingIcon: function (parentElement) {
+                $(parentElement).empty();
+            },
+            showAutoCompleteLoadingIcon: function () {
+
+            },
+            hideAutoCompleteLoadingIcon: function () {
+
+            }
+        };
+    }();
+
+    function HideAndShowCompletePageLoadingIcon(canShow) {
+        if (canShow) {
+            $("#LoadingIcon").show();
+        } else {
+            $("#LoadingIcon").hide();
+        }
+    }
+
+    /* function to show the confirmation prompt for delete actions*/
+    function ShowDeleteConfirmationPrompt(callback, options) {
+        ////debugger;
+        var msg1 = "Are you sure you want to Activate ?";
+        var msg2 = "";
+
+        if (!options) {
+            options = {};
+        }
+
+        if (!options.msg) {
+            options.msg = msg1 + " " + msg2;
+        } else {
+            options.msg = msg1 + " " + options.msg + " " + msg2;
+        }
+
+        $("#deleteConfirmMessage").html(options.msg);
+        //open pop up
+        $('#DeleteConfirmationDiv').addClass('is-visible');
+        $("#deleteConfrimYesBtn").unbind("click").bind("click", function (e) {
+            //as user clicked Ok button, call the call back function which executes the delete action
+            callback();
+            $('#DeleteConfirmationDiv').removeClass('is-visible');
+        });
+    }
+
+    /* function to show the confirmation prompt for actions*/
+    function ShowConfirmationPrompt(callback, options) {
+        //debugger;
+        $("#deleteConfirmMessage").html(options.msg);
+        //open pop up
+        $('#DeleteConfirmationDiv').addClass('is-visible');
+        $("#deleteConfrimYesBtn").unbind("click").bind("click", function (e) {
+            //as user clicked Ok button, call the call back function which executes the defined action
+            callback();
+            $('#DeleteConfirmationDiv').removeClass('is-visible');
+        });
+    }
+    window.uploader = function () {
+
+        var allFilesExtensions = ".jpg, .jpeg, .doc, .docx, .pdf, .xls,.xlsx, .png, .txt, .ppt, .pptx, .csv, .gif";
+        var allowedImgFileExtensions = ".jpg, .jpeg, .png";
+        var allowedContactExtensions = ".csv, .gif";
+        var allowGifImages = ".gif";
+        var defaultURL = '@Url.Content("~/RnD/JsonUpload")';
+        var defaultMessage = "Drop file here to start loading or Select File";
+        var MaximumFileSize = "MaximumFileSize";
+       // console.log("upload intiator");
+        return {
+
+            validateIsFileImage: function (fileObj) {
+
+                var fileName = fileObj.name;
+                var fileExtension = $.trim(fileName.substring(fileName.lastIndexOf("."))).toLowerCase();
+
+                if (fileExtension == ".png" || fileExtension == ".jpg" || fileExtension == ".jpeg") {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            },
+            // gif validation
+            validateIsGifImage: function (fileObj) {
+                var fileName = fileObj.name;
+                var fileExtension = $.trim(fileName.substring(fileName.lastIndexOf("."))).toLowerCase();
+
+                if (fileExtension == ".gif") {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            },
+            //gif validation ended
+            /**
+               options:
+               {elmentId, submitButtonId, hiddenFilePathId, canValidateImgExtension, canValidateContactExtensions, url, validationDivId}
+            **/
+            create: function (options) {
+                console.log("Create intiator");
+                var hfSiteId = "";
+                var extensions = "";
+                //console.log(options);
+                if (options.canValidateContactExtensions == true) {
+                    extensions = allowedContactExtensions;
+                }
+                else if (options.canValidateImgExtension == true) {
+                    extensions = allowedImgFileExtensions;
+                }
+                else {
+                    extensions = allFilesExtensions;
+                }
+
+                console.log("extensions" + extensions);
+
+                if (options.url == undefined) {
+                    options.url = defaultURL;
+                }
+                console.log("default ULR " + defaultURL);
+                if (options.alsoCopyToSiteId != undefined && options.alsoCopyToSiteId != null) {
+                    options.url += "?AlsoCopyToSiteId=" + options.alsoCopyToSiteId;
+                }
+
+                if (options.defaultMessage == undefined) {
+                    options.defaultMessage = defaultMessage;
+                }
+
+                if (options.siteId != undefined) {
+                    options.url += "?SiteId=" + options.siteId;
+                }
+
+                //set the value for clearing dropzone if it was not defined to clear or not
+                if (options.clearUploaderAfterUploading == undefined) {
+                    options.clearUploaderAfterUploading = false;
+                }
+                // assign default value if the dropzone not assigned value to upload multiple files
+                if (options.uploadMultiple == undefined) {
+                    options.uploadMultiple = false;
+                }
+                hfSiteId = options.siteId;
+                var configObj = {
+                    url: options.url,
+                    paramName: "files",
+                    parallelUploads: 10,
+                    maxFiles: null, //MB
+                    maxFilesize: 100, //MB
+                    autoProcessQueue: false,
+                    createImageThumbnails: true,
+                    addRemoveLinks: false,
+                    uploadMultiple: options.uploadMultiple,
+                    accept: function (file, done) {
+                        console.log("FILE OBJ ", file);
+                        var fileExt = file.name.split('.').pop();
+                        fileExt = ("." + fileExt).toLowerCase();
+                        console.log("FILE Ext ", fileExt);
+                        var status = extensions.split(",").some(function (extension) {
+                            return fileExt.includes(extension.trim());
+                        });
+                        console.log("ext status", status);
+                        if (status) {
+                            done();
+                        }
+                        else {
+                            done("Supported file extensions: " + extensions);
+                        }
+                    },
+                    removedfile: function (file) {
+                        var _ref;
+                        return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+                    },
+                    dictDefaultMessage: options.defaultMessage,
+                    init: function () {
+                        // alert('in');
+                        console.log("submit b:" + options.submitButtonId);
+                        var submitButton = document.querySelector("#" + options.submitButtonId);
+                        var myDropzone = this; //closure
+                        submitButton.addEventListener("click", function () {
+                            console.log("auto process started");
+                            //tell Dropzone to process all queued files
+                            myDropzone.processQueue();
+                        });
+                        //single file upload i.e. one file
+                        if (!options.uploadMultiple) {
+                            this.on("addedfile", function (file) {
+                                console.log("added file");
+
+                                var _this = this;
+                                // Create the remove button
+                                var removeButton = Dropzone.createElement(
+                                    "<button  class='btn-m-icon  uploadDel ' style='cursor:pointer'><i class='fa fa-trash' style='cursor:pointer'></i></button>");
+
+                                // Listen to the click event
+                                removeButton.addEventListener("click",
+                                    function (e) {
+                                        // Make sure the button click doesn't submit the form:
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        // Remove the file preview.
+                                        _this.removeFile(file);
+                                        var retVal = $("#" + options.hiddenFilePathId).val();
+                                        //empty the file source in hidden field as well
+                                        $("#" + options.hiddenFilePathId).val("");
+                                        //$("#" + options.hiddenFilePathId2).val("");
+                                        //$("#" + options.hiddenFilePathId3).val("");
+                                        $("#" + options.hiddenFileSize).val("");
+                                        // If you want to the delete the file on the server as well,
+                                        // you can do the AJAX request here.
+                                        var url = '/Base/DeleteFileFromAzureControl';
+                                        $.ajax({
+                                            url: url,
+                                            type: 'GET',
+                                            data: {
+                                                fileName: retVal,
+                                                siteId: hfSiteId
+                                            },
+                                            success: function (data) {
+                                            },
+                                            error: function (e) {
+                                            }
+                                        });
+
+                                    });
+
+                                // Add the button to the file preview element.
+                                file.previewElement.appendChild(removeButton);
+                                console.log(">>> file ", file);
+                                if (file.status == "added" && window.uploader.validateIsFileImage(file)) {
+                                    //create cropper for uploaded image   (if we dont want the cropper we can skip this step and show submit button)
+                                    window.uploadCropper.showCropperWindow(file, this);
+                                    $(submitButton).hide();
+                                }
+                                    // showing submit button to gif image to upload
+                                else if (file.status == "added" && window.uploader.validateIsGifImage(file)) {
+                                    $(submitButton).show();
+                                } // ended here
+                                else {
+                                    var isImage = file.type.includes("image");
+                                    console.log("file type: " + isImage);
+                                    if (isImage == false) {
+                                        $(submitButton).show();
+                                    }
+                                }
+                            });
+                            this.on("complete", function (data) {
+                                var res = null;
+                                try {
+                                    //alert("json");
+                                    res = JSON.parse(data.xhr.responseText);
+                                    console.log("res" + res);
+                                } catch (ex) {
+                                    //alert("no json");
+                                    res = JSON.stringify(data);
+                                    console.log("res" + res);
+                                }
+                                console.log(options.hiddenFileSize);
+                                //console.log("complete ", options.hiddenFilePathId, $("#" + options.hiddenFilePathId).length);
+                                $("#" + options.hiddenFilePathId).val(res.Message);
+                                $("#" + options.hiddenFilePathId2).val(res.duplicateURL);
+                                $("#" + options.hiddenFilePathId3).val(res.localFileName);
+                                $("#" + options.hiddenFileSize).val(res.fileSize);
+                                console.log(options.hiddenFileSize);
+                                console.log(options.hiddenFilePathId);
+                                hfSiteId = res.SiteId;
+                                // alert(hfSiteId);
+
+                                if (options.onCompleteCallback) {
+                                    options.onCompleteCallback(res);
+                                }
+
+                                var container = this.previewsContainer;
+                                var imgEle = $(container).find("img").first();
+
+                                if ($(imgEle).length != 0) {
+                                    $(imgEle).attr("width", "100%");
+                                    $(imgEle).attr("height", "100%");
+                                    //console.log("width set");
+                                }
+
+                                //TFS ID:2078
+                                if (options.clearUploaderAfterUploading) {
+                                    this.removeFile(data);
+                                }
+                                //TFS ID:2078 ends
+                                $(submitButton).hide();
+                            });
+
+                        }
+                            //code to multiple file uploads
+                        else {
+                            this.on("addedfiles", function (file) {
+                                myDropzone.processQueue();
+                            });
+                            this.on("successmultiple", function (files, responseText, e) {
+                                var res = null;
+                                try {
+                                    res = JSON.parse(responseText);
+                                    console.log("res" + JSON.stringify(res));
+                                } catch (ex) {
+                                    res = responseText;
+                                    console.log("res" + JSON.stringify(res));
+                                }
+                                for (j = 0; j < responseText.Message.length; j++) {
+                                    console.log(responseText.Message.length);
+                                    $("#" + options.hiddenFilePathId).val(responseText.Message[j]);
+                                    $("#" + options.hiddenFilePathId3).val(responseText.localFileName[j]);
+                                    $("#" + options.hiddenFileSize).val(responseText.fileSize[j]);
+                                    console.log(responseText.fileSize[j]);
+                                    if (options.onCompleteCallback) {
+                                        options.onCompleteCallback(res);
+                                    }
+                                }
+                            });
+                            this.on("complete", function (data) {
+                                this.removeFile(data);
+                                $(submitButton).hide();
+                            });
+                        }
+
+                    }
+                };
+
+                var myDropzone = new Dropzone("#" + options.elementId, configObj);
+
+                console.log("** myDropzone", myDropzone);
+                return myDropzone;
+            }
+        };
+
+    }();
+
+    window.uploadCropper = (function () {
+        var dropZoneObj = null;
+        var originalFileObj = null;
+        var LandScapeAspectRatio = "4 / 3";
+        var PotraitScapeAspectRatio = "1/ 1";
+        var $image = $('#cropperimage');
+
+        return {
+            showCropperWindow: function (file, obj) {
+
+                dropZoneObj = obj;
+                originalFileObj = file;
+                window.uploadCropper.create({
+                    ready: function () {
+                        setTimeout(function () {
+                            //as image width less than height, we need to show portrait mode
+                            if (originalFileObj.width < originalFileObj.height) {
+                                window.uploadCropper.Portrait($("#UploadPopUpPotraitBtn"));
+                                console.log("portrait mode");
+                            }
+                            else {
+                                console.log("LandScape mode");
+                                window.uploadCropper.LandScape($("#UploadPopUpLandScapeBtn"));
+                            }
+                        }, 1000);
+                    }
+                });
+            },
+            cropAndUpload: function () {
+                console.log('1213');
+                var localFileName = originalFileObj.name;
+                console.log(originalFileObj.name);
+                dropZoneObj.removeFile(originalFileObj);
+
+                console.log("1239");
+                $('#cropperimage').data("cropper").getCroppedCanvas().toBlob(function (blob) {
+                    var file = new File([blob], localFileName, { type: "image/jpeg" });
+
+                    //to upload the croped image through dropzone control
+                    dropZoneObj.uploadFiles([file]);
+
+                    console.log("file ojb ", file);
+                    var uploadedImageURL = URL.createObjectURL(file);
+                    //to show the croped image in dropzone canvas
+                    dropZoneObj.emit("addedfile", file);
+                    dropZoneObj.emit("thumbnail", file, uploadedImageURL);
+                });
+                this.close();
+            },
+            Upload: function () {
+                dropZoneObj.uploadFiles([originalFileObj]);
+                this.close();
+            },
+            close: function () {
+                $("#UploadPopUpCloseBtn").click();
+            },
+            LandScape: function (obj) {
+
+                //$(".uploadCropperWindowBtns").removeClass("btn-outline-secondary").addClass("btn - primary");
+                $(".uploadCropperWindowBtnsLandscape").removeClass("btn-outline-secondary").addClass("btn-primary");
+                $(".uploadCropperWindowBtnsPotrait").addClass("btn-outline-secondary").removeClass("btn-primary");
+                //$(obj).removeClass("btn-cancel");
+
+                console.log("1268");
+                window.uploadCropper.bindingToCropper({
+                    aspectRatio: 4 / 3,
+                    crop: function (event) {
+                        //console.log(event.detail.x);
+                    },
+                    modal: false,
+                    responsive: true,
+                    autoCropArea: 1,
+                    //autoCrop: false,
+                    viewMode: 0,
+                    ready: function () {
+                        $image.show();
+                    },
+                    checkCrossOrigin: false
+                });
+            },
+            Portrait: function (obj) {
+                //$(".uploadCropperWindowBtns").addClass("btn-cancel");
+                $(".uploadCropperWindowBtnsLandscape").addClass("btn-outline-secondary").removeClass("btn-primary");
+                $(".uploadCropperWindowBtnsPotrait").removeClass("btn-outline-secondary").addClass("btn-primary");
+                //$(obj).removeClass("btn-cancel");
+                console.log("1290");
+                window.uploadCropper.bindingToCropper({
+                    aspectRatio: 3 / 4,
+                    crop: function (event) {
+                        //console.log(event.detail.x);
+                    },
+                    modal: false,
+                    responsive: true,
+                    autoCropArea: 1,
+                    //autoCrop: false,
+                    viewMode: 0,
+                    ready: function () {
+                        $image.show();
+                    },
+                    checkCrossOrigin: false
+                });
+            },
+            create: function (options) {
+                if (URL) {
+                    console.log(URL);
+                    var uploadedImageURL = URL.createObjectURL(originalFileObj);
+                    console.log(uploadedImageURL);
+                    console.log("file content ", originalFileObj);
+
+                    $image.hide();
+                    $image.cropper('destroy').attr('src', uploadedImageURL).unbind("load").on("load",
+                        function() {
+                            console.log("defining cropper with ", options);
+                            $image.cropper(options);
+                        });
+                    $("#ShowUploadCropperBtn").click();
+                }
+            },
+            bindingToCropper: function (options) {
+                if (URL) {
+                    console.log(URL);
+                    var uploadedImageURL = URL.createObjectURL(originalFileObj);
+                    console.log(uploadedImageURL);
+                    console.log("file content ", originalFileObj);
+
+                    $image.hide();
+                    $image.cropper('destroy').attr('src', uploadedImageURL).unbind("load").on("load",
+                        function() {
+                            console.log("defining cropper with ", options);
+                            $image.cropper(options);
+                        });
+                }
+            }
+        };
+
+    })();
+
+    window.CreateBlogEditor = (function () {
+
+        var dropZoneObj = null;
+        var editorUploadedImages = [];
+
+        var editorElement = null;
+
+        //we make sure that dropzone does not create initially untill we instantiate it
+        //Dropzone.options.dropzoneUploadElem = false;
+
+        return {
+            setEditorElement: function (ele) {
+                editorElement = ele;
+            },
+            getEditorElement: function (ele) {
+                return editorElement;
+            },
+            create: function (options) {
+                editorUploadedImages = [];
+                console.log("editor creating", options);
+
+                var editor = $("#" + options.editorElement).Editor({
+                    'insert_img': false
+                });
+
+                //wait for a second
+                setTimeout(function () {
+                    $("#" + options.editorElement).Editor('createMenuItem', {
+                        "text": "Upload Image", //Text replaces icon if its not available
+                        "icon": "fa fa-picture-o", //This is a Font-Awesome Icon
+                        "tooltip": "Upload Image",
+                        "custom": function (button, parameters) {
+                            if (parameters.type == "img") {
+                                console.log("image upload");
+                                console.log("CREATING UPLOAD WITH OPTIONS ", options);
+                                window.CreateBlogEditor.createUpload(options);
+                                window.CreateBlogEditor.showUploadDiv();
+
+                            }
+                            return "hello world..";
+                        },
+                        "params": { 'type': "img" } //Any custom parameters you want to pass
+                        //to your custom function.
+                    });
+                }, 1000);
+            },
+            showUploadDiv: function (options) {
+                $("#ShowUploadDivBtn").click();
+            },
+            hideUploadDiv: function (options) {
+                $("#UploadDivCloseBtn").click();
+            },
+            createUpload: function (options) {
+
+                this.setEditorElement(options.editorElement);
+
+                if (dropZoneObj == null) {
+                    console.log("createUpload", options);
+                    dropZoneObj = $("div#dropzoneUploadElem").dropzone({
+                        url: '@Url.Content("~/Files/JsonUpload")',
+                        chunksUploaded: function (data) {
+                            console.log("chunksUploaded", data);
+                        },
+                        autoProcessQueue: false,
+                        //acceptedFiles: extensions,
+                        createImageThumbnails: true,
+                        addRemoveLinks: false,
+                        init: function () {
+                            console.log("INTIT");
+                            var myDropzone = this; //closure
+                            this.on("addedfile", function (file) {
+                                var _this = this;
+                                // Create the remove button
+                                var removeButton = Dropzone.createElement("<button id='editorUploadImgDeleteBtn' class='btn-m-icon  uploadDel ' style='cursor:pointer'><i class='fa fa-trash' style='cursor:pointer'></i></button>");
+
+                                // Listen to the click event
+                                removeButton.addEventListener("click", function (e) {
+                                    // Make sure the button click doesn't submit the form:
+                                    e.preventDefault();
+                                    e.stopPropagation();
+
+                                    // Remove the file preview.
+                                    _this.removeFile(file);
+
+                                    //empty the file source in hidden field as well
+                                    //$("#" + options.hiddenFilePathId).val("");
+
+
+                                    // If you want to the delete the file on the server as well,
+                                    // you can do the AJAX request here.
+                                });
+
+                                // Add the button to the file preview element.
+                                file.previewElement.appendChild(removeButton);
+                                if (file.status == "added" && window.uploader.validateIsFileImage(file)) {
+                                    //create cropper for uploaded image
+                                    window.uploadCropper.showCropperWindow(file, this);
+                                }
+
+                            });
+                        },
+                        complete: function (data) {
+
+                            var res = JSON.parse(data.xhr.responseText);
+                            var url = res.completeURL;
+                            var imageText = "<img src='" + url + "' style='height:auto;' />";
+                            editorUploadedImages.push(url);
+
+                            console.log("COMPLETE editorElement", window.CreateBlogEditor.getEditorElement());
+
+                            var editorText = $("#" + window.CreateBlogEditor.getEditorElement()).Editor("getText");
+                            editorText += "&nbsp;" + imageText;
+                            $("#" + window.CreateBlogEditor.getEditorElement()).Editor("setText", editorText);
+                            window.CreateBlogEditor.hideUploadDiv();
+                            $("#editorUploadImgDeleteBtn").click();
+
+                        }
+                    });
+
+                    console.log("upload created");
+
+                }
+
+            },
+            getBlogEditorImages: function (__editorElement) {
+                var imageSources = [];
+                if (__editorElement.length > 0) {
+                    __editorElement.parent().find(".Editor-editor").first().find("img").each(function (index, imgEle) {
+                        imageSources.push(imgEle.src);
+                    });
+                }
+                return imageSources;
+            },
+            getBlogEditorUploadedImages: function () {
+                return editorUploadedImages;
+            }
+        }
+
+    })();
+
+    window.GrowlObj = function () {
+        return {
+            getGrowlMessage: function (grNotificationType) {
+                if (grNotificationType == "@NotificationType.UpdateFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UpdateFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UpdateSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UpdateSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.InsertFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.InsertFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.InsertSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InserSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.DeleteFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.DeleteFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.DeleteSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.DeleteSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.EmailFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.EmailFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.EmailSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.EmailSucess', { header: 'Success' });
+                }
+                else if (grNotificationType == "@NotificationType.InvoicePrintSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InvociePrintSuccess', { header: 'Success' });
+                }
+                else if (grNotificationType == "@NotificationType.InvoicePrintFailed") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InvoicePrintFailed', { header: 'Attention' });
+                }
+                @*else if (grNotificationType == "@NotificationType.PublishFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.PublishFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.PublishSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.PublishSucess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.UnPublishFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UnPublishFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UnPublishSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UnPublishSucess', { header: 'Success' });
+                }  else if (grNotificationType == "@NotificationType.FollowFailed") {
+
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.FollowFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.FollowSuccess") {
+
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.FollowSucess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.UnFollowFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UnFollowFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UnFollowSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UnFollowSucess', { header: 'Success' });
+                }
+                else if (grNotificationType == "@NotificationType.BlockFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.BlockFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.BlockSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.BlockSuccess', { header: 'Success' });
+                }
+                else if (grNotificationType == "@NotificationType.UnBlockFailed") {
+                    $.jGrowl('<img src="/images/fileError.png" />&nbsp;@GrowlNotificationMsgs.UnBlockFailed', { header: 'Attention' });
+                } else if (grNotificationType == "@NotificationType.UnBlockSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.UnBlockSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.DirectoryChangeIndexUpdateStatus") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.DirectoryChangesIndexUpdateStatus', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.InvitationSendSuccess") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InvitationSendSuccess', { header: 'Success' });
+                } else if (grNotificationType == "@NotificationType.InvitationSendFailed") {
+                    $.jGrowl('<img src="/images/fileSuccess.png" />&nbsp;@GrowlNotificationMsgs.InvitationSendFailed', { header: 'Success' });
+                }*@
+            }
+        };
+    }();
+
+    // Validation function
+    window.validator = function () {
+
+        var isValidation = false;
+        //var longitudeRegEx = /^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/;
+        //// var emailRegEx = /^[a-z0-9_\+-]+(\.[a-z0-9_\+-]+)*@@[a-z0-9-]+(\.[a-z0-9]+)*\.([a-z]{2,4})$/;
+        var emailRegEx = /^\w+([-+.']\w+)*@@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+        //TFS ID 1880
+        var phoneRegEx = /^(\+?\(?\d{0,4}\)?[ -\/]{0,3}\(?\d{2,5}\)?[ -]?)?[\d -]{6,12}\d$/;
+        //TFS ID 1886
+        var webRegEx = /^(http(s)?(:\/\/))?(www\.)?[a-zA-Z0-9-_\.]+(\.[a-zA-Z0-9]{2,})([-a-zA-Z0-9:%_\+.~#?&//=]*)/;
+        var zipRegEx = /^([0-9]{5})(?:[-\s]*([0-9]{4}))?$/;
+        var zipEx = /^([0-9]{5})(-[0-9]{4})?$/i;
+        return {
+            /**
+               options:
+               {elementVal, isRequired, strLength, errorElement, errorString, isValidateLength,isValidateLatittudeORLongittude }
+            **/
+            validate: function (options) {
+                isValidation = false;
+                console.log(options);
+                //var result = options[];
+                $.each(options, function (index, dataObj) {
+                    console.log(dataObj);
+                    $("#" + dataObj.errorElement).html('').hide();
+                    if (dataObj.isRequired) {
+                        if (dataObj.elementVal == "" || dataObj.elementVal.length == 0) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString).show();
+                            isValidation = true;
+                        }
+
+                        else if (dataObj.isValidateDropdown && dataObj.elementVal == "" || dataObj.elementVal == 0
+                        ) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString).show();
+                            isValidation = true;
+                        }
+
+                    }
+                    //if (dataObj.elementVal!= undefined && dataObj.elementVal != "") {
+                    //    if (dataObj.strLength && dataObj.elementVal.length > dataObj.strLength) {
+                    //        $("#" + dataObj.errorElement).html(dataObj.errorString).show();
+                    //        isValidation = true;
+                    //    }
+                    //}
+
+                    if (dataObj.isValidateLength) {
+                        if (dataObj.strLength && dataObj.elementVal.length > dataObj.strLength) {
+                            var lengthMsg = dataObj.lengthErrorString == undefined ? "Should not exceed " + dataObj.strLength + " characters" : dataObj.lengthErrorString;
+                            $("#" + dataObj.errorElement).html(lengthMsg).show();
+                            isValidation = true;
+                        }
+                    }
+                    if ((dataObj.isValidateLatittude || dataObj.isValidateLongittude) && $.trim(dataObj.elementVal) != "") {
+
+                        //latittude and longitude must be anumber
+                        if (isNaN(dataObj.elementVal)) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString).show();
+                            isValidation = true;
+                        }
+                        //The latitude must be a number between -90 and 90
+                        if (dataObj.isValidateLatittude &&
+                            (dataObj.elementVal < -90 || dataObj.elementVal > 90)
+                        ) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString).show();
+                            isValidation = true;
+                        }
+
+                        //The  longitude between -180 and 180
+                        if (dataObj.isValidateLongittude &&
+                            (dataObj.elementVal < -180 || dataObj.elementVal > 180)
+                        ) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString).show();
+                            isValidation = true;
+                        }
+
+                    }
+                    if (dataObj.isValidateEmail && $.trim(dataObj.elementVal) != "") {
+
+                        console.log(emailRegEx.exec(dataObj.elementVal), emailRegEx.test(dataObj.elementVal))
+
+                        //validating email
+                        if (!emailRegEx.exec(dataObj.elementVal)) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString2).show();
+                            isValidation = true;
+                        }
+                    }
+                    if (dataObj.isValidatePhoneFormat && $.trim(dataObj.elementVal) != "") {
+                        //validating Mopbile number
+                        if (!phoneRegEx.exec(dataObj.elementVal)) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString2).show();
+                            isValidation = true;
+                        }
+                    }
+                    if (dataObj.isValidateZipCode && $.trim(dataObj.elementVal) != "") {
+                        console.log(zipRegEx.exec(dataObj.elementVal));
+                        //validating ZipCode
+                        if (!zipRegEx.exec(dataObj.elementVal)) {
+
+                            $("#" + dataObj.errorElement).html(dataObj.errorString2).show();
+                            isValidation = true;
+                            console.log("zip code validation raised");
+                        }
+                    }
+
+                    if (dataObj.isValidateWebFormat && $.trim(dataObj.elementVal) != "") {
+                        //validating email
+                        if (!webRegEx.exec(dataObj.elementVal)) {
+                            $("#" + dataObj.errorElement).html(dataObj.errorString2).show();
+                            isValidation = true;
+                        }
+                    }
+                    if (dataObj.isRequired && dataObj.isValidateCheckBox) {
+                        if (dataObj.elementVal == false) {
+                            var lengthMsg = dataObj.lengthErrorString;
+                            $("#" + dataObj.errorElement).html(lengthMsg).show();
+                            isValidation = true;
+                        }
+                    }
+                });
+                return isValidation;
+            },
+            //hides the validations
+            hideValidations: function (parentDiv) {
+                $(parentDiv).find("span.error").hide();
+            }
+        };
+    }();
+
+    function DeleteFileFromAzure(azureFileLinks) {
+        $.ajax({
+            url: '../FileUpload/DeleteFileFromAzure',
+            type: 'post',
+            data: {azureFileLink:azureFileLinks},
+            beforeSend: function(e) {
+            },
+            success: function(response) {
+                if (response.status) {
+
+                } else {
+
+                }
+            },
+            error: function(xhr, textStatus, errorThrown) {
+            },
+            complete: function() {
+            }
+        });
+    }
+</script>

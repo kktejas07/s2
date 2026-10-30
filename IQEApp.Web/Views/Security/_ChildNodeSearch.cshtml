@@ -1,0 +1,177 @@
+﻿@using IQEApp.Domain
+@model  IQEApp.Web.Models.Security.SecurityDetails
+
+    @foreach (var itm1 in Model.LstSecurityViewModels)
+    {
+      //  if (@lstSec == @itm1.ParentName)
+        {
+            <div style="padding-right: 50px;" class="subchild">
+                @if (itm1.IsSelected)
+                {
+                    <label>
+                        <input id="subchk_@itm1.ChildId" type="checkbox" value=@itm1.ChildId checked="checked" class="jsCheckBoxSelect" onchange="javascript: getSubChildNodes(this);">
+                        <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                        @itm1.ChildName
+                    </label><br />
+                    <div class="clearfix"></div>
+                    <div style="padding-left: 50px;" id="divSubChildNodes_@itm1.ChildId" class="">
+                    </div>
+                }
+                else
+                {
+                    <label>
+                        <input id="subchk_@itm1.ChildId"  type="checkbox"  value=@itm1.ChildId class="jsCheckBoxSelect" onchange="javascript: getSubChildNodes(this);">
+                        <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                        @itm1.ChildName
+                    </label><br />
+                    <div class="clearfix"></div>
+                    <div style="padding-left: 50px;" id="divSubChildNodes_@itm1.ChildId" class="">
+                    </div>
+                }
+
+            </div>
+        }
+
+    }
+
+
+<script type="text/javascript">
+    $('#overlay').hide();
+    $(document).ready(function () {
+
+        //debugger;
+        var subcheckedItems = $('[id*="subchk_"]:checked').map(function () { return $(this).val().toString(); }).get().join(",");
+
+        var subarr = [];
+        // var async_request = [];
+        if (subcheckedItems != "") {
+            subarr = subcheckedItems.split(",");
+            // //debugger;
+            //for (var i = 0; i < subarr.length; i++) {
+            //    (function (j) {
+            //        $.ajax({
+            //            type: "POST",
+            //            url: "../Security/GetSubChildNodes",
+            //            data: {
+            //                RoleId: $('#RoleId').val(),
+            //                SubChildNodeId: subarr[i]
+            //            },
+            //            async: true,
+            //        })
+            //            .done(function (data) {
+            //                $('#divSubChildNodes_' + subarr[i]).html(data);
+            //                //$('#' + arr[j]).html(data)
+            //            });
+            //    })(i);
+            //}
+
+
+            subarr.reduce(function (p, item) {
+                return p.then(function () {
+                     return $.ajax({
+                        type: "GET",
+                         url: "../Security/GetSubChildNodes",
+                        data: {
+                            RoleId: $('#RoleId').val(),
+                            SubChildNodeId: item
+                         },
+                         beforeSend: function () {
+                             $('#overlay').show();
+                         },
+                    }).then(function (data) {
+                        //alert(arr.indexOf(arr[item]));
+                        //$("#overlay").fadeOut(300);
+                        $('#divSubChildNodes_' + item).html(data);
+                        $('#overlay').hide();
+                    })
+                });
+            }, Promise.resolve()).then(function () {
+                //alert(arr[item]);
+                //$('#divChildNodes_' + arr[item]).html(data);
+            });
+
+
+
+
+
+        }
+        //subarr.reduce(function (q, item1) {
+        //    return q.then(function () {
+        //        // you can access item.id and item.title here
+        //        return $.ajax({
+        //            type: "POST",
+        //            url: "/Security/GetSubChildNodes",
+        //            data: {
+        //                RoleId: $('#RoleId').val(),
+        //                SubChildNodeId: subarr[item1]
+        //            }
+        //        }).then(function (data) {
+        //            $('#divSubChildNodes_' + subarr[item1]).html(data);
+        //        });
+        //    });
+        //}, Promise.resolve()).then(function () {
+
+        //});
+
+
+    });
+
+    function getSubChildNodes(obj) {
+        //debugger;
+      //  alert($(obj).val());
+         $.ajax({
+            url: '../Security/GetSubChildNodes',
+            type: 'POST',
+             data: {
+                 RoleId: $('#RoleId').val(),
+                 SubChildNodeId: $(obj).val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+            success: function (data) {
+               // $('#divSecFetView').html(data);
+                $('#divSubChildNodes_' + $(obj).val()).html(data);
+               // window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });
+
+
+    }
+   function checkBoxSelect() {
+        var checkBoxSelectedValues = [];
+        $(".jsCheckBoxSelect").each(function (index, element) {
+            if ($(element).is(":checked")) {
+                checkBoxSelectedValues.push($(element).val());
+            }
+        });
+        console.log(checkBoxSelectedValues);
+        $('#lblSelectedValues').html("Selected Values are: " + checkBoxSelectedValues);
+       // alert(checkBoxSelectedValues);
+        $.ajax({
+            url: '../Security/SaveRoleFeatureMapping',
+            type: 'POST',
+            data: {
+                RoleId: $('#RoleId').val(),
+               ScnFeatId: checkBoxSelectedValues
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+            success: function (data) {
+                $('#divSecFetView').html(data);
+               // window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });
+    }
+</script>

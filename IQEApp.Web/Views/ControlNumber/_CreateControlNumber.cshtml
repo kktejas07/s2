@@ -1,0 +1,153 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ControlNumberModel.ControlNumberDetailsModel
+
+<div class="mt20 bg p20">
+    <section id="FormCreateControlNumber">
+        @using (Ajax.BeginForm("GenerateControlNumber", "ControlNumber",
+            new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnBegin = "beginProgressBar",
+                OnSuccess = "onCreateControlNumberSuccess",
+            }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="row mt10">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.SOId, new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.SOId, new SelectList(Model.LstServiceOrdersList, "SOID", "SONumber"), "Select", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.SONumber), onchange = "GetServiceOrderDetailWithPurchaseItems(this)" })
+                    @Html.ValidationMessageFor(m => m.SOId)
+
+                    <div class="clearfix "></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    @Html.LabelFor(m => m.EquipmentName, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.EquipmentName, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.EquipmentName) })
+                    @Html.ValidationMessageFor(m => m.EquipmentName)
+                    <div class="clearfix "></div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                    @Html.LabelFor(m => m.ControlNumberComments, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.ControlNumberComments, new { @class = "form-control inputStyle", @placeholder = @Html.DisplayNameFor(model => model.ControlNumberComments) })
+                    @Html.ValidationMessageFor(m => m.ControlNumberComments)
+                    <div class="clearfix "></div>
+                </div>
+            </div>
+            <div id="divPurchaseItemsDetails">
+
+            </div>
+            <div id="divPreviousVisitDetails">
+
+            </div>
+            <div class="row">
+                <div class="col-sm-4 col-md-4 col-lg-4 form-group">
+
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+
+                    <div class="clearfix mt10"></div>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCancelControlNumber" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: GetControlNumbersList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                    <button type="submit" class="btn btn-success pull-right mr5" id="btnSaveControlNumber" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                </div>
+            </div>
+            @Html.HiddenFor(m => m.ControlNo)
+            <span>@ViewBag.Message </span>
+        }
+    </section>
+</div>
+<script>
+    $(document).ready(function () {
+      //  $('#SODate').val('');
+      //  $('#SODueDate').val('');
+    });
+    $(function () {
+        $("#SODate").datepicker({ dateFormat: "dd/mm/yy" });
+        $("#SODueDate").datepicker({ dateFormat: "dd/mm/yy" });
+    });
+    function GetServiceOrderDetailWithPurchaseItems(obj) {
+        var serviceOrderId = $(obj).find('option:selected').val();
+        $.ajax({
+            //url: '../ControlNumber/GetServiceOrderDetailWithPurchaseItems',
+            url: '../Common/LoadCommonDetails',
+            type: 'POST',
+            data: {
+                visitGuid: null,
+                controlNumberGuid: null,
+                serviceOrderId: serviceOrderId
+            },
+            beforeSend: function(e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divSOLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function(response) {
+                $('#divPurchaseItemsDetails').html(response);
+                getPreviousVisitListByServiceOrderId();
+                @*if ("@ViewBag.IsBlockEquipmentItem" == 'True') {
+                    $("#EquipmentName").prop('readonly', true);
+                }
+                else {
+                    $("#EquipmentName").prop('readonly', false);
+                }*@
+                
+            },
+            error: function(xhr, textStatus, errorThrown) {
+            },
+            complete: function() {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    $.validator.unobtrusive.parse(document);
+
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divCNLoadingIconId'), position: "center" });
+        $("#btnSaveControlNumber").prop('disabled', true);
+    }
+
+    function onCreateControlNumberSuccess(response) {
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertSuccess");
+            GetControlNumbersList();
+        } else {
+            window.GrowlObj.getGrowlMessage("@NotificationType.InsertFailed");
+          
+        }
+        $("#btnSaveControlNumber").prop('disabled', false);
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divCNLoadingIconId'));
+    }
+
+    function getPreviousVisitListByServiceOrderId() {
+        var serviceOrderId = $("#SOId").find('option:selected').val();
+        $.ajax({
+            url: '../ControlNumber/GetControlNumCumPreviousVisitDetails',
+            type: 'POST',
+            data: {
+                serviceOrderId: serviceOrderId
+            },
+            beforeSend: function(e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divSOLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function(response) {
+                $('#divPreviousVisitDetails').html(response);
+            },
+            error: function(xhr, textStatus, errorThrown) {
+            },
+            complete: function() {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+</script>

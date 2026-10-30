@@ -1,0 +1,122 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@model IQEApp.Web.Models.MasteModel.MasterViewModel
+
+
+
+<div class="mb10 whitebg" style="max-height: inherit; min-height: 28px;">
+    <div id="divView_@Model.SectionId@Model.MasterId">
+        <div class="pull-left">
+            <span>@Model.counter</span>.&nbsp;
+            <span>@Model.MasterName</span>
+        </div>
+        <div id="controlButtons" class="pull-right" style="">
+            
+            
+            
+            @if (@Model.MasterStatus)
+            {
+                if (@Model.MasterName == "Super Admin" || @Model.MasterName == "Admin")
+                {
+                    if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MastersEdit, @User.RoleId.FirstOrDefault()))
+                    {
+                    <button type="button" id="btnMasterEdit" class="btn-round-icon" title="Edit" data-toggle="tooltip" disabled="disabled">
+                        <i class=" fa fa-pencil" aria-hidden="true"></i>
+                    </button>
+                    }
+                   if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MastersInActive, @User.RoleId.FirstOrDefault()))
+                   {
+                    <button type="button" id="btnMasterDel" class=" btn-round-icon" title="Delete" data-toggle="tooltip" disabled="disabled">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                   }
+
+                }
+
+                else 
+                {
+                    if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MastersEdit, @User.RoleId.FirstOrDefault()))
+                    {
+                        <button type="button" id="btnMasterEdit" class="btn-round-icon" title="Edit" data-toggle="tooltip" onclick="EditMasterDetails('@Model.SectionId', '@Model.MasterId', '@Model.DisplayText') ">
+                            <i class=" fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+                    }
+                    if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MastersInActive, @User.RoleId.FirstOrDefault()))
+                    {
+                        <button type="button" id="btnMasterDel" class=" btn-round-icon" title="Delete" data-toggle="tooltip" onclick="DeleteOrUndoMasterData('@Model.SectionId', '@Model.MasterId', 'false', '@Model.DisplayText') ">
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </button>
+                    }
+
+                }
+            }
+            else
+            {
+                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.MastersActive, @User.RoleId.FirstOrDefault()))
+                {
+                    <button type="button" id="btnMasterUnd0" class="btn-round-icon" title="Undo" data-toggle="tooltip" onclick="DeleteOrUndoMasterData('@Model.SectionId', '@Model.MasterId', 'true', '@Model.DisplayText') ">
+                        <i class="fa fa-undo" aria-hidden="true"></i>
+                    </button>
+                }
+            }
+        </div>
+    </div>
+    <div id="divEdit_@Model.SectionId@Model.MasterId" class="" style="display: none">
+    </div>
+    <div class="clearfix"></div>
+
+
+</div>
+<script type="text/javascript">
+    function EditMasterDetails(sectionId, masterId, secName) {
+        var valId = sectionId + masterId;
+        $.ajax({
+            url: '../Masters/EditMasterDetails',
+            type: 'POST',
+            data: {
+                sectionId: sectionId,
+                masterId: masterId,
+                sectionName: secName
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divMastersLoading'), position: "center" });
+            },
+            success: function (data) {
+                $("#divEdit_" + valId).html('');
+                $("#divEdit_" + valId).html(data);
+                $("#divEdit_" + valId).show();
+                $("#divView_" + valId).hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divMastersLoading'));
+            }
+        });
+    }
+    function DeleteOrUndoMasterData(sectionId, masterId, status, secName) {
+        ShowDeleteConfirmationPrompt(function () {
+            $.ajax({
+                url: '../Masters/DeleteOrUndoMasterDetails',
+                type: 'POST',
+                data: {
+                    sectionId: sectionId,
+                    masterId: masterId,
+                    status: status
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divMastersLoading'), position: "center" });
+                },
+                success: function (data) {
+                    $("#manageData").html('');
+                    displayDetails(sectionId, 'true', secName);
+                    $(window).scrollTop(0);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divMastersLoading'));
+                }
+            });
+        });
+    }
+</script>

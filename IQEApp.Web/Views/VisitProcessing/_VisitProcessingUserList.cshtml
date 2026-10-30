@@ -1,0 +1,45 @@
+﻿@model IQEApp.Web.Models.VisitProcessing.ScheduleVisitDetailsModel
+<div class="row mt20 p0">
+    <div class="col-sm-3 col-md-3 col-lg-3 ">
+        @Html.LabelFor(m => m.UserId, new { @class = "control-label" })
+        @Html.DropDownListFor(m => m.UserId, new SelectList(Model.LstUsers, "UserId", "UserFullName"), "Select", new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.UserId), onchange = "getEmployeeDetailsByUserId(this)" })
+        @Html.ValidationMessageFor(m => m.UserId)
+
+        <div class="clearfix mt10"></div>
+    </div>
+    <div class="col-sm-8 col-md-8 col-lg-8 ">
+        <div id="divEmpDetails">
+
+        </div>
+    </div>
+    <div class="col-sm-1 col-md-1 col-lg-1 ">
+        <button type='button' class="btn btn-outline-secondary pull-right mtn10" id="btnCreateControlNo" onclick="javascript: AddEngg(this);"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add Engg</button>
+    </div>
+</div>
+<script>
+    function getEmployeeDetailsByUserId(obj) {
+        var userId = $(obj).val();
+        $.ajax({
+            url: '../User/GetUserDetailsByUserId',
+            type: 'POST',
+            data: {
+                userId: userId
+            },
+            beforeSend: function (e) {
+                //BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                //    parentElement: $('#divSOLoadingIconId'),
+                //    position: "center"
+                //});
+            },
+            success: function (response) {
+                $('#divEmpDetails').html(response);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+</script>

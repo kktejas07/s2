@@ -1,0 +1,771 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ControlNumberModel.ControlNumberDetailsModel
+
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+<link href="~/Content/multiselectcheckbox/css/bootstrap-multiselect.css" rel="stylesheet" />
+<script src="~/Content/multiselectcheckbox/js/bootstrap-multiselect.js"></script>
+
+<style>
+    .form-control {
+        font-size: 12px;
+    }
+
+    /* Styles for centering and aligning checkboxes */
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .alert-warning {
+        color: #e60000 !important;
+        background-color: #ffffff;
+        font-size: 12px; /* Adjust font size if necessary */
+        font-weight: bold; /* Make the text bold for better readability */
+        padding: 10px; /* Ensure proper padding for aesthetics */
+        border: 1px solid #e60000; /* Add a border for better distinction */
+        border-radius: 8px; /* Rounded corners for a clean look */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    }
+    /* For the dropdown box itself */
+    .multiselect-container {
+        width: 200px !important; /* fixed width */
+        white-space: normal; /* allow wrapping */
+        word-break: break-word; /* wrap long words if needed */
+    }
+
+        /* For individual options inside the dropdown */
+        .multiselect-container li a {
+            white-space: normal !important;
+            overflow-wrap: break-word;
+            display: block;
+        }
+
+
+
+    /* Padding for checkboxes to align with the column text */
+    .checkbox-container input[type="checkbox"] {
+        margin-right: 5px;
+    }
+
+    /* Style to make each column header visually centered */
+    .directory-table-header > div,
+    .directory-table-row > div {
+        display: flex;
+        align-items: center;
+    }
+    /* Style for the dropdown list container */
+    #poSection {
+        position: relative; /* Ensure the dropdown is positioned relative to this container */
+    }
+
+    #poItems {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        position: absolute;
+        background-color: white;
+        width: 100%; /* Make sure it matches the width of the input */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Adds shadow for better visibility */
+        z-index: 9999; /* Ensure the list stays on top of other elements */
+    }
+
+        #poItems ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #poItems li {
+            padding: 8px;
+            cursor: pointer;
+            font-size: 14px; /* Adjust font size for better readability */
+        }
+
+            #poItems li:hover {
+                background-color: #f1f1f1;
+            }
+
+            #poItems li.selected {
+                background-color: #d3e0e0; /* Highlight background */
+                font-weight: bold; /* Bold text for the selected item */
+            }
+</style>
+
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h2 class="box-title"> <span id="spnHeadTitle">Operations &#8667; Schedule Visit </span></h2>
+        </div>
+    </div>
+</div>
+
+
+<!-- Radio Buttons for Selection -->
+<div class="form-group d-flex align-items-center">
+    <label class="control-label me-2" style="background-color: #B8DBFD; line-height:2.5">Select Type:</label>&nbsp;&nbsp;
+    <div>
+        <input type="radio" name="selectionType" id="clientRadio" value="Client" onchange="toggleSections('client')" /> <b> Client </b>
+        <input type="radio" name="selectionType" id="poRadio" value="PO" onchange="toggleSections('po')" class="ms-2" disabled /> <b> PO </b>
+        <input type="radio" name="selectionType" id="poProspective" value="Prospective" onchange="toggleSections('prospective')" class="ms-2" /> <b> Prospective</b>
+    </div>
+</div>
+
+<!-- Client Section -->
+<div id="clientSection" style="display: none;">
+    <table class="table">
+        <tr>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ClientDetails.ClientName, "Client")
+                @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients, "ClientId", "ClientName"),
+                    "Select", new { @class = "form-control", style = "Width:200px", onchange = "getClientUnitsByClientId(this)" })
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ClientDetails.ClientUnit.ClientUnitName, "Customer Unit")
+                @Html.DropDownListFor(m => m.ClientUnitId, new SelectList(Model.LstClientUnits, "ClientUnitId", "ClientUnitName"),
+                    "Select", new { @class = "form-control", style = "Width:200px", onchange = "getConrtolNumbersByClientUnitId(this)" })
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ControlNo, "Control Number")
+                @Html.DropDownListFor(m => m.ControlId, new SelectList(Model.LstControlNumbers, "ControlId", "ControlNo"),
+                    "Select", new { @class = "form-control", style = "Width:110px", onchange = "getSONumbersByControlId(this)" })
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.SONumber, "Service Order")
+                @Html.DropDownListFor(m => m.SOId,
+                new SelectList(Model.LstServiceOrdersList, "SOId", "SONumber"),
+                     "Select", new { @class = "form-control", style = "Width:200px", onchange = "getManufacturerDetailsByControlNo(this)" })
+            </th>
+
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ManufacturerId, "Manufacturer")
+                <select id="drpManufacturer" class="form-control" style="Width:200px" onchange="getPONumbersByManufacturerId()">
+                    <option value="0">Select</option>
+                    @foreach (var mUnit in Model.LstManufacturerUnitDetails)
+                    {
+                        <option value="@mUnit.ManufacturerId">@mUnit.ManufacturerName</option>
+                    }
+                </select>
+            </th>
+
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.PONId, "Purchase Order")
+                @Html.ListBoxFor(m => m.PONIds, new SelectList(Model.LstPurchaseOrderNumbers, "PONId", "PONumber"), new { @class = "form-control", style = "Width:200px" })
+                @Html.ValidationMessageFor(m => m.PONIds)
+            </th>
+            <th>
+                @Html.Label("dummy", "Dummy", new { @style = "visibility:hidden;" })
+                <button type="button"
+                        class="btn btn-success pull-right mr5"
+                        id="btnFeth"
+                        title="Fetch"
+                        onclick="onFetchClick()"
+                        data-toggle="tooltip">
+                    <i class="fa" aria-hidden="true"></i> Fetch
+                </button>
+            </th>
+
+
+        </tr>
+    </table>
+</div>
+
+<!-- PO Section -->
+
+<div id="poSection" style="display: none;">
+    <div style="display: flex; align-items: flex-start; gap: 20px;">
+
+        <!-- Input Textbox -->
+        <div style="flex-shrink: 0;">
+            <table class="table table-bordered"
+                   style="margin-top: 0; width: 100%;">
+                <tr>
+                    <th>Enter PO Number</th>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" id="poTextBox" class="form-control"
+                               style="width: 200px; height:21px;" placeholder="Enter PO Number"
+                               onkeyup="getPOItems(this)" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- PO Items Table -->
+        <div style="flex-grow: 1; max-width: calc(100% - 240px);">
+            <table id="poItemsTable" class="table table-bordered"
+                   style="margin-top: 0; display: none; width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Unit</th>
+                        <th>Control No</th>
+                        <th>SO</th>
+                        <th>Manufacturer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be appended here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Dropdown for PO Items -->
+    <div id="poItems" class="dropdown-list" style="display:none;"></div>
+</div>
+
+
+@*<divs class="col-sm-2 col-md-2 col-lg-2 form-group">
+        <div id="divPoList"></div>
+    </divs>*@
+<div id="divPODLBlock">
+</div>
+
+<div id="controlNumDetails">
+</div>
+
+
+
+<script>
+
+
+    let typingTimer;
+    //let doneTypingInterval = 500;
+    let currentIndex = -1;  // Keeps track of the currently highlighted item
+
+
+    function toggleSections(type) {
+        if (type === 'client') {
+            document.getElementById('clientSection').style.display = 'block';
+            document.getElementById('poSection').style.display = 'none';
+        } else if (type === 'po' || type === 'prospective') {
+            document.getElementById('clientSection').style.display = 'none';
+            document.getElementById('poSection').style.display = 'block';
+        }
+
+    }
+
+    //$('#PONIds').on('change', function () {
+    //    var selectedOptions = $(this).find(':selected');
+    //    selectedOptions.each(function () {
+    //        var poid = $(this).val(); // POId
+    //        var ponid = $(this).data('ponid');
+    //        var purchaseid = $(this).data('purchaseid');
+    //        console.log("POId:", poid, "PONId:", ponid, "PurchaseID:", purchaseid);
+    //    });
+    //});
+
+
+    function getClientUnitsByClientId(obj) {
+        $('#divClientDetails').html('');
+        var clientId = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../PurchaseOrder/GetClientUnitsByClientId',
+            type: 'POST',
+            data: {
+                clientId: clientId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (clientUnits) {
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < clientUnits.length; i++) {
+                    s += '<option value="' + clientUnits[i].ClientUnitId + '">' + clientUnits[i].ClientUnitName + '</option>';
+                }
+                $("#ClientUnitId").html(s);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+    function getConrtolNumbersByClientUnitId(obj) {
+        $('#divControlNumberDetails').html('');
+        var clientUnitId = $(obj).find('option:selected').val();
+        $.ajax({
+            url: '../Common/GetControlNumbersByClientUnitId',
+            type: 'POST',
+            data: {
+                clientUnitId: clientUnitId
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                var s = '<option value="-1">Select</option>';
+                for (var i = 0; i < data.length; i++) {
+                    s += '<option value="' + data[i].ControlId + '">' + data[i].ControlNo + '</option>';
+                }
+                $("#ControlId").html(s);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+            }
+        });
+    }
+
+    function getSONumbersByControlId(obj) {
+        var controlNumber = $("#ControlId").children("option").filter(":selected").text()
+        $('#divClientDetails').html('');
+        var clientId = $(obj).find('option:selected').val();
+
+        if (clientId == '-1') {
+            $('#divPODLBlock').hide();
+        }
+        else {
+            $.ajax({
+                url: '../Common/GetSONumbersByControlId',
+                type: 'POST',
+                data: {
+                    controlNumber: controlNumber
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+                },
+                success: function (SONumbers) {
+                    var s = '<option value="-1">Select</option>';
+                    for (var i = 0; i < SONumbers.LstServiceOrdersList.length; i++) {
+                        s += '<option value="' + SONumbers.LstServiceOrdersList[i].SOId + '">' + SONumbers.LstServiceOrdersList[i].SONumber + '</option>';
+                    }
+                    $("#SOId").html(s);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+                }
+            });
+        }
+    }
+
+    function getManufacturerDetailsByControlNo(obj) {
+        var controlNumber = $("#ControlId").children("option").filter(":selected").text()
+        $('#divClientDetails').html('');
+        var clientId = $(obj).find('option:selected').val();
+        if (clientId == '-1') {
+            $('#divPODLBlock').hide();
+        }
+        else {
+            $.ajax({
+                url: '../Operations1/GetManufactureDetailsByControlNo',
+                type: 'POST',
+                data: {
+                    controlNumber: controlNumber
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+                },
+                success: function (manufactureDetails) {
+                    var s = '<option value="-1">Select</option>';
+                    for (var i = 0; i < manufactureDetails.length; i++) {
+                        s += '<option value="' + manufactureDetails[i].ManufacturerId + '">' + manufactureDetails[i].ManufacturerName + '</option>';
+                    }
+                    $("#drpManufacturer").html(s);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+                }
+            });
+        }
+    }
+
+    $(function () {
+        // Initialize multiselect on load
+        $('#PONIds').multiselect({
+           
+            includeSelectAllOption: true,
+            buttonWidth: '200px',
+        });
+    });
+
+    function getPONumbersByManufacturerId() {
+        var controlNumber = $("#ControlId option:selected").text();
+        var manufacturerId = $("#drpManufacturer").val();
+
+        $.ajax({
+            url: '../Operations1/GetPONumbersByManufacturerId',
+            type: 'POST',
+            data: {
+                ControlNo: controlNumber,
+                ManufacturerId: manufacturerId
+            },
+            success: function (purchaseOrder) {
+                var options = '';
+
+                purchaseOrder.forEach(function (item) {
+                    options += '<option ' +
+                        'value="' + item.PONId + '" ' +
+                        'data-ponid="' + item.PONId + '" ' +
+                        'data-purchaseid="' + item.PurchaseID + '">' +
+                        item.PONumber + ' - ' + item.PurchaseID +
+                        '</option>';
+                });
+
+                var $select = $("#PONIds");
+                $select.html(options);
+                $select.multiselect('rebuild');
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.error("Error:", errorThrown);
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            }
+        });
+    }
+
+    function onFetchClick() {
+        var selectedPONIds = $('#PONIds').val(); // this returns an array of selected values
+
+       // var selectedPONIds = $('#PONIds').val();
+        if (!selectedPONIds || selectedPONIds.length === 0) {
+            alert('Please select at least one Purchase Order.');
+            return;
+        }
+
+        // Optionally, pass first value as poId or pass all as array
+        fnGetPurchaseOrderDetails(selectedPONIds);
+    }
+
+    function fnGetPurchaseOrderDetails(poId, controlId = null, controlNo = null, soid = null, ponId = null, mfId = null) {
+        //debugger;
+        var poid = 0;
+        var ponid = 0;
+        if ($("input[name='selectionType']:checked").val() === 'Client') {
+            //const dropdown = document.getElementById("drpPurchaseOrderNumber");
+            //const selectedOption = dropdown.options[dropdown.selectedIndex];
+
+            poid = poId;// selectedOption.value;
+         //   ponid = selectedOption.getAttribute("data-ponid");
+        }
+        if ($("input[name='selectionType']:checked").val() === 'PO' || $("input[name='selectionType']:checked").val() === 'Prospective') {
+
+            poid = poId;
+        }
+        //        debugger;
+        $.ajax({
+            url: '../Operations1/GetPurchaseOrderDetailsById1',
+            type: 'POST',
+            data: {
+                PONIds: poId,
+                // ponId: ponid ,
+                IsVisitScheduleScreen: true
+            },
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({
+                    parentElement: $('#divScheduleVisitLoadingIconId'),
+                    position: "center"
+                });
+            },
+            success: function (response) {
+                //debugger;
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+                if (response.success === false) {
+                    // Show the error message
+                    $('#divPODLBlock').html(`<div class="alert alert-warning">${response.message}</div>`).show();
+                    return;
+                }
+
+                // Render the partial view
+                $('#EmpMappingList').hide();
+                $('#divPODLBlock').html(response).show();
+
+                if (controlNo) {
+                    getScheduleVisitDetails(controlId, controlNo, soid, poId, ponId, mfId);
+                } else {
+                    getScheduleVisitDetails();
+                }
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            },
+            error: function (xhr, status, error) {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+                $('#divPODLBlock').html(`<div class="alert alert-danger">An error occurred: ${error}</div>`).show();
+            }
+        });
+    }
+
+    function getScheduleVisitDetails(controlid = "", controlNumberGuid = "", soid = "", poId = "", ponid = "", mfid = "") {
+        //  debugger;
+
+        const controlNumber = controlNumberGuid || $("#ControlId option:selected").text();
+        const controlId = controlid || $("#ControlId option:selected").val();
+        const poNumber = $("#drpPurchaseOrderNumber option:selected").val();
+        const ponIds = $("input[name='selectionType']:checked").val() === 'Client'
+            ? $('#PONIds').val()
+            : ponid;
+        
+        //const ponId = $("input[name='selectionType']:checked").val() === 'Client'
+        //    ? $("#drpPurchaseOrderNumber option:selected").data("ponid")
+        //    : ponid;
+
+        $.ajax({
+            url: '../Operations1/ScheduleVisit',
+            type: 'POST',
+            data: {
+                controlNumberGuid: "",
+                controlId,
+                controlNumber,
+                PONumber: poNumber || "",
+                SOID: soid || 0,
+                POID: poId || 0,
+                PONId:  0,
+                PONIDs: ponIds || 0,
+                ManufacturerId: mfid || 0,
+            },
+            beforeSend: function () {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            },
+            success: function (response) {
+                //  debugger;
+                $("#controlNumDetails").html(response).show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.error("Error:", errorThrown);
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+            },
+        });
+    }
+
+    //function getScheduleVisitDetails(controlid = "", controlNumberGuid = "", soid = "", poId = "", ponid = "", mfid = "") {
+    //    debugger;
+    //    if (controlNumberGuid == "") {
+    //        var controlNumber = $("#ControlId option:selected").text();
+    //    }
+    //    if (controlNumberGuid !== "") {
+    //        var controlNumber = controlNumberGuid;
+    //        controlNumberGuid = "";
+    //    }
+    //    var soid = soid;
+    //    var poid = poId;
+    //    var ponId = ponid;
+    //    var mfId = mfid;
+    //    var controlId = 0;
+    //    if (controlid !== "") {
+    //        controlId = controlid
+    //    }
+    //    else {
+    //        controlId = $("#ControlId option:selected").val();
+
+    //    }
+
+    //    if ($("input[name='selectionType']:checked").val() === 'Client') {
+    //        const dropdown = document.getElementById("drpPurchaseOrderNumber");
+    //        const selectedOption = dropdown.options[dropdown.selectedIndex];
+
+    //        ponId = selectedOption.getAttribute("data-ponid");
+
+    //    }
+    //    var poNumber = $("#drpPurchaseOrderNumber option:selected").val();
+
+
+
+    //    // const poid = selectedOption.value;
+
+
+    //    //if (poNumber === '0') {
+    //    //    $('#divPODLBlock, #divDates, #divConf').hide();
+    //    //}
+    //    // else {
+    //    $.ajax({
+    //        url: '../Operations1/ScheduleVisit',
+    //        type: 'POST',
+    //        data: {
+    //            controlNumberGuid: controlNumberGuid,
+    //            controlId: controlId,
+    //            controlNumber: controlNumber,
+    //            PONumber: poNumber || "", // Only send poNumber if it’s present
+    //            SOID: soid || 0,
+    //            POID: poid || 0,
+    //            PONId: ponId || 0,
+    //            ManufacturerId: mfId || 0
+    //        },
+    //        success: function (response) {
+    //            // debugger;
+    //            $("#controlNumDetails").html(response);
+    //            $("#controlNumDetails").show();
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //            console.error("Error:", errorThrown);
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+    //        }
+    //    });
+    //    //}
+    //}
+
+
+    function getPOItems(element) {
+        //  debugger;
+        const poNumber = element.value.trim();
+
+        // If the input is empty, hide the suggestions list and return
+        if (!poNumber) {
+            $('#poItems').hide();
+            return;
+        }
+
+        $.ajax({
+            url: '../PurchaseOrder/GetMatchingPONumbers',
+            type: 'GET',
+            data: { query: poNumber },
+            success: function (data) {
+                // debugger;
+                if (data && data.length > 0) {
+                    let itemsHtml = '<ul>';
+                    data.forEach((item, index) => {
+                        itemsHtml += `<li data-index="${index}"
+                                       data-ponid="${item.PONId}"
+                                       data-poid="${item.POId}"
+                                       data-controlno="${item.ControlNo}"
+                                       data-controlid="${item.ControlID}"
+                                       data-soid="${item.SOID}"
+                                       data-mfid ="${item.ManufacturerId}"
+                                       data-mfName ="${item.ManufacturerName}"
+                                       data-sonumber ="${item.SONumber}"
+                                       data-clientname= "${item.ClientName}"
+                                       data-clientuname ="${item.ClientUnitName}"
+                                       onclick="selectPOItem(this)">${item.PONumber}</li>`;
+                    });
+                    itemsHtml += '</ul>';
+
+                    $('#poItems').html(itemsHtml);
+                    $('#poItems').show();
+                    currentIndex = -1; // Reset currentIndex when new items are loaded
+                } else {
+                    $('#poItems').html('<p class="text-danger">No items found for this PO Number.</p>');
+                    $('#poItems').show();
+                }
+            },
+            error: function () {
+                $('#poItems').html('<p class="text-danger">Error fetching PO items. Please try again.</p>');
+                $('#poItems').show();
+            }
+        });
+        // });
+    }
+
+    // Handle key press events for Up/Down navigation
+    $('#poTextBox').on('keydown', function (e) {
+        let items = $('#poItems li');
+        if (items.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            // Move to the next item
+            currentIndex = (currentIndex + 1) % items.length;
+            highlightItem();
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            // Move to the previous item
+            currentIndex = (currentIndex - 1 + items.length) % items.length;
+            highlightItem();
+        } else if (e.key === "Enter") {
+            // debugger;
+            // If 'Enter' is pressed, select the currently highlighted item and update the textbox
+            if (currentIndex !== -1) {
+                selectPOItem(items[currentIndex]);
+                $('#poItems').hide();  // Hide the list after selection
+            }
+        }
+    });
+
+    function highlightItem() {
+        // debugger;
+        // Highlight the current item and remove highlight from others
+        $('#poItems li').removeClass('selected');
+        if (currentIndex >= 0) {
+            $('#poItems li').eq(currentIndex).addClass('selected');
+        }
+    }
+    function test(element) {
+
+        const poNumber = $(element).text(); // Get the PO Number text
+        const poId = $(element).data('poid');
+        const ponId = $(element).data('ponid');
+        const controlNo = $(element).data('controlno');
+        const controlId = $(element).data('controlid');
+        const soId = $(element).data('soid');
+        const mfId = $(element).data('mfid');
+        const mfName = $(element).data('mfname'); // Manufacturer Name
+        const clientName = $(element).data('clientname');
+        const clientUnitName = $(element).data('clientuname');
+        const soNumber = $(element).data('sonumber');
+
+        const tableBody = $('#poItemsTable tbody');
+        if (tableBody.length === 0) {
+            // Create <tbody> if not present
+            $('#poItemsTable').append(tableBody);
+        }
+
+        // Populate the table with the selected item's details
+        $('#poItemsTable tbody').html(`
+        <tr>
+            <td>${clientName}</td>
+            <td>${clientUnitName}</td>
+            <td>${controlNo}</td>
+            <td>${soNumber}</td>
+            <td><input type="hidden" name="mfid" value="${mfId}"/> ${mfName}</td>
+        </tr>
+    `);
+
+        // Show the table after binding
+        $('#poItemsTable').show();
+    }
+
+    function selectPOItem(element) {
+        //  debugger;
+        // Highlight and select the item
+        $('#poItems li').removeClass('selected');
+
+        $(element).addClass('selected');
+        test(element);
+
+        //$('#poItemsTable').html(element);
+        //$('#poItemsTable').show()
+
+        const poNumber = $(element).text();  // Get the PO Number text
+        const poId = $(element).data('poid');
+        const ponId = $(element).data('ponid');
+        const controlNo = $(element).data('controlno');
+        const controlId = $(element).data('controlid');
+        const soId = $(element).data('soid');
+        const mfId = $(element).data('mfid');
+        // const poId = $(element).data('poid');
+        // Set the selected PO Number in the input textbox
+        $('#poTextBox').val(poNumber);
+        // Optionally, you can trigger other actions like saving the selected PO info or displaying related data
+        //  handleSelectedPO(poId, controlNo, soId);
+        $('#poItems').hide();
+        fnGetPurchaseOrderDetails(poId, controlId, controlNo, soId, ponId, mfId);
+    }
+
+    // Example function triggered after selection
+    function handleSelectedPO(poId, controlId, controlNo, soId) {
+        console.log('Selected PO:', poId, controlNo, soId);
+    }
+
+    $('#poTextBox').on('focus', function () {
+        const poNumber = $(this).val().trim();
+        if (poNumber) {
+            getPOItems(this);
+        }
+    });
+
+</script>

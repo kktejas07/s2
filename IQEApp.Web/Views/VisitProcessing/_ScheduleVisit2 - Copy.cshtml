@@ -1,0 +1,333 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.VisitProcessing.ScheduleVisitModel>
+
+@using GridMvc.Html
+@using GridMvc.Sorting;
+
+<head>
+    <meta charset="UTF-8" />
+    <link href="@Url.Content("~/Content/Gridmvc.css")" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Schedule Visit</title>
+    <style type="text/css">
+        .fixTableHead {
+            overflow-y: auto;
+        }
+
+            .fixTableHead thead th {
+                position: sticky;
+                top: 0;
+            }
+
+        .scroller {
+            width: 100%;
+            overflow-x: scroll;
+            scrollbar-width: thin;
+        }
+
+        body {
+            font-family: Arial;
+            font-size: 9pt;
+        }
+        /*Simple css hack to right align text*/
+        td[data-name='SaleValue'], td[data-name='CostValue'], td[data-name='GP'] {
+            text-align: right;
+        }
+
+        td[data-name='GP'] {
+            width: 50px;
+        }
+
+        ul, li {
+            margin: 0px;
+            padding: 0px;
+            list-style-type: none;
+        }
+        /* CSS for Equipment and ClientName columns */
+        .equipment-column, .client-name-column {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .equipment-column {
+            max-width: 150px; /* Adjust width as needed */
+        }
+
+        .client-name-column {
+            max-width: 150px; /* Adjust width as needed */
+        }
+
+        .preview-icon {
+            cursor: pointer;
+            color: #337ab7;
+            margin-left: 5px;
+        }
+
+        /* Existing styles here */
+        /* Preview Container Styles */
+        #previewContainer {
+            display: none;
+            position: fixed; /* Changed to fixed positioning */
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the container */
+            width: 60%; /* Adjust width as needed */
+            height: 50%; /* Adjust height as needed */
+            background: rgba(0, 0, 0, 0); /* Semi-transparent background */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #previewContent {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: auto;
+        }
+
+            #previewContent iframe,
+            #previewContent img {
+                width: 100%;
+                height: 100%;
+                border: 0;
+            }
+        
+    </style>
+
+</head>
+
+<body>
+    <div class="scroller" style="width:99%;height:460px;">
+        @Html.Grid(Model).Named("VisitProcessGrid").Columns(c =>
+        {
+            c.Add(x => x.VisitSeqId).Titled("Visit ID").Sortable(true).Filterable(true);
+            c.Add(x => x.ControlNo).Titled("C No").Sortable(true).Filterable(true);
+            c.Add(x => x.ScheduleDate).Titled("Insp Date").Sortable(true).Filterable(true).Format("{0:dd/MM/yyyy}");
+            c.Add(x => x.ClientName).Titled("Client Name").Sortable(true).Filterable(true);
+            c.Add(x => x.ClientUnitName).Titled("Unit/Project").Sortable(true).Filterable(true);
+            c.Add(x => x.ManufacturerName).Titled("Supplier Details").Sortable(true).Filterable(true);
+            c.Add(x => x.PONumber).Titled("PO Number").Sortable(true).Filterable(true);
+            c.Add(x => x.PODate).Titled("PO Date").Sortable(true).Filterable(true).Format("{0:dd/MM/yyyy}");
+            c.Add(x => x.Equipment).Titled("Equipment").Sortable(true).Filterable(true);
+            c.Add(x => x.Quantity).Titled("Qty").Sortable(true).Filterable(true);
+            c.Add(x => x.InspectionActivity).Titled("Inspection Activity").Sortable(true).Filterable(true);
+            c.Add(x => x.InspectorName).Titled("Inspector Name").Sortable(true).Filterable(true);
+            c.Add(x => x.InspReportNo).Titled("IR Number").Sortable(true).Filterable(true);
+            c.Add(x => x.FileName).Titled("Insp Reports").Sortable(true).Filterable(true);
+            if (ViewBag.RoleId == 1)
+            {
+                c.Add(x => x.InvoiceNo).Titled("Invoice No").Sortable(true).Filterable(true);
+                c.Add(x => x.InvoiceDate).Titled("Inv Date").Sortable(true).Filterable(true).Format("{0:dd/MM/yyyy}");
+                c.Add(x => x.SaleValue).Titled("Sale").Sortable(true).Filterable(true).Format("{0:#,###0}");
+                c.Add(x => x.CostValue).Titled("Cost").Sortable(true).Filterable(true).Format("{0:#,###0}");
+                c.Add(x => x.GP).Titled("Gross Profit").Sortable(true).Filterable(true).Format("{0:#,###0}");
+            }
+        }).Sortable(true).Filterable(true).WithPaging(10).EmptyText("No Data Found")
+    </div>
+
+    @*<div class="grid-footer" style="width:99%;padding:10px;text-align:center;">
+            @Html.Raw(Html.GridPager("VisitProcessGrid"))
+        </div>*@
+
+    @Scripts.Render("~/Scripts/gridmvc.min.js")
+
+    <!-- Modals -->
+    <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="fileModalLabel">Inspection Reports</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul id="fileList"></ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="equipmentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="equipmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="equipmentModalLabel">Equipment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="equipmentDetails"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="clientNameModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="clientNameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width:450px;">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #58A0F2; padding:4px">
+                    <h5 class="modal-title" id="clientNameModalLabel">Client Name</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="clientNameDetails"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="previewContainer">
+        @*<div id="previewHeader">
+            <span id="fileNameDisplay"></span>
+            <span id="closePreview" style=" cursor: pointer;">&times;</span>
+        </div>*@
+        <div id="previewContent">
+            <div id="iframeHeader">
+                <span id="iframeFileNameDisplay"  style="font-weight:bold;font-size:12px"></span>
+                <span id="closeIframePreview" style="cursor: pointer;">&times;</span>
+            </div>
+            <div id="iframeBody"></div>
+        </div>
+    </div>
+    <style>
+        .file-icon, .equipment-icon, .client-name-icon {
+            cursor: pointer;
+            color: #337ab7;
+        }
+    </style>
+</body>
+
+<script type="text/javascript">
+    $(function () {
+        $("tr.grid-row").each(function () {
+            var tr = $(this);
+            var rows = $(tr).children();
+            var VisitSeqId = rows[0].innerHTML;
+
+            // Handling FileName column
+            var fileList = rows[13].innerHTML.split(";").filter(function (file) { return file.trim() != ""; });
+            rows[13].innerHTML = '<i class="fa fa-file file-icon" data-visit-id="' + VisitSeqId + '" data-files="' + fileList.join(',') + '"></i>';
+
+            // Handling Equipment column
+            var equipment = rows[8].innerHTML;
+            var shortenedEquipment = equipment.length > 15 ? equipment.substring(0, 15) + '...' : equipment;
+            rows[8].innerHTML = '<span class="equipment-icon" data-equipment="' + equipment + '">' + shortenedEquipment + '</span>';
+
+            // Handling ClientName column
+            var clientName = rows[3].innerHTML;
+            var shortenedClientName = clientName.length > 15 ? clientName.substring(0, 15) + '...' : clientName;
+            rows[3].innerHTML = '<span class="client-name-icon" data-client-name="' + clientName + '">' + shortenedClientName + '</span>';
+        });
+
+        $(document).on('click', '.file-icon', function () {
+            var visitId = $(this).data('visit-id');
+            var files = $(this).data('files').split(',');
+
+            var fileListHtml = files.map(function (file) {
+
+
+                return '<li><a href="../VisitProcessing/DownloadFile?VisitSeqId=' + visitId + '&FileName=' + file.trim() + '">' + file.trim() + '</a></li>';
+                      //  + ' || ' + '<i class="fa fa-eye preview-icon" data-file="' + file.trim() + '" data-visit-id="' + visitId + '"></i></li>';
+
+            }).join('');
+
+            $("#fileList").html(fileListHtml);
+            $("#fileModal").modal('show');
+        });
+
+        $(document).on('click', '#closePreview', function () {
+            $("#previewContainer").hide();
+        });
+        
+        $(document).on('click', '.preview-icon', function () {
+            var fileName = $(this).data('file');
+            var visitId = $(this).data('visit-id');
+            var previewUrl = '../VisitProcessing/PreviewFile?VisitSeqId=' + visitId + '&FileName=' + encodeURIComponent(fileName);
+
+            var fileExtension = fileName.split('.').pop().toLowerCase();
+            var previewContent = '';
+            debugger;
+            if (fileExtension === 'pdf') {
+                previewContent = '<iframe src="' + previewUrl + '" style="width:100%;height:auto;" frameborder="0"></iframe>';
+            } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                previewContent = '<img src="' + previewUrl + '" style="width:100%;height:auto;" />';
+            } else if (fileExtension === 'docx' || fileExtension === 'xlsx') {
+                // previewContent = '<iframe src="' + previewUrl + '" style="width:100%;height:auto;" frameborder="0"></iframe>';
+                //previewContent = '<iframe src="' + 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(window.location.origin+previewUrl) + '" style="width:100%;height:auto;" frameborder="0"></iframe>';
+                var officeViewerUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(window.location.origin + previewUrl);
+                previewContent = '<iframe src="' + officeViewerUrl + '" style="width:100%;height:100%;" frameborder="0"></iframe>';
+            } else {
+                previewContent = '<p>Preview not available for this file type.</p>';
+            }
+
+            $("#iframeFileNameDisplay").text(fileName);
+            $("#iframeBody").html(previewContent);
+            $("#previewContainer").show();
+        });
+
+
+        $(document).on('click', '#previewContainer', function () {
+            $(this).hide();
+        });
+
+
+
+        $(document).on('click', '.equipment-icon', function () {
+            var equipmentDetails = $(this).data('equipment');
+            $("#equipmentDetails").html(equipmentDetails);
+            $("#equipmentModal").modal('show');
+        });
+
+        $(document).on('click', '.client-name-icon', function () {
+            var clientNameDetails = $(this).data('client-name');
+            $("#clientNameDetails").html(clientNameDetails);
+            $("#clientNameModal").modal('show');
+        });
+    });
+
+    function UpdateCostValue(visitId) {
+        var answer1 = window.confirm("Are you sure the Amount Valid?");
+        if (answer1) {
+            $.ajax({
+                url: '../Home/UpdateCostValueByVisitID',
+                type: 'POST',
+                data: {
+                    VisitId: visitId,
+                    CostValue: $('#txtCostValue_' + visitId).val()
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+                },
+                success: function (data) {
+                    window.parent.$('.ui-dialog-content:visible').dialog('close');
+                    if (data.status) {
+                        alert('Cost Value Submitted Successfully');
+                        location.reload();
+                    } else {
+                        alert('There is an error for Submitting the Comments');
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) { },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+                }
+            });
+        }
+    }
+</script>

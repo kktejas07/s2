@@ -1,0 +1,431 @@
+﻿@using IQEApp.Domain
+@using IQEApp.Web.Utils
+@using WebIndiaApp.Web.Utils
+@model IQEApp.Web.Models.VisitProcessing.VisitProcessingDetailsModel
+@{
+    ViewBag.Title = "Finance Approval";
+}
+
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h3 class="box-title"> <span id="spnHeadTitle"> Finance Approval </span></h3>
+        </div>
+        <div class="col-sm-6 col-md-6 col-lg-6 ">
+            <div id="divLoadingIconId"></div>
+
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+
+        </div>
+    </div>
+@*<div class="bg mt20">
+        <div class="row ">
+            <div class="col-sm-12 col-md-12 col-lg-12 ">
+
+                <div>
+                    Client Name:
+                    <b>
+                        @Model.ClientDetails.ClientName
+                    </b>
+                    <span>
+                        Client Unit Name:
+                        <b>
+                            @Model.ClientUnitDetails.ClientUnitName
+                        </b>
+                    </span>
+                    <span>
+                        Address:
+                        <b>
+                            @Model.ClientUnitDetails.Address, @Model.ClientUnitDetails.City, @Model.ClientUnitDetails.StateName, @Model.ClientUnitDetails.CountryName
+                        </b>
+                    </span>
+                </div>
+                <div>
+                    Manufacturer Name: <b>
+                        @Model.ManufacturerDetails.ManufacturerName
+                    </b>
+                    <span>
+                        Manufacturer Unit Name:
+                        <b>
+                            @Model.ManufacturerUnitsDetails.ManufacturerUnitName
+                        </b>
+                    </span>
+                    <span>
+                        Address:
+                        <b>
+                            @Model.ManufacturerUnitsDetails.Address, @Model.ManufacturerUnitsDetails.City, @Model.ManufacturerUnitsDetails.StateName, @Model.ManufacturerUnitsDetails.CountryName
+                        </b>
+                    </span>
+                </div>
+                <div>
+                    Schedule Comments: <b>
+                        @Model.ScheduleDetails.ScheduleComments
+                    </b>
+                </div>
+                <div>
+                    Control No.
+                    <b>@Model.ControlNumberDetails.ControlNo</b>
+                    <span>
+                        Control NO Comments: <b>@Model.ControlNumberDetails.ControlNumberComments</b>
+                    </span>
+                </div>
+                <div>
+                    <span>
+                        P.O. Number: <b>@Model.PurchaseOrderDetails.PONumber</b>
+                        P.O. Date: <b>@Model.PurchaseOrderDetails.PoDate.GetConvertedShortDate()</b>
+                        P.O. Comments: <b>@Model.PurchaseOrderDetails.POComments</b>
+                    </span>
+                </div>
+                <div id="">
+                    <div class="clearfix"></div>
+                    @if (Model.LstPurchaseOrderItems.Any())
+                    {
+                        <!--Header Div Starts-->
+                        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+                            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                                Item Number
+                            </div>
+                            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                                Description
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                                Quantity
+                            </div>
+                            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                                Allowed Visits
+                            </div>
+                            <div class="col-lg-4 col-md-4 col-sm-4 table-header">
+                                Remarks
+                            </div>
+                        </div>
+                        <!--Header Div Ends-->
+                        foreach (var purchaseOrderItem in Model.LstPurchaseOrderItems)
+                        {
+                            <!-- Data display Div Starts -->
+                            <div class="col-lg-12 col-md-12 col-sm-12 directory-table-row ">
+                                <div class="col-lg-3 col-md-3 col-sm-3">
+                                    @purchaseOrderItem.POItemNo
+                                </div>
+                                <div class="col-lg-3 col-md-3 col-sm-3">
+                                    @purchaseOrderItem.Description
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-sm-1" style="text-align: center;">
+                                    @purchaseOrderItem.Quantity
+                                </div>
+                                <div class="col-lg-1 col-md-1 col-sm-1" style="text-align: center;">
+                                    @purchaseOrderItem.NumberOfVisits
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    @purchaseOrderItem.Remarks
+                                </div>
+                            </div>
+                            <!-- Data display Div ends -->
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<div id="CommonDetailsDiv">
+
+</div>
+<div class="bg ">
+    <div class="clearfix"></div>
+    <div class="mt10 mb10">
+        <span> </span>
+        <small class="text-muted"><i class="fa fa-paper-plane-o mr5"></i> Visit details</small>
+    </div>
+    <div class="">
+        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Visit No.
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Schedule Date
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Schedule Comments
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Quality Review Comments
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Status
+            </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-row ">
+            <div class="col-lg-2 col-md-2 col-sm-2 ">
+                @Model.ScheduleDetails.VisitId
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 ">
+                @Model.ScheduleDetails.ScheduleDate.GetConvertedShortDate()
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                @Model.ScheduleDetails.ScheduleComments
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 ">
+                @Model.ScheduleDetails.QualityHeadComments
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 ">
+                @Model.ScheduleDetails.VisitStatusName
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="mt10 mb10">
+        <span> </span>
+        <small class="text-muted"><i class="fa fa-user-o mr5"></i> Visited employee details</small>
+    </div>
+    <div>
+        <div class="col-lg-12 col-md-12 col-sm-12  directory-table-header ">
+
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Employee Details
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Travel Time
+                @*From Time
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                To Time*@
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Visit Expenses
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 table-header">
+                Engg. Comments
+            </div>
+            @*<div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                Travel Km
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                Travel Expense
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 table-header">
+                Other Expense
+            </div>*@
+            <div class="col-lg-3 col-md-3 col-sm-3 table-header">
+                Uploaded Docs
+            </div>
+        </div>
+        @foreach (var visitRemarks in Model.LstVisitProcessingDetails)
+        {
+            <div class="col-lg-12 col-md-12 col-sm-12  directory-table-row ">
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <div>
+                        @visitRemarks.EmployeeCode
+                    </div>
+                    <div>
+                        @visitRemarks.UserFullName
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <div>
+                        From : @(visitRemarks.VisitedFrom.GetConvertedShortDateTime() == DateTime.MinValue.GetConvertedShortDateTime() ? "NA" : visitRemarks.VisitedFrom.GetConvertedShortDateTime())
+                    </div>
+                    <div>
+                        To &nbsp;&nbsp;&nbsp;&nbsp;: @(visitRemarks.VisitedTo.GetConvertedShortDateTime() == DateTime.MinValue.GetConvertedShortDateTime() ? "NA" : visitRemarks.VisitedTo.GetConvertedShortDateTime())
+                    </div>
+                    @*
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 ">
+                    *@
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    @foreach (var visitExpense in visitRemarks.TravelExpenses)
+{
+    <span>@visitExpense.TravelType</span>  
+                                            @*<span>@(visitExpense.FromDate.GetConvertedShortDateTime() == "01/01/1900"?"") - @(visitExpense.ToDate.GetConvertedShortDateTime() == "01/01/1900"?"")</span>*@
+    <span>@visitExpense.Expenses/-</span> 
+    <span>@(visitExpense.TravelKM == 0 ? "" : visitExpense.TravelKM.ToString())</span>    <br/>
+}
+
+                </div>
+
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    @visitRemarks.VisitComments
+                </div>
+                @*<div class="col-lg-1 col-md-1 col-sm-1">
+                    @visitRemarks.TravelKm
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    @visitRemarks.TravelExpense
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    @visitRemarks.OtherExpense
+                </div>*@
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    @if (visitRemarks.TravelDocsList.Any())
+                    {
+                        foreach (var doc in @visitRemarks.TravelDocsList)
+                        {
+                            <span><a href="javascript:void(0);" title="@doc.FileTitle@Path.GetExtension(@doc.FileLink)" data-toggle="tooltip" onclick="javascript: FilePreview('@doc.FileGUID', '@doc.SectionId', '1');">@Html.ShortString(@doc.FileTitle, 20)@Path.GetExtension(@doc.FileLink)</a></span>
+                            <span>&nbsp; &nbsp;</span>
+                            <span>
+                                <a href="~/FileUpload/DownloadFile?GUId=@doc.FileGUID&SId=@doc.SectionId&GenericId=@doc.GenericId" target="_blank" download="" data-toggle='tooltip' title='Download'><i class="fa fa-cloud-download bg-color-gray" aria-hidden="true"></i> </a>
+                            </span>
+                        }
+                    }
+                    else
+                    {
+                        <span>No Docs Uploaded</span>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="clearfix"></div>
+    @using (Ajax.BeginForm("ApproveRejectFinance", "VisitProcessing",
+        new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnBegin = "beginProgressBar",
+            OnSuccess = "onFinanceApprovalSuccess",
+        }))
+    {
+        <div class="row mt20">
+            <div class="col-sm-6 col-md-6 col-lg-6 form-group">
+                @Html.LabelFor(m => m.FinanceApproverComments, new { @class = "control-label" })
+                @Html.TextAreaFor(m => m.FinanceApproverComments, new { @class = "form-control inputStyle redboder", @rows = 2, @placeholder = @Html.DisplayNameFor(model => model.FinanceApproverComments) })
+                @Html.ValidationMessageFor(m => m.FinanceApproverComments)
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+            </div>
+            <div class="col-sm-2 col-md-2 col-lg-2 form-group mt10">
+                <button type='button' class="btn btn-secondary pull-right" id="btnCancelFinanceApproval" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: backToScheduleVisitList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                <button type="submit" class="btn btn-success pull-right mr5" id="btnApproveFinance" value="Approve" title="Approve" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> &nbsp;Approve </button>&nbsp;&nbsp;
+            </div>
+
+        </div>
+        <div>
+            @Html.HiddenFor(m => m.VEM_ID)
+            @Html.HiddenFor(m => m.VisitId)
+            @Html.HiddenFor(m => m.ScheduleDetails.VisitGuid)
+            <span>@ViewBag.Message </span>
+            <div class="row">
+
+            </div>
+        </div>
+    }
+
+</div>
+<script>
+    $(document).ready(function () {
+        LoadCommonDetails();
+    });
+    $.validator.unobtrusive.parse(document);
+    function backToScheduleVisitList() {
+        window.location = "/VisitProcessing/ScheduleVisitList";
+    }
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnApproveFinance").prop('disabled', true);
+    }
+
+    function onFinanceApprovalSuccess(response) {
+        if (response.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            setTimeout(function () { window.location = "/VisitProcessing/ScheduleVisitList"; }, 5000);
+        } else {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+            $("#btnApproveFinance").prop('disabled', false);
+        }
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+    }
+    function FilePreview(fileGuid, SectionId, GID) {
+        $.ajax({
+            url: '../FileUpload/PreviewFile',
+            type: 'POST',
+            data: {
+                GUId: fileGuid,
+                SId: SectionId
+            },
+            beforeSend: function (e) {
+                //BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $("#BlogItemEditLoadingIconHoldDiv" + postId), position: "center" });
+            },
+            success: function (data) {
+                var object = null;
+                var object1 = null;
+                //create iframe 
+                var iframe = document.createElement('iframe');
+                // div tag in which iframe will be added should have id attribute with value myDIV
+                document.getElementById("divMSFilePreviewPopup").appendChild(iframe);
+                // add id to dynamically generated iframe
+                iframe.setAttribute("id", "myIframe");
+                // provide height and width to it
+                iframe.setAttribute("style", "height:600px;width:100%;");
+
+
+                if (data.strString == "success") {
+                    var fileName = data.containerPath + "site-" + data.imageSiteId + "/" + data.strContentLink;
+                    var msFileName =
+                        "https://view.officeapps.live.com/op/embed.aspx?src=" + fileName;
+                    if (data.fType == "normal") {
+                        object =
+                            "<object data=\"{FileName}\"  type=\"application/pdf\" width=\"100%\" height=\"600px\"></object>";
+                        // this is not allowing scroll style =\"Pointer-events:none\"
+                        object = object.replace(/{FileName}/g, "" + fileName);
+                        $('#divMSFilePreviewPopup').hide();
+                        $("#divFilePreviewPopup").html(object).show();
+                    }
+                    else if (data.fType == "mstype") {
+                        $('#myIframe').attr('src', '');
+                        var myIframe = document.getElementById('myIframe');
+                        myIframe.setAttribute("src", msFileName);
+                        object1 = $('#myIframe').appendTo('body');
+                        $('#divFilePreviewPopup').hide();
+                        $("#divMSFilePreviewPopup").html(object1).show();
+                    }
+                } else if (data.strString == "Fail") {
+                    console.log("failed to load preview");
+                } else {
+                    object = "<html width=\"100%\" height=\"500px\" > <head></head><body>" + data.strString;
+                    object += ", you can download from <a href = /\FolderFile/DownloadFile?GUId=" + strContentLink + "&SId=" + SID + "&GenericId=" + GID + ">here</a>";
+                    object += "</body></html>";
+                    $('#divMSFilePreviewPopup').hide();
+                    $("#divFilePreviewPopup").html(object).show();
+                }
+
+                $('#lblFolderFileName').html(data.imageTitle);
+                $("#ShowFilesPreview").click();
+            },
+            complete: function () {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($("#BlogItemEditLoadingIconHoldDiv" + postId));
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                //BaseLayout_InlineLoadingIcon.hideLoadingIcon($("#BlogItemEditLoadingIconHoldDiv" + postId));
+            }
+        });
+    }
+    function LoadCommonDetails() {
+        //  alert($("#ScheduleDetails_VisitGuid").val());
+        $.ajax({
+            url: '../Common/LoadCommonDetailsForVisit',
+            type: 'POST',
+            data: {
+                visitGuid: $("#ScheduleDetails_VisitGuid").val(),
+                controlNumberGuid: null,
+                ServiceOrderId: 0,
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+            },
+            success: function (response) {
+                $("#CommonDetailsDiv").html(response);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+            }
+        });
+    }
+</script>

@@ -1,0 +1,426 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.ControlNumberModel.ControlNumberDetailsModel
+
+<style>
+    .form-control {
+        font-size: 12px;
+    }
+</style>
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h2 class="box-title"> <span id="spnHeadTitle">Operations &#8667; Schedule Visit </span></h2>
+        </div>
+    </div>
+</div>
+
+
+<table>
+
+
+    @*<thead class="tablecont">
+            <tr>
+                <th colspan="6" style="text-align:center;"><h4><label class="control-label">Customer Complaint Form</label></h4></th>
+            </tr>
+        </thead>*@
+    <tbody>
+        <tr>
+            <th colspan="6" class="col-sm-12 col-md-12 col-lg-12 form-group">
+                @Html.Label("Select Options", new { @class = "control-label" }) &nbsp;
+                @Html.RadioButton("svradio", "Client", new { onchange = "EnableClient(" + "true" + ")" })
+                <span>Client</span>
+                @Html.RadioButton("svradio", "PO", new { onchange = "EnableClient(" + "false" + ")" })
+                <span>Purchase Order</span>
+            </th>
+
+        </tr>
+        <tr id="trClient" style="display:none">
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ClientDetails.ClientName, new { @class = "control-label" })
+                @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.LstClients, "ClientId", "ClientName"), "Select", new { @class = "form-control redborder", style = "Width:200px", @placeholder = @Html.DisplayNameFor(model => model.ClientId), onchange = "getClientUnitsByClientId(this)" })
+                @Html.ValidationMessageFor(m => m.ClientId)
+            </th>
+
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ClientDetails.ClientUnit.ClientUnitName, new { @class = "control-label" })
+                @Html.DropDownListFor(m => m.ClientUnitId, new SelectList(Model.LstClientUnits, "ClientUnitId", "ClientUnitName"), "Select", new { @class = "form-control redborder", @style = "width:200px", @placeholder = @Html.DisplayNameFor(model => model.ClientUnitId), onchange = "getConrtolNumbersByClientUnitId(this)" })
+                @Html.ValidationMessageFor(m => m.ClientUnitId)
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ControlNo, new { @class = "control-label" })
+                @Html.DropDownListFor(m => m.ControlId, new SelectList(Model.LstControlNumbers, "ControlId", "ControlNo"), "Select", new { @class = "form-control redborder", @style = "width:150px", @placeholder = @Html.DisplayNameFor(model => model.ControlId), onchange = "getSONumbersByControlId(this)" })
+            </th>
+
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.SONumber, new { @class = "control-label" })
+                @Html.DropDownListFor(m => m.SOId, new SelectList(Model.LstServiceOrdersList, "SOId", "SONumber"), "Select", new { @class = "form-control redborder", @style = "width:150px", @placeholder = @Html.DisplayNameFor(model => model.SOId), onchange = "getManufacturerDetailsByControlNo(this)" })
+            </th>
+
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.LabelFor(m => m.ManufacturerUnitDetails.ManufacturerName, new { @class = "control-label" })
+                <select id="drpManufacturer" onchange="getPONumbersByManufacturerId()" class="form-control redborder" style="width:150px">
+                    <option value="0">Select</option>
+                    @foreach (var mUnit in Model.LstManufacturerUnitDetails)
+                    {
+                        <option value="@mUnit.ManufacturerId">@mUnit.ManufacturerName</option>
+                    }
+                </select>
+            </th>
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.Label("Purchase Order", new { @class = "control-label" })
+                <select id="drpPurchaseOrderNumber" onchange="javascript: fnGetPurchaseOrderDetails();" class="form-control redborder" style="width:150px">
+                    <option value="0">Select</option>
+                    @foreach (var purchaseOrder in Model.LstPurchaseOrderNumbers)
+                    {
+                        <option value="@purchaseOrder.PONId">@purchaseOrder.PONumber</option>
+                    }
+                </select>
+                <div><span id="PurchaseOrderValidation" class="error" style="display: none;"></span></div>
+            </th>
+        </tr>
+        <tr id="trPONumber" style="display:hidden">
+            <th class="col-sm-2 col-md-2 col-lg-2 form-group">
+                @Html.Label("PO Number", new { @class = "control-label" })
+                @Html.TextBox("PONumber", "", new { @class = "control-label", @placeholder = "Start typing PO Number", id = "PONumber" })
+                <ul id="suggestions" style="display:none; border: 1px solid #ccc; padding: 0; list-style: none; margin-top: 5px;">
+                </ul>
+            </th>
+
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+<divs class="col-sm-2 col-md-2 col-lg-2 form-group">
+    <div id="divPoList"></div>
+</divs>
+<div id="divPODLBlock">
+</div>
+
+
+
+<div id="controlNumDetails">
+</div>
+
+<script>
+    @*function EnableClient(obj) {
+        debugger;
+        if (obj == true) {
+            $("#trClient").show();
+            $("#trPONumber").hide();
+            $("#divPODLBlock").hide();
+            $("#controlNumDetails").hide();
+        }
+        else {
+            $("#trClient").hide();
+            $("#divPODLBlock").hide();
+            $("#controlNumDetails").hide();
+            $("#trPONumber").show();
+
+        }
+    }
+
+   $(document).ready(function () {
+    // Initially hide the PO row
+    $('#trPONumber').hide();
+
+    // Handle input events on the PO textbox
+    $('#PONumber').on('keyup', function () {
+        var query = $(this).val();
+
+        // If the input has at least 2 characters, trigger the search
+        if (query.length >= 2) {
+            $.ajax({
+                url: '@Url.Action("GetMatchingPONumbers", "PurchaseOrder")', // Your action URL
+                type: 'GET',
+                data: { query: query },
+                success: function (data) {
+                    var suggestionList = $('#suggestions');
+                    suggestionList.empty().hide(); // Clear previous suggestions and hide
+
+                    // If data exists, show the suggestions
+                    if (data && data.length > 0) {
+                        suggestionList.show(); // Show the suggestion list
+                        $.each(data, function (index, item) {
+                            suggestionList.append('<li data-poid="' + item.PONId + '" data-controlno="' + item.ControlNo + '"data-soid="' + item.SOID + '">' + item.PONumber + '</li>');
+                            /*suggestionList.append('<li data-poid="' + item.PONId + '">' + item.PONumber + '</li>');*/
+                        });
+                    }
+                }
+            });
+        } else {
+            $('#suggestions').hide(); // Hide suggestions if input is less than 2 characters
+        }
+    });
+
+    // Use event delegation to handle clicks on dynamically added <li> elements
+       $(document).on('click', '#suggestions li', function () {
+         //  debugger;
+           var selectedPO = $(this).text();
+           $('#PONumber').val(selectedPO);
+           var controlNo = $(this).data('controlno');
+           var soid = $(this).data('soid');
+           var poNumber = $(this).data('poid');
+           // Call the function after PO selection
+
+          // debugger;
+           fnGetPurchaseOrderDetails(poNumber, controlNo, soid);
+
+        // Optionally hide the suggestions after selection
+        $('#suggestions').empty().hide();
+    });
+});*@
+
+    // Consolidated function to fetch purchase order details
+    //function fnGetPurchaseOrderDetails(poId, controlNo = null, soid=null) {
+    //    debugger;
+    //    $.ajax({
+    //        url: '../Operations1/GetPurchaseOrderDetailsById1',
+    //        type: 'POST',
+    //        data: {
+    //            PoId: poId || $("#drpPurchaseOrderNumber").val(),
+    //            IsVisitScheduleScreen: true
+    //        },
+    //        beforeSend: function () {
+    //            BaseLayout_InlineLoadingIcon.showLoadingIcon({
+    //                parentElement: $('#divScheduleVisitLoadingIconId'),
+    //                position: "center"
+    //            });
+    //        },
+    //        success: function (data) {
+    //            $('#EmpMappingList').hide();
+    //            $('#divPODLBlock').html(data).show();
+    //            debugger;
+    //            if (controlNo) {
+    //                getScheduleVisitDetails(controlNo,soid);
+    //            } else {
+    //                getScheduleVisitDetails();
+    //            }
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+    //        }
+    //    });
+    //}
+
+    //function getScheduleVisitDetails(controlNumberGuid = "",soid="") {
+    //    debugger;
+    //    if (controlNumberGuid == "") {
+    //        var controlNumber = $("#ControlId option:selected").text();
+    //    }
+    //    if (controlNumberGuid !== "") {
+    //        var controlNumber = controlNumberGuid;
+    //        controlNumberGuid = "";
+    //    }
+    //    var soid = soid;
+    //    var controlId = $("#ControlId option:selected").val();
+    //    var poNumber = $("#drpPurchaseOrderNumber option:selected").val();
+
+    //    //if (poNumber === '0') {
+    //    //    $('#divPODLBlock, #divDates, #divConf').hide();
+    //    //}
+    //   // else {
+    //        $.ajax({
+    //            url: '../Operations1/ScheduleVisit',
+    //            type: 'POST',
+    //            data: {
+    //                controlNumberGuid: controlNumberGuid ,
+    //                controlNumber: controlNumber,
+    //                PONumber: poNumber || "", // Only send poNumber if it’s present
+    //                SOID: soid || "" 
+    //            },
+    //            success: function (response) {
+    //                debugger;
+    //                $("#controlNumDetails").html(response);
+    //                $("#controlNumDetails").show();
+    //            },
+    //            error: function (xhr, textStatus, errorThrown) {
+    //                console.error("Error:", errorThrown);
+    //            },
+    //            complete: function () {
+    //                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+    //            }
+    //        });
+    //    //}
+    //}
+
+    
+    //$.validator.unobtrusive.parse(document);
+
+
+    //function getClientUnitsByClientId(obj) {
+    //    $('#divClientDetails').html('');
+    //    var clientId = $(obj).find('option:selected').val();
+    //    $.ajax({
+    //        url: '../PurchaseOrder/GetClientUnitsByClientId',
+    //        type: 'POST',
+    //        data: {
+    //            clientId: clientId
+    //        },
+    //        beforeSend: function (e) {
+    //            BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+    //        },
+    //        success: function (clientUnits) {
+    //            //   alert(JSON.parse(clientUnits));
+    //            var s = '<option value="-1">Select</option>';
+    //            for (var i = 0; i < clientUnits.length; i++) {
+    //                s += '<option value="' + clientUnits[i].ClientUnitId + '">' + clientUnits[i].ClientUnitName + '</option>';
+    //            }
+    //            $("#ClientUnitId").html(s);
+    //            //    $('#divClientDetails').html('');
+    //            //    $('#divClientDetails').html('<small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Client Unit Details</small>');
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+    //        }
+    //    });
+    //}
+
+    //function getConrtolNumbersByClientUnitId(obj) {
+    //    $('#divControlNumberDetails').html('');
+    //    var clientUnitId = $(obj).find('option:selected').val();
+    //    $.ajax({
+    //        url: '../Common/GetControlNumbersByClientUnitId',
+    //        type: 'POST',
+    //        data: {
+    //            clientUnitId: clientUnitId
+    //        },
+    //        beforeSend: function (e) {
+    //            BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+    //        },
+    //        success: function (data) {
+    //            var s = '<option value="-1">Select</option>';
+    //            for (var i = 0; i < data.length; i++) {
+    //                s += '<option value="' + data[i].ControlId + '">' + data[i].ControlNo + '</option>';
+    //                //  alert(data[i].ControlNo);
+    //            }
+    //            $("#ControlId").html(s);
+    //            //$('#divControlNumberDetails').html('');
+    //            //$('#divControlNumberDetails').html('<small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Client Unit Details</small>');
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+    //        }
+    //    });
+    //}
+
+    //function getSONumbersByControlId(obj) {
+    //    var controlNumber = $("#ControlId").children("option").filter(":selected").text()
+    //    $('#divClientDetails').html('');
+    //    var clientId = $(obj).find('option:selected').val();
+
+    //    if (clientId == '-1') {
+    //        $('#divPODLBlock').hide();
+    //    }
+    //    else {
+    //        $.ajax({
+    //            url: '../Common/GetSONumbersByControlId',
+    //            type: 'POST',
+    //            data: {
+    //                controlNumber: controlNumber
+    //            },
+    //            beforeSend: function (e) {
+    //                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+    //            },
+    //            success: function (SONumbers) {
+    //                var s = '<option value="-1">Select</option>';
+    //                for (var i = 0; i < SONumbers.LstServiceOrdersList.length; i++) {
+    //                    s += '<option value="' + SONumbers.LstServiceOrdersList[i].SOId + '">' + SONumbers.LstServiceOrdersList[i].SONumber + '</option>';
+    //                }
+    //                $("#SOId").html(s);
+    //            },
+    //            error: function (xhr, textStatus, errorThrown) {
+    //            },
+    //            complete: function () {
+    //                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+    //            }
+    //        });
+    //    }
+    //    // alert($(obj).val());
+    //    //  getScheduleVisitDetails($(obj).val());
+    //}
+
+    //function getManufacturerDetailsByControlNo(obj) {
+    //    var controlNumber = $("#ControlId").children("option").filter(":selected").text()
+    //    $('#divClientDetails').html('');
+    //    var clientId = $(obj).find('option:selected').val();
+    //    if (clientId == '-1') {
+    //        $('#divPODLBlock').hide();
+    //    }
+    //    else {
+    //        $.ajax({
+    //            url: '../Operations1/GetManufactureDetailsByControlNo',
+    //            type: 'POST',
+    //            data: {
+    //                controlNumber: controlNumber
+    //            },
+    //            beforeSend: function (e) {
+    //                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divSOLoadingIconId'), position: "center" });
+    //            },
+    //            success: function (manufactureDetails) {
+    //                var s = '<option value="-1">Select</option>';
+    //                for (var i = 0; i < manufactureDetails.length; i++) {
+    //                    s += '<option value="' + manufactureDetails[i].ManufacturerId + '">' + manufactureDetails[i].ManufacturerName + '</option>';
+    //                }
+    //                $("#drpManufacturer").html(s);
+    //                //    $('#divClientDetails').html('');
+    //                //    $('#divClientDetails').html('<small class="text-muted"><i class="fa fa-snowflake-o mr5"></i> Client Unit Details</small>');
+    //            },
+    //            error: function (xhr, textStatus, errorThrown) {
+    //            },
+    //            complete: function () {
+    //                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divSOLoadingIconId'));
+    //            }
+    //        });
+    //    }
+    //    // alert($(obj).val());
+    //    //  getScheduleVisitDetails($(obj).val());
+    //}
+
+    //function getPONumbersByManufacturerId() {
+    //    debugger;
+    //    var controlNumber = $("#ControlId option:selected").text();
+    //    var manufacturerId = $("#drpManufacturer option:selected").val();
+
+    //    $.ajax({
+    //        url: '../Operations1/GetPONumbersByManufacturerId',
+    //        type: 'POST',
+    //        data: {
+    //            ControlNo: controlNumber,
+    //            ManufacturerId: manufacturerId
+    //        },
+    //        success: function (purchaseOrder) {
+    //            var options = '<option value="-1">Select</option>';
+    //            purchaseOrder.forEach(function (item) {
+    //                options += '<option value="' + item.PONId + '">' + item.PONumber + '</option>';
+    //            });
+    //            $("#drpPurchaseOrderNumber").html(options);
+
+    //            // Add "Purchase Order" header if not present
+    //            //if ($('#trClient th:contains("Purchase Order")').length === 0) {
+    //            //    var newTh = $('<th class="col-sm-2 col-md-2 col-lg-2 form-group"></th>')
+    //            //        .html('<label>Purchase Order</label>')
+    //            //        .append($("#drpPurchaseOrderNumber").clone());
+    //            //    $('#trClient').append(newTh);
+    //            //} else {
+    //            //    console.log("Header already exists, not appending.");
+    //            //}
+    //        },
+    //        error: function (xhr, textStatus, errorThrown) {
+    //            console.error("Error:", errorThrown);
+    //        },
+    //        complete: function () {
+    //            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+    //        }
+    //    });
+    //}
+
+
+
+</script>

@@ -1,0 +1,208 @@
+﻿@using WebIndiaApp.Web.Utils
+
+@model IQEApp.Web.Models.UserModel.UserDetailsModel
+@{
+    ViewBag.Title = "View Profile";
+}
+<div class="box-header with-border">
+    <h3 class="box-title"> <span id="spnUserProfileTitle"> @Model.UserFullName Profile </span></h3>
+</div>
+
+<div class="container-fluid mt20">
+    <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-3" style="background: #04c1c4; border-radius: 9px;">
+            @if (!@Model.IsUserActive)
+            {
+                <a href="#" class="halfTriangle-top-left-large" style="border-top-color: red; top: 0px; left: 0px" data-toggle="tooltip" title="" data-original-title="Status : InActive"></a>
+            }
+            <div class="user-profile-box mb3">
+                <div class="box-profile">
+                    <div class="image-container-center">
+                        <div class="avatar avatar-xxl">
+                            <img src="@Url.Action("GetUserImage", "User", new { userId = Model.UserId })" alt="User Image" />
+                            @*<img src="@Model.UserImage" class="rounded-circle" onerror='this.src = "/Images/Profile.jpg"' />*@
+                        </div>
+                    </div>
+                    <h3 class="profile-username text-center">
+                        @if (@Model.UserTypeId == 1)
+                        {
+                            <span data-toggle="tooltip" title="Permanent"> <i class="fa fa-user-o" aria-hidden="true"></i> </span>
+                        }
+                        else
+                        {
+                            <span data-toggle="tooltip" title="Contract"> <i class="fa fa-user-circle-o" aria-hidden="true"></i> </span>
+                        } @Model.UserFullName
+                    </h3>
+                    <p class="text-center">@Model.DesignationName</p>
+                    <p class="text-center">@Model.RoleName</p>
+                </div>
+            </div>
+            <div class="mb10">
+                <div class="box-body">
+                    <strong><i class="fa fa-book mr5"></i> Qualification</strong>
+                    <p class="text-muted"> @Model.Qualification </p>
+                    <hr>
+                    <strong><i class="fa fa-briefcase mr5"></i> Skill Sets</strong>
+                    @if (@Model.LstSkillSet.Any())
+                    {
+                        <p class="text-muted">
+                            @foreach (var varSS in @Model.LstSkillSet)
+                            {
+                                @varSS.SkillSetName
+                                <span>,</span>
+                            }
+                        </p>
+                    }
+                    <hr>
+                    <strong><i class="fa fa-map-marker mr5"></i> Address</strong>
+                    <p class="text-muted">@Model.Address, @Model.CityName, @Model.StateName, @Model.CountryName</p>
+                    <hr>
+                    <strong><i class="fa fa-envelope mr5"></i> Email address </strong>
+                    <p class="text-muted">@Model.EmailId</p>
+                    <hr>
+                    <strong><i class="fa fa-phone mr5"></i> Phone</strong>
+                    <p>@Model.EmpContactNumber </p>
+                    <hr>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9">
+            <div class="info-box">
+                <div class="vtabs ">
+                    <ul class="nav nav-tabs tabs-vertical" role="tablist">
+                        <li class="nav-item active "> <a class="nav-link" data-toggle="tab" href="#home9" role="tab"><span>Profile</span></a> </li>
+                       <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#profile9" role="tab"><span>Activities</span></a> </li>
+                         @*   <li class="nav-item "> <a class="nav-link " data-toggle="tab" href="#messages9" role="tab" aria-expanded="true"><span>Settings</span></a> </li>*@
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="home9" role="tabpanel">
+                            <div class="p20">
+                                <div>
+                                    <div class="row">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Login Name
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.LoginName
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Employee Code
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.EmployeeCode
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Date of Birth
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @(Model.DOB.HasValue? Model.DOB.Value.ToShortDateString():"")
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Experience
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.Experience
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Certificate
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.Certifications
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Inspector Code
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.InspectorCode
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Country
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.CountryName
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Bank A/c No
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.BankAcc
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            IFSC Code
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.IFSCCode
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Branch
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.Branch
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            PAN Number
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.PAN
+                                        </div>
+                                    </div>
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Aadhar
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.Aadhar
+                                        </div>
+                                    </div>
+
+                                    <div class="row mt20">
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                            Remarks
+                                        </div>
+                                        <div class="col-sm-8 col-md-8 col-lg-8">
+                                            @Model.Remarks
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane  p20" id="profile9" role="tabpanel">
+                                 <div class="p20">
+                                     <p>List of Activites performed</p>
+                                 </div>
+                             </div>
+                        @*    <div class="tab-pane p20 " id="messages9" role="tabpanel" aria-expanded="true">
+        <div class="p20">
+            <p>user level settings to change password or reset password or any requests</p>
+        </div>
+    </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main row -->
+</div>

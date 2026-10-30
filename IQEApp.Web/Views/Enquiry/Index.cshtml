@@ -1,0 +1,755 @@
+﻿@using IQEApp.Web.Models.CommonModels
+@model IQEApp.Web.Models.EnquiryModel.EnquiryListViewModel
+
+<style>
+
+    .ui-dialog-titlebar-close:after {
+        content: 'X' !important;
+        position: absolute;
+        top: -2px;
+        right: 3px;
+    }
+
+    /* ---------- HEADER BUTTON SPACING ---------- */
+    .gap-2 > * {
+        margin-right: 8px;
+    }
+
+    /* ---------- TOGGLE BUTTONS ---------- */
+    .btn-group-toggle .btn {
+        min-width: 120px;
+        font-weight: 500;
+    }
+
+        .btn-group-toggle .btn.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+    /* ---------- RESULTS BADGE ---------- */
+    .badge-pill {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    /* ---------- ALPHA BAR LAYOUT ---------- */
+    .alpha-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: nowrap;
+    }
+
+    .alpha-left {
+        flex: 0 0 auto;
+    }
+
+    .alpha-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .alpha-right {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* ---------- ALPHABET STYLE ---------- */
+    .alphabet-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .alphabet-wrapper a,
+        .alphabet-wrapper span {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .alphabet-wrapper a:hover {
+                background: #007bff;
+                color: #fff;
+                border-color: #007bff;
+            }
+
+        .alphabet-wrapper .active {
+            background: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+
+    /* ---------- RESPONSIVE ---------- */
+    @@media (max-width: 992px) {
+        .alpha-bar {
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .alpha-center {
+            order: 3;
+            width: 100%;
+        }
+
+        .alpha-right {
+            order: 2;
+        }
+    }
+    .center-container1 {
+        display: flex;
+        justify-content: center; /* This centers the li in the middle of the window */
+    }
+
+    .nav-item1 {
+        text-align: center;
+        list-style: none;
+    }
+    .custom-table {
+        background-color: #f0f0f0;
+        border-collapse: collapse;
+    }
+    #EnquiryStacktable th {
+        font-weight: 700;
+        padding: 5px 10px;   
+        line-height: 1.5;   
+        font-size: 12px;   
+        vertical-align: middle;  
+        font-family: Arial;
+        font-size: 10.1pt;
+    }
+    /* Add hover effect for better identification */
+    .status-hover:hover {
+        transform: scale(1.05);
+        transition: 0.3s ease-in-out;
+        cursor: pointer;
+        opacity: 0.9;
+        color: palevioletred !important;
+    }
+   
+    .pending-bg {
+        color: orangered;
+    }
+    .active-tab {
+        background-color: #007bff !important; /* Highlight color */
+        color: white !important;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+   
+    .status-link {
+        color: inherit;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+    .th-highlight {
+        background-color: #cce5ff; /* Yellow highlight */
+        font-weight: bold;
+    }
+</style>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css" />
+<script src="~/Content/bootpag/jquery.bootpag.min.js"></script>
+<script src="~/CustomJS/Pagination.js"></script>
+@{
+    ViewBag.Title = "Enquiry & Proposal";
+}
+<div>
+    <div class="box-header with-border row">
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            <h4 class="box-title"> <span id="spnHeadTitle">Sales &#8667; Enquiry & Proposal</span></h4>
+        </div>
+        <div class="col-sm-5 col-md-5 col-lg-5 ">
+            @Html.Partial("_DirectoryMainSearch")
+        </div>
+        <div class="col-sm-1 col-md-1 col-lg-1 ">
+            <div class="input-group-append pull-right">
+                <button class="btn-round-icon mr5 border1 " type="button" onclick="PageRefresh();"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 col-lg-3 ">
+            @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.EnquiryCreate, @User.RoleId.FirstOrDefault()))*@
+            <button type='button' class="btn btn-outline-secondary pull-right mtn3" id="btnAddEnquiry" onclick="javascript:AddEnquiry();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Enquiry</button>
+            <button type='button' class="btn btn-outline-secondary pull-right mtn3" id="btnEnquiryList" style="display: none" onclick="javascript: enquiryList();"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Enquiry</button>
+        </div>
+
+    </div>
+    <div id="divLoadingIconId"></div>
+    <div class="clearfix"></div>
+    <div style="display: none" id="EnquiryDataPostDiv">
+        <div id="divAddUpdateEnquiry">
+        </div>
+    </div>
+    @*<div class="mt20 bg p20" style="display: none" id="EnquiryDataPostDiv">
+            <div id="divAddUpdateEnquiry">
+            </div>
+        </div>*@
+<div class="vtabs mt3" id="divActiveInActive">
+    <ul class="nav nav-tabs pull-center tabs-vertical" role="tablist">
+        <!-- Table inside the UL -->
+        <!-- Tab links -->
+        <li class="nav-item pull-right" id="liInActive">
+            <a class="nav-link" data-toggle="tab" role="tab" onclick="SortByEnquiryStatus('InActive')">InActive</a>
+        </li>
+        <li class="nav-item pull-right active" id="liActive">
+            <a class="nav-link" data-toggle="tab" role="tab" onclick="SortByEnquiryStatus('Active')">
+                <span>Active</span>
+            </a>
+        </li>
+        <li class="nav-item pull-right" style="visibility:hidden">
+            <a class="nav-link" data-toggle="tab" role="tab"></a>
+        </li>
+        <li class="nav-item pull-right" style="visibility:hidden">
+            <a class="nav-link" data-toggle="tab" role="tab"></a>
+        </li>
+        <li class="nav-item pull-right" style="visibility:hidden">
+            <a class="nav-link" data-toggle="tab" role="tab"></a>
+        </li>
+
+        <li class="nav-item pull-right">
+            <div class="table-container">
+                <input type="hidden" id="hdnFIYear" name="fiYear" value="" />
+                @{ ViewData["ApplyMargin"] = true; }
+                @Html.Partial("_FinancialYear", new ViewDataDictionary { { "ShowMonthFilter", false } })
+
+
+                <table id="EnquiryStacktable" cellpadding="0" cellspacing="0" class="center custom-table" style="border-collapse:collapse; border:solid 0px #000;">
+                    <tr>
+                        <th class="center custom-table" style="width: 90px; background-color: #e9ecef;">Statistics :</th>
+
+                        <th class="center custom-table status-hover won-bg" onclick="SortByEnquiryStatus('Approved')">
+                            ✅ Won: @Model.StatusCounts.WonCount <span>(@Model.StatusCounts.WonPercentage%)</span>
+                        </th>
+
+                        <th class="center custom-table status-hover lost-bg" onclick="SortByEnquiryStatus('Not-Approved')">
+                            ❌ Lost: @Model.StatusCounts.LostCount <span>(@Model.StatusCounts.LostPercentage%)</span>
+                        </th>
+
+                        <th class="center custom-table pending-bg status-hover" onclick="SortByEnquiryStatus('Pending')">
+                            ⚠️ Pending: @Model.StatusCounts.PendingCount (@Model.StatusCounts.PendingPercentage%)
+                        </th>
+                        <th class="center custom-table status-hover declined-bg" style="width:170px;" onclick="SortByEnquiryStatus('Declined')">
+                            ⏳ Declined: @Model.StatusCounts.DeclinedCount <span>(@Model.StatusCounts.DeclinedPercentage%)</span>
+                        </th>
+
+                        <th class="center custom-table status-hover deny-bg" style="width:160px;" onclick="SortByEnquiryStatus('Deny')">
+                            ⛔ Deny: @Model.StatusCounts.DenyCount <span>(@Model.StatusCounts.DenyPercentage%)</span>
+                        </th>
+
+                        <th class="center custom-table status-hover total-bg" style="width:160px;" onclick="SortByEnquiryStatus('All')">
+                            📊 Total: @Model.StatusCounts.TotalCount <span>(100%)</span>
+                        </th>
+                    </tr>
+                </table>
+            </div>
+
+        </li>
+
+    </ul>
+
+    <input type="hidden" id="hdnActive" />
+    <input type="hidden" id="hdnStatus" />
+    <div class="tab-content">
+        <div class="tab-pane active" id="divActive" role="tabpanel">
+        </div>
+    </div>
+</div>
+
+    <div class="clearfix"></div>
+    <div class="p0" id="AlphaSorting">
+        <div>
+            <div class="col-lg-9 col-md-9 col-sm-9 p0" alpha-center">
+                <div class="alphabet-wrapper">
+                    @Html.Partial("_AlphabetPanel")
+                </div>
+            </div>
+
+            <div class="col-lg-1 col-md-1 col-sm-1 mt10">
+                <div class=" " id="ResortBtn" style="cursor:pointer;">
+                    <div class="resort-icon " onclick="javascript: ReSortTheFilter(this,'ASC');">
+                        <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+                    </div>
+                    <div class="resort-icon-selected  sortIconHide" style="display:none;" onclick="javascript: ReSortTheFilter(this,'DESC');">
+                        <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <input type="hidden" id="hdnSortingOrder" />
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+                <div class="highliter mt10 ">
+                    <span> <span class="hidden-sm">Results :  </span> <span id="TotalResultsEle"></span> </span>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    <div id="divEnquiryDetails" class="">
+        @*@Html.Partial("_E1", Model)*@
+        @Html.Partial("_EnquiryDirectory", Model)
+    </div>
+    <p class="JsListGridPager pull-right" id="EnquiryPager"></p>
+</div>
+<script>
+    $(document).ready(function () {
+       // debugger;
+        DefineListPagerForInitialLoad();
+
+        AlphaSearchObj.subscribe(function (alpha) {
+            window.paginationObj.setCurrentPageCount(0);
+            $('#txtDirectorySearch').val('');
+            FilterEnquiryDirectory(() => { }, { backToFirstPage: true });
+        });
+    });
+
+    function SearchDirectory() {
+        $('.selectedStartsWithChar').removeClass('selectedStartsWithChar');
+        FilterEnquiryDirectory(() => { }, { backToFirstPage: true });
+    }
+
+    function ReSortTheFilter(obj, sortingType) {
+        $('#hdnSortingOrder').val(sortingType);
+        $('.sortIconHide').show().removeClass('sortIconHide');
+        $(obj).addClass('sortIconHide').hide();
+        window.paginationObj.setCurrentPageCount(0);
+        FilterEnquiryDirectory(() => { }, { backToFirstPage: true });
+    }
+
+    function AddEnquiry() {
+        $.ajax({
+            url: '../Enquiry/AddEnquiry',
+            type: 'POST',
+            beforeSend: () => BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: 'center' }),
+            success: function (data) {
+                $('#divActiveInActive, #divMainSearch, #AlphaSorting, #EnquiryPager').hide();
+                $('#spnHeadTitle').html('Sales &#8667; Create Enquiry');
+                $('#divAddUpdateEnquiry').html(data).show();
+                $('#btnEnquiryList').show();
+                $('#btnAddEnquiry, #divEnquiryDetails').hide();
+                $('#EnquiryDataPostDiv').show();
+            },
+            complete: () => BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'))
+        });
+    }
+
+    function enquiryList() {
+        $.ajax({
+            url: '../Enquiry/GetEnquiryListBySiteId',
+            type: 'POST',
+            beforeSend: () => BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: 'center' }),
+            success: function (data) {
+                debugger;
+                if (!data.success) return alert('Something went wrong');
+                const model = data.data;
+                $('#spnHeadTitle').html('Sales &#8667; Enquiry & Proposal');
+                $('#EnquiryDataPostDiv').hide();
+                $('#divMainSearch, #divActiveInActive, #AlphaSorting, #EnquiryPager').show();
+                renderEnquiryTable(model.Enquiries);
+                updateEnquiryStats(model.StatusCounts);
+            },
+            complete: () => BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'))
+        });
+    }
+
+    function selectYear(fiYear) {
+        $('#hdnFIYear').val(fiYear);
+        SortByEnquiryStatus($('#hdnStatus').val() || '');
+    }
+
+    function SortByEnquiryStatus(status) {
+        debugger;
+        window.paginationObj.setCurrentPageCount(0);
+        $('#hdnFIYear').val($('#fiYear').val());
+
+        if (status === 'Active') {
+            $('#hdnActive').val('true');
+        } else if (status === 'InActive') {
+            $('#hdnActive').val('false');
+        } else {
+            $('#hdnStatus').val(status);
+        }
+
+        $('#liActive').toggleClass('active', status !== 'InActive');
+        $('#liInActive').toggleClass('active', status === 'InActive');
+
+        $('#txtDirectorySearch').val('');
+        FilterEnquiryDirectory(null, { backToFirstPage: true });
+    }
+
+    function getEnquiryFilterPayload() {
+        return {
+            pageCount: window.paginationObj.getCurrentPageCount(),
+            strSearch: $('#txtDirectorySearch').val(),
+            alphaSearch: $('.selectedStartsWithChar').html(),
+            activeStatus: $('#hdnActive').val(),
+            status: $('#hdnStatus').val(),
+            sortingOrder: $('#hdnSortingOrder').val(),
+            fiYear: $('#hdnFIYear').val()
+        };
+    }
+
+    function FilterEnquiryDirectory(callback, obj) {
+        debugger;
+        if (!obj.backToFirstPage) {
+            var pageNum = (window.paginationObj.getCurrentPageCount() - 10);
+            window.paginationObj.setCurrentPageCount(pageNum);
+        } else {
+            window.paginationObj.setCurrentPageCount("0");
+        }
+
+        $.ajax({
+            url: '../Enquiry/GetEnquiryListBySiteId',
+            type: 'POST',
+            data: getEnquiryFilterPayload(),
+            beforeSend: () => BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: 'center' }),
+            success: function (data) {
+                debugger;
+                if (!data.success) return alert('Something went wrong');
+                const model = data.data;
+                renderEnquiryTable(model.Enquiries);
+                updateEnquiryStats(model.StatusCounts);
+               // debugger;
+                window.paginationObj.totalCount = data.totalCount;
+                window.paginationObj.pageSize = 10; // Define if not set
+
+                window.paginationObj.getPageSize = function () {
+                    // console.log("getPageSize called");
+                    return Math.ceil(data.totalCount / 10);
+                };
+                // //debugger;
+                if (!window.__paginationInitialized) {
+                    DefineListPagerForInitialLoad();
+                    window.__paginationInitialized = true;
+                }
+                //DefineListPagerForInitialLoad();
+              //  $(".JsListGridPager").bootpag("page", currentPage);
+
+                window.paginationObj.CreateListGridPager({
+                    backToFirstPage: obj.backToFirstPage,
+                    totalRecords: data.totalCount || (model.Enquiries[0]?.Total ?? 0)
+                });
+            },
+            complete: () => BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'))
+        });
+    }
+
+    function ShowMore() {
+        debugger;
+        $.ajax({
+            url: '../Enquiry/GetEnquiryListBySiteId',
+            type: 'POST',
+            data: getEnquiryFilterPayload(),
+            beforeSend: () => BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: 'center' }),
+            success: function (data) {
+                if (!data.success) return;
+                const model = data.data;
+                debugger;
+                renderEnquiryTable(model.Enquiries);
+                updateEnquiryStats(model.StatusCounts);
+                prepareEnquiryTable();
+            },
+            complete: () => BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'))
+        });
+    }
+    function renderEnquiryTable(enquiries) {
+        const $tbody = $('#Enquirytable tbody');
+        $tbody.empty();
+
+        if (!enquiries || enquiries.length === 0) {
+            return $tbody.append('<tr><td colspan="15" class="text-center">No Data Found</td></tr>');
+        }
+
+        enquiries.forEach(e => {
+            const categories = e.LstEnquiryCategoryModel || [];
+            const firstCat = categories.length > 0 ? categories[0] : null;
+            const extraCats = categories.length > 1 ? categories.slice(1) : [];
+
+            // ✅ FILE COLUMN (ONLY HERE)
+            let proposalsTd = '';
+            if (window.viewBagRoleId === 1 || window.viewBagRoleId === 2) {
+                if (e.FileName) {
+                    const fileList = e.FileName.split(';')
+                        .map(f => f.trim())
+                        .filter(f => f !== "");
+
+                    if (fileList.length > 0) {
+                        proposalsTd = `
+                        <td class="file-col text-center">
+                            <i class="fas fa-folder"
+                               data-enquiry-id="${e.EnquiryID}"
+                               data-eid="${e.EID}"
+                               data-files="${fileList.join(',')}"></i>
+                        </td>`;
+                    } else {
+                        proposalsTd = `<td class="file-col"></td>`;
+                    }
+                } else {
+                    proposalsTd = `<td class="file-col"></td>`;
+                }
+            }
+
+            // CATEGORY TABLE
+            let innerCategoryTable = '';
+            if (firstCat) {
+                innerCategoryTable = `
+            <table class="table table-categories table-bordered mb-0">
+                <tbody>
+                    <tr>
+                        <td class="details-col">${firstCat.Details || ''}</td>
+                        <td class="scope-col">${firstCat.Scope || ''}</td>
+                        <td class="location-col">${firstCat.Location || ''}</td>
+                        <td class="uom-col">${firstCat.UOMName || ''}</td>
+                        <td class="qty-col">${firstCat.Qty || ''}</td>
+                        <td class="remarks-col">${firstCat.Remarks || ''}</td>
+                    </tr>
+                </tbody>
+            </table>`;
+            }
+
+            let viewCatsLink = '';
+            if (extraCats.length > 0) {
+                viewCatsLink = `
+            <div class="category-wrapper">
+                <a href="#" class="view-categories"
+                   data-id="${e.EnquiryID}"
+                   data-state="collapsed"
+                   data-cats='${JSON.stringify(extraCats)}'>
+                   <i class="fa fa-plus-square"></i> View ${extraCats.length} Categories
+                </a>
+            </div>`;
+            }
+
+            $tbody.append(`
+        <tr class="main-row">
+            <td>
+                ${e.EnquiryID}
+                <input type="hidden" class="enquiryID" value="${e.EnquiryID}" />
+                <input type="hidden" class="eID" value="${e.EID}" />
+            </td>
+            <td>${e.EnquiryDate ? formatDate(e.EnquiryDate) : ''}</td>
+            <td>${e.ClientName || ''}</td>
+            <td>${e.EnquiryCategoryName || ''}</td>
+
+            <td colspan="6" class="p-0">
+                <div class="category-details d-none mt-2" id="cat-${e.EnquiryID}">
+                    ${innerCategoryTable}
+                    ${viewCatsLink}
+                </div>
+            </td>
+
+            <td class="quotation-col">${e.QuotationNo || ''}</td>
+            <td class="quodate-col">${e.QuotationDate ? formatDate(e.QuotationDate) : ''}</td>
+            ${proposalsTd}
+            <td class="owner-col">${e.ProposalOwner || ''}</td>
+            <td class="status-col">${e.SubmitStatus || ''}</td>
+            <td>${buildActionButtons(e)}</td>
+        </tr>
+        `);
+        });
+    }
+    function renderEnquiryTable11(enquiries) {
+        const $tbody = $('#Enquirytable tbody');
+        $tbody.empty();
+
+        if (!enquiries || enquiries.length === 0) {
+            return $tbody.append('<tr><td colspan="15" class="text-center">No Data Found</td></tr>');
+        }
+
+        enquiries.forEach(e => {
+            // split categories like server did
+            const categories = e.LstEnquiryCategoryModel || [];
+            const firstCat = categories.length > 0 ? categories[0] : null;
+            const extraCats = categories.length > 1 ? categories.slice(1) : [];
+
+            // proposals column (only for role 1 or 2)
+            //const proposalsTd = (e.FileName && (window.viewBagRoleId === 1 || window.viewBagRoleId === 2))
+            //    ? `<td class="file-col" style="text-align:center;">${e.FileName}</td>`
+            //    : (window.viewBagRoleId === 1 || window.viewBagRoleId === 2 ? `<td></td>` : '');
+            let proposalsTd = '';
+            if (window.viewBagRoleId === 1 || window.viewBagRoleId === 2) {
+                if (e.FileName) {
+                    // split file names (assume semicolon separated like before)
+                    const fileList = e.FileName.split(';')
+                        .map(f => f.trim())
+                        .filter(f => f !== "");
+                    if (fileList.length > 0) {
+                        proposalsTd = `
+                        <td class="file-col" style="text-align:center;">
+                            <i class="fas fa-folder"
+                               data-enquiry-id="${e.EnquiryID}"
+                               data-eid="${e.EID}"
+                               data-files="${fileList.join(',')}"></i>
+                        </td>`;
+                    } else {
+                        proposalsTd = `<td class="file-col"></td>`;
+                    }
+                } else {
+                    proposalsTd = `<td class="file-col"></td>`;
+                }
+            }
+            // inner category table – first category row
+            let innerCategoryTable = '';
+            if (firstCat) {
+                innerCategoryTable = `
+                <table class="table table-categories table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="details-col">${firstCat.Details || ''}</td>
+                            <td class="scope-col">${firstCat.Scope || ''}</td>
+                            <td class="location-col">${firstCat.Location || ''}</td>
+                            <td class="uom-col">${firstCat.UOMName || ''}</td>
+                            <td class="qty-col">${firstCat.Qty || ''}</td>
+                            <td class="remarks-col">${firstCat.Remarks || ''}</td>
+                        </tr>
+                    </tbody>
+                </table>`;
+            }
+
+            // View Categories link if extra cats exist
+            let viewCatsLink = '';
+            if (extraCats.length > 0) {
+                viewCatsLink = `
+                <div class="category-wrapper">
+                    <a href="#" class="view-categories"
+                       data-id="${e.EnquiryID}"
+                       data-state="collapsed"
+                       data-cats='${JSON.stringify(extraCats)}'>
+                       <i class="fa fa-plus-square"></i> View ${extraCats.length} Categories
+                    </a>
+                </div>`;
+            }
+
+            // build the row HTML
+            $tbody.append(`
+            <tr class="main-row">
+                <td>${e.EnquiryID}<input type="hidden" class="enquiryID" value="${e.EnquiryID}" /><input type="hidden" class="eID" id="eID" value="${e.EID}" /></td>
+                <td>${e.EnquiryDate ? formatDate(e.EnquiryDate) : ''}</td>
+                <td>${e.ClientName || ''}</td>
+                <td>${e.EnquiryCategoryName || ''}</td>
+
+                <td colspan="6" class="p-0">
+                    <div class="category-details d-none mt-2" id="cat-${e.EnquiryID}">
+                        ${innerCategoryTable}
+                        ${viewCatsLink}
+                    </div>
+                </td>
+
+                <td class="quotation-col">${e.QuotationNo || ''}</td>
+                <td class="quodate-col">${e.QuotationDate ? formatDate(e.QuotationDate) : ''}</td>
+                ${proposalsTd}
+                <td class="owner-col">${e.ProposalOwner || ''}</td>
+                <td class="status-col">${e.SubmitStatus || ''}</td>
+                <td>${buildActionButtons(e)}</td>
+            </tr>
+        `);
+        });
+    }
+
+    //function renderEnquiryTable(enquiries) {
+    //    const $tbody = $('#Enquirytable tbody');
+    //    $tbody.empty();
+    //    if (!enquiries || enquiries.length === 0) {
+    //        return $tbody.append('<tr><td colspan="15" class="text-center">No Data Found</td></tr>');
+    //    }
+
+    //    enquiries.forEach(e => {
+    //        const proposalsTd = (e.FileName && (window.viewBagRoleId === 1 || window.viewBagRoleId === 2))
+    //            ? `<td style="text-align:center;"><i class="fa fa-folder" data-enquiry-id="${e.EnquiryID}" data-files="${e.FileName}" style="cursor:pointer; font-size:14px;"></i></td>`
+    //            : `<td></td>`;
+
+    //        $tbody.append(`
+    //        <tr>
+    //            <td>${e.EnquiryID}<input type="hidden" class="enquiryID" value="${e.EnquiryID}" /></td>
+    //            <td>${e.EnquiryDate ? formatDate(e.EnquiryDate) : ''}</td>
+    //            <td>${e.ClientName}</td>
+    //            <td>${e.EnquiryDetails ?? ''}</td>
+    //            <td>${e.Scope ?? ''}</td>
+    //            <td>${e.Location ?? ''}</td>
+    //            <td>${e.UOMName ?? ''}</td>
+    //            <td>${e.Quantity ?? ''}</td>
+    //            <td>${e.QuotationNo ?? ''}</td>
+    //            <td>${e.QuotationDate ? formatDate(e.QuotationDate) : ''}</td>
+    //            ${proposalsTd}
+    //            <td>${e.ProposalOwner ?? ''}</td>
+    //            <td>${e.SubmitStatus ?? ''}</td>
+    //            <td>${e.Remarks ?? ''}</td>
+    //            <td>${buildActionButtons(e)}</td>
+    //        </tr>
+    //    `);
+    //    });
+    //}
+
+    function buildActionButtons(e) {
+        let s = '<div class="btn-group text-center"><span class="btn-icon dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></span><ul class="dropdown-menu ellipse-menu-left">';
+        const rid = window.viewBagRoleId;
+
+        if (e.IsEnquiryActive) {
+            if (['Not-Approved', 'Declined'].includes(e.SubmitStatus)) {
+                s += `<li><a href="javascript:ActiveInActiveEnquiryStatus('${e.EnquiryID}', false);"><i class="fa fa-trash-o mr20"></i> InActivate Enquiry</a></li>`;
+            }
+            if (e.SubmitStatus === "On-Hold") {
+                s += `<li><a href="javascript:EditEnquiry('${e.EID}');"><i class="fa fa-pencil mr20"></i> Resume</a></li>`;
+            }
+            if ((!e.QuotationStatusFlag || rid === 1) && e.SubmitStatus !== "Deny") {
+                s += `<li><a href="javascript:EditEnquiry('${e.EID}');"><i class="fa fa-pencil mr20"></i> Edit Enquiry</a></li>`;
+            }
+            if ((!e.QuotationStatusFlag || e.SubmitStatus === "Re-Quote") && e.SubmitStatus !== "Deny") {
+                s += `<li><a href="javascript:UploadQuation('${e.EnquiryID}', '${e.EID}');"><i class="fa fa-upload mr20"></i> Upload Quotation</a></li>`;
+                s += `<li><a href="javascript:DenyEnquiry('${e.EnquiryID}');"><i class="fa fa-ban mr20"></i> Deny Enquiry</a></li>`;
+            } else if (e.QuotationStatusFlag && !e.SubmitStatus) {
+                s += `<li><a href="javascript:UpdateEnquiryStatus('${e.EnquiryID}');"><i class="fa fa-pencil mr20"></i> Update Enquiry Status</a></li>`;
+            } else if (e.QuotationStatusFlag && e.SubmitStatus === "Approved") {
+                s += `<li><a href="javascript:GenerateServiceOrder(${e.ClientId}, '${e.ClientName}', ${e.EID});"><i class="fa fa-plus-circle mr20"></i> New Service Order</a></li>`;
+            }
+            s += `<li><a href="~/Enquiry/DownloadEnquiryPDF?EnquiryId=${e.EID}"><i class="fa fa-download mr20"></i> Download Enquiry</a></li>`;
+        } else {
+            s += `<li><a href="javascript:ActiveInActiveEnquiryStatus('${e.EnquiryID}', true);"><i class="fa fa-check mr20"></i> Activate Enquiry</a></li>`;
+        }
+
+        return s + '</ul></div>';
+    }
+
+    function updateEnquiryStats(s) {
+        const $ths = $('#EnquiryStacktable th');
+        $ths.eq(1).html(`✅ Won: ${s.WonCount} <span>(${s.WonPercentage}%)</span>`);
+        $ths.eq(2).html(`❌ Lost: ${s.LostCount} <span>(${s.LostPercentage}%)</span>`);
+        $ths.eq(3).html(`⚠️ Pending: ${s.PendingCount} <span>(${s.PendingPercentage}%)</span>`);
+        $ths.eq(4).html(`⏳ Declined: ${s.DeclinedCount} <span>(${s.DeclinedPercentage}%)</span>`);
+        $ths.eq(5).html(`⛔ Deny: ${s.DenyCount} <span>(${s.DenyPercentage}%)</span>`);
+        $ths.eq(6).html(`📊 Total: ${s.TotalCount} <span>(100%)</span>`);
+    }
+
+    function formatDate(dateString) {
+        if (!dateString || dateString.indexOf('/Date') === -1) return '';
+        const match = /\/Date\((\-?\d+)\)\//.exec(dateString);
+        if (!match) return '';
+        const date = new Date(parseInt(match[1], 10));
+        if (date.getFullYear() === 1) return '';
+        return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+    }
+
+    document.addEventListener("click", function (event) {
+        if (event.target.tagName === "TH") { // Ensure only <th> elements trigger this
+            document.querySelectorAll("th").forEach(th => th.classList.remove("th-highlight"));
+            event.target.classList.add("th-highlight");
+        }
+    });
+
+</script>

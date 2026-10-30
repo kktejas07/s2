@@ -1,0 +1,46 @@
+﻿@using WebIndiaApp.Web.Utils
+@model IEnumerable<IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderNumbersViewModel>
+
+
+<script>
+
+    function getScheduleVisitDetails() {
+
+        var controlNumber = $("#ControlId").children("option").filter(":selected").text()
+        //var controlNumberGuid1 = $("#ControlId").children("option").filter(":selected").val();
+
+        var controlId = $("#ControlId").children("option").filter(":selected").val();
+        var poNumber = $("#drpPurchaseOrderNumber").children("option").filter(":selected").val();
+
+        if (poNumber == '0') {
+            $('#divPODLBlock').hide();
+            $('#divDates').hide();
+            $('#divConf').hide();
+        }
+        else {
+            $.ajax({
+                url: '../Operations1/ScheduleVisit',
+                type: 'POST',
+                data: {
+                    controlNumberGuid: "",
+                    controlNumber: controlNumber,
+                    PONumber: poNumber
+                },
+                //beforeSend: function (e) {
+                //    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divScheduleVisitLoadingIconId'), position: "center" });
+                //},
+                success: function (response) {
+                    // $("#CommonDetailsDiv").html(response);
+                    $("#controlNumDetails").html(response);
+                    //getcontrolNumDetails(obj.value);
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divScheduleVisitLoadingIconId'));
+                }
+            });
+        }
+    }
+
+</script>

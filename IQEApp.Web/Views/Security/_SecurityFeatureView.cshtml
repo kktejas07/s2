@@ -1,0 +1,423 @@
+﻿@using IQEApp.Domain
+@model  IQEApp.Web.Models.Security.SecurityDetails
+
+@*<script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>*@
+
+@foreach (var lstSec in Model.LstSecurityViewModels.Select(gt => gt.ParentName).Distinct().ToList())
+{
+    <div style="font-weight:bold ">@lstSec</div>
+    <div class="clearfix"></div>
+    foreach (var itm1 in Model.LstSecurityViewModels)
+    {
+        if (@lstSec == @itm1.ParentName)
+        {
+            <div style="padding-right: 50px;" class="checkbox">
+                @if (itm1.IsSelected)
+                {
+                    <label>
+                        <input id="chk_@itm1.ChildId" type="checkbox" value=@itm1.ChildId checked="checked" class="jsCheckBoxSelect"  onchange="javascript: getChildNodes(this);">
+                        <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                      <b>@itm1.ChildName</b>
+                    </label><br />
+                    <div class="clearfix"></div>
+                    <div style="padding-left: 50px;" id="divChildNodes_@itm1.ChildId" class="">
+                    </div>
+                }
+                else
+                {
+                    <label>
+                        <input id="chk_@itm1.ChildId" type="checkbox" value=@itm1.ChildId class="jsCheckBoxSelect" onchange="javascript: getChildNodes(this);">
+                        <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                        <b>@itm1.ChildName</b>
+                    </label><br />
+                    <div class="clearfix"></div>
+                    <div style="padding-left: 50px;" id="divChildNodes_@itm1.ChildId" class="">
+                    </div>
+                }
+
+            </div>
+
+        }
+    }
+}
+
+<div>
+    <input type="Submit" value="submit" class="btn btn-success pull-right mr5" onclick="javascript:checkBoxSelect();" />
+    <label id="lblSelectedValues" style="display:none"></label><br />
+</div>
+
+<div id="overlay">
+    <div class="cv-spinner">
+        <span class="spinner"></span>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $('#overlay').hide();
+    var previousID = "";
+    var previousID1 = "";
+    ////debugger;
+    @*$(document).on("click", "[type='checkbox']", function (e) {
+        //debugger;
+        var checkedItems = $('[id*="chk_"]:checked').map(function () { return $(this).val().toString(); }).get().join(",");
+        // var checkedItems = $('[name="child"]:checked').each(function () { return $(this).val().toString(); }).get().join(",");
+        // var checkedItems =  $('[name="child"]').each(function () { return $(this).val().toString(); }).get().join(",");
+
+        var count = (checkedItems.split(",").length - 1);
+
+        if (count > 1) {
+            checkedItems = checkedItems.replace(previousID1, '');
+        }
+        if (previousID > 0) {
+            checkedItems = checkedItems.replace(previousID + ',', '');
+            if (previousID1.indexOf(checkedItems) == -1) {
+                previousID1 += checkedItems + ',';
+            }
+            //else {
+            //    previousID1 += "," + checkedItems;
+            //}
+        }
+
+        previousID = checkedItems;
+
+        if (previousID1.indexOf(previousID) == -1) {
+            previousID1 += previousID + ',';
+        }
+        //else {
+        //    previousID1 += "," + previousID;
+        //}
+        //var checkedItems = $('[id*="chk_"]:checked').map(function () { return $(this).val() })
+        if (this.checked) {
+            $.ajax({
+                url: '../Security/GetChildNodes',
+                type: 'POST',
+                data: {
+                    ChildNode: checkedItems
+                },
+                beforeSend: function (e) {
+                    BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+                },
+                success: function (data) {
+                    $('#divChildNodes_' + checkedItems).html(data);
+                    window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                },
+                complete: function () {
+                    BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+                }
+            });
+        } else {
+            $(this).attr("value", "0");
+        }
+    });*@
+
+    //jQuery(function ($) {
+    //    $(document).ajaxSend(function () {
+    //        $("#overlay").fadeIn(300);
+    //    });
+    $('#loadingImg').hide();
+    $(document).ready(function () {
+        //debugger;
+        var checkedItems = $('[id*="chk_"]:checked').map(function () { return $(this).val().toString(); }).get().join(",");
+        var arr = [];
+        // var async_request = [];
+        arr = checkedItems.split(",");
+
+        arr.reduce(function (p, item) {
+            // alert(arr.indexOf(arr[item]));
+            //console.log(item);
+            // console.log(arr[item]);
+            //console.log(arr.indexOf(arr[item]));
+            return p.then(function () {
+                // alert(arr.indexOf(arr[item]));           
+                // you can access item.id and item.title here
+                return $.ajax({
+                    type: "GET",
+                    url: "../Security/GetChildNodes",
+                    data: {
+                        RoleId: $('#RoleId').val(),
+                        ChildNode: item
+                    },
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                }).then(function (data) {
+                    //alert(arr.indexOf(arr[item]));
+                    //$("#overlay").fadeOut(300);
+                    $('#divChildNodes_' + item).html(data);
+                    $('#overlay').hide();
+                })
+            });
+        }, Promise.resolve()).then(function () {
+            //alert(arr[item]);
+            //$('#divChildNodes_' + arr[item]).html(data);
+        });
+
+
+
+        // $('input.child').change(function () {
+           // if ($(this).is(':checked')) {
+       
+
+       // var checkedItems = $('[name="child"]:checked').each(function () { return $(this).val().toString(); }).get().join(",");
+       // var checkedItems =  $('[name="child"]').each(function () { return $(this).val().toString(); }).get().join(",");
+
+
+
+        //checkedItems = $('input[type=checkbox]:checked').map(function () {
+        //    return $(this).val().toString();
+        //}).get().join(",")
+
+
+
+                ////debugger;
+        //for (var i = 0; i<arr.length; i++) {
+        //    (function (j) {
+        //        $.ajax({
+        //            type: "POST",
+        //            url: "/Security/GetChildNodes",
+        //            data: {
+        //                RoleId: $('#RoleId').val(),
+        //                ChildNode: arr[i]
+        //            },
+        //            async: false,
+        //        })
+        //            .done(function (data) {
+        //                $('#divChildNodes_' + arr[i]).html(data);
+        //                //$('#' + arr[j]).html(data)
+        //            });
+        //    })(i);
+        //}
+
+       // //debugger;
+       
+
+        //var promises = [];
+        //    arr.forEach(function (item) {
+        //        // you can access item.id and item.title here
+        //        promises.push($.ajax({
+        //            type: "POST",
+        //            url: "/Security/GetChildNodes",
+        //            data: {
+        //                RoleId: $('#RoleId').val(),
+        //                ChildNode: arr[item]
+        //            },
+                   
+        //        }));
+        //    });
+        //Promise.all(promises).then(function (data) {
+        //    $('#divChildNodes_' + arr[item]).html(data);
+        //});
+
+
+        ////debugger;
+        //for (i in arr) {
+        //    // you can push  any aysnc method handler
+        //    async_request.push($.ajax({
+        //        url: '../Security/GetChildNodes', // your url
+        //        method: 'post', // method GET or POST
+        //        data: { ChildNode: arr[i] },
+        //        success: function (data) {
+        //            alert(arr[i]);
+        //            $('#divChildNodes_' + arr[i]).html(data);
+        //            //console.log('success of ajax response')
+        //            //responses.push(data);
+        //        }
+        //    }));
+        //}
+
+
+
+        @*for (var i = 0; i < arr.length; i++)
+        {
+            $.ajax({
+            url: '../Security/GetChildNodes',
+                type: 'POST',
+                async: true,
+            data: {
+                ChildNode: arr[i]
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+                success: function (data) {
+                    alert(arr[i]);
+                 $('#divChildNodes_' + arr[i]).html(data);
+               // window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });
+        }*@
+
+        @*var count = (checkedItems.split(",").length - 1);
+
+        if (count > 1)
+        {
+            checkedItems = checkedItems.replace( previousID1 , '');
+        }
+        if (previousID > 0) {
+            checkedItems = checkedItems.replace(previousID + ',', '');
+            if (previousID1.indexOf(checkedItems) == -1) {
+                previousID1 += checkedItems +',';
+            }
+            //else {
+            //    previousID1 += "," + checkedItems;
+            //}
+        }
+
+        previousID = checkedItems;
+
+        if (previousID1.indexOf(previousID) == -1) {
+            previousID1 +=  previousID + ',';
+        }
+        //else {
+        //    previousID1 += "," + previousID;
+        //}
+        //var checkedItems = $('[id*="chk_"]:checked').map(function () { return $(this).val() })
+       // if (this.checked)
+        //{
+
+              $.ajax({
+            url: '../Security/GetChildNodes',
+            type: 'POST',
+            data: {
+                ChildNode: checkedItems
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+             success: function (data) {
+                 $('#divChildNodes_' + checkedItems).html(data);
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });*@
+        //} else {
+        //    $(this).attr("value", "0");
+        //}
+            //}
+        //});
+
+        //$('input.subchild').change(function () {
+        //    ////debugger;
+        //    if ($(this).is(':checked')) {
+        //        alert(1);
+        //    }
+        //});
+    });
+
+    
+    function getChildNodes(obj) {
+        //debugger;
+
+        ////debugger;
+
+        //  $(this).children(':checkbox').attr('checked', false);
+            //  alert($(obj).val());
+         $.ajax({
+            url: '../Security/GetChildNodes',
+            type: 'POST',
+             data: {
+                 RoleId: $('#RoleId').val(),
+                 ChildNode: $(obj).val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+             success: function (data) {
+                 $('#divChildNodes_' + $(obj).val()).html(data);
+               // window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+         });
+
+        var check = $("#chk_" + $(obj).val()).is(":checked");
+
+        if (check) {
+            $('#divChildNodes_' + $(obj).val()).find(':checkbox').each(function () {
+                $(this).prop('checked', true);
+            });
+        }
+        else {
+            $('#divChildNodes_' + $(obj).val()).find(':checkbox').each(function () {
+                $(this).prop('checked', false);
+            });
+        }
+
+    }
+   function checkBoxSelect() {
+        var checkBoxSelectedValues = [];
+        $(".jsCheckBoxSelect").each(function (index, element) {
+            if ($(element).is(":checked")) {
+                checkBoxSelectedValues.push($(element).val());
+            }
+        });
+        console.log(checkBoxSelectedValues);
+        $('#lblSelectedValues').html("Selected Values are: " + checkBoxSelectedValues);
+       // alert(checkBoxSelectedValues);
+        $.ajax({
+            url: '../Security/SaveRoleFeatureMapping',
+            type: 'POST',
+            data: {
+                RoleId: $('#RoleId').val(),
+               ScnFeatId: checkBoxSelectedValues
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingSecurity'), position: "center" });
+            },
+            success: function (data) {
+                $('#divSecFetView').html(data);
+                //debugger;
+                window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                window.location.href = "../Security/Index";
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingSecurity'));
+            }
+        });
+    }
+
+    //function accountCreation() {
+    //    var user = Parse.User.current(); // get the currently logged in user object
+
+    //    // loop through each image element
+    //    var promises = $('.images').map(function (index, element) {
+    //        var src = $(element).attr('src');
+    //        return $.ajax({
+    //            type: "POST",
+    //            url: "encodeImgToBase64.php", // you may need to adjust this path depending on where you store the file in relation to this file
+    //            data: 'url=' + src,
+    //        });
+    //    });
+    //    $.when.apply($, promises).then(function () {
+    //        for (var i = 0; i < arguments.length; i++) {
+               
+    //        }
+    //        user.save(null, {
+    //            success: function (user) {
+    //                // do success stuff...
+    //            },
+    //            error: function (user, error) {
+    //                // do fail stuff...
+    //            }
+    //        });
+    //    });
+    //}
+</script>

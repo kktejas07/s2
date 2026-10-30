@@ -1,0 +1,82 @@
+@import "base.css";
+
+@page {
+  size: 11in 8.5in;
+  margin: 0.35in 0.45in;
+  @bottom-center {
+    font-family: 'Arial', 'Liberation Sans', sans-serif;
+    font-size: 7pt;
+    color: #000000;
+    content: "FORM NO.: F-QUAL-01 | Rev. 00 | Controlled Document | Page " counter(page) " of " counter(pages);
+  }
+}
+
+body {
+  font-size: 7pt;
+}
+
+.header-company-name {
+  font-size: 9pt;
+  color: #333333;
+}
+
+.header-subline {
+  font-size: 7.5pt;
+  color: #cc0000;
+}
+
+.header-right-cell {
+  font-size: 7.5pt;
+}
+
+.doc-title {
+  font-size: 13pt;
+}
+
+.doc-subtitle {
+  font-size: 7.5pt;
+}
+
+.section-heading {
+  font-size: 8.5pt;
+  margin-top: 8pt;
+  margin-bottom: 2pt;
+  color: #0084bf;
+}
+
+table.report-table {
+  font-size: 6.8pt;
+}
+
+table.report-table th,
+table.report-table td {
+  padding: 1.5pt 0.04in;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-mono {
+  font-family: 'DejaVu Sans', monospace;
+}
+
+.badge-approved {
+  color: #15803d;
+  font-weight: bold;
+}
+
+.badge-discrepancy {
+  color: #b91c1c;
+  font-weight: bold;
+}
+
+.total-row td {
+  background-color: #f1f5f9;
+  font-weight: bold;
+  border-top: 1pt solid #000000;
+}

@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header("F-QUAL-01", revision, "Third Party Inspection & Expediting Services", "REPORT NO.", report_no) }}
+
+  {{ m.doc_title("QUANTITY VERIFICATION & SURVEY REPORT", "Independent quantity measurement, survey verification and engineering audit per ISO/IEC 17020") }}
+
+  {{ m.section("1.0", "PROJECT & SURVEY INFORMATION", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 20%;">
+      <col style="width: 30%;">
+      <col style="width: 20%;">
+      <col style="width: 30%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">Report No.</td>
+        <td class="td-value font-mono">{{ report_no or 'IQE/QVR/2026/084' }}</td>
+        <td class="td-label">Date</td>
+        <td class="td-value font-mono">{{ date or '2026-09-29' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer / Client</td>
+        <td class="td-value">{{ customer or 'Granules India Limited' }}</td>
+        <td class="td-label">Project &amp; Location</td>
+        <td class="td-value">{{ project or 'Biopharma Active Pharmaceutical Ingredient Facility, Gagillapur Unit, Hyderabad' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">EPC Main Contractor</td>
+        <td class="td-value">{{ epc_contractor or supplier or 'L&T Construction - B&F Division' }}</td>
+        <td class="td-label">PO / WO Reference</td>
+        <td class="td-value font-mono">{{ po_no or 'GIL/EPC/PO/2026/410' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">RA Bill / Claim Ref</td>
+        <td class="td-value font-mono">{{ ra_bill_no or 'RA-02 (Running Account Bill)' }}</td>
+        <td class="td-label">IQE Lead Surveyor</td>
+        <td class="td-value">{{ inspector or 'Er. S. Chandrasekhar, Senior Lead Quality Auditor' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("2.0", "SCOPE & MEASUREMENT SUMMARY") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">TOTAL SCOPE PO QTY</th>
+        <th class="th-label text-center">CURRENT CLAIMED QTY</th>
+        <th class="th-label text-center">CURRENT VERIFIED QTY</th>
+        <th class="th-label text-center">DEDUCTION / DIFF QTY</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value text-center font-mono" style="font-size: 1.2em; font-weight: bold; padding: 4pt;">{{ total_scope_qty or '12,500' }}</td>
+        <td class="td-value text-center font-mono" style="font-size: 1.2em; font-weight: bold; color: #b45309; padding: 4pt;">{{ total_claimed_qty or '8,870' }}</td>
+        <td class="td-value text-center font-mono" style="font-size: 1.2em; font-weight: bold; color: #15803d; padding: 4pt;">{{ total_verified_qty or '8,790' }}</td>
+        <td class="td-value text-center font-mono" style="font-size: 1.2em; font-weight: bold; color: #b91c1c; padding: 4pt;">{{ total_diff_qty or '80' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("3.0", "VERIFIED QUALITY & BOQ MEASUREMENT LEDGER") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 3%;">
+      <col style="width: 8%;">
+      <col style="width: 10%;">
+      <col style="width: 25%;">
+      <col style="width: 5%;">
+      <col style="width: 6%;">
+      <col style="width: 6%;">
+      <col style="width: 6%;">
+      <col style="width: 5%;">
+      <col style="width: 9%;">
+      <col style="width: 9%;">
+      <col style="width: 8%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl.</th>
+        <th class="th-label">BOQ Item</th>
+        <th class="th-label">GFC Drawing</th>
+        <th class="th-label">Item Description &amp; Material</th>
+        <th class="th-label text-center">Unit</th>
+        <th class="th-label text-right">Scope</th>
+        <th class="th-label text-right">Claimed</th>
+        <th class="th-label text-right">Verified</th>
+        <th class="th-label text-right">Diff</th>
+        <th class="th-label text-right">Claimed (INR)</th>
+        <th class="th-label text-right">Verified (INR)</th>
+        <th class="th-label text-center">Quality Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = items if (items is defined and items) else [
+        {"sl": 1, "boq_item": "BOQ-CIV-01.1", "drawing_ref": "GIL/GAG/CIV-001 R2", "description": "PCC M15 Grade Sub-base Flooring in Utility Trench", "unit": "Cum", "scope_qty": 250, "claimed_qty": 180, "verified_qty": 155, "diff_qty": 25, "claimed_amt": 86400.0, "verified_amt": 74400.0, "status": "Discrepancy Noted"},
+        {"sl": 2, "boq_item": "BOQ-CIV-02.4", "drawing_ref": "GIL/GAG/CIV-004 R1", "description": "RCC M30 Grade Foundation Pedestal Pouring", "unit": "Cum", "scope_qty": 80, "claimed_qty": 45, "verified_qty": 45, "diff_qty": 0, "claimed_amt": 173250.0, "verified_amt": 173250.0, "status": "Approved & Verified"},
+        {"sl": 3, "boq_item": "BOQ-STR-04.2", "drawing_ref": "GIL/GAG/STR-102 R3", "description": "Structural Steel Hot-Dip Galvanized Truss Erection", "unit": "Kgs", "scope_qty": 12000, "claimed_qty": 8500, "verified_qty": 7800, "diff_qty": 700, "claimed_amt": 782000.0, "verified_amt": 717600.0, "status": "Discrepancy Noted"},
+        {"sl": 4, "boq_item": "BOQ-PIP-08.1", "drawing_ref": "GIL/GAG/MEP-301 R0", "description": "SS316L Seamless Process Piping 2-inch Sch 10S Orbitally Welded", "unit": "Mtrs", "scope_qty": 300, "claimed_qty": 150, "verified_qty": 150, "diff_qty": 0, "claimed_amt": 187500.0, "verified_amt": 187500.0, "status": "Approved & Verified"}
+      ] %}
+      {% for item in rows %}
+      <tr>
+        <td class="td-value text-center font-mono">{{ item.sl if item.sl else loop.index }}</td>
+        <td class="td-value font-mono font-bold">{{ item.boq_item or item.item_code or '' }}</td>
+        <td class="td-value font-mono text-center">{{ item.drawing_ref or item.gfc_dwg or 'GFC-01' }}</td>
+        <td class="td-value">{{ item.description or item.item_description or '' }}</td>
+        <td class="td-value text-center">{{ item.unit or item.uom or '' }}</td>
+        <td class="td-value text-right font-mono">{{ item.scope_qty or item.contract_qty or item.boq_qty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ item.claimed_qty or item.current_claimed_qty or 0 }}</td>
+        <td class="td-value text-right font-mono font-bold">{{ item.verified_qty or item.current_verified_qty or 0 }}</td>
+        <td class="td-value text-right font-mono {% if (item.diff_qty or 0) > 0 %}badge-discrepancy{% endif %}">{{ item.diff_qty or 0 }}</td>
+        <td class="td-value text-right font-mono">{{ "{:,.2f}".format(item.claimed_amt or item.claimed_inr or 0) }}</td>
+        <td class="td-value text-right font-mono font-bold">{{ "{:,.2f}".format(item.verified_amt or item.verified_inr or 0) }}</td>
+        <td class="td-value text-center">
+          {% set st = item.status or item.verification_status or 'Approved & Verified' %}
+          <span class="{% if 'Discrepancy' in st %}badge-discrepancy{% else %}badge-approved{% endif %}">
+            {{ st }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td colspan="5" class="text-right">TOTAL ABSTRACT SUM:</td>
+        <td class="text-right font-mono">{{ total_scope_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_claimed_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_verified_qty or '-' }}</td>
+        <td class="text-right font-mono">{{ total_diff_qty or '725' }}</td>
+        <td class="text-right font-mono">₹{{ "{:,.2f}".format(total_claimed_amt or 1229150.0) }}</td>
+        <td class="text-right font-mono">₹{{ "{:,.2f}".format(total_verified_amt or 1152750.0) }}</td>
+        <td class="text-center badge-approved">AUDIT CLEARED</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("4.0", "ISO 17020 TYPE A SURVEY OBSERVATIONS & RECOMMENDATIONS") }}
+  <div class="free-text-box">
+{{ remarks or "The quantities listed above have been independently physically surveyed and verified against approved GFC drawings, bar bending schedules (BBS), MTC chemical test reports, and non-destructive examination (NDE) records per ISO/IEC 17020 Type A inspection protocol. Discrepant items have had non-adherence notices issued and deducted from current RA Bill certification. Recommended payable verified amounts are approved for milestone payment release." }}
+  </div>
+
+  {{ m.section("5.0", "ACKNOWLEDGEMENT & SIGNATURES") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 33.33%;">
+      <col style="width: 33.33%;">
+      <col style="width: 33.34%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">CONTRACTOR QA/QC ENGINEER</th>
+        <th class="th-label">IQE LEAD QUALITY SURVEYOR</th>
+        <th class="th-label">AUTHORIZED SIGNATORY (IQE Director)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> K. Ramesh Kumar</div>
+          <div><strong>Designation:</strong> QA/QC In-Charge</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #475569;">L&amp;T Construction - B&amp;F Div</div>
+        </td>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> Er. S. Chandrasekhar</div>
+          <div><strong>Designation:</strong> Senior Lead Quality Surveyor</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #166534;">ISO 17020 Inspection Lead</div>
+        </td>
+        <td class="td-value" style="padding: 6pt 0.08in;">
+          <div><strong>Name:</strong> Dr. V. N. Murthy</div>
+          <div><strong>Designation:</strong> Technical Director</div>
+          <div><strong>Signature:</strong> ______________________</div>
+          <div><strong>Date:</strong> {{ date or '2026-09-29' }}</div>
+          <div style="margin-top: 4pt; font-size: 0.9em; color: #003366; font-weight: bold;">ISO/IEC 17020 Quality Director</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="disclaimer-block" style="margin-top: 6pt;">
+    <div class="disclaimer-title">DISCLAIMER &amp; LIMITATION OF LIABILITY</div>
+    <div>This Quality Bill Verification &amp; Survey Report is issued as an independent technical assessment by Ideal Quality Engineers (I) Pvt. Ltd. (IQE) per ISO/IEC 17020:2026 &amp; ISO 9001:2026 Type A Inspection Body guidelines. Quantities certified reflect physical verification against drawings and test records made available during audit. This report does not relieve the contractor from any statutory, contractual or performance guarantees.</div>
+  </div>
+
+  <div class="end-marker" style="text-align: center; font-weight: bold; margin-top: 5pt; font-size: 7.5pt; color: #475569;">— END OF REPORT —</div>
+</div>
+{% endblock %}

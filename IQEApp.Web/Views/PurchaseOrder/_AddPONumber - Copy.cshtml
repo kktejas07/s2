@@ -1,0 +1,58 @@
+﻿@model IQEApp.Web.Models.PurchaseOrderModel.PurchaseOrderNumbersViewModel
+
+@*<div id="divEmp1">
+    <div class="clearfix"></div>
+    <div class="directory-table-row-blue">
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @Model.ManufacturerName
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+            @Html.TextBox("PONumber", new { @class = "form-control inputStyle redboder"})
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-3">
+        </div>
+    </div>
+</div>*@
+<div class="directory-table-row MappedPOsTemp" style="display: none" value="@Model.ManufacturerId" id="divPOMap_@Model.ManufacturerId">
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        @Model.ManufacturerName
+        @*@Html.Hidden("ManufacturerId_" + @Model.ManufacturerId)*@
+        <input id="hdnManufacturerId_@Model.ManufacturerId" class="js-VisitPrice1"  type="hidden" value="@Model.ManufacturerId" />
+        <label id="ManufacturerId_@Model.ManufacturerId" value="@Model.ManufacturerId" />
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        <input id="PONumber_@Model.ManufacturerId" type="text" value=""  class = "form-control redboder"  />
+      @*  @Html.TextBox("PONumber_" + @Model.ManufacturerId, new { @class = "form-control inputStyle redboder" })*@
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-3">
+        <input id="PoDate_@Model.ManufacturerId" type="date" value=""  class = "form-control redboder" />
+       @* @Html.TextBox("PoDate_" + @Model.ManufacturerId, new { @class = "form-control inputStyle redboder", @placeholder = @Html.DisplayNameFor(model => model.PoDate) })*@
+    </div>
+    @*<div class="col-lg-2 col-md-2 col-sm-2">
+    </div>*@
+<div class="col-lg-3 col-md-3 col-sm-3">
+    <a href="javascript:UnMapManufacturer('@Model.ManufacturerId',this);">
+        <i class="fa fa-trash-o mr20" aria-hidden="true">
+            &nbsp;Delete
+        </i>
+    </a>
+    <a href="javascript:addPurchaseOrderItems1('@Model.ManufacturerId',this);" id="addPOItem" hidden="hidden">
+        <i class="fa fa-plus-square-o mr20" aria-hidden="true">
+            &nbsp;Add PO Items
+        </i>
+    </a>
+</div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#PoDate").datepicker({
+                 format: 'dd-MM-yyyy',
+               // endDate: '+10d',
+                autoclose: true
+            });
+       // $("#PoDate").datepicker({ dateFormat: "dd/mm/yy" }).datepicker("setDate", new Date());
+    });
+</script>

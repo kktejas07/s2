@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+
+{% block content %}
+<div class="page-container">
+  {{ m.running_header("IQE-TP-04", revision, "Third Party Inspection Services", "IRN NO.", report_no) }}
+
+  {{ m.doc_title("INSPECTION RELEASE NOTE", "Formal release of inspected items for dispatch, subject to the conditions stated herein.") }}
+
+  {# Top KV Table #}
+  <table class="report-table" style="margin-top: 6pt;">
+    <colgroup>
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+      <col style="width: 25%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="td-label">IRN No.</td>
+        <td class="td-value">{{ report_no or '____________________' }}</td>
+        <td class="td-label">Date</td>
+        <td class="td-value">{{ date or '____ / ____ / ______' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Contract Ref.</td>
+        <td class="td-value">{{ contract_ref or '____________________' }}</td>
+        <td class="td-label">PO No. &amp; Date</td>
+        <td class="td-value">{{ po_no_and_date or '____________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Customer</td>
+        <td class="td-value">{{ customer or '____________________' }}</td>
+        <td class="td-label">Supplier</td>
+        <td class="td-value">{{ supplier or '____________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">Project</td>
+        <td class="td-value">{{ project or '____________________' }}</td>
+        <td class="td-label">Inspection Location</td>
+        <td class="td-value">{{ location or '____________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">RFI No. &amp; Date</td>
+        <td class="td-value">{{ rfi_no_and_date or '____________________' }}</td>
+        <td class="td-label">IQE Inspector</td>
+        <td class="td-value">{{ inspector or '____________________' }}</td>
+      </tr>
+      <tr>
+        <td class="td-label">PO Status</td>
+        <td class="td-value">
+          {{ m.checkbox(po_status == 'Complete', 'Complete') }}
+          {{ m.checkbox(po_status == 'Partially Completed', 'Partially Completed') }}
+          {{ m.checkbox(po_status == 'Balance Pending', 'Balance Pending') }}
+        </td>
+        <td class="td-label">Release Type</td>
+        <td class="td-value">
+          {{ m.checkbox(release_type == 'Full', 'Full') }}
+          {{ m.checkbox(release_type == 'Partial', 'Partial') }}
+          {{ m.checkbox(release_type == 'Conditional', 'Conditional') }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("1.0", "INSPECTION & RELEASE STATUS", first=true) }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 50%;">
+      <col style="width: 50%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">RELEASE DECISION</th>
+        <th class="th-label">SELECT AS APPLICABLE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-value font-weight-bold" colspan="2">
+          <div style="margin: 1.5pt 0;">{{ m.checkbox(release_decision == 'RELEASED FOR DISPATCH', 'RELEASED FOR DISPATCH') }}</div>
+          <div style="margin: 1.5pt 0;">{{ m.checkbox(release_decision == 'RELEASED WITH COMMENTS / CONDITIONS', 'RELEASED WITH COMMENTS / CONDITIONS') }}</div>
+          <div style="margin: 1.5pt 0;">{{ m.checkbox(release_decision == 'HOLD – CLIENT CLEARANCE REQUIRED', 'HOLD – CLIENT CLEARANCE REQUIRED') }}</div>
+          <div style="margin: 1.5pt 0;">{{ m.checkbox(release_decision == 'NOT RELEASED', 'NOT RELEASED') }}</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="margin-top: 3pt; font-size: 0.95em;">
+    Total Quantity Released under this IRN: <strong>{{ total_quantity_released or '____________________' }}</strong>
+  </div>
+
+  {{ m.section("2.0", "INSPECTION REPORT REFERENCES") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 8%;">
+      <col style="width: 34%;">
+      <col style="width: 18%;">
+      <col style="width: 18%;">
+      <col style="width: 22%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl. No.</th>
+        <th class="th-label">Inspection Report No.</th>
+        <th class="th-label text-center">Date</th>
+        <th class="th-label text-center">Inspection Stage</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = report_refs if report_refs else [] %}
+      {% set count = rows|length if rows|length >= 3 else 3 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl_no if row else (i + 1) }}</td>
+        <td class="td-value font-mono">{{ row.report_no if row else '' }}</td>
+        <td class="td-value text-center">{{ row.date if row else '' }}</td>
+        <td class="td-value text-center">{{ row.stage if row else '' }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("3.0", "COMPLIANCE / DEVIATION REFERENCES") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 8%;">
+      <col style="width: 44%;">
+      <col style="width: 16%;">
+      <col style="width: 16%;">
+      <col style="width: 16%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">Sl. No.</th>
+        <th class="th-label">Compliance / Deviation Acceptance No.</th>
+        <th class="th-label text-center">Date</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = deviation_refs if deviation_refs else [] %}
+      {% set count = rows|length if rows|length >= 2 else 2 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.sl_no if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.concession_no if row else ( 'NIL / __________________' if i == 0 else '' ) }}</td>
+        <td class="td-value text-center">{{ row.date if row else ( '________' if i == 0 else '' ) }}</td>
+        <td class="td-value text-center">{{ row.status if row else ( '________' if i == 0 else '' ) }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("4.0", "ITEMS RELEASED") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 5%;">
+      <col style="width: 21%;">
+      <col style="width: 11%;">
+      <col style="width: 11%;">
+      <col style="width: 6%;">
+      <col style="width: 8%;">
+      <col style="width: 7%;">
+      <col style="width: 7%;">
+      <col style="width: 8%;">
+      <col style="width: 6%;">
+      <col style="width: 10%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label text-center">PO Item</th>
+        <th class="th-label">Description</th>
+        <th class="th-label">Drawing / Rev.</th>
+        <th class="th-label">Tag / Part No.</th>
+        <th class="th-label text-center">PO Qty</th>
+        <th class="th-label text-center">Previously Released</th>
+        <th class="th-label text-center">Inspected Qty</th>
+        <th class="th-label text-center">Accepted Qty</th>
+        <th class="th-label text-center">Current Qty Released</th>
+        <th class="th-label text-center">Balance Qty</th>
+        <th class="th-label">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set rows = release_items if release_items else [] %}
+      {% set count = rows|length if rows|length >= 3 else 3 %}
+      {% for i in range(count) %}
+      {% set row = rows[i] if i < rows|length else None %}
+      <tr>
+        <td class="td-value text-center">{{ row.po_item if row else (i + 1) }}</td>
+        <td class="td-value">{{ row.description if row else '' }}</td>
+        <td class="td-value">{{ row.drawing_rev if row else '' }}</td>
+        <td class="td-value font-mono">{{ row.tag_no if row else '' }}</td>
+        <td class="td-value text-center">{{ row.po_qty if row else '' }}</td>
+        <td class="td-value text-center">{{ row.prev_released if row else '' }}</td>
+        <td class="td-value text-center">{{ row.inspected_qty if row else '' }}</td>
+        <td class="td-value text-center">{{ row.accepted_qty if row else '' }}</td>
+        <td class="td-value text-center font-weight-bold">{{ row.current_released if row else '' }}</td>
+        <td class="td-value text-center">{{ row.balance_qty if row else '' }}</td>
+        <td class="td-value">{{ row.remarks if row else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("5.0", "BASIS OF RELEASE") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 70%;">
+      <col style="width: 30%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">Applicable Basis</th>
+        <th class="th-label text-center">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set basis_items = [
+        ("po", "Purchase Order / Contract Requirements"),
+        ("qap", "Approved QAP / ITP"),
+        ("drawings", "Approved Drawings / Specifications / Datasheets"),
+        ("reports", "Inspection Report(s) Referenced Above"),
+        ("compliance", "Compliance / Deviation Acceptance"),
+        ("client_clearance", "Client-Approved Documents / Clearance"),
+        ("other", "Other: " + (other_basis or "______________________________"))
+      ] %}
+      {% for key, label in basis_items %}
+      <tr>
+        <td class="td-value">{{ m.checkbox(key in selected_basis, label) }}</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(key in selected_basis, 'Applicable') }}
+          {{ m.checkbox(key not in selected_basis, 'N/A') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_blank %}
+  <div class="page-break"></div>
+  {{ m.running_header("IQE-TP-04", revision, "Third Party Inspection Services", "IRN NO.", report_no) }}
+  {% endif %}
+
+  {{ m.section("6.0", "IDENTIFICATION / TRACEABILITY") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 38%;">
+      <col style="width: 22%;">
+      <col style="width: 40%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">Identification / Traceability Item</th>
+        <th class="th-label text-center">Status</th>
+        <th class="th-label">Details / Specimen / Reference</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set trace_items = [
+        ("tag", "Tag / Identification"),
+        ("serial", "Serial No."),
+        ("hard_stamp", "Hard Stamping"),
+        ("paint", "Paint Marking")
+      ] %}
+      {% for key, label in trace_items %}
+      {% set tr = traceability.get(key, {}) if traceability else {} %}
+      <tr>
+        <td class="td-value">{{ label }}</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(tr.status == 'Yes', 'Yes') }}
+          {{ m.checkbox(tr.status == 'No', 'No') }}
+        </td>
+        <td class="td-value">{{ tr.details or '' }}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td class="td-value">Other</td>
+        <td class="td-value text-center">{{ traceability.other_status or '________________' if traceability else '________________' }}</td>
+        <td class="td-value">{{ traceability.other_details or '' if traceability else '' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {{ m.section("7.0", "DISPATCH / PRESERVATION INSTRUCTIONS") }}
+  <table class="report-table">
+    <colgroup>
+      <col style="width: 75%;">
+      <col style="width: 25%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th-label">Instruction</th>
+        <th class="th-label text-center">Applicable</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set instructions = [
+        ("packing", "Ensure suitable packing to prevent transit damage"),
+        ("protect", "Protect machined surfaces against corrosion"),
+        ("nameplate", "Fix name plate"),
+        ("nozzles", "Blank / close nozzles and openings"),
+        ("nitrogen", "Purge with nitrogen and maintain positive pressure"),
+        ("asbuilt", "Submit as-built drawings / final documentation / statutory certificates"),
+        ("om_manual", "Submit operating and maintenance instructions"),
+        ("dispatch_now", "Dispatch immediately"),
+        ("dispatch_client", "Dispatch after obtaining client clearance"),
+        ("other", "Other: " + (other_dispatch_instruction or "______________________________"))
+      ] %}
+      {% for key, label in instructions %}
+      <tr>
+        <td class="td-value">{{ m.checkbox(key in dispatch_instructions, label) }}</td>
+        <td class="td-value text-center">
+          {{ m.checkbox(key in dispatch_instructions, 'Yes') }}
+          {{ m.checkbox(key not in dispatch_instructions, 'N/A') }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ m.section("8.0", "REMARKS / CONDITIONS OF RELEASE") }}
+  {{ m.free_text(remarks, 2) }}
+
+  {{ m.section("9.0", "SUPPLIER ACKNOWLEDGEMENT & IQE AUTHORIZATION") }}
+  {{ m.signature_block("Supplier / Manufacturer", "Ideal Quality Engineers (I) Pvt. Ltd.", "IQE Inspector:", signatures) }}
+
+  <div style="margin-top: 3pt; font-size: 0.95em;">
+    <div><strong>Supplier's Comments (if any):</strong></div>
+    {{ m.free_text(supplier_comments, 2) }}
+  </div>
+
+  {{ m.section("10.0", "DISCLAIMER & LIMITATION OF LIABILITY") }}
+  <div class="disclaimer-block" style="margin-top: 4pt;">
+    <div style="margin-bottom: 3pt;">
+      <strong>Supplier Responsibility:</strong> This release note is issued without prejudice to the contractual obligations of the supplier and does not relieve the supplier/manufacturer from the responsibilities and obligations set forth in the Purchase Order and other approved documents.
+    </div>
+    <div style="margin-bottom: 3pt;">
+      <strong>Basis of Release:</strong> This release note reflects the inspection status and release decision based on the items, documents and information made available to IQE during the referenced inspection(s). It does not relieve the manufacturer/supplier of its contractual, statutory or regulatory responsibilities.
+    </div>
+    <div>
+      <strong>Limitation of Liability:</strong> {{ tp04_liability_text or 'The existing IQE-approved liability wording in the current IQE-TP-04 format should be retained here without alteration unless formally reviewed and approved by IQE management/legal counsel.' }}
+    </div>
+  </div>
+
+  <div class="end-marker">— END OF INSPECTION RELEASE NOTE —</div>
+</div>
+{% endblock %}

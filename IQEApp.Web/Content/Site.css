@@ -1,0 +1,86 @@
+﻿/*body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}*/
+
+/* Set padding to keep content from hitting the edges */
+/*.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}*/
+
+/* Set width on the form input elements since they're 100% wide by default */
+/*input,
+select,
+textarea {
+    max-width: 280px;
+}*/
+
+/* styles for validation helpers */
+.field-validation-error {
+    color: #ff0000 ;
+    font-size: smaller;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+input.input-validation-error {
+    border: 1px solid #ff0000 ;
+}
+
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+
+.validation-summary-errors {
+    color: #ff0000 ;
+    
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+/* theme classes start*/
+
+
+/* theme classes end*/
+
+
+body {
+    font-family: Arial;
+    font-size: 10.6pt;
+}
+
+table {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+    background-color: #fff;
+    align-content: center;
+}
+
+    table.center {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    table th {
+        background-color: #B8DBFD;
+        color: #333;
+        font-weight: bold;
+    }
+
+    table th, table td {
+        padding: 5px;
+        border: 1px solid #ccc;
+    }
+
+    table, table table td {
+        border: 0px solid #ccc;
+    }
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}

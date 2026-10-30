@@ -1,0 +1,114 @@
+﻿@using IQEApp.Domain
+@model IQEApp.Web.Models.EnquiryModel.EnquiryViewModel
+
+<div>
+    <section id="UploadQuatation">
+       
+        @using (Ajax.BeginForm("SubmitUploadQuation", "Enquiry", FormMethod.Post,
+        new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnBegin = "beginProgressBar",
+            OnSuccess = "onSuccessUploadQuation",
+        }, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            <div class="row">
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.EnquiryID, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.EnquiryID, new { @class = "form-control dropDownStyle redborder", @readonly = "true", @placeholder = @Html.DisplayNameFor(model => model.EnquiryID) })
+                    <span id="spnClientIdValidation" class="error" style="display: none;"></span>
+                    @Html.HiddenFor(m => m.EID)
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.QuotationNo, new { @class = "control-label" });
+                    @Html.TextBoxFor(m => m.QuotationNo, new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.QuotationNo)})
+                    @Html.ValidationMessageFor(m => m.QuotationNo)
+                    <span id="spnClientUnitIdValidation" class="error" style="display: none;"></span>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.QuotationDate, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.QuotationDate, new { @class = "form-control dropDownStyle redborder", @placeholder = @Html.DisplayNameFor(model => model.DateFormat) })
+                    <span id="spnServiceOrderValidation" class="error" style="display: none;"></span>
+                </div>
+                <div class="col-sm-2 col-md-2 col-lg-2 form-group">
+                    @Html.LabelFor(m => m.UploadFile, new { @class = "control-label" })
+                    @Html.TextBoxFor(m => m.UploadFile, new { type = "file", @class = "", @multiple = "multiple" })
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1 form-group">
+                    <p></p>
+                    <input type="submit" value="Upload" class="btn btn-success pull-right mr5" />
+                    <span id="spnFromDateValidation" class="error" style="display: none;"></span>
+                </div>
+            </div>
+            @*<div class="row">
+                <div class="col-sm-3 col-md-3 col-lg-3 form-group">
+                    <button type='button' class="btn btn-secondary pull-right" id="btnCloseAddEnquiry" value="Cancel" title="Cancel" data-toggle="tooltip" onclick="javascript: enquiryList();"><i class="fa fa-ban" aria-hidden="true"></i> Cancel </button>
+                    <button type="submit" class="btn btn-success pull-right mr5" id="btnUpdateEnquiry" value="Save" title="Save" data-toggle="tooltip"> <i class="fa fa-floppy-o" aria-hidden="true"></i> Save </button>&nbsp;&nbsp;
+                </div>
+            </div>*@
+        }
+    </section>
+</div>
+<script type="text/javascript">
+    $.validator.unobtrusive.parse(document);
+</script>
+
+<script>
+
+    $(function () {
+        //$("#QuotationDate").datepicker({
+        //     format: 'dd-MM-yyyy',
+        //    endDate: '+5d',
+        //    autoclose: true
+        //});
+        $("#QuotationDate").datepicker({ dateFormat: "dd/mm/yy" });
+    });
+    $(document).ready(function () {
+        $('#QuotaionDate').val('');
+    });
+
+    $(document).on("click", "#Upload", function (event) {
+        event.preventDefault();
+        var fileOptions = {
+            success: res,
+            dataType: "json"
+        }
+        $("#formid").ajaxSubmit(fileOptions);
+    });
+
+    function beginProgressBar() {
+        BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divLoadingIconId'), position: "center" });
+        $("#btnUpdateEnquiry").prop('disabled', true);
+    }
+    function onSuccessUploadQuation(data) {
+        if (data.status) {
+            alert('Quotation Uploaded Successfully');
+            //  location.reload();
+            location.reload();
+        }
+        else {
+            alert('There is an error while Uploading the quoation');
+        }
+        @*var selectedWorkScopeIds = [];
+        $('.jsWorkScopeId').each(function (index, element) {
+            if ($(element).is(":checked")) {
+                selectedWorkScopeIds.push($(element).val());
+            }
+        });
+        BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divLoadingIconId'));
+        if (data.status) {
+            window.GrowlObj.getGrowlMessage("@NotificationType.UploadedSuccess");
+        } else {
+            if (data.message == 'duplicate') {
+                $("#spnDuplicateError").show();
+            } else {
+                window.GrowlObj.getGrowlMessage("@NotificationType.UploadedFailed");
+            }
+            $("#btnUpdateEnquiry").prop('disabled', false);
+            BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+        }*@
+    }
+</script>

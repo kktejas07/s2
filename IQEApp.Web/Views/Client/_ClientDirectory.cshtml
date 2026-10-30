@@ -1,0 +1,310 @@
+﻿@model IEnumerable<IQEApp.Web.Models.ClientModel.ClientViewModel>
+@using GridMvc.Html
+@using iTextSharp.text.pdf.qrcode
+@using IQEApp.Domain
+@using IQEApp.Web.Models.CommonModels
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Enquiry & Proposal</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 9.5pt;
+        }
+
+        table {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+            background-color: #fff;
+            align-content: center;
+            width: -webkit-fill-available;
+        }
+
+            table.center {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            table th {
+                background-color: #B8DBFD;
+                color: #333;
+                font-weight: bold;
+            }
+
+            table th, table td {
+                padding: 5px;
+                border: 1px solid #ccc;
+            }
+
+            table, table table td {
+                border: 0px solid #ccc;
+            }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <table cellpadding="0" cellspacing="0" class="center">
+            <tr>
+                <th>@Html.Label("Customer ID")</th>
+                <th>@Html.Label("Customer Name")</th>
+                <th>@Html.Label("Industry Type")</th>
+                <th>@Html.Label("Created Date")</th>
+                <th>@Html.Label("Total Units")</th>
+                <th>&nbsp;</th>
+            </tr>
+            @foreach (var client in Model)
+            {
+                <tr>
+                    <td>@client.ClientId</td>
+                    <td>@client.ClientName</td>
+                    <td>@client.IndustryTypeName</td>
+                    <td>@client.CreatedDate.ToShortDateString()</td>
+                    <td>@client.TotalClientUnits</td>
+                    <td>
+                        <div class="col-lg-1 col-md-1 col-sm-1 p0 text-center">
+                            @if (client.IsClientActive)
+                            {
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ClientEdit, @User.RoleId.FirstOrDefault()) || SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ClientInActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="ClientDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ClientEdit, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:EditClientDetails('@client.ClientGuid');">
+                                                        <i class="fa fa-pencil mr20" aria-hidden="true">
+                                                        </i> Edit Client
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ClientInActive, @User.RoleId.FirstOrDefault()))
+                                            {
+                                                <li>
+                                                    <a href="javascript:UpdateClientStatus('@client.ClientGuid',false);">
+                                                        <i class="fa fa-trash-o mr20" aria-hidden="true">
+                                                        </i> InActivate Client
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ClientActive, @User.RoleId.FirstOrDefault()))
+                                {
+                                    <div class="btn-group" style="display: inline-block;" role="group">
+                                        <span id="ClientDirGroupDrop" type="button" class=" btn-icon" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="vertical-align: sub;">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                        </span>
+                                        <ul class="dropdown-menu ellipse-menu-left">
+                                            @*@if (SingletonScreenFeatureMapping.CanPerformOperation((int)ScnFetMapId.ClientUndo, @User.RoleId.FirstOrDefault()))
+                                                {*@
+                                            <li>
+                                                <a href="javascript:UpdateClientStatus('@client.ClientGuid',true);">
+                                                    <i class="fa fa-undo mr20" aria-hidden="true">
+                                                    </i> Activate Client
+                                                </a>
+                                            </li>
+                                            @*}*@
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+    <script>
+    $(document).ready(function () {
+        window.paginationObj.setCurrentPageCount("@ViewBag.CurrentPageCount");
+        if ($.trim("@ViewBag.Total") != "") {
+            paginationObj.setTotalPageCount("@ViewBag.Total");
+            paginationObj.updateTotalRecords("@ViewBag.Total");
+        }
+
+    });
+    function EditClientDetails(clientGuid) {
+        $.ajax({
+            url: '../Client/EditClient',
+            type: 'POST',
+            data: {
+                clientGuid: clientGuid
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#divActiveInActive').hide();
+                $('#spnClientHeadTitle').html('Sales &#8667; Edit Client');
+                $('#divAddNewClient').html(data).show();
+                $('#divAddUpdateClient').show();
+                $('#btnClientList').show();
+                $('#btnAddClient').hide();
+                $('#ClientName').focus();
+                $("#btnAddClientUnits").show();
+                $("#divClientDetails").html('');
+                $("#divDirectoryList").hide();
+                $("#clientPager").html('');
+                $("#divMainSearch").hide();
+                showClientUnits();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+    function showClientUnits(clientId) {
+        if (clientId == undefined) {
+            clientId = $("#ClientId").val();
+        }
+        window.paginationObj.setCurrentPageCount("0");
+        $.ajax({
+            url: '../Client/GetClientUnitsByClientId',
+            type: 'POST',
+            data: {
+                clientId: clientId,
+                pageCount: window.paginationObj.getCurrentPageCount
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#spnClientUnitTitle').html('Customer Units Details').show();
+                $('#AddUpdateClientUnits').html('').hide();
+                $('#divDirectoryList').html(data).show();
+                $("#divDirectory").show();
+                $("#btnClientUnitsList").hide();
+                $("#btnAddClientUnits").show();
+                $("#AlphaSorting").hide();
+                $("#clientPager").hide();
+                $("#divMainSearch").hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+
+    function addClientUnits() {
+        $.ajax({
+            url: '../Client/AddClientUnit',
+            type: 'POST',
+            data: {
+                clientId: $("#ClientId").val()
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                $('#ClientUnitsList').html('').hide();
+                $('#spnClientUnitTitle').html('Add Customer Units');
+                $('#AddUpdateClientUnits').html(data).show();
+                $("#btnClientUnitsList").show();
+                $("#btnAddClientUnits").hide();
+                $("#divMainSearch").hide();
+                $("#divDirectoryList").html('');
+                @*window.GrowlObj.getGrowlMessage("@ViewBag.NotificationType");*@
+            },
+            error: function (xhr, textStatus, errorThrown) {
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+
+    function UpdateStatus(clientGuid, status) {
+        $.ajax({
+            url: '../Client/UpdateClientStatus',
+            type: 'POST',
+            data: {
+                clientGuid: clientGuid,
+                status: status
+            },
+            beforeSend: function (e) {
+                BaseLayout_InlineLoadingIcon.showLoadingIcon({ parentElement: $('#divClientLoadingIconId'), position: "center" });
+            },
+            success: function (data) {
+                if (data.status) {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateSuccess");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteSuccess");
+                    }
+                    window.FilterClientDirectory(function (status, newclass) {
+                        //call any call back function if u want to call
+                    }, { backToFirstPage: false });
+                }
+                else {
+                    if (status) {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.UpdateFailed");
+                    } else {
+                        window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");
+                    }
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                @*window.GrowlObj.getGrowlMessage("@NotificationType.DeleteFailed");*@
+            },
+            complete: function () {
+                BaseLayout_InlineLoadingIcon.hideLoadingIcon($('#divClientLoadingIconId'));
+            }
+        });
+    }
+    function UpdateClientStatus(clientGuid, status) {
+        ////debugger;
+        if (status == true) {
+            var options = {};
+            options.msg = "Are you sure you want to Activate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(clientGuid, status);
+            }, options);
+        }
+
+        if (status == false) {
+           // //debugger;
+            var options = {};
+            options.msg = "Are you sure you want to InActivate?";
+            ShowConfirmationPrompt(function () {
+                UpdateStatus(clientGuid, status);
+            }, options);
+        }
+        else {
+            ShowDeleteConfirmationPrompt(function () {
+                UpdateStatus(clientGuid, status);
+            });
+        }
+
+
+        //if (status) {
+        //    var options = {};
+        //    options.msg = "Are you sure you want to Activate?";
+        //    ShowConfirmationPrompt(function() {
+        //            UpdateStatus(clientGuid, status);
+        //        }, options);
+        //} else {
+        //    ShowDeleteConfirmationPrompt(function() {
+        //        UpdateStatus(clientGuid, status);
+        //    });
+        //}
+    }
+    </script>
+</body>
+
+
