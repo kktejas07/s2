@@ -29,6 +29,12 @@ CMD ["npm", "run", "dev"]
 FROM node:20-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# next.config.js evaluates BACKEND_URL while `next build` runs, so the API
+# origin is baked into the compiled rewrites. Pass it at build time:
+#   docker build --build-arg BACKEND_URL=https://api.example.com ...
+# Setting it only at runtime leaves /backend proxying to localhost:8000.
+ARG BACKEND_URL=http://localhost:8000
+ENV BACKEND_URL=$BACKEND_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # The fonts are fetched from Google at build time by next/font. A build host
@@ -44,6 +50,10 @@ ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
     HOSTNAME=0.0.0.0
+
+# Same default as the build stage; Dokploy/runtime env overrides it.
+ARG BACKEND_URL=http://localhost:8000
+ENV BACKEND_URL=$BACKEND_URL
 
 # Not root: the server needs nothing on the filesystem beyond what it ships
 # with, so there is no reason to let a request-handling process write to it.
